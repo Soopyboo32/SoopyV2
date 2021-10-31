@@ -1,0 +1,8 @@
+{
+    "name": "Settings",
+    "description": "Adds a settings gui with toggles for all the modules, also renders each individual module's settings",
+    "isHidden": true,
+    "isTogglable": false,
+    "defaultEnabled": true,
+    "sortA": 0
+}

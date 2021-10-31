@@ -1,0 +1,8 @@
+{
+    "name": "Global Settings",
+    "description": "Settings that are applied globally",
+    "isHidden": false,
+    "isTogglable": false,
+    "defaultEnabled": true,
+    "sortA": 5
+}

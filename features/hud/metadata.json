@@ -1,0 +1,8 @@
+{
+    "name": "Hud",
+    "description": "Adds a HUD with custom gui elements like fps, cps, equipped pet ect",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 2
+}

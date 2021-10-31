@@ -1,0 +1,8 @@
+{
+    "name": "Stat next to name",
+    "description": "Shows a players skyblock stat next to their name in the world",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 0
+}

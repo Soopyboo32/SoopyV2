@@ -1,0 +1,8 @@
+{
+    "name": "Feature Base",
+    "description": "Copy paste and edit this to create a new feature",
+    "isHidden": true,
+    "isTogglable": false,
+    "defaultEnabled": false,
+    "sortA": 1
+}

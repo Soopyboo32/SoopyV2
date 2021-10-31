@@ -1,0 +1,8 @@
+{
+    "name": "Dungeon Solvers",
+    "description": "Solvers for dungeon things",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}

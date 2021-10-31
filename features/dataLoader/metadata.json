@@ -1,0 +1,8 @@
+{
+    "name": "Data loader",
+    "description": "Loads data",
+    "isHidden": true,
+    "isTogglable": false,
+    "defaultEnabled": true,
+    "sortA": 0
+}

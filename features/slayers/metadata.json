@@ -1,0 +1,8 @@
+{
+    "name": "Slayer",
+    "description": "Slayer features",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}

@@ -1,0 +1,8 @@
+{
+    "name": "Events",
+    "description": "Features for various events (eg diana)",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}

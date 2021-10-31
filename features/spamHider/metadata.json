@@ -1,0 +1,8 @@
+{
+    "name": "Spam Hider",
+    "description": "A couple of features to help clean up your chat",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}

@@ -1,0 +1,8 @@
+{
+    "name": "ChangeLog gui",
+    "description": "Gui for changelog",
+    "isHidden": true,
+    "isTogglable": false,
+    "defaultEnabled": true,
+    "sortA": 0
+}

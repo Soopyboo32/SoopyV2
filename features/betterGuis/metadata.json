@@ -1,0 +1,8 @@
+{
+    "name": "Better guis",
+    "description": "Edits to a bunch of guis to make them nicer to use",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}

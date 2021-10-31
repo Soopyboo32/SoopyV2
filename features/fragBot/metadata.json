@@ -1,0 +1,8 @@
+{
+    "name": "Frag Bot",
+    "description": "Features to assist using fragbots, or to host one",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}

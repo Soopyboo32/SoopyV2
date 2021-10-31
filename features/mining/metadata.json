@@ -1,0 +1,8 @@
+{
+    "name": "Mining",
+    "description": "A bunch of features to assist with mining",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}
