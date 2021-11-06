@@ -9,6 +9,7 @@ import { registerForge as registerForgeBase, unregisterForge as unregisterForgeB
 class FeatureManager {
     constructor(){
 
+        this.messagePrefix = "&6[SOOPY V2]&7 "
         this.enabled = true //make triggers work with this context
 
         this.features = {};
@@ -335,15 +336,21 @@ class FeatureManager {
     loadFeature(feature){ //run in seperate thread so onenable can do network requests
         if(this.features[feature]) return
         
-        let LoadedFeature = require("../features/" + feature + "/index.js")
-
-        this.features[feature] = LoadedFeature
-
-        LoadedFeature.class.setId(feature)
-
-        LoadedFeature.class._onEnable(this)
-
-        logger.logMessage("Loaded feature " + feature, 3)
+        try{
+            let LoadedFeature = require("../features/" + feature + "/index.js")
+    
+            this.features[feature] = LoadedFeature
+    
+            LoadedFeature.class.setId(feature)
+    
+            LoadedFeature.class._onEnable(this)
+    
+            logger.logMessage("Loaded feature " + feature, 3)
+        }catch(e){
+            logger.logMessage("Error loading feature " + feature, 1)
+            console.log(JSON.stringify(e, undefined, 2))
+            ChatLib.chat(this.messagePrefix + "Error loading feature " + feature)
+        }
 
         return this
     }
