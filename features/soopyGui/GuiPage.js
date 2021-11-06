@@ -9,6 +9,8 @@ class GuiPage{
         this.name = ""
 
         this.pages = {}
+
+        this.showBackButton = true
     }
 
     finaliseLoading(){

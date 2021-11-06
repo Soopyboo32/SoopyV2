@@ -5,6 +5,7 @@ import logger from "../logger";
 const File = Java.type("java.io.File")
 import metadata from "../metadata.js"
 import { registerForge as registerForgeBase, unregisterForge as unregisterForgeBase} from "./forgeEvents.js"
+import soopyV2Server from "../socketConnection"
 
 class FeatureManager {
     constructor(){

@@ -25,6 +25,8 @@ class SoopyGui extends Feature {
         this.currCategory = undefined
         this.activePages = []
         this.lastClickedOpen = undefined
+
+        this.activeCategory = undefined
     }
 
     onEnable(){
@@ -75,8 +77,8 @@ class SoopyGui extends Feature {
 
         if(page){
             this.pages.forEach(p=>{
-                if(p.name.toLowerCase() === page.toLowerCase()){
-                    this.clickedOpen(p)
+                if(p.name.replace(/ /g, "_").toLowerCase() === page.toLowerCase()){
+                    this.clickedOpen(p, false)
                 }
             })
         }
@@ -101,7 +103,7 @@ class SoopyGui extends Feature {
         })
     }
 
-    clickedOpen(category){
+    clickedOpen(category, anim=true){
         if(!this.lastClickedOpen)this.lastClickedOpen = 0
         if(Date.now()-this.lastClickedOpen < 100) return //Stopping infinite loop where button getting reset causes click event to get fired again
         this.lastClickedOpen = Date.now()
@@ -113,12 +115,13 @@ class SoopyGui extends Feature {
         this.mainWindowElement.addChild(this.backButton)
 
         this.activePages = category.pages
+        this.currCategory = category
 
         Object.values(this.activePages).forEach(p=>{
             this.mainWindowElement.addChild(p)
         })
 
-        this.goToPageNum(1, true)
+        this.goToPageNum(1, anim)
 
         category.onOpen()
     }
@@ -162,7 +165,7 @@ class SoopyGui extends Feature {
         })
         this.categoryPage.location.location.x.set(-pageNum, animate?1000:0)
 
-        this.backButton.location.location.y.set(pageNum === 0?-0.2:0, animate?1000:0)
+        this.backButton.location.location.y.set((pageNum === 0 || !this.currCategory.showBackButton)?-0.2:0, animate?1000:0)
     }
     goToPageNum(pageNum, animate=true){
         if(pageNum<0) return;
@@ -180,7 +183,7 @@ class SoopyGui extends Feature {
         })
         this.categoryPage.location.location.x.set(-pageNum, animate?1000:0)
 
-        this.backButton.location.location.y.set(pageNum === 0?-0.2:0, animate?1000:0)
+        this.backButton.location.location.y.set((pageNum === 0 || !this.currCategory.showBackButton)?-0.2:0, animate?1000:0)
     }
     openSidebarPage(child){
         this.sidebarPage.location.location.x.set(0.625, 500)
