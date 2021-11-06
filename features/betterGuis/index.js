@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import ToggleSetting from "../settings/settingThings/toggle";
-import MuseumGui from "./museumGui";
+// import MuseumGui from "./museumGui";
 
 class BetterGuis extends Feature {
     constructor() {
@@ -12,7 +12,7 @@ class BetterGuis extends Feature {
     onEnable(){
         this.initVariables()
 
-        this.museumGui = new MuseumGui()
+        // this.museumGui = new MuseumGui()
 
         this.replaceSbMenuClicks = new ToggleSetting("Improve Clicks on SBMENU", "This will change clicks to middle clicks, AND use commands where possible (eg /pets)", true, "sbmenu_clicks", this)
         this.reliableSbMenuClicks = {getValue: ()=>false}//removed because hypixel fixed may add back later //new ToggleSetting("Make SBMENU clicks reliable", "This will delay clicks on sbmenu to time them so they dont get canceled", true, "sbmenu_time", this)
