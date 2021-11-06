@@ -1,7 +1,7 @@
 const NBTTagList = Java.type('net.minecraft.nbt.NBTTagList');
 const NBTTagString = Java.type('net.minecraft.nbt.NBTTagString');
 
-let functions = {
+let utils = {
     addLore: function(item, prefix, value){
         
         const list = item
@@ -29,6 +29,9 @@ let functions = {
             .getCompoundTag("display")
             .getRawNBT()
             .func_74782_a("Lore", list);
+    },
+    getSBID: function(item){
+        return item.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getString("id") || null
     },
     calculateDistance: function(p1, p2) {
         var a = p2[0] - p1[0];
@@ -113,4 +116,4 @@ let functions = {
     }
 }
 
-module.exports = functions
+export default utils

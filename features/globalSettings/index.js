@@ -3,6 +3,7 @@
 import Feature from "../../featureClass/class";
 import ButtonSetting from "../settings/settingThings/button";
 import TextSetting from "../settings/settingThings/textSetting";
+import ToggleSetting from "../settings/settingThings/toggle";
 
 class Hud extends Feature {
     constructor() {
@@ -19,6 +20,8 @@ class Hud extends Feature {
     onEnable(){
         this.apiKeySetting = new TextSetting("Api Key", "Your hypixel api key", "", "api_key", this, "Run /api new to load", true)
         this.verifyApiKey = new ButtonSetting("Verify api key", "Click this to make sure the api key is working", "verify_key", this, "Click!", this.verifyKey, undefined)
+
+        this.notifyNewVersion = new ToggleSetting("Notify when there is a new update", "Will notify you when there is a new version of soopyv2 avalible for download", true, "notify_update", this) //TODO: Make false by default when uploaded on ct website
 
         this.registerChat("&aYour new API key is &r&b${key}&r", this.newKey)
     }

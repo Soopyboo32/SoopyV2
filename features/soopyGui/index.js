@@ -32,7 +32,7 @@ class SoopyGui extends Feature {
 
         // this.gui.isDebugEnabled = true
 
-        this.gui.setOpenCommand("soopyv2")
+        this.registerCommand("soopyv2", this.openCommand)
 
         this.mainWindowElement = new SoopyBoxElement().setLocation(0.25, 0.2, 0.5, 0.6)
 
@@ -68,6 +68,18 @@ class SoopyGui extends Feature {
         this.gui.element.addChild(this.mainWindowElement)
 
         this.updateButtons()
+    }
+
+    openCommand(page){
+        this.gui.open()
+
+        if(page){
+            this.pages.forEach(p=>{
+                if(p.name.toLowerCase() === page.toLowerCase()){
+                    this.clickedOpen(p)
+                }
+            })
+        }
     }
 
     addCategory(category){

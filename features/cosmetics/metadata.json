@@ -1,0 +1,8 @@
+{
+    "name": "Cosmetics",
+    "description": "Cosmetics settings",
+    "isTogglable": false,
+    "defaultEnabled": true,
+    "isHidden": "hiddenRequirement.js",
+    "sortA": 1
+}

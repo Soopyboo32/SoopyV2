@@ -24,6 +24,34 @@ class ChangeLogGui extends Feature {
         this.initVariables()
 
         this.ChangelogPage = new ChangelogPage()
+
+        this.latestAnnouncedVersion = this.ChangelogPage.currVersionId
+
+        this.registerEvent("worldLoad", this.worldLoad)
+    }
+
+    worldLoad(){
+        if(!this.FeatureManager.features["globalSettings"]) return
+        if(!this.FeatureManager.features["globalSettings"].class.notifyNewVersion.getValue()) return
+        if(this.ChangelogPage.downloadableVersion === -1) return
+        if(this.latestAnnouncedVersion < this.ChangelogPage.downloadableVersion){
+            let version = ""
+            this.ChangelogPage.changelogData.forEach(data=>{
+    
+                if(this.ChangelogPage.downloadableVersion === data.versionId && this.ChangelogPage.downloadableVersion > this.ChangelogPage.currVersionId){
+                    //add button to download this version
+                    version = data.version
+                }
+            })
+
+            ChatLib.chat("&1" + ChatLib.getChatBreak("-").substr(1))
+            ChatLib.chat("     &6New Soopyaddons Version is avalible (" + version + ")")
+            ChatLib.chat("")
+            new TextComponent(" &e[CLICK] &7- View changelog and download update").setHover("show_text", "&2Open changelog").setClick("run_command", "/soopyv2 changelog").chat()
+            ChatLib.chat("&1" + ChatLib.getChatBreak("-").substr(1))
+
+            this.latestAnnouncedVersion = this.ChangelogPage.downloadableVersion
+        }
     }
 
     initVariables(){
@@ -45,7 +73,7 @@ class ChangelogPage extends GuiPage {
         this.pages = [this.newPage()]
 
         this.changelogData = []
-        this.downloadableVersion = 0
+        this.downloadableVersion = -1
 
         let changelogTitle = new SoopyTextElement().setText("§0Changelog").setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1)
         this.pages[0].addChild(changelogTitle)
@@ -92,15 +120,21 @@ This is fine if you trust me to not put a virus in it, but if you dont you shoul
         this.currVersionId = metadata.versionId
 
         this.finaliseLoading()
+
+        this.loadChangeLog()
+    }
+
+    loadChangeLog(){
+        let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/changelog.json"))
+
+        this.changelogData = data.changelog.reverse()
+
+        this.downloadableVersion = data.downloadableVersion
     }
 
     onOpen(){
         new Thread(()=>{
-            let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/changelog.json"))
-
-            this.changelogData = data.changelog.reverse()
-
-            this.downloadableVersion = data.downloadableVersion
+            this.loadChangeLog()
 
             this.updateText()
         }).start()
@@ -140,7 +174,7 @@ This is fine if you trust me to not put a virus in it, but if you dont you shoul
             this.progressBar.setProgress(0.75)
 
             FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/SoopyV2"))
-            
+
             this.progressBar.setProgress(0.9)
 
             new File("./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons/SoopyV2").renameTo(new File("./config/ChatTriggers/modules/SoopyV2"))

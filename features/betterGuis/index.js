@@ -1,8 +1,8 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import { drawBoxAtBlockNotVisThruWalls } from "../../utils/renderUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
+import MuseumGui from "./museumGui";
 
 class BetterGuis extends Feature {
     constructor() {
@@ -12,8 +12,12 @@ class BetterGuis extends Feature {
     onEnable(){
         this.initVariables()
 
+        this.museumGui = new MuseumGui()
+
         this.replaceSbMenuClicks = new ToggleSetting("Improve Clicks on SBMENU", "This will change clicks to middle clicks, AND use commands where possible (eg /pets)", true, "sbmenu_clicks", this)
         this.reliableSbMenuClicks = {getValue: ()=>false}//removed because hypixel fixed may add back later //new ToggleSetting("Make SBMENU clicks reliable", "This will delay clicks on sbmenu to time them so they dont get canceled", true, "sbmenu_time", this)
+        
+        this.museumGuiEnabled = {getValue: ()=>false} //Removed because not finished yet new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this)
     
         this.lastWindowId = 0
         this.shouldHold = 10
@@ -89,6 +93,12 @@ class BetterGuis extends Feature {
         ]
 
         this.registerEvent("guiMouseClick", this.guiClicked)
+        this.registerEvent("guiOpened", (event)=>{
+            if(this.museumGuiEnabled.getValue()) this.museumGui.guiOpened.call(this.museumGui, event)
+        })
+        this.registerEvent("tick", ()=>{
+            if(this.museumGuiEnabled.getValue()) this.museumGui.tick.call(this.museumGui)
+        })
         this.registerStep(true, 10, this.step)
     }
 
@@ -99,7 +109,7 @@ class BetterGuis extends Feature {
             if(!hoveredSlot) return
 
             let hoveredSlotId = hoveredSlot.field_75222_d
-            // console.log(hoveredSlotId)
+            console.log(hoveredSlotId)
             if(this.guiSlotClicked(ChatLib.removeFormatting(Player.getOpenedInventory().getName()), hoveredSlotId)){
                 cancel(event)
             }
@@ -185,6 +195,8 @@ class BetterGuis extends Feature {
         this.middleClickGuis = undefined
         this.middleClickStartsWith = undefined
         this.middleClickEndsWith = undefined
+
+        this.museumGui = undefined
     }
 
     onDisable(){

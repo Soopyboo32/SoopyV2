@@ -3,7 +3,7 @@
 
 class Logger{
     constructor(){
-        this.loglevel = 4 //0=none, 1=error, 2=warn, 3=info, 4=debug
+        this.loglevel = isDev()?4:2 //0=none, 1=error, 2=warn, 3=info, 4=debug
         this.logToMcChat = false
         this.logPrefixes = [
             "[SOOPYADDONS] ",
@@ -23,6 +23,12 @@ class Logger{
             }
         }
     }
+}
+
+let devs = ["dc8c39647b294e03ae9ed13ebd65dd29"]
+
+function isDev(){
+    return devs.includes(Player.getUUID().toString().replace(/-/g, ""))
 }
 
 export default new Logger()
