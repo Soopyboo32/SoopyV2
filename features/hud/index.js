@@ -49,6 +49,12 @@ class Hud extends Feature {
         this.numberUtils = undefined
 
         this.petText = undefined
+
+        this.lastWitherImpact = undefined
+        this.aup = undefined
+        this.lastTickEventEpochTimestamp = undefined
+        this.lastAbsorbtion = undefined
+        this.impactTest = undefined
     }
 
     onEnable(){
@@ -91,6 +97,8 @@ class Hud extends Feature {
                 .requires(this.soulflowEnabledSetting))
         this.hudElements.push(this.soulflowElement)
 
+        this.witherImpactCooldownSetting = new ToggleSetting("Show Wither Impact Cooldown", "This will render a small cooldown above your crosshair", true, "wither_impact_cooldown_enabled", this)
+
         // this.showDragonDamages = new ToggleSetting("Show dragon damages", "This will render the top 3 damages + your damage during a dragon fight", true, "dragon_dmg_enable", this).requires(this.soulflowEnabledSetting)
         // this.dragonDamageElement = new HudTextElement()
         //     .setToggleSetting(this.showDragonDamages)
@@ -105,6 +113,12 @@ class Hud extends Feature {
         this.framesSince = 0
         this.lastframe = 0
         this.slowestFrameTime = 0
+
+        this.lastWitherImpact = 0
+        this.aup = 0
+        this.lastTickEventEpochTimestamp = 0
+        this.lastAbsorbtion = 0
+        this.impactTest = false
 
         this.lastFrameRates = [0,0,0,0,0,0,0,0,0,0]
         this.lastFrameRatesS = [0,0,0,0,0,0,0,0,0,0]
@@ -142,6 +156,8 @@ class Hud extends Feature {
         if(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock){
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock, "skyblock", true, true)
         }
+
+        this.registerActionBar("${m}", this.actionbarMessage)
     }
 
     onDisable(){
@@ -165,6 +181,11 @@ class Hud extends Feature {
         for(let element of this.hudElements){
             element.render()
         }
+
+        
+        if (this.witherImpactCooldownSetting.getValue() && Date.now()-this.lastWitherImpact < 10000) {
+            Renderer.drawString(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s") / 2, Renderer.screen.getHeight() / 2 - 15)
+        }
     }
     
     renderWorld(){
@@ -183,6 +204,17 @@ class Hud extends Feature {
         this.lastFrame = time
     }
 
+    actionbarMessage(m){
+        if(ChatLib.removeFormatting(m).includes("(Wither Impact)")){
+            if(Date.now()-this.aup < 750){
+                this.lastWitherImpact = Date.now()
+                this.aup = 0
+            }else{
+                this.impactTest = Date.now()
+            }
+        }
+    }
+    
     step(){
         let fps = 0
 
@@ -234,6 +266,16 @@ class Hud extends Feature {
                 }
             }
         }
+
+        if(Player.getPlayer().func_110139_bj() > this.lastAbsorbtion){
+            if(Date.now()-this.impactTest < 750){
+                this.lastWitherImpact = Date.now()
+                this.impactTest = 0
+            }else{
+                this.aup = Date.now()
+            }
+        }
+        this.lastAbsorbtion = Player.getPlayer().func_110139_bj()
     }
 
     step_5second(){

@@ -94,6 +94,13 @@ class Feature {
 
         return theEvent
     }
+    registerActionBar(criteria, func){
+        let theEvent = this.FeatureManager.registerActionBar(criteria, func, this)
+
+        this.customEvents[theEvent.id] = theEvent
+
+        return theEvent
+    }
     registerStep(isFps, interval, func){
         let theEvent = this.FeatureManager.registerStep(isFps, interval, func, this)
 

@@ -1,6 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
+import logger from "../../logger";
 import ToggleSetting from "../settings/settingThings/toggle";
 // import MuseumGui from "./museumGui";
 
@@ -109,7 +110,9 @@ class BetterGuis extends Feature {
             if(!hoveredSlot) return
 
             let hoveredSlotId = hoveredSlot.field_75222_d
-            console.log(hoveredSlotId)
+
+            // logger.logMessage(hoveredSlotId, 4)
+
             if(this.guiSlotClicked(ChatLib.removeFormatting(Player.getOpenedInventory().getName()), hoveredSlotId)){
                 cancel(event)
             }

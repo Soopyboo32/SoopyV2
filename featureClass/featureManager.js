@@ -224,6 +224,15 @@ class FeatureManager {
 
         return event
     }
+
+    registerActionBar(criteria, func, context){
+
+        let event = this.registerCustom("actionBar", func, context)
+
+        event.trigger.setChatCriteria(criteria)
+
+        return event
+    }
     registerCommand(commandName, func, context){
 
         let event = this.registerCustom("command", func, context)
