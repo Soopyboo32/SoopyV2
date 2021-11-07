@@ -1,5 +1,4 @@
-let cosmeticsClass = require("./index").class
 
-export default ()=>{
-    return !!cosmeticsClass?.cosmeticsData?.[Player.getUUID().toString()]
-}
+module.exports = {hidden: function(featureManager){
+    return !(featureManager.features.cosmetics?.["class"]?.playerHasACosmeticA || false)
+}}

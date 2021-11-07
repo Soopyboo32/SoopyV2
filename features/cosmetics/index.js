@@ -16,6 +16,8 @@ class Cosmetics extends Feature {
 
         this.cosmeticsData = {}
 
+        this.playerHasACosmeticA = false
+
         this.firstPersonVisable = new Toggle("Cosmetics visable in first person", "", false, "cosmetics_first_person_visable", this)
         this.lessFirstPersonVisable = new Toggle("Make cosmetics less visable in first person mode", "", true, "cosmetics_first_person_less_visable", this).requires(this.firstPersonVisable)
 
@@ -38,6 +40,7 @@ class Cosmetics extends Feature {
         let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/cosmetics.json"))
 
         this.cosmeticsData = data
+        this.playerHasACosmeticA = !!data[Player.getUUID().toString()]
 
         this.scanForNewCosmetics()
     }
@@ -88,6 +91,7 @@ class Cosmetics extends Feature {
         
         if(this.shouldPlayerHaveCosmetic(player, "dragon_wings") && !this.uuidToCosmetic[player.getUUID().toString()]){
             let cosmetic = new DragonWings(player, this)
+            this.playerHasACosmeticA = true
             this.loadedCosmetics.push(cosmetic)
             this.uuidToCosmetic[player.getUUID().toString()] = cosmetic
         }
@@ -134,6 +138,7 @@ class Cosmetics extends Feature {
     initVariables(){
         this.loadedCosmetics = undefined
         this.uuidToCosmetic = undefined
+        this.playerHasACosmeticA = undefined
     }
 
     onDisable(){

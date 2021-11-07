@@ -1,4 +1,3 @@
-const NBTTagList = Java.type('net.minecraft.nbt.NBTTagList');
 const NBTTagString = Java.type('net.minecraft.nbt.NBTTagString');
 
 let utils = {

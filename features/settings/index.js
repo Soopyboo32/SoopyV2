@@ -147,7 +147,7 @@ class SettingPage extends GuiPage {
 
             let isHidden = meta.isHidden
             if(typeof isHidden === "string"){
-                isHidden = require("../" + f + "/" + isHidden).default()
+                isHidden = require("../" + f + "/" + isHidden).hidden(this.FeatureManager)
             }
             if(isHidden) return
 

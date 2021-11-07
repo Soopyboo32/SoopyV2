@@ -13,6 +13,7 @@ class WelcomePage extends FirstLoadPage{
         this.addChild(new SoopyTextElement().setText("§7First lets get privacy settings out of the way.").setLocation(0.1, 0.15,0.8,0.075).setMaxTextScale(10));
 
         this.settingsArea = new SoopyGuiElement().setLocation(0.1, 0.25,0.8,0.75);
+        this.settingsArea.setScrollable(true)
 
         this.addChild(this.settingsArea);
     }
@@ -21,6 +22,35 @@ class WelcomePage extends FirstLoadPage{
         let y = 0
 
         this.guiPage.mainThing.privacySettings.forEach(setting => {
+            setting = setting.getGuiObject()
+
+            setting.location.location.y.set(y, 0)
+
+            this.settingsArea.addChild(setting);
+
+            y += 0.045+setting.location.size.y.get()
+        })
+    }
+}
+class ApiKeyPage extends FirstLoadPage{
+    constructor(){
+        super()
+
+        this.addChild(new SoopyTextElement().setText("§0Next lets setup your api key!").setLocation(0.1, 0.05,0.8,0.1).setMaxTextScale(10));
+
+        this.addChild(new SoopyTextElement().setText("§7You can skip this but some features may not work").setLocation(0.1, 0.15,0.8,0.075).setMaxTextScale(10));
+
+        this.settingsArea = new SoopyGuiElement().setLocation(0.1, 0.25,0.8,0.75);
+        this.settingsArea.setScrollable(true)
+
+        this.addChild(this.settingsArea);
+    }
+
+    load(){
+        let y = 0
+
+        let settings = [this.guiPage.mainThing.apiKeySetting, this.guiPage.mainThing.verifyApiKey, this.guiPage.mainThing.findApiKey, this.guiPage.mainThing.newApiKey]
+        settings.forEach(setting => {
             setting = setting.getGuiObject()
 
             setting.location.location.y.set(y, 0)
@@ -59,4 +89,4 @@ class HowToOpenMenuPage extends FirstLoadPage{
     }
 }
 
-export default [new WelcomePage(), new HowToOpenMenuPage()]
+export default [new WelcomePage(), new ApiKeyPage(), new HowToOpenMenuPage()]
