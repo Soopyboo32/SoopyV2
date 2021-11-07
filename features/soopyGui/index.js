@@ -61,13 +61,14 @@ class SoopyGui extends Feature {
         this.backButton.addEvent(backButtonEvent)
         
         this.mainWindowElement.addChild(this.categoryPage)
-        this.mainWindowElement.addChild(this.backButton)
 
         this.sidebarPage = new SoopyBoxElement().setLocation(0.3, 0.2, 0.3, 0.6)
         // this.sidebarPage.visable = false
 
         this.gui.element.addChild(this.sidebarPage)
         this.gui.element.addChild(this.mainWindowElement)
+        
+        this.mainWindowElement.addChild(this.backButton)
 
         this.updateButtons()
     }

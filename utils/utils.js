@@ -72,7 +72,7 @@ let utils = {
             ret.push(ret.length)
         }
         
-        let allOrders = functions.permutation(ret)
+        let allOrders = utils.permutation(ret)
     
         let lastOrder = []
         let lastOrderLength = Infinity
@@ -84,7 +84,7 @@ let utils = {
             })
             let len = 0
             positions.forEach((pos)=>{
-                len += functions.calculateDistance(lastPoint,pos)
+                len += utils.calculateDistance(lastPoint,pos)
                 lastPoint = pos
             })
     
@@ -116,4 +116,4 @@ let utils = {
     }
 }
 
-export default utils
+module.exports = utils

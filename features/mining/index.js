@@ -1,9 +1,8 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import { drawBoxAtBlockNotVisThruWalls } from "../../utils/renderUtils";
 import * as stringUtils from "../../utils/stringUtils";
-import * as utils from "../../utils/utils";
+import * as utils from "../../utils/utils"
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
