@@ -49,6 +49,9 @@ class Events extends Feature {
         this.registerStep(true, 2, this.step)
         this.registerStep(false, 5, this.step_5s)
         this.registerSoopy("apiLoad", this.apiLoad)
+
+        this.registerChat("&r&eYou dug out a Griffin Burrow! &r&7(${*}/4)&r", this.burrialClicked)
+        this.registerChat("&r&eYou finished the Griffin burrow chain! &r&7(4/4)&r", this.burrialClicked)
     }
 
     renderOverlay(){
