@@ -40,14 +40,14 @@ class Hud extends Feature {
 
         this.privacySettings = [this.reportErrorsSetting, this.sendChatSetting]
 
-        this.GuiPage = new FirstLoadingPage(this)
+        // this.GuiPage = new FirstLoadingPage(this)
 
         this.registerChat("&aYour new API key is &r&b${key}&r", this.newKey)
 
-        new Thread(()=>{
-            Thread.sleep(1000) //TODO: DO ON WORLDLOAD
-            ChatLib.command("soopyv2 first_load_thing", true)//TODO: ONLY RUN ON FIRST INSTALL
-        }).start()
+        // new Thread(()=>{
+        //     Thread.sleep(1000) //TODO: DO ON WORLDLOAD
+        //     ChatLib.command("soopyv2 first_load_thing", true)//TODO: ONLY RUN ON FIRST INSTALL
+        // }).start()
     }
 
     findKey(){
@@ -149,6 +149,9 @@ class Hud extends Feature {
                     }
                 }
             }catch(_){}
+
+            
+            new Notification("§cUnable to find api key", [])
         }).start()
     }
 

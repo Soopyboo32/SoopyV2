@@ -4,6 +4,8 @@ const ModelDragon = Java.type("net.minecraft.client.model.ModelDragon")
 const ResourceLocation = Java.type("net.minecraft.util.ResourceLocation")
 
 const GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
+const Essential = Java.type("gg.essential.Essential")
+const EssentialCosmeticSlot = Java.type("gg.essential.cosmetics.CosmeticSlot")
 
 const FACING = Java.type("net.minecraft.block.BlockDirectional").field_176387_N
 let dragon = new ModelDragon(0) //too lazy to make my own model so i just yoink it from modelDragon lmfao
@@ -23,10 +25,6 @@ class DragonWings extends Cosmetic {
         this.lastFlapSound = this.animOffset
     }
     onRender(ticks){
-
-        if(this.settings.disableWithNoChestplate && this.player.getPlayer().func_82169_q(2) === null && !(this.player === Player && Client.getMinecraft().field_71474_y.field_74320_O === 0)){
-            return
-        }
 
         if(this.player.getPlayer().func_98034_c(Player.getPlayer())){
             return
@@ -157,7 +155,7 @@ class DragonWings extends Cosmetic {
         
                         let dist = Math.sqrt((Player.getX()-this.player.getX())**2+(Player.getY()-this.player.getY())**2+(Player.getZ()-this.player.getZ())**2)+1
         
-                        World.playSound("mob.enderdragon.wings", (this.settings.scale*15)*Math.min(1, 50/(dist*dist)), 1)
+                        World.playSound("mob.enderdragon.wings", (Math.max(0.005,this.settings.scale-0.005)*25)*Math.min(1, 50/Math.min(1,dist*dist))/50, 1-(Math.max(0.005,this.settings.scale-0.005)*25))
                         this.lastFlapSound = 2*Math.PI+(this.animOffset)-this.animOffset%(Math.PI*2)
                     }
                     this.animOffset += 2*timeSince*Math.min(1,(amt/(1*Math.PI))*2)
@@ -261,20 +259,34 @@ class DragonWings extends Cosmetic {
             wingTip.field_78808_h = -((Math.sin((this.animOffset))*0.5 + 0.3))
         }
         
-
         Tessellator.translate(0.1, 0, 0)
-        wing.func_78791_b(this.settings.scale) //render left wing
+        Tessellator.scale(this.settings.scale, this.settings.scale, this.settings.scale)
+        wing.func_78791_b(1) //render left wing
 
-        Tessellator.translate(-0.2, 0, 0)
+        Tessellator.translate(-0.2/this.settings.scale, 0, 0)
         Tessellator.scale(-1, 1, 1)
-        wing.func_78791_b(this.settings.scale) //render right wing
+        wing.func_78791_b(1) //render right wing
         
         
         GlStateManager.func_179121_F(); // popMatrix
     }
 
     onTick(){
-        // this.scale += 0.001
+        if(!this.player.getPlayer().getEssentialCosmetics()) return
+
+        let wingCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.WINGS)
+        if(wingCosmetic !== null){
+            this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic)).getModel().getModel().boneList.forEach(b=>{
+                b.isHidden = true
+            })
+        }else{
+            let fullBodyCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.FULL_BODY)
+            if(fullBodyCosmetic === "DRAGON_ONESIE_2"){
+                this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic)).getModel().getModel().boneList.forEach(b=>{
+                    if(b.boxName === "wing_left_1" || b.boxName === "wing_right_1")b.isHidden = true
+                })
+            }
+        }
     }
 }
 

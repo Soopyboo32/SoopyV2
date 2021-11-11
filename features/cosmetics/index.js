@@ -3,6 +3,8 @@
 import Feature from "../../featureClass/class";
 import DragonWings from "./dragonWings"
 import Toggle from "../settings/settingThings/toggle"
+const Essential = Java.type("gg.essential.Essential")
+const EssentialCosmeticSlot = Java.type("gg.essential.cosmetics.CosmeticSlot")
 
 class Cosmetics extends Feature {
     constructor() {
@@ -34,6 +36,8 @@ class Cosmetics extends Feature {
         this.registerStep(false, 60*10, ()=>{
             new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
         })
+
+        
     }
 
     loadCosmeticsData(){
@@ -126,6 +130,24 @@ class Cosmetics extends Feature {
     }
 
     tick(){
+        World.getAllPlayers().forEach(p=>{
+            if(!p.getPlayer().getEssentialCosmetics()) return
+            
+            let wingCosmetic = p.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.WINGS)
+            if(wingCosmetic !== null){
+                p.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic)).getModel().getModel().boneList.forEach(b=>{
+                    b.isHidden = false
+                })
+            }else{
+                let fullBodyCosmetic = p.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.FULL_BODY)
+                if(fullBodyCosmetic === "DRAGON_ONESIE_2"){
+                    p.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic)).getModel().getModel().boneList.forEach(b=>{
+                        if(b.boxName === "wing_left_1" || b.boxName === "wing_right_1")b.isHidden = false
+                    })
+                }
+            }
+        })
+
         this.filterUnloadedCosmetics(true)
     }
 

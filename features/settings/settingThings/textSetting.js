@@ -15,7 +15,7 @@ class TextSetting extends SettingBase {
         this.guiObject.text.setLocation(0, 0, 0.6, 0.6)
         this.guiObject.description.setLocation(0, 0.6, 0.55, 0.4)
 
-        this.textObject.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun)=>{
+        this.textObject.text.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun)=>{
             this.setValue(newVal)
         }))
 

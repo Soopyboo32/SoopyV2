@@ -8,6 +8,8 @@
 //TODO: just require the module when ct 2.0 comes out
 
 
+const GL11 = Java.type("org.lwjgl.opengl.GL11");
+const GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
 
 const BufferUtils = org.lwjgl.BufferUtils;
 const Project = org.lwjgl.util.glu.Project;
@@ -19,18 +21,18 @@ const viewportDims = BufferUtils.createIntBuffer(16);
 const ScaledResolution = net.minecraft.client.gui.ScaledResolution;
 
 register('renderWorld', () => {
-    Tessellator.pushMatrix();
+    GlStateManager.func_179094_E();
 
-	let x = Player.getRenderX();
-	let y = Player.getRenderY();
-	let z = Player.getRenderZ();
+	let x = Player.getX();
+	let y = Player.getY();
+	let z = Player.getZ();
 
 	Tessellator.translate(-x, -y, -z);
 
 	GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, modelViewMatrix);
 	GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, projectionMatrix);
 
-	Tessellator.popMatrix();
+	GlStateManager.func_179121_F();
 
 	GL11.glGetInteger(GL11.GL_VIEWPORT, viewportDims);
 });
