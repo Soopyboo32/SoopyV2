@@ -3,11 +3,11 @@
 import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement";
 import Feature from "../../featureClass/class";
 import GuiPage from "../soopyGui/GuiPage";
-// import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";
-// import SoopyMarkdownElement from "../../../guimanager/GuiElement/SoopyMarkdownElement";
-// import SoopyImageElement from "../../../guimanager/GuiElement/SoopyImageElement";
-// import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
-// import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
+import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";
+import SoopyMarkdownElement from "../../../guimanager/GuiElement/SoopyMarkdownElement";
+import SoopyImageElement from "../../../guimanager/GuiElement/SoopyImageElement";
+import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
+import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 
 class StreamsGui extends Feature {
     constructor() {
@@ -17,7 +17,7 @@ class StreamsGui extends Feature {
     onEnable(){
         this.initVariables()
 
-        // this.GuiPage = new StreamPage()
+        this.GuiPage = new StreamPage()
     }
 
     initVariables(){
@@ -29,7 +29,7 @@ class StreamsGui extends Feature {
     }
 }
 
-/*
+
 class StreamPage extends GuiPage {
     constructor(){
         super(7)
@@ -129,7 +129,7 @@ class StreamElement extends SoopyBoxElement {
         
         return this
     }
-}*/
+}
 
 module.exports = {
     class: new StreamsGui()

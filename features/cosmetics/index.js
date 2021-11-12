@@ -130,6 +130,12 @@ class Cosmetics extends Feature {
     }
 
     tick(){
+        this.restoreEssentialCosmetics()
+
+        this.filterUnloadedCosmetics(true)
+    }
+
+    restoreEssentialCosmetics(){
         World.getAllPlayers().forEach(p=>{
             if(!p.getPlayer().getEssentialCosmetics()) return
             
@@ -147,8 +153,6 @@ class Cosmetics extends Feature {
                 }
             }
         })
-
-        this.filterUnloadedCosmetics(true)
     }
 
     renderWorld(ticks){
@@ -164,6 +168,8 @@ class Cosmetics extends Feature {
     }
 
     onDisable(){
+        this.restoreEssentialCosmetics()
+
         this.initVariables()
     }
 }

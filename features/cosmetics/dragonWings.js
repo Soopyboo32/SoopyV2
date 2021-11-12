@@ -1,7 +1,6 @@
 import Cosmetic from "./cosmetic";
 
 const ModelDragon = Java.type("net.minecraft.client.model.ModelDragon")
-const ResourceLocation = Java.type("net.minecraft.util.ResourceLocation")
 
 const GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
 const Essential = Java.type("gg.essential.Essential")
@@ -9,9 +8,10 @@ const EssentialCosmeticSlot = Java.type("gg.essential.cosmetics.CosmeticSlot")
 
 const FACING = Java.type("net.minecraft.block.BlockDirectional").field_176387_N
 let dragon = new ModelDragon(0) //too lazy to make my own model so i just yoink it from modelDragon lmfao
-let textures = new ResourceLocation("textures/entity/enderdragon/dragon.png")
+let textures = new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/cosmetics/textures/Enderdragon_png.png")))
 let wing = getField(dragon, "field_78225_k")
 let wingTip = getField(dragon, "field_78222_l")
+const GL11 = Java.type("org.lwjgl.opengl.GL11");
 
 class DragonWings extends Cosmetic {
     constructor(player, parent) {
@@ -107,6 +107,7 @@ class DragonWings extends Cosmetic {
         }
 
         GlStateManager.func_179094_E(); // pushMatrix
+        Tessellator.colorize(1, 1, 1)
 
         if(this.player !== Player){
             Tessellator.translate(
@@ -115,7 +116,7 @@ class DragonWings extends Cosmetic {
                 (this.player.getPlayer().field_70136_U + (this.player.getPlayer().field_70161_v-this.player.getPlayer().field_70136_U) * ticks) - (Player.getPlayer().field_70136_U + (Player.getPlayer().field_70161_v-Player.getPlayer().field_70136_U) * ticks))
         }
 
-        Client.getMinecraft().field_71446_o.func_110577_a(textures) //bind texture
+        Tessellator.bindTexture(textures) //bind texture
 
         if(this.player.getPlayer().field_70154_o){
             rotation = this.player.getPlayer().field_70759_as+(this.player.getPlayer().field_70759_as-this.player.getPlayer().field_70758_at)*ticks
@@ -259,6 +260,7 @@ class DragonWings extends Cosmetic {
             wingTip.field_78808_h = -((Math.sin((this.animOffset))*0.5 + 0.3))
         }
         
+        GL11.glDisable(GL11.GL_CULL_FACE)
         Tessellator.translate(0.1, 0, 0)
         Tessellator.scale(this.settings.scale, this.settings.scale, this.settings.scale)
         wing.func_78791_b(1) //render left wing
@@ -267,6 +269,7 @@ class DragonWings extends Cosmetic {
         Tessellator.scale(-1, 1, 1)
         wing.func_78791_b(1) //render right wing
         
+        GL11.glEnable(GL11.GL_CULL_FACE)
         
         GlStateManager.func_179121_F(); // popMatrix
     }
