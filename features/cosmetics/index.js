@@ -36,9 +36,8 @@ class Cosmetics extends Feature {
         this.registerStep(false, 60*10, ()=>{
             new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
         })
-
-        
     }
+
 
     loadCosmeticsData(){
         let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/cosmetics.json"))
