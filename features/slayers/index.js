@@ -69,9 +69,12 @@ class Slayers extends Feature {
         this.todoE2 = []
         this.emanBoss = undefined
         this.nextIsBoss = 0
+        this.counter = 0
+
+        this.entityAttackEventLoaded = false
+        this.entityAttackEventE = undefined
         
         this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent)
-        this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent) //TODO: Use CT event when ct 2.0 because they fixed
         this.registerEvent("tick", this.tick)
         this.registerEvent("renderWorld", this.renderWorld)
         this.registerEvent("worldLoad", this.worldLoad)
@@ -111,6 +114,19 @@ class Slayers extends Feature {
     }
 
     renderWorld(ticks){
+
+        if(this.FeatureManager.features["dataLoader"].class.isInSkyblock){
+            if(!this.entityAttackEventLoaded){
+                this.entityAttackEventLoaded = true
+                this.entityAttackEventE = this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent) //TODO: Use CT event when ct 2.0 because they fixed
+            }
+        }else{
+            if(this.entityAttackEventLoaded){
+                this.entityAttackEventLoaded = false
+                this.unregisterForge(this.entityAttackEventE)
+            }
+        }
+
         Object.values(this.beaconPoints).forEach(line=>{
             let lastPoint = undefined
             line.forEach(p=>{
@@ -346,7 +362,9 @@ class Slayers extends Feature {
         this.eyeE = undefined
         this.nextIsBoss = undefined
         this.hudElements = []
+        this.entityAttackEventLoaded = undefined
         this.todoE2 = undefined
+        this.entityAttackEventE = undefined
     }
 
     onDisable(){

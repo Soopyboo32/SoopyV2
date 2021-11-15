@@ -38,13 +38,31 @@ class Cosmetics extends Feature {
         })
     }
 
-
     loadCosmeticsData(){
         let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/cosmetics.json"))
 
         this.cosmeticsData = data
-        this.playerHasACosmeticA = !!data[Player.getUUID().toString()]
+        this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g,"")]
 
+        this.scanForNewCosmetics()
+    }
+
+    setUserCosmeticsInformation(uuid, cosmetics){
+        if(!this.enabled) return
+        
+        this.loadedCosmetics = this.loadedCosmetics.filter(cosmetic=>{
+            if(cosmetic.player.getUUID().toString().replace(/-/g,"") === uuid){
+                this.uuidToCosmetic[cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
+                return false
+            }
+            return true
+        })
+
+        if(!cosmetics){
+            delete this.cosmeticsData[uuid]
+            return
+        }
+        this.cosmeticsData[uuid] = cosmetics
         this.scanForNewCosmetics()
     }
 
@@ -53,18 +71,18 @@ class Cosmetics extends Feature {
     }
     scanForNewCosmetics(){
             
-        if(!this.uuidToCosmetic[Player.getUUID().toString()] && this.shouldPlayerHaveCosmetic(Player, "dragon_wings")){
+        if(!this.uuidToCosmetic[Player.getUUID().toString().replace(/-/g,"")] && this.shouldPlayerHaveCosmetic(Player, "dragon_wings")){
             let cosmetic = new DragonWings(Player, this)
             this.loadedCosmetics.push(cosmetic)
-            this.uuidToCosmetic[Player.getUUID().toString()] = cosmetic
+            this.uuidToCosmetic[Player.getUUID().toString().replace(/-/g,"")] = cosmetic
         }
         
         World.getAllPlayers().forEach(p=>{
-            if(p.getUUID().toString() === Player.getUUID().toString() || this.uuidToCosmetic[p.getUUID().toString()]) return
+            if(p.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"") || this.uuidToCosmetic[p.getUUID().toString().replace(/-/g,"")]) return
             if(this.shouldPlayerHaveCosmetic(p, "dragon_wings")){
                 let cosmetic = new DragonWings(p, this)
                 this.loadedCosmetics.push(cosmetic)
-                this.uuidToCosmetic[p.getUUID().toString()] = cosmetic
+                this.uuidToCosmetic[p.getUUID().toString().replace(/-/g,"")] = cosmetic
             }
         })
     }
@@ -73,37 +91,37 @@ class Cosmetics extends Feature {
         this.loadedCosmetics = []
         this.uuidToCosmetic = {}
 
-        if(this.shouldPlayerHaveCosmetic(Player, "dragon_wings") && !this.uuidToCosmetic[Player.getUUID().toString()]){
+        if(this.shouldPlayerHaveCosmetic(Player, "dragon_wings") && !this.uuidToCosmetic[Player.getUUID().toString().replace(/-/g,"")]){
             let cosmetic = new DragonWings(Player, this)
             this.loadedCosmetics.push(cosmetic)
-            this.uuidToCosmetic[Player.getUUID().toString()] = cosmetic
+            this.uuidToCosmetic[Player.getUUID().toString().replace(/-/g,"")] = cosmetic
         }
         
         World.getAllPlayers().forEach(p=>{
-            if(p.getUUID().toString() === Player.getUUID().toString()) return
-            if(this.shouldPlayerHaveCosmetic(p, "dragon_wings") && !this.uuidToCosmetic[p.getUUID().toString()]){
+            if(p.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return
+            if(this.shouldPlayerHaveCosmetic(p, "dragon_wings") && !this.uuidToCosmetic[p.getUUID().toString().replace(/-/g,"")]){
                 let cosmetic = new DragonWings(p, this)
                 this.loadedCosmetics.push(cosmetic)
-                this.uuidToCosmetic[p.getUUID().toString()] = cosmetic
+                this.uuidToCosmetic[p.getUUID().toString().replace(/-/g,"")] = cosmetic
             }
         })
     }
 
     playerJoined(player){
-        if(player.getUUID().toString() === Player.getUUID().toString()) return
+        if(player.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return
         
-        if(this.shouldPlayerHaveCosmetic(player, "dragon_wings") && !this.uuidToCosmetic[player.getUUID().toString()]){
+        if(this.shouldPlayerHaveCosmetic(player, "dragon_wings") && !this.uuidToCosmetic[player.getUUID().toString().replace(/-/g,"")]){
             let cosmetic = new DragonWings(player, this)
             this.playerHasACosmeticA = true
             this.loadedCosmetics.push(cosmetic)
-            this.uuidToCosmetic[player.getUUID().toString()] = cosmetic
+            this.uuidToCosmetic[player.getUUID().toString().replace(/-/g,"")] = cosmetic
         }
     }
 
     playerLeft(playerName){
         this.loadedCosmetics.filter(cosmetic=>{
             if(cosmetic.player.getName() === playerName){
-                this.uuidToCosmetic[cosmetic.player.getUUID().toString()] = undefined
+                this.uuidToCosmetic[cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
                 return false
             }
             return true
@@ -111,17 +129,17 @@ class Cosmetics extends Feature {
     }
 
     shouldPlayerHaveCosmetic(player, cosmetic){
-        return !!this.cosmeticsData[player.getUUID().toString()]?.[cosmetic]
+        return !!this.cosmeticsData[player.getUUID().toString().replace(/-/g,"")]?.[cosmetic]
     }
     getPlayerCosmeticSettings(player, cosmetic){
-        return this.cosmeticsData[player.getUUID().toString()]?.[cosmetic]
+        return this.cosmeticsData[player.getUUID().toString().replace(/-/g,"")]?.[cosmetic]
     }
 
     filterUnloadedCosmetics(tick){
         this.loadedCosmetics = this.loadedCosmetics.filter(cosmetic => {
             if(tick) cosmetic.onTick()
             if(cosmetic.player.getPlayer().field_70128_L){  //filter out players that are no longer loaded
-                this.uuidToCosmetic[cosmetic.player.getUUID().toString()] = undefined
+                this.uuidToCosmetic[cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
                 return false
             }
             return true
@@ -164,6 +182,7 @@ class Cosmetics extends Feature {
         this.loadedCosmetics = undefined
         this.uuidToCosmetic = undefined
         this.playerHasACosmeticA = undefined
+        this.cosmeticsData = undefined
     }
 
     onDisable(){

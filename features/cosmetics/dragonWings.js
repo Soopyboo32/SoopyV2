@@ -107,7 +107,7 @@ class DragonWings extends Cosmetic {
         }
 
         GlStateManager.func_179094_E(); // pushMatrix
-        Tessellator.colorize(1, 1, 1)
+        Tessellator.colorize(this.settings.color.r, this.settings.color.g, this.settings.color.b);
 
         if(this.player !== Player){
             Tessellator.translate(
@@ -261,11 +261,14 @@ class DragonWings extends Cosmetic {
         }
         
         GL11.glDisable(GL11.GL_CULL_FACE)
-        Tessellator.translate(0.1, 0, 0)
+
+        let wing_center_dist = ((0-Math.log(1000*this.settings.scale+0.01)-2)-100000*this.settings.scale*this.settings.scale)/1000
+
+        Tessellator.translate(-wing_center_dist, 0, 0)
         Tessellator.scale(this.settings.scale, this.settings.scale, this.settings.scale)
         wing.func_78791_b(1) //render left wing
 
-        Tessellator.translate(-0.2/this.settings.scale, 0, 0)
+        Tessellator.translate(2*wing_center_dist/this.settings.scale, 0, 0)
         Tessellator.scale(-1, 1, 1)
         wing.func_78791_b(1) //render right wing
         

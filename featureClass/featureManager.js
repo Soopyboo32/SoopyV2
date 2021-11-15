@@ -148,7 +148,9 @@ class FeatureManager {
         //     })
         // }else{
             this.eventObjects[event] = register(event, (...args)=>{
+                // let start = Date.now()
                 this.triggerEvent(event, args)
+                // this.eventTimingData[event] = (this.eventTimingData[event] || 0)+(Date.now()-start)
             })
         //}
 
@@ -218,7 +220,6 @@ class FeatureManager {
     }
 
     registerChat(criteria, func, context){
-
         let event = this.registerCustom("chat", func, context)
 
         event.trigger.setChatCriteria(criteria)
@@ -243,7 +244,6 @@ class FeatureManager {
         return event
     }
     registerStep(isFps, interval, func, context){
-
         let event = this.registerCustom("step", func, context)
 
         event.trigger[isFps?"setFps":"setDelay"](interval) //TODO: make this group events similar to registerEvent()
@@ -252,7 +252,6 @@ class FeatureManager {
     }
 
     registerCustom(type, func, context){
-
         let id = this.lastChatEventId++
 
         this.customEvents[id] = {

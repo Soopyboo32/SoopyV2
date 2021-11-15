@@ -1,6 +1,7 @@
 import SoopyContentChangeEvent from "../../../../guimanager/EventListener/SoopyContentChangeEvent";
 import BoxWithTextAndDescription from "../../../../guimanager/GuiElement/BoxWithTextAndDescription"
 import SoopyGuiElement from "../../../../guimanager/GuiElement/SoopyGuiElement";
+import renderLibs from "../../../../guimanager/renderLibs";
 import settingsCommunicator from "../settingsCommunicator";
 
 class SettingBase {
@@ -14,8 +15,8 @@ class SettingBase {
 
         this.val = defaultVal;
 
-        this.guiObject = new BoxWithTextAndDescription().setDesc("§0"+this.description).setText("§0"+this.name).setLocation(0, 0, 1, 0.175)
-        
+        this.guiObject = new BoxWithTextAndDescription().setDesc("§0"+this.description.replace(/\n/g, "\n§0")).setText("§0"+this.name).setLocation(0, 0, 1, 0.175)
+
         this.settingObject = new SoopyGuiElement().setLocation(0.8, 0, 0.2, 1)
 
         this.guiObject.addChild(this.settingObject)
