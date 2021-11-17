@@ -200,7 +200,7 @@ class Hud extends Feature {
     }
 
     newKey(key, event){
-        ChatLib.chat("&c[SOOPY V2] Copied api key!")
+        ChatLib.chat(this.FeatureManager.messagePrefix + "Copied api key!")
         this.apiKeySetting.setValue(key)
     }
 

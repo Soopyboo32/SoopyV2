@@ -1,11 +1,9 @@
 /// <reference types="../../CTAutocomplete" />
 /// <reference lib="es2015" />
-import LocationSetting from "../features/settings/settingThings/location";
 import logger from "../logger";
 const File = Java.type("java.io.File")
 import metadata from "../metadata.js"
 import { registerForge as registerForgeBase, unregisterForge as unregisterForgeBase} from "./forgeEvents.js"
-import soopyV2Server from "../socketConnection"
 
 class FeatureManager {
     constructor(){
@@ -60,6 +58,7 @@ class FeatureManager {
 
         this.registerEvent("worldUnload", this.saveFeatureSettings, this)
         this.registerEvent("gameUnload", this.saveFeatureSettings, this)
+        this.registerEvent("gameUnload", this.unloadAllFeatures, this)
 
         this.registerCommand("soopyunloadfeature", (args)=>{
             new Thread(()=>{
@@ -374,6 +373,12 @@ class FeatureManager {
         logger.logMessage("Unloaded feature " + feature, 3)
 
         return this
+    }
+
+    unloadAllFeatures(){
+        Object.keys(this.features).forEach((feature)=>{
+            this.unloadFeature(feature)
+        })
     }
 
     isFeatureLoaded(feature){

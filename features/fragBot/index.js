@@ -61,10 +61,10 @@ class FragBot extends Feature {
     fragbotCommand(...args){
         if(this.hostingFragBot){
             this.hostingFragBot = false
-            ChatLib.chat("&aFragbot has been disabled")
+            ChatLib.chat(this.FeatureManager.messagePrefix + "Fragbot has been disabled")
         }else{
             this.hostingFragBot = true
-            ChatLib.chat("&aNow acting as a fragbot, run /fragbot again to disable")
+            ChatLib.chat(this.FeatureManager.messagePrefix + "Now acting as a fragbot, run /fragbot again to disable")
         }
     }
 

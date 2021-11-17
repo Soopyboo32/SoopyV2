@@ -97,7 +97,7 @@ class DungeonSolvers extends Feature {
 						}
 						if (this.lividData.sayLividColors2.length === 9) {
                             if(this.lividFindChat.getValue()){
-                                ChatLib.chat("Correct livid is: " + this.lividData.lividColor[lividName] + lividName)
+                                ChatLib.chat(this.FeatureManager.messagePrefix + "Correct livid is: " + this.lividData.lividColor[lividName] + lividName)
                             }
 							this.lividData.correctLividColor = lividName
 						}

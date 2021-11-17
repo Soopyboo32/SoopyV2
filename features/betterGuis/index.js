@@ -1,9 +1,8 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import logger from "../../logger";
 import ToggleSetting from "../settings/settingThings/toggle";
-// import MuseumGui from "./museumGui";
+// import MuseumGui from "./museumGui.js";
 
 class BetterGuis extends Feature {
     constructor() {

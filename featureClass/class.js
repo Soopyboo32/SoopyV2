@@ -124,7 +124,7 @@ class Feature {
             if(this.FeatureManager.commandFuncs[name]){
                 this.FeatureManager.commandFuncs[name].call(this, ...(args || []))
             }else{
-                ChatLib.chat("&cThis command is not available atm")
+                ChatLib.chat(this.FeatureManager.messagePrefix + "This command is not available atm")
             }
         }, this)
     }

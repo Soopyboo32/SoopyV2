@@ -7,7 +7,7 @@ import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement"
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement"
 import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement"
 import renderLibs from "../../../guimanager/renderLibs"
-import utils from "../../utils/utils"
+import * as utils from "../../utils/utils"
 
 class MuseumGui {
     constructor(){
