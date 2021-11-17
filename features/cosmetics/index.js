@@ -1,7 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import DragonWings from "./dragonWings"
+import DragonWings from "./cosmetic/dragon/dragonWings"
 import Toggle from "../settings/settingThings/toggle"
 const Essential = Java.type("gg.essential.Essential")
 const EssentialCosmeticSlot = Java.type("gg.essential.cosmetics.CosmeticSlot")
@@ -129,7 +129,11 @@ class Cosmetics extends Feature {
     }
 
     shouldPlayerHaveCosmetic(player, cosmetic){
-        return !!this.cosmeticsData[player.getUUID().toString().replace(/-/g,"")]?.[cosmetic]
+        if(!!this.cosmeticsData[player.getUUID().toString().replace(/-/g,"")]?.[cosmetic]){
+            if(!this.getPlayerCosmeticSettings(player, cosmetic).enabled) return false
+            return true
+        }
+        return false
     }
     getPlayerCosmeticSettings(player, cosmetic){
         return this.cosmeticsData[player.getUUID().toString().replace(/-/g,"")]?.[cosmetic]

@@ -1,4 +1,4 @@
-import Cosmetic from "./cosmetic";
+import Cosmetic from "../../cosmetic.js";
 
 const ModelDragon = Java.type("net.minecraft.client.model.ModelDragon")
 
@@ -8,7 +8,10 @@ const EssentialCosmeticSlot = Java.type("gg.essential.cosmetics.CosmeticSlot")
 
 const FACING = Java.type("net.minecraft.block.BlockDirectional").field_176387_N
 let dragon = new ModelDragon(0) //too lazy to make my own model so i just yoink it from modelDragon lmfao
-let textures = new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/cosmetics/textures/Enderdragon_png.png")))
+let textures = {
+    classic: new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/cosmetics/textures/dragon/classic.png"))),
+    purple: new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/cosmetics/textures/dragon/purple.png")))
+}
 let wing = getField(dragon, "field_78225_k")
 let wingTip = getField(dragon, "field_78222_l")
 const GL11 = Java.type("org.lwjgl.opengl.GL11");
@@ -116,7 +119,11 @@ class DragonWings extends Cosmetic {
                 (this.player.getPlayer().field_70136_U + (this.player.getPlayer().field_70161_v-this.player.getPlayer().field_70136_U) * ticks) - (Player.getPlayer().field_70136_U + (Player.getPlayer().field_70161_v-Player.getPlayer().field_70136_U) * ticks))
         }
 
-        Tessellator.bindTexture(textures) //bind texture
+        if(textures[this.settings.texture || "classic"]){
+            Tessellator.bindTexture(textures[this.settings.texture || "classic"]) //bind texture
+        }else{
+            Tessellator.bindTexture(textures.classic) //bind texture
+        }
 
         if(this.player.getPlayer().field_70154_o){
             rotation = this.player.getPlayer().field_70759_as+(this.player.getPlayer().field_70759_as-this.player.getPlayer().field_70758_at)*ticks
