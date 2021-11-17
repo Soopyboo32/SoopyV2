@@ -17,6 +17,8 @@ class Cosmetics extends Feature {
         this.uuidToCosmetic = {}
 
         this.cosmeticsData = {}
+        
+        this.hiddenCosmetics = []
 
         this.playerHasACosmeticA = false
 
@@ -157,23 +159,10 @@ class Cosmetics extends Feature {
     }
 
     restoreEssentialCosmetics(){
-        World.getAllPlayers().forEach(p=>{
-            if(!p.getPlayer().getEssentialCosmetics()) return
-            
-            let wingCosmetic = p.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.WINGS)
-            if(wingCosmetic !== null){
-                p.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic)).getModel().getModel().boneList.forEach(b=>{
-                    b.isHidden = false
-                })
-            }else{
-                let fullBodyCosmetic = p.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.FULL_BODY)
-                if(fullBodyCosmetic === "DRAGON_ONESIE_2"){
-                    p.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic)).getModel().getModel().boneList.forEach(b=>{
-                        if(b.boxName === "wing_left_1" || b.boxName === "wing_right_1")b.isHidden = false
-                    })
-                }
-            }
+        this.hiddenCosmetics.forEach(cosmetic=>{
+            cosmetic.isHidden = false
         })
+        this.hiddenCosmetics = []
     }
 
     renderWorld(ticks){
@@ -187,6 +176,7 @@ class Cosmetics extends Feature {
         this.uuidToCosmetic = undefined
         this.playerHasACosmeticA = undefined
         this.cosmeticsData = undefined
+        this.hiddenCosmetics = undefined
     }
 
     onDisable(){

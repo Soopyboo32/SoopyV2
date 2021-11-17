@@ -291,12 +291,17 @@ class DragonWings extends Cosmetic {
         if(wingCosmetic !== null){
             this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic)).getModel().getModel().boneList.forEach(b=>{
                 b.isHidden = true
+                this.parent.hiddenCosmetics.push(b)
             })
         }else{
             let fullBodyCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.FULL_BODY)
             if(fullBodyCosmetic === "DRAGON_ONESIE_2"){
                 this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic)).getModel().getModel().boneList.forEach(b=>{
-                    if(b.boxName === "wing_left_1" || b.boxName === "wing_right_1")b.isHidden = true
+                    if(b.boxName === "wing_left_1" || b.boxName === "wing_right_1"){
+                        b.isHidden = true
+                        
+                        this.parent.hiddenCosmetics.push(b)
+                    }
                 })
             }
         }

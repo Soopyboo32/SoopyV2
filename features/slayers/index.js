@@ -15,7 +15,7 @@ class Slayers extends Feature {
     onEnable(){
         this.initVariables()
 
-        this.expOnKill = new ToggleSetting("Show slayer exp on boss kill", "Says your slayer exp in chat when you kill a boss", true, "slayer_xp", this)
+        this.expOnKill = new ToggleSetting("Show slayer exp on boss kill", "Says your slayer exp in chat when you kill a boss, also says time taken to spawn+kill", true, "slayer_xp", this)
         this.slainAlert = new ToggleSetting("Show boss slain alert", "This helps you to not kill mobs for ages with an inactive quest", true, "boss_slain_alert", this)
         this.spawnAlert = new ToggleSetting("Show boss spawned alert", "This helps you to not miss your boss when you spawn it", true, "boss_spawn_alert", this)
 
@@ -38,6 +38,7 @@ class Slayers extends Feature {
         
         this.lastSlayerType = ""
         this.lastSlayerExp = 0
+        this.lastBossSlain = 0
         this.registerChat("&r  &r&a&lSLAYER QUEST COMPLETE!&r",(e)=>{
             this.slayerExp[this.lastSlayerType] = this.lastSlayerExp + (this.slayerExp[this.lastSlayerType] || 0)
             if(this.expOnKill.getValue()){
@@ -45,7 +46,9 @@ class Slayers extends Feature {
                 ChatLib.chat("&r  &r&a&lSLAYER QUEST COMPLETE!&r")
                 ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(this.slayerExp[this.lastSlayerType]) + " " + this.lastSlayerType + " XP&r&7!&r")
                 ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t)=>t+a, 0)) + " total XP&r&7!&r")
+                if(Date-now()-this.lastBossSlain < 60000*5) ChatLib.chat("&r   &r&aBoss took &d" + timeNumber((Date-now()-this.lastBossSlain)) + " to spawn and kill&r&7!&r")
             }
+            this.lastBossSlain = Date.now()
         })
         
         this.bossSlainMessage = false
@@ -374,4 +377,12 @@ class Slayers extends Feature {
 
 module.exports = {
     class: new Slayers()
+}
+
+function timeNumber(time){
+    let mins = Math.floor(time/1000/60)
+    let secs = Math.floor(time/1000)%60
+
+    if(mins === 0) return secs + "s"
+    return `${mins}m ${secs}s`
 }
