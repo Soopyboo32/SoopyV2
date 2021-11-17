@@ -8,7 +8,7 @@ const EssentialCosmeticSlot = Java.type("gg.essential.cosmetics.CosmeticSlot")
 
 const FACING = Java.type("net.minecraft.block.BlockDirectional").field_176387_N
 let dragon = new ModelDragon(0) //too lazy to make my own model so i just yoink it from modelDragon lmfao
-let textures = {
+let textures = {//TODO: dynamicly load textures from server
     classic: new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/cosmetics/textures/dragon/classic.png"))),
     purple: new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/cosmetics/textures/dragon/purple.png")))
 }
@@ -18,15 +18,14 @@ const GL11 = Java.type("org.lwjgl.opengl.GL11");
 
 class DragonWings extends Cosmetic {
     constructor(player, parent) {
-        super(player, parent);
-
-        this.settings = this.parent.getPlayerCosmeticSettings(this.player, "dragon_wings")
+        super(player, parent, "dragon_wings");
 
         this.animOffset = Math.random()*20*Math.PI
         this.lastRender = Date.now()
 
         this.lastFlapSound = this.animOffset
     }
+
     onRender(ticks){
 
         if(this.player.getPlayer().func_98034_c(Player.getPlayer())){
@@ -291,7 +290,7 @@ class DragonWings extends Cosmetic {
         if(wingCosmetic !== null){
             this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic)).getModel().getModel().boneList.forEach(b=>{
                 b.isHidden = true
-                this.parent.hiddenCosmetics.push(b)
+                this.parent.hiddenEssentialCosmetics.push(b)
             })
         }else{
             let fullBodyCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.FULL_BODY)
@@ -300,7 +299,7 @@ class DragonWings extends Cosmetic {
                     if(b.boxName === "wing_left_1" || b.boxName === "wing_right_1"){
                         b.isHidden = true
                         
-                        this.parent.hiddenCosmetics.push(b)
+                        this.parent.hiddenEssentialCosmetics.push(b)
                     }
                 })
             }

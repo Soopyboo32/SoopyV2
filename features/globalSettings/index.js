@@ -45,7 +45,7 @@ class Hud extends Feature {
         this.registerChat("&aYour new API key is &r&b${key}&r", this.newKey)
 
         // new Thread(()=>{
-        //     Thread.sleep(1000) //TODO: DO ON WORLDLOAD
+        //     Thread.sleep(1000) //TODO: DO ON 2nd WORLDLOAD
         //     ChatLib.command("soopyv2 first_load_thing", true)//TODO: ONLY RUN ON FIRST INSTALL
         // }).start()
     }

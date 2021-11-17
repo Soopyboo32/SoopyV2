@@ -245,7 +245,7 @@ class FeatureManager {
     registerStep(isFps, interval, func, context){
         let event = this.registerCustom("step", func, context)
 
-        event.trigger[isFps?"setFps":"setDelay"](interval) //TODO: make this group events similar to registerEvent()
+        event.trigger[isFps?"setFps":"setDelay"](interval)
 
         return event
     }

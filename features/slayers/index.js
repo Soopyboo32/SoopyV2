@@ -121,7 +121,7 @@ class Slayers extends Feature {
         if(this.FeatureManager.features["dataLoader"].class.isInSkyblock){
             if(!this.entityAttackEventLoaded){
                 this.entityAttackEventLoaded = true
-                this.entityAttackEventE = this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent) //TODO: Use CT event when ct 2.0 because they fixed
+                this.entityAttackEventE = this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent) //TODO: Use CT event when ct 2.0 because they made the ct event actually work
             }
         }else{
             if(this.entityAttackEventLoaded){

@@ -84,7 +84,7 @@ class DungeonSolvers extends Feature {
     }
 
     step(){ //2fps
-        if(this.lividFindEnabled.getValue() && (this.FeatureManager.features["dataLoader"].class.dungeonFloor === "F5")){ //TODO: fix on M5
+        if(this.lividFindEnabled.getValue() && (this.FeatureManager.features["dataLoader"].class.dungeonFloor === "F5")){ //TODO: fix on M5 (detect correct livid based on roof color)
             World.getAllEntities().forEach(entity => {
                 let entityName = entity.getName()
 				if (/(?:Vendetta|Crossed|Hockey|Doctor|Frog|Smile|Scream|Purple|Arcade) Livid/g.test(entityName)) {
