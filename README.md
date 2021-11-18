@@ -1,3 +1,3 @@
 # SoopyV2
 
-should be a lot better than the origional
+A complete recode of the original ![soopyaddons chattriggers module](https://github.com/Soopyboo32/soopyaddons) with a lot of improvements
