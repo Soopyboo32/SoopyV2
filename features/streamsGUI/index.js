@@ -75,7 +75,12 @@ class StreamPage extends GuiPage {
 
         this.openSidebarPage(sidebar)
 
+        /* 
+        TODO: finish this
 
+        - Open stream in browser button
+        - show live chat
+        */
     }
 
     onOpen(){
