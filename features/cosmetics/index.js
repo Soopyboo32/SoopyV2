@@ -13,6 +13,7 @@ class Cosmetics extends Feature {
         this.initVariables()
         this.loadedCosmetics = []
         this.uuidToCosmetic = {}
+        this.uuidToCosmeticDirect = {}
 
         this.cosmeticsData = {}
         
@@ -40,6 +41,22 @@ class Cosmetics extends Feature {
         this.registerStep(false, 60*10, ()=>{
             new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
         })
+        this.registerEvent("renderEntity", this.renderEntity)
+    }
+
+    renderWorld(ticks){
+        this.loadedCosmetics.forEach(cosmetic => {
+            cosmetic.onRenderEntity(ticks, false)
+        })
+    }
+
+    renderEntity(entity, pos, ticks, event){
+        if(ticks !== 1) return
+        if(this.uuidToCosmeticDirect[entity.getUUID().toString()]){
+            Object.values(this.uuidToCosmeticDirect[entity.getUUID().toString()]).forEach(cosmetic => {
+                cosmetic.onRenderEntity(ticks, true)
+            })
+        }
     }
 
     loadCosmeticsData(){
@@ -68,7 +85,9 @@ class Cosmetics extends Feature {
         this.scanForNewCosmetics()
     }
     scanForNewCosmetics(){
+        this.loadCosmeticsForPlayer(Player)
         World.getAllPlayers().forEach(p=>{
+            if(p.getUUID().toString() === Player.getUUID().toString()) return
             this.loadCosmeticsForPlayer(p)
         })
     }
@@ -83,6 +102,9 @@ class Cosmetics extends Feature {
                 let cosmetic = new (this.cosmeticsList[cosmeticName])(player, this)
                 this.loadedCosmetics.push(cosmetic)
                 this.uuidToCosmetic[cosmeticName][player.getUUID().toString().replace(/-/g,"")] = cosmetic
+                
+                if(!this.uuidToCosmeticDirect[player.getUUID.toString()]) this.uuidToCosmeticDirect[player.getUUID().toString()] = {}
+                this.uuidToCosmeticDirect[player.getUUID().toString()][cosmeticName] = cosmetic
             }
         })
     }
@@ -90,20 +112,25 @@ class Cosmetics extends Feature {
     worldLoad(){
         this.loadedCosmetics = []
         this.uuidToCosmetic = {}
+        this.uuidToCosmeticDirect = {}
 
+        this.loadCosmeticsForPlayer(Player)
         this.scanForNewCosmetics()
     }
 
     playerJoined(player){
-        if(player.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return
+        if(player.getUUID().toString() === Player.getUUID().toString()) return
         
         this.loadCosmeticsForPlayer(player)
     }
 
     playerLeft(playerName){
         this.loadedCosmetics.filter(cosmetic=>{
+            if(cosmetic.player.getUUID().toString() === Player.getUUID().toString()) return
             if(cosmetic.player.getName() === playerName){
                 this.uuidToCosmetic[cosmetic.id][cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
+            
+                this.uuidToCosmeticDirect[cosmetic.player.getUUID().toString()] = undefined
                 return false
             }
             return true
@@ -124,8 +151,11 @@ class Cosmetics extends Feature {
     filterUnloadedCosmetics(tick=false){
         this.loadedCosmetics = this.loadedCosmetics.filter(cosmetic => {
             if(tick) cosmetic.onTick()
+            if(cosmetic.player.getUUID().toString() === Player.getUUID().toString()) return true
             if(cosmetic.player.getPlayer().field_70128_L){  //filter out players that are no longer loaded
                 this.uuidToCosmetic[cosmetic.id][cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
+                
+                this.uuidToCosmeticDirect[cosmetic.player.getUUID().toString()] = undefined
                 return false
             }
             return true
@@ -145,15 +175,10 @@ class Cosmetics extends Feature {
         this.hiddenEssentialCosmetics = []
     }
 
-    renderWorld(ticks){
-        this.loadedCosmetics.forEach(cosmetic => {
-            cosmetic.onRender(ticks)
-        })
-    }
-
     initVariables(){
         this.loadedCosmetics = undefined
         this.uuidToCosmetic = undefined
+        this.uuidToCosmeticDirect = undefined
         this.playerHasACosmeticA = undefined
         this.cosmeticsData = undefined
         this.hiddenEssentialCosmetics = undefined

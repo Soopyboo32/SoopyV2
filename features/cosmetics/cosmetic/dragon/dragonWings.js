@@ -14,7 +14,6 @@ let textures = {//TODO: dynamicly load textures from server
 }
 let wing = getField(dragon, "field_78225_k")
 let wingTip = getField(dragon, "field_78222_l")
-const GL11 = Java.type("org.lwjgl.opengl.GL11");
 
 class DragonWings extends Cosmetic {
     constructor(player, parent) {
@@ -24,17 +23,19 @@ class DragonWings extends Cosmetic {
         this.lastRender = Date.now()
 
         this.lastFlapSound = this.animOffset
+        this.i = 0
     }
 
-    onRender(ticks){
-
+    onRenderEntity(ticks, isInGui){
+        
         if(this.player.getPlayer().func_98034_c(Player.getPlayer())){
             return
         }
 
-        if(!this.parent.firstPersonVisable.getValue() && this.player === Player && Client.getMinecraft().field_71474_y.field_74320_O === 0){
-            return
-        }
+        if(!this.parent.firstPersonVisable.getValue() && Client.getMinecraft().field_71474_y.field_74320_O === 0) return
+
+        let isSelfPlayer = this.player.getUUID().toString() === Player.getUUID().toString()
+        let isInInv = isSelfPlayer && ticks === 1
 
         // return;
         // wing.func_78785_a(1)
@@ -42,8 +43,9 @@ class DragonWings extends Cosmetic {
         let timeSince = (Date.now()-this.lastRender)/1000
         this.lastRender = Date.now()
 
-        let rotation = this.player.getPlayer().field_70761_aq+(this.player.getPlayer().field_70761_aq-this.player.getPlayer().field_70760_ar)*ticks
-
+        let rotation = isInInv?0:this.player.getPlayer().field_70760_ar+(this.player.getPlayer().field_70761_aq-this.player.getPlayer().field_70760_ar)*ticks
+        // rotation += entity.field_70761_aq+(entity.field_70761_aq-entity.field_70760_ar)*ticks
+        // console.log(rotation, entity.getEntity().field_70761_aq+(entity.getEntity().field_70761_aq-entity.getEntity().field_70760_ar)*ticks)
         let horisontalSpeed = Math.sqrt((this.player.getPlayer().field_70165_t-this.player.getPlayer().field_70142_S)**2+(this.player.getPlayer().field_70161_v-this.player.getPlayer().field_70136_U)**2)
 
         let verticleSpeed = this.player.getPlayer().field_70163_u-this.player.getPlayer().field_70137_T
@@ -60,27 +62,18 @@ class DragonWings extends Cosmetic {
 
         let wingBackAmount = 0
 
-        if(this.player.getPlayer().field_70172_ad > 0){ //damage tick
-            this.animOffset += 5*timeSince
+        if(this.player.getPlayer().field_70172_ad > 15){ //damage tick
+            this.animOffset += 15*timeSince
         }
 
 
         // if((this.player === Player &&this.player.getPlayer().field_71075_bZ.field_75100_b) || (this.player !== Player && Math.abs(verticleSpeed)<0.2 && !this.player.getPlayer().field_70122_E)){//playerCapabilities.isFlying
-        if((verticleSpeed>-0.2) && !this.player.getPlayer().field_70122_E){ //flying
-            
-            if(this.animOffset-this.lastFlapSound > 2*Math.PI){
-
-                let dist = Math.sqrt((Player.getX()-this.player.getX())**2+(Player.getY()-this.player.getY())**2+(Player.getZ()-this.player.getZ())**2)+1
-
-                World.playSound("mob.enderdragon.wings", (this.settings.scale*15)*Math.min(1, 50/(dist*dist)), 1)
-                this.lastFlapSound = this.animOffset-this.animOffset%(Math.PI*2)
-            }
-
+        if((verticleSpeed>-0.2) && !this.player.getPlayer().field_70122_E && !isInGui){ //flying
             this.animOffset += 5*timeSince //flap in mid air
 
             flapAmountMultiplyer *= 1.75 //flap harder
 
-            if(this.player === Player && Client.getMinecraft().field_71474_y.field_74320_O === 0){
+            if(isSelfPlayer && Client.getMinecraft().field_71474_y.field_74320_O === 0){
                 if(!this.parent.lessFirstPersonVisable.getValue()){
                     flapAmountMultiplyerNoEnd += 0.4
                     flapMainOffsetThing = 0.3
@@ -111,7 +104,7 @@ class DragonWings extends Cosmetic {
         GlStateManager.func_179094_E(); // pushMatrix
         Tessellator.colorize(this.settings.color.r, this.settings.color.g, this.settings.color.b);
 
-        if(this.player !== Player){
+        if(!isSelfPlayer){
             Tessellator.translate(
                 (this.player.getPlayer().field_70142_S + (this.player.getPlayer().field_70165_t-this.player.getPlayer().field_70142_S) * ticks) - (Player.getPlayer().field_70142_S + (Player.getPlayer().field_70165_t-Player.getPlayer().field_70142_S) * ticks),
                 (this.player.getPlayer().field_70137_T + (this.player.getPlayer().field_70163_u-this.player.getPlayer().field_70137_T) * ticks) - (Player.getPlayer().field_70137_T + (Player.getPlayer().field_70163_u-Player.getPlayer().field_70137_T) * ticks),
@@ -121,7 +114,7 @@ class DragonWings extends Cosmetic {
         if(textures[this.settings.texture || "classic"]){
             Tessellator.bindTexture(textures[this.settings.texture || "classic"]) //bind texture
         }else{
-            Tessellator.bindTexture(textures.classic) //bind texture
+            Tessellator.bindTexture(textures.classic) //bind default texture (classic)
         }
 
         if(this.player.getPlayer().field_70154_o){
@@ -135,12 +128,14 @@ class DragonWings extends Cosmetic {
             if(this.player.getPlayer().func_70093_af()){ //isSneaking
                 Tessellator.translate(0, -0.125,0)
                 Tessellator.rotate(-20, 1,0,0)
-                if(this.player === Player && Client.getMinecraft().field_71474_y.field_74320_O === 0){}else{
+                
+                Tessellator.translate(0, 0,0.1)
+                if(isSelfPlayer && Client.getMinecraft().field_71474_y.field_74320_O === 0){}else{
                     Tessellator.translate(0, -0.125,0)
                 }
             }
     
-            if(this.player === Player && Client.getMinecraft().field_71474_y.field_74320_O === 0){
+            if(isSelfPlayer && !isInInv && Client.getMinecraft().field_71474_y.field_74320_O === 0){
                 //Make wings less scuffed when in first person looking down/up
                 Tessellator.translate(0, 0.25, 0.003*(this.player.getPitch()))
             }
@@ -158,13 +153,6 @@ class DragonWings extends Cosmetic {
             if(!((verticleSpeed>-0.2) && !this.player.getPlayer().field_70122_E)){ //not flying
                 let amt = (this.animOffset+Math.PI/2)%(20*Math.PI)
                 if(amt < 1*Math.PI){
-                    if(amt > 0.65*Math.PI && (2*Math.PI+this.animOffset)-this.lastFlapSound > 2*Math.PI){
-        
-                        let dist = Math.sqrt((Player.getX()-this.player.getX())**2+(Player.getY()-this.player.getY())**2+(Player.getZ()-this.player.getZ())**2)+1
-        
-                        World.playSound("mob.enderdragon.wings", (Math.max(0.005,this.settings.scale-0.005)*25)*Math.min(1, 50/Math.min(1,dist*dist))/50, 1-(Math.max(0.005,this.settings.scale-0.005)*25))
-                        this.lastFlapSound = 2*Math.PI+(this.animOffset)-this.animOffset%(Math.PI*2)
-                    }
                     this.animOffset += 2*timeSince*Math.min(1,(amt/(1*Math.PI))*2)
 
                     flapAmountMultiplyer += (amt/(1*Math.PI))/2
@@ -177,7 +165,6 @@ class DragonWings extends Cosmetic {
             if(this.player.getPlayer().func_70093_af()){ //isSneaking
                 if(this.player.getPlayer().field_70125_A > 20){
                     shouldStandingStillWingThing = true
-                    Tessellator.translate(0, 0,0.1)
                     changeStandingStillWingThing =  Math.max(0,this.player.getPlayer().field_70125_A/600)
                 }
             }
@@ -266,10 +253,11 @@ class DragonWings extends Cosmetic {
             wingTip.field_78808_h = -((Math.sin((this.animOffset))*0.5 + 0.3))
         }
         
-        GL11.glDisable(GL11.GL_CULL_FACE)
+        GlStateManager.func_179129_p() //disable culling
 
         let wing_center_dist = ((0-Math.log(1000*this.settings.scale+0.01)-2)-100000*this.settings.scale*this.settings.scale)/1000
 
+        // GL11.glDepthMask(GL11.GL_FALSE);
         Tessellator.translate(-wing_center_dist, 0, 0)
         Tessellator.scale(this.settings.scale, this.settings.scale, this.settings.scale)
         wing.func_78791_b(1) //render left wing
@@ -278,12 +266,76 @@ class DragonWings extends Cosmetic {
         Tessellator.scale(-1, 1, 1)
         wing.func_78791_b(1) //render right wing
         
-        GL11.glEnable(GL11.GL_CULL_FACE)
-        
+
+        if(this.player.getPlayer().field_70737_aN > 0){ //damage tick
+            GlStateManager.func_179094_E(); // pushMatrix
+            GlStateManager.func_179143_c(514);
+            GlStateManager.func_179090_x();
+            GlStateManager.func_179147_l();
+            GlStateManager.func_179112_b(770, 771);
+            GlStateManager.func_179131_c(1, 0, 0, 0.25);
+            
+            Tessellator.scale(-1, 1, 1)
+            Tessellator.translate(-2*wing_center_dist/this.settings.scale, 0, 0)
+            wing.func_78791_b(1) //render left wing
+
+            Tessellator.translate(2*wing_center_dist/this.settings.scale, 0, 0)
+            Tessellator.scale(-1, 1, 1)
+            wing.func_78791_b(1) //render right wing
+
+            GlStateManager.func_179098_w();
+            GlStateManager.func_179084_k();
+            GlStateManager.func_179143_c(515);
+            GlStateManager.func_179121_F(); // popMatrix
+        }
+        Tessellator.colorize(1, 1, 1)
+        GlStateManager.func_179089_o() //enable culling
         GlStateManager.func_179121_F(); // popMatrix
     }
 
+    testPlaySound(){
+        if(this.player.getPlayer().func_98034_c(Player.getPlayer())){
+            return
+        }
+
+        let horisontalSpeed = Math.sqrt((this.player.getPlayer().field_70165_t-this.player.getPlayer().field_70142_S)**2+(this.player.getPlayer().field_70161_v-this.player.getPlayer().field_70136_U)**2)
+
+        let verticleSpeed = this.player.getPlayer().field_70163_u-this.player.getPlayer().field_70137_T
+
+
+        // if((this.player === Player &&this.player.getPlayer().field_71075_bZ.field_75100_b) || (this.player !== Player && Math.abs(verticleSpeed)<0.2 && !this.player.getPlayer().field_70122_E)){//playerCapabilities.isFlying
+        if((verticleSpeed>-0.2) && !this.player.getPlayer().field_70122_E){ //flying
+            
+            if(this.animOffset-this.lastFlapSound > 2*Math.PI){
+
+                let dist = Math.sqrt((Player.getX()-this.player.getX())**2+(Player.getY()-this.player.getY())**2+(Player.getZ()-this.player.getZ())**2)+1
+
+                World.playSound("mob.enderdragon.wings", (this.settings.scale*15)*Math.min(1, 50/(dist*dist)), 1)
+                this.lastFlapSound = this.animOffset-this.animOffset%(Math.PI*2)
+            }
+        }
+
+        if(horisontalSpeed < 0.01){
+            if(!((verticleSpeed>-0.2) && !this.player.getPlayer().field_70122_E)){ //not flying
+                let amt = (this.animOffset+Math.PI/2)%(20*Math.PI)
+                if(amt < 1*Math.PI){
+                    if(amt > 0.65*Math.PI && (2*Math.PI+this.animOffset)-this.lastFlapSound > 2*Math.PI){
+        
+                        let dist = Math.sqrt((Player.getX()-this.player.getX())**2+(Player.getY()-this.player.getY())**2+(Player.getZ()-this.player.getZ())**2)+1
+        
+                        World.playSound("mob.enderdragon.wings", (Math.max(0.005,this.settings.scale-0.005)*25)*Math.min(1, 50/Math.min(1,dist*dist))/50, 1-(Math.max(0.005,this.settings.scale-0.005)*25))
+                        this.lastFlapSound = 2*Math.PI+(this.animOffset)-this.animOffset%(Math.PI*2)
+                    }
+                }
+            }
+        }
+    }
+
     onTick(){
+        this.updateIfNotRendering()
+
+        this.testPlaySound()
+
         if(!this.player.getPlayer().getEssentialCosmetics()) return
 
         let wingCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.WINGS)
@@ -302,6 +354,50 @@ class DragonWings extends Cosmetic {
                         this.parent.hiddenEssentialCosmetics.push(b)
                     }
                 })
+            }
+        }
+    }
+
+    updateIfNotRendering(){
+        let timeSince = (Date.now()-this.lastRender)/1000
+
+        if(timeSince < 0.020){
+            return
+        }
+
+        this.lastRender = Date.now()
+
+        let horisontalSpeed = Math.sqrt((this.player.getPlayer().field_70165_t-this.player.getPlayer().field_70142_S)**2+(this.player.getPlayer().field_70161_v-this.player.getPlayer().field_70136_U)**2)
+
+        let verticleSpeed = this.player.getPlayer().field_70163_u-this.player.getPlayer().field_70137_T
+        
+        this.animOffset += Math.min(1, horisontalSpeed)*10*timeSince+1*timeSince
+
+        if(this.player.getPlayer().field_70172_ad > 0){ //damage tick
+            this.animOffset += 5*timeSince
+        }
+
+
+        // if((this.player === Player &&this.player.getPlayer().field_71075_bZ.field_75100_b) || (this.player !== Player && Math.abs(verticleSpeed)<0.2 && !this.player.getPlayer().field_70122_E)){//playerCapabilities.isFlying
+        if((verticleSpeed>-0.2) && !this.player.getPlayer().field_70122_E){ //flying
+            this.animOffset += 5*timeSince //flap in mid air
+
+            if(verticleSpeed > 0){
+                this.animOffset += verticleSpeed*25*timeSince //flap when flying upwards
+            }
+        }
+        if(verticleSpeed < -0.5){
+            this.animOffset += (verticleSpeed+0.5)*-3*timeSince
+        }
+
+        if(horisontalSpeed < 0.01){
+            if(!((verticleSpeed>-0.2) && !this.player.getPlayer().field_70122_E)){ //not flying
+                let amt = (this.animOffset+Math.PI/2)%(20*Math.PI)
+                if(amt < 1*Math.PI){
+                    this.animOffset += 2*timeSince*Math.min(1,(amt/(1*Math.PI))*2)
+                }else if(amt < 2*Math.PI){
+                    this.animOffset += 2*timeSince*Math.min(1,(1-(amt/(1*Math.PI)-1))*2)
+                }
             }
         }
     }

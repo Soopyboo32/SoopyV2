@@ -1,5 +1,7 @@
 class Cosmetic{
     constructor(player, parent, id){
+
+        if(player.getUUID().toString() === Player.getUUID().toString()) player = Player
         /**
          * @type {PlayerMP | Player}
          */
@@ -12,7 +14,7 @@ class Cosmetic{
         this.settings = this.parent.getPlayerCosmeticSettings(this.player, id)
     }
 
-    onRender(){
+    onRenderEntity(ticks, isInGui){
         //override
     }
 
