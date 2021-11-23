@@ -191,6 +191,7 @@ class SoopyGui extends Feature {
         this.mainWindowElement.location.location.x.set(0.075, 500)
 
         // this.sidebarPage.visable = true
+        this.sidebarPage.clearChildren()
         this.sidebarPage.addChild(child)
     }
 

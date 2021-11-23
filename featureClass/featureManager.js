@@ -495,6 +495,7 @@ class FeatureManager {
     }
 }
 
-const featureManager = new FeatureManager();
-
-export default featureManager;
+if(!global.soopyv2featuremanagerthing){
+    global.soopyv2featuremanagerthing = new FeatureManager()
+}
+export default global.soopyv2featuremanagerthing

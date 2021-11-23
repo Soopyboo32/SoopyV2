@@ -1,8 +1,8 @@
 {
     "name": "Dungeon Map",
-    "description": "A really good dungeon map",
-    "isHidden": false,
+    "description": "A really good dungeon map (IN PROGRESS)",
+    "isHidden": true,
     "isTogglable": true,
-    "defaultEnabled": true,
+    "defaultEnabled": false,
     "sortA": 1
 }

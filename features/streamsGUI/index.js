@@ -8,6 +8,8 @@ import SoopyMarkdownElement from "../../../guimanager/GuiElement/SoopyMarkdownEl
 import SoopyImageElement from "../../../guimanager/GuiElement/SoopyImageElement";
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
+import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
+import BoxWithText from "../../../guimanager/GuiElement/BoxWithText";
 
 class StreamsGui extends Feature {
     constructor() {
@@ -75,12 +77,34 @@ class StreamPage extends GuiPage {
 
         this.openSidebarPage(sidebar)
 
-        /* 
-        TODO: finish this
+        sidebar.addChild(new SoopyTextElement().setText("§0"+data.user_name).setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1))
 
-        - Open stream in browser button
-        - show live chat
-        */
+        let title = new SoopyMarkdownElement().setText("§0"+data.title).setLocation(0.1, 0.15, 0.8, 0.1)
+        sidebar.addChild(title)
+
+        let image = new SoopyImageElement().setImage(data.image).setLocation(0.1, 0.15+title.getHeight(), 0.8, 0.4).loadHeightFromImage()
+        sidebar.addChild(image)
+
+        let button = new ButtonWithArrow().setText("§0Watch on Twitch").setLocation(0.1, 0.15+image.location.size.y.get()+title.getHeight(), 0.8, 0.1)
+        sidebar.addChild(button)
+
+        button.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+            java.awt.Desktop.getDesktop().browse(
+                new java.net.URI("https://twitch.tv/" + data.user_login)
+              );
+        }))
+
+        let language
+        if(data.language){
+            language = new BoxWithText().setText("§0Language: "+data.language).setLocation(0.3, 0.25+image.location.size.y.get()+title.getHeight(), 0.4, 0.1)
+
+            sidebar.addChild(language)
+        }
+        
+        image.onImageHeightChange(()=>{
+            button.location.location.y.set(0.15+image.location.size.y.get()+title.getHeight())
+            if(language) language.location.location.y.set(0.25+image.location.size.y.get()+title.getHeight())
+        }, this)
     }
 
     onOpen(){
@@ -124,7 +148,8 @@ class StreamElement extends SoopyBoxElement {
 
         this.channelElement.setText((twitch ? "§0"+stream.user_name : "§0"+stream.channelTitle) + (twitch?"&7 - " + stream.viewer_count + " viewer"+(stream.viewer_count!==1?"s":""):""))
         
-        this.channelImg.setImage(twitch ? `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.user_login}-640x360.jpg` : stream.thumbnails.high.url)
+        this.streamData.image = twitch ? `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.user_login}-640x360.jpg` : stream.thumbnails.high.url
+        this.channelImg.setImage(this.streamData.image)
 
         return this
     }
