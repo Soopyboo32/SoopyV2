@@ -84,7 +84,7 @@ class FeatureManager {
                 this.loadFeature(args)
             }).start()
         }, this)
-        this.registerCommand("soopylaginformation", (args)=>{
+        this.registerCommand("soopylaginformation", (args)=>{ //TODO: make this a dedicated GUI
             new Thread(()=>{
                 this.recordingPerformanceUsage = true
                 this.performanceUsage = {}
