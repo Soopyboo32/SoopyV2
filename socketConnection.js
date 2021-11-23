@@ -1,5 +1,7 @@
 import WebsiteCommunicator from "./../soopyApis/websiteCommunicator"
 import socketData from "../soopyApis/socketData"
+import logger from "./logger"
+import metadata from "./metadata"
 const Cosmetics = require("./features/cosmetics/index.js")
 
 class SoopyV2Server extends WebsiteCommunicator {
@@ -7,6 +9,10 @@ class SoopyV2Server extends WebsiteCommunicator {
         super(socketData.serverNameToId.soopyv2)
 
         this.spammedMessages = []
+
+        this.errorsToReport = []
+
+        this.reportErrorsSetting = undefined
     }
 
     onData(data){
@@ -18,13 +24,55 @@ class SoopyV2Server extends WebsiteCommunicator {
         }
     }
 
+    onConnect(){
+        if(this.reportErrorsSetting && !this.reportErrorsSetting.getValue()) return
+        new Thread(() => {
+            while(!this.reportErrorsSetting){
+                Thread.sleep(1000)
+            }
+
+            if(!this.reportErrorsSetting.getValue()) return
+            
+            this.errorsToReport.forEach(data => {
+                this.sendData({
+                    type: "error",
+                    data: data
+                })
+            })
+            this.errorsToReport = []
+        }).start()
+    }
+
     sendMessageToServer(message, lobbyId){
-        this.sendData(this.sendData({
+        this.sendData({
             type: "chatMessage",
             message: message,
             lobbyId: lobbyId
-        }))
+        })
     }
+
+    reportError(error, description){
+        if(this.reportErrorsSetting && !this.reportErrorsSetting.getValue()) return
+        let data = {
+            lineNumber: error.lineNumber,
+            fileName: error.fileName.replace(/file:.+?ChatTriggers/g, "file:"), //The replace is to not leak irl names thru windows acct name
+            message: error.message,
+            description: description,
+            stack: error.stack.replace(/file:.+?ChatTriggers/g, "file:"),
+            modVersion: metadata.version,
+            modVersionId: metadata.versionId,
+        }
+
+        if(this.connected && this.reportErrorsSetting){
+            this.sendData({
+                type: "error",
+                data: data
+            })
+        }else{
+            this.errorsToReport.push(data)
+        }
+    }
+
 }
 
 let soopyV2Server = new SoopyV2Server()

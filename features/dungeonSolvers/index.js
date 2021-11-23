@@ -47,7 +47,8 @@ class DungeonSolvers extends Feature {
         
         this.registerEvent("renderOverlay", this.renderHud)
         this.registerEvent("renderWorld", this.renderWorld)
-        this.registerEvent("renderEntity", this.renderEntity)
+        // this.registerEvent("renderEntity", this.renderEntity)
+        this.renderEntityEvent = undefined
     }
 
     renderWorld(ticks){
@@ -134,6 +135,16 @@ class DungeonSolvers extends Feature {
 
                 }
             })
+        }
+
+        if(this.lividData.correctLividEntity){
+            if(!this.renderEntityEvent){
+                this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity)
+            }
+        }else{
+            if(this.renderEntityEvent){
+                this.unregisterEvent(this.renderEntityEvent)
+            }
         }
     }
 

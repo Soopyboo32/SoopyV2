@@ -122,7 +122,7 @@ class StreamElement extends SoopyBoxElement {
 
         this.titleElement.setText(stream.title)
 
-        this.channelElement.setText((twitch ? "§0"+stream.user_name : "§0"+stream.channelTitle) + (twitch?"&7 - " + stream.viewer_count + " viewers":""))
+        this.channelElement.setText((twitch ? "§0"+stream.user_name : "§0"+stream.channelTitle) + (twitch?"&7 - " + stream.viewer_count + " viewer"+(stream.viewer_count!==1?"s":""):""))
         
         this.channelImg.setImage(twitch ? `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.user_login}-640x360.jpg` : stream.thumbnails.high.url)
 

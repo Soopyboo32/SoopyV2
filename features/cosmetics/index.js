@@ -41,7 +41,8 @@ class Cosmetics extends Feature {
         this.registerStep(false, 60*10, ()=>{
             new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
         })
-        this.registerEvent("renderEntity", this.renderEntity)
+        // this.registerEvent("renderEntity", this.renderEntity)
+        this.loadedRenderEntity = false
     }
 
     renderWorld(ticks){
@@ -64,6 +65,10 @@ class Cosmetics extends Feature {
 
         this.cosmeticsData = data
         this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g,"")]
+        if(this.playerHasACosmeticA && !this.loadedRenderEntity){
+            this.registerEvent("renderEntity", this.renderEntity)
+            this.loadedRenderEntity = true
+        }
 
         this.scanForNewCosmetics()
     }
@@ -126,7 +131,7 @@ class Cosmetics extends Feature {
 
     playerLeft(playerName){
         this.loadedCosmetics.filter(cosmetic=>{
-            if(cosmetic.player.getUUID().toString() === Player.getUUID().toString()) return
+            if(cosmetic.player.getUUID().toString() === Player.getUUID().toString()) return true
             if(cosmetic.player.getName() === playerName){
                 this.uuidToCosmetic[cosmetic.id][cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
             

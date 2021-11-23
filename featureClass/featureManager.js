@@ -1,8 +1,10 @@
 /// <reference types="../../CTAutocomplete" />
 /// <reference lib="es2015" />
+const Instant = Java.type("java.time.Instant");
 import logger from "../logger";
 const File = Java.type("java.io.File")
 import metadata from "../metadata.js"
+import soopyV2Server from "../socketConnection";
 import { registerForge as registerForgeBase, unregisterForge as unregisterForgeBase} from "./forgeEvents.js"
 
 class FeatureManager {
@@ -31,6 +33,11 @@ class FeatureManager {
         this.lastSoopyEventId = 0
 
         this.featureSettingsDataLastUpdated = false
+
+        //PERFORMANCE RECORDING
+        this.recordingPerformanceUsage = false
+        this.performanceUsage = {} //{moduleName: {event: {time: 0, count: 0}}}
+
 
         this.featureMetas = {}
 
@@ -75,6 +82,48 @@ class FeatureManager {
                 this.unloadFeature(args)
                 
                 this.loadFeature(args)
+            }).start()
+        }, this)
+        this.registerCommand("soopylaginformation", (args)=>{
+            new Thread(()=>{
+                this.recordingPerformanceUsage = true
+                this.performanceUsage = {}
+                ChatLib.chat(this.messagePrefix + "Recording performance impact, this will take 10 seconds to complete!")
+
+                Thread.sleep(10000)
+
+                let totalMsGlobal = 0
+                this.recordingPerformanceUsage = false
+                ChatLib.chat(this.messagePrefix + "Performance impact:")
+                Object.keys(this.performanceUsage).sort((a, b)=>{
+                    let totalMsA = 0
+                    Object.keys(this.performanceUsage[a]).forEach((event)=>{
+                        totalMsA += this.performanceUsage[a][event].time
+                    })
+                    let totalMsB = 0
+                    Object.keys(this.performanceUsage[b]).forEach((event)=>{
+                        totalMsB += this.performanceUsage[b][event].time
+                    })
+
+                    return totalMsA-totalMsB
+                }).forEach((moduleName)=>{
+                    let totalMs = 0
+                    let totalCalls = 0
+                    Object.keys(this.performanceUsage[moduleName]).forEach((event)=>{
+                        totalMs += this.performanceUsage[moduleName][event].time
+                        totalCalls += this.performanceUsage[moduleName][event].count
+                    })
+
+                    totalMsGlobal += totalMs
+
+                    ChatLib.chat("&eModule: &7" + moduleName)
+                    ChatLib.chat("&eTotal: &7" + totalMs.toFixed(2) + "ms (" + totalCalls + " calls)")
+                    Object.keys(this.performanceUsage[moduleName]).sort((a, b)=>{return this.performanceUsage[moduleName][a].time-this.performanceUsage[moduleName][b].time}).forEach((event)=>{
+                        ChatLib.chat("  &eEvent:&7 " + event + " - " + this.performanceUsage[moduleName][event].time.toFixed(2) + "ms (" + this.performanceUsage[moduleName][event].count + " calls)")
+                    })
+                })
+
+                ChatLib.chat("&eTotal: &7" + totalMsGlobal.toFixed(2) + "ms")
             }).start()
         }, this)
     }
@@ -160,20 +209,31 @@ class FeatureManager {
         if(this.events[event])
         try{
             for(Event of Object.values(this.events[event])){
-                if(Event.context.enabled) Event.func.call(Event.context, ...args)
+                if(Event.context.enabled){
+                    this.startRecordingPerformance(Event.context.constructor.name, event)
+                    Event.func.call(Event.context, ...args)
+                    this.stopRecordingPerformance(Event.context.constructor.name, event)
+                }
             }
         }catch(e){
             logger.logMessage("Error in " + event + " event: " + JSON.stringify(e, undefined, 2), 2)
+            
+            soopyV2Server.reportError(e, "Error in " + event + " event.")
         }
     }
     triggerSoopy(event, args){
         if(this.soopyEventHandlers[event])
         try{
             for(Event of Object.values(this.soopyEventHandlers[event])){
-                if(Event.context.enabled) Event.func.call(Event.context, ...args)
+                if(Event.context.enabled){
+                    this.startRecordingPerformance(Event.context.constructor.name, event)
+                    Event.func.call(Event.context, ...args)
+                    this.stopRecordingPerformance(Event.context.constructor.name, event)
+                }
             }
         }catch(e){
             logger.logMessage("Error in soopy " + event + " event: " + JSON.stringify(e, undefined, 2), 2)
+            soopyV2Server.reportError(e, "Error in soopy " + event + " event.")
         }
     }
 
@@ -258,9 +318,15 @@ class FeatureManager {
             context: context,
             trigger: register(type, (...args)=>{
                 try{
-                    if(context.enabled) func.call(context, ...(args || []))
+                    if(context.enabled){
+                        this.startRecordingPerformance(context.constructor.name, type)
+                        func.call(context, ...(args || []))
+                        this.stopRecordingPerformance(context.constructor.name, type)
+                    }
                 }catch(e){
                     logger.logMessage("Error in " + type + " event: " + JSON.stringify(e, undefined, 2), 2)
+                    
+                    soopyV2Server.reportError(e, "Error in " + type + " event.")
                 }
             }),
             id: id
@@ -277,9 +343,15 @@ class FeatureManager {
             context: context,
             trigger: registerForgeBase(event, (...args)=>{
                 try{
-                    if(context.enabled) func.call(context, ...args)
+                    if(context.enabled){
+                        this.startRecordingPerformance(context.constructor.name, event.class.name)
+                        func.call(context, ...(args || []))
+                        this.stopRecordingPerformance(context.constructor.name, event.class.name)
+                    }
                 }catch(e){
                     logger.logMessage("Error in " + event.class.toString() + " (forge) event: " + JSON.stringify(e, undefined, 2), 2)
+                    
+                    soopyV2Server.reportError(e, "Error in " + event.class.toString() + " (forge) event.")
                 }
             }),
             id: id
@@ -358,6 +430,8 @@ class FeatureManager {
             logger.logMessage("Error loading feature " + feature, 1)
             console.log(JSON.stringify(e, undefined, 2))
             ChatLib.chat(this.messagePrefix + "Error loading feature " + feature)
+
+            soopyV2Server.reportError(e, "Error loading feature " + feature)
         }
 
         return this
@@ -397,6 +471,27 @@ class FeatureManager {
                 this.triggerSoopy(eventId, args)
             }
         }
+    }
+
+    startRecordingPerformance(feature, event){
+        if(!this.recordingPerformanceUsage) return
+
+        if(!this.performanceUsage[feature]) this.performanceUsage[feature] = {}
+        if(!this.performanceUsage[feature][event]) this.performanceUsage[feature][event] = {time: 0,count: 0}
+
+        let instant = Instant.now()
+	    let time = (instant.getEpochSecond() + (instant.getNano() / 1000000000))*1000;
+
+        this.performanceUsage[feature][event].startTime = time
+    }
+    stopRecordingPerformance(feature, event){
+        if(!this.recordingPerformanceUsage) return
+
+        let instant = Instant.now()
+        let time = (instant.getEpochSecond() + (instant.getNano() / 1000000000))*1000;
+
+        this.performanceUsage[feature][event].time += time - this.performanceUsage[feature][event].startTime
+        this.performanceUsage[feature][event].count++
     }
 }
 

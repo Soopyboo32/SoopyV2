@@ -9,6 +9,7 @@ import GuiPage from "../soopyGui/GuiPage"
 import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement";
 import Notification from "../../../guimanager/Notification";
 import logger from "../../logger";
+import soopyV2Server from "../../socketConnection";
 const Files = Java.type("java.nio.file.Files")
 const Paths = Java.type("java.nio.file.Paths")
 const JavaString = Java.type("java.lang.String")
@@ -41,6 +42,8 @@ class Hud extends Feature {
         this.privacySettings = [this.reportErrorsSetting, this.sendChatSetting]
 
         // this.GuiPage = new FirstLoadingPage(this)
+
+        soopyV2Server.reportErrorsSetting = this.reportErrorsSetting
 
         this.registerChat("&aYour new API key is &r&b${key}&r", this.newKey)
 
