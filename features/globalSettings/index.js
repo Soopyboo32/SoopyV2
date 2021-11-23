@@ -41,16 +41,31 @@ class Hud extends Feature {
 
         this.privacySettings = [this.reportErrorsSetting, this.sendChatSetting]
 
-        // this.GuiPage = new FirstLoadingPage(this)
+        this.firstLoadPageData = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2firstloaddata.json") || "{}") || {}
+
+        this.GuiPage = new FirstLoadingPage(this)
 
         soopyV2Server.reportErrorsSetting = this.reportErrorsSetting
 
         this.registerChat("&aYour new API key is &r&b${key}&r", this.newKey)
 
-        // new Thread(()=>{
-        //     Thread.sleep(1000) //TODO: DO ON 2nd WORLDLOAD
-        //     ChatLib.command("soopyv2 first_load_thing", true)//TODO: ONLY RUN ON FIRST INSTALL
-        // }).start()
+        this.registerEvent("worldLoad", this.worldLoad)
+
+        this.ranFirstLoadThing = false
+
+        setTimeout(()=>{
+            this.worldLoad.call(this)
+        }, 1000)
+    }
+
+    worldLoad(){
+        if(!this.ranFirstLoadThing && World && !this.firstLoadPageData.shown){
+            ChatLib.command("soopyv2 first_load_thing", true)
+            this.ranFirstLoadThing = true
+            this.firstLoadPageData.shown = true
+            this.firstLoadPageData.version = 1
+            FileLib.write("soopyAddonsData", "soopyv2firstloaddata.json", JSON.stringify(this.firstLoadPageData))
+        }
     }
 
     findKey(){
