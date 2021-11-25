@@ -127,6 +127,7 @@ class Mining extends Feature {
     }
 
     tick(){
+        if(!this.FeatureManager.features["dataLoader"]) return
         if(this.guessBalHp.getValue() || this.balRespawnHud.getValue()){
             if(this.FeatureManager.features["dataLoader"].class.area === "Crystal Hollows" && this.FeatureManager.features["dataLoader"].class.areaFine === "Khazad-dm"){
                 

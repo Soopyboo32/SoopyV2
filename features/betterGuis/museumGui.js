@@ -178,13 +178,13 @@ class MuseumGui {
 
         this.nextButton = new ButtonWithArrow().setLocation(0.5+widthPer*3/2-widthPer/2, 0.25, widthPer/2, 0.075).setText("§0Next Page")
         this.nextButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-            this.nextPage()
+            if(this.nextButton.visable)this.nextPage()
         }))
         this.mainPage.addChild(this.nextButton)
 
         this.previousButton = new ButtonWithArrow().setLocation(0.5-widthPer*3/2, 0.25, widthPer/2, 0.075).setText("§0Previous Page").setDirectionRight(false)
         this.previousButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-            this.previousPage()
+            if(this.previousButton.visable)this.previousPage()
         }))
         this.mainPage.addChild(this.previousButton)
 

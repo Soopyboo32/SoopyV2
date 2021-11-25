@@ -224,8 +224,6 @@ class Hud extends Feature {
     }
 
     onDisable(){
-        this.fpsEnabledSetting.delete()
-
         this.initVariables()
     }
 }
