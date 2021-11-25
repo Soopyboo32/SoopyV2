@@ -540,7 +540,7 @@ class MuseumGui {
                     Player.getOpenedInventory().click(slotNum, false,"LEFT") //TODO: add right click support for viewing armour sets
                 }))
                 if(this.favoriteIds.includes(slot.sb_id)){
-                    child.setColor(255, 255, 200)
+                    child.setColor(200, 255, 200)
                 }
             }
             child.setLocation(offset+widthPer*itemNum,y,widthPer*9/10,0.125)
