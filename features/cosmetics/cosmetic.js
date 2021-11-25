@@ -12,6 +12,8 @@ class Cosmetic{
         this.id = id
         
         this.settings = this.parent.getPlayerCosmeticSettings(this.player, id)
+
+        this.onTick()
     }
 
     onRenderEntity(ticks, isInGui){

@@ -20,6 +20,8 @@ class FeatureManager {
 
         this.parent = undefined
 
+        this.finishedLoading = false
+
         this.commandFuncs = {}
 
         this.lastEventId = 0
@@ -53,6 +55,8 @@ class FeatureManager {
                     this.loadFeature(feature)
                 }
             })
+
+            this.finishedLoading = true
         }).start()
 
         this.registerStep(false, 30, ()=>{

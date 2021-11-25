@@ -33,7 +33,7 @@ class Hud extends Feature {
         this.findApiKey = new ButtonSetting("Attempt to load api key from other mods", "This will scan other mods configs to attempt to find your key", "find_key", this, "Click!", this.findKey, undefined)
 
 
-        this.notifyNewVersion = new ToggleSetting("Notify when there is a new update", "Will notify you when there is a new version of soopyv2 avalible for download", false, "notify_update", this)
+        this.notifyNewVersion = new ToggleSetting("Notify when there is a new update", "Will notify you when there is a new version of soopyv2 avalible for download", true, "notify_update", this) //TODO: Make false by default when uploaded on ct website
 
 
         this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
@@ -49,16 +49,17 @@ class Hud extends Feature {
 
         this.registerChat("&aYour new API key is &r&b${key}&r", this.newKey)
 
-        this.registerEvent("worldLoad", this.worldLoad)
-
         this.ranFirstLoadThing = false
 
-        setTimeout(()=>{
-            this.worldLoad.call(this)
-        }, 1000)
+        if(!this.firstLoadPageData.shown){
+            while(!World || this.FeatureManager.finishedLoading){
+                Thread.sleep(100)
+            }
+            this.showFirstLoadPage.call(this)
+        }
     }
 
-    worldLoad(){
+    showFirstLoadPage(){
         if(!this.ranFirstLoadThing && World && !this.firstLoadPageData.shown){
             ChatLib.command("soopyv2 first_load_thing", true)
             this.ranFirstLoadThing = true

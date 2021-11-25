@@ -33,6 +33,7 @@ class SpamHider extends Feature {
     }
 
     chatPlayerMessage(userandrank, message, e){
+        if(!this.FeatureManager.features["generalSettings"]) return
         if(userandrank.includes(">")) return
         if(message.length < 10) return //Short messages like 'LOL' are bound to get repeated
 
