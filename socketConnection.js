@@ -13,6 +13,8 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.errorsToReport = []
 
         this.reportErrorsSetting = undefined
+
+        this.onPlayerStatsLoaded = undefined
     }
 
     onData(data){
@@ -21,6 +23,9 @@ class SoopyV2Server extends WebsiteCommunicator {
         }
         if(data.type === "spammedmessage"){
             this.spammedMessages.push(...data.messages)
+        }
+        if(data.type === "playerStatsQuick"){
+            if(this.onPlayerStatsLoaded) this.onPlayerStatsLoaded(data.data)
         }
     }
 
@@ -73,6 +78,12 @@ class SoopyV2Server extends WebsiteCommunicator {
         }
     }
 
+    requestPlayerStats(uuid){
+        this.sendData({
+            type: "loadStatsQuick",
+            uuid: uuid
+        })
+    }
 }
 
 let soopyV2Server = new SoopyV2Server()

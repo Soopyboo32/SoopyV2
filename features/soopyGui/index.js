@@ -161,12 +161,12 @@ class SoopyGui extends Feature {
 
         this.pages.forEach((p)=>{
             Object.values(p.pages).forEach((e, i)=>{
-                e.location.location.x.set(i-pageNum+1, animate?1000:0)
+                e.location.location.x.set(i-pageNum+1, animate?500:0)
             })
         })
-        this.categoryPage.location.location.x.set(-pageNum, animate?1000:0)
+        this.categoryPage.location.location.x.set(-pageNum, animate?500:0)
 
-        this.backButton.location.location.y.set((pageNum === 0 || !this.currCategory.showBackButton)?-0.2:0, animate?1000:0)
+        this.backButton.location.location.y.set((pageNum === 0 || !this.currCategory.showBackButton)?-0.2:0, animate?500:0)
     }
     goToPageNum(pageNum, animate=true){
         if(pageNum<0) return;
@@ -179,12 +179,12 @@ class SoopyGui extends Feature {
 
         this.pages.forEach((p)=>{
             Object.values(p.pages).forEach((e, i)=>{
-                e.location.location.x.set(i-pageNum+1, animate?1000:0)
+                e.location.location.x.set(i-pageNum+1, animate?500:0)
             })
         })
-        this.categoryPage.location.location.x.set(-pageNum, animate?1000:0)
+        this.categoryPage.location.location.x.set(-pageNum, animate?500:0)
 
-        this.backButton.location.location.y.set((pageNum === 0 || !this.currCategory.showBackButton)?-0.2:0, animate?1000:0)
+        this.backButton.location.location.y.set((pageNum === 0 || !this.currCategory.showBackButton)?-0.2:0, animate?500:0)
     }
     openSidebarPage(child){
         this.sidebarPage.location.location.x.set(0.625, 500)

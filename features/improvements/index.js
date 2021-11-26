@@ -15,6 +15,7 @@ class Improvements extends Feature {
 
         this.registerChat("${color}-----------------------------------------------------&r", (color, event)=>{
             if(this.betterLineBreaks.getValue()){
+                if(color.length > 6) return
                 cancel(event)
                 ChatLib.chat(color + "&m" + ChatLib.getChatBreak(" ") + "&r");
             }
