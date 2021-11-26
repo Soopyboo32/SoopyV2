@@ -85,14 +85,14 @@ class SpamHider extends Feature {
 
         this.hideMessagesRexex = []
         this.hideMessages.forEach(message=>{
-            let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '\$&')
+            let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
                         .replace(/\$\{\*\}/g, "(?:.+)"))
             this.hideMessagesRexex.push(regex)
         })
 
         this.moveMessagesRexex = []
         this.moveMessages.forEach(message=>{
-            let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '\$&')
+            let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
                         .replace(/\$\{\*\}/g, "(?:.+)"))
                         
             this.moveMessagesRexex.push(regex)
