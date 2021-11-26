@@ -98,6 +98,8 @@ class BetterGuis extends Feature {
             if(this.museumGuiEnabled.getValue()) this.museumGui.guiOpened.call(this.museumGui, event)
         })
         this.registerStep(true, 10, this.step)
+        this.registerEvent("worldUnload", ()=>{this.museumGui.saveMuseumCache.call(this.museumGui)})
+        this.registerStep(false, 30, ()=>{this.museumGui.saveMuseumCache.call(this.museumGui)})
     }
 
     guiClicked(mouseX, mouseY, button, gui, event){
@@ -108,7 +110,7 @@ class BetterGuis extends Feature {
 
             let hoveredSlotId = hoveredSlot.field_75222_d
 
-            logger.logMessage(hoveredSlotId, 4)
+            // logger.logMessage(hoveredSlotId, 4)
 
             if(this.guiSlotClicked(ChatLib.removeFormatting(Player.getOpenedInventory().getName()), hoveredSlotId)){
                 cancel(event)

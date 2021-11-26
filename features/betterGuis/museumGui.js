@@ -1,15 +1,21 @@
 import { SoopyGui, SoopyRenderEvent } from "../../../guimanager"
+import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent"
 import SoopyKeyPressEvent from "../../../guimanager/EventListener/SoopyKeyPressEvent"
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent"
+import SoopyOpenGuiEvent from "../../../guimanager/EventListener/SoopyOpenGuiEvent"
 import BoxWithText from "../../../guimanager/GuiElement/BoxWithText"
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow"
 import ProgressBar from "../../../guimanager/GuiElement/ProgressBar"
 import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement"
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement"
 import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement"
+import TextBox from "../../../guimanager/GuiElement/TextBox"
 import Notification from "../../../guimanager/Notification"
 import renderLibs from "../../../guimanager/renderLibs"
 import * as utils from "../../utils/utils"
+
+
+const ContainerChest = Java.type("net.minecraft.inventory.ContainerChest")
 
 class MuseumGui {
     constructor(){
@@ -19,7 +25,8 @@ class MuseumGui {
         this.guiOpenTickThing = false
         this.dontOpen = 0
         this.lastClosed = 0
-        this.itemsInPages = {}
+        this.itemsInPages = JSON.parse(FileLib.read("soopyAddonsData","museumItemsCache.json") || "{}") || {}
+        this.itemsInPagesSaved = true
 
         this.soopyGui = new SoopyGui()
 
@@ -171,10 +178,38 @@ class MuseumGui {
         this.specialIndicator.addChild(this.specialPercentageText)
         this.mainPage.addChild(this.specialIndicator)
 
-        let box = new SoopyBoxElement().setLocation(0.5-widthPer*0.75, 0.25, widthPer*2*0.75, 0.075)
+        let box = new SoopyBoxElement().setLocation(0.5-widthPer*0.75, 0.25, widthPer*2*0.75, 0.075).setLore(["Click to search"])
         this.pageTitle = new SoopyTextElement().setText("§5Your Museum").setMaxTextScale(10).setLocation(0,0,1,1)
         box.addChild(this.pageTitle)
         this.mainPage.addChild(box)
+
+        this.searchText = ""
+        let search = new TextBox().setLocation(0.5-widthPer*0.75, 0.25, widthPer*2*0.75, 0.075)
+        box.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+            box.visable = false
+            search.visable = true
+            search.select()
+        }))
+        search.visable = false
+        search.text.mouseClickG = (mouseX, mouseY)=>{
+            if(search.text.selected && !this.searchText){
+                box.visable = true
+                search.visable = false
+            }
+            search.text.selected = false
+        }
+        search.text.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFunction)=>{
+            this.searchText = newVal
+            this.showSearchItems()
+        }))
+        this.mainPage.addChild(search)
+        this.mainPage.addEvent(new SoopyOpenGuiEvent().setHandler(()=>{
+            box.visable = true
+            search.visable = false
+            search.text.selected = false
+            search.setText("")
+            this.searchText = ""
+        }))
 
         this.nextButton = new ButtonWithArrow().setLocation(0.5+widthPer*3/2-widthPer/2, 0.25, widthPer/2, 0.075).setText("§0Next Page")
         this.nextButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
@@ -231,6 +266,16 @@ class MuseumGui {
         this.favoriteItems = JSON.parse(FileLib.read("soopyAddonsData","museumFavoriteData.json") || "[]") || []
         this.favoriteIds = this.favoriteItems.map(a=>a.sb_id)
         this.updatedFavorites(false)
+    }
+
+    saveMuseumCache(){
+        //Called on worldUnload, and ever 30 seconds
+        if(this.itemsInPagesSaved) return
+        this.itemsInPagesSaved = true
+
+        new Thread(()=>{
+            FileLib.write("soopyAddonsData","museumItemsCache.json",JSON.stringify(this.itemsInPages))
+        }).start()
     }
 
     clickedTopButton(type){
@@ -337,7 +382,7 @@ class MuseumGui {
             })
             this.specialIndicator.setLore(lore)
 
-            if(this.pageTitle.text !== ("§5"+Player.getOpenedInventory().getName()) || first){
+            if((this.pageTitle.text !== ("§5"+Player.getOpenedInventory().getName()) || first) && !this.searchText){
                 this.itemsBox.clearChildren()
                 let rewardsButton = new ButtonWithArrow().setText("§5Rewards").setLocation(0.1,0.05,0.8,0.2)
                 rewardsButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
@@ -363,13 +408,15 @@ class MuseumGui {
             let page = this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()]
             let [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
 
-            if(currPage > 1){
-                this.previousButton.visable = true
-                if(Player.getOpenedInventory().getStackInSlot(45).getID() !== -1) this.previousButton.setLore(Player.getOpenedInventory().getStackInSlot(45).getLore())
-            }
-            if(currPage < pageNum){
-                this.nextButton.visable = true
-                if(Player.getOpenedInventory().getStackInSlot(53).getID() !== -1)this.nextButton.setLore(Player.getOpenedInventory().getStackInSlot(53).getLore())
+            if(!this.searchText){
+                if(currPage > 1){
+                    this.previousButton.visable = true
+                    if(Player.getOpenedInventory().getStackInSlot(45).getID() !== -1) this.previousButton.setLore(Player.getOpenedInventory().getStackInSlot(45).getLore())
+                }
+                if(currPage < pageNum){
+                    this.nextButton.visable = true
+                    if(Player.getOpenedInventory().getStackInSlot(53).getID() !== -1)this.nextButton.setLore(Player.getOpenedInventory().getStackInSlot(53).getLore())
+                }
             }
             
             this.donateTitleBox.visable = true
@@ -442,16 +489,24 @@ class MuseumGui {
                                 this.itemsInPages[page][currPage][slot] = itemData
                                 
                                 changed = true
+                                this.itemsInPagesSaved = false
                             }
+                    }else{
+                        if(this.itemsInPages[page][currPage][slot]){
+                            delete this.itemsInPages[page][currPage][slot]
+                                
+                            changed = true
+                            this.itemsInPagesSaved = false
+                        }
                     }
                 }
             }
-            if(changed || this.guiUpdated) this.regenItems(currPage)
+            if(changed || this.guiUpdated || first) this.regenItems(currPage)
         }
 
         if(Player.getOpenedInventory().getName() === "Confirm Donation"){
             let this_confirm_temp_str = Player.getOpenedInventory().getStackInSlot(4).getName() +Player.getOpenedInventory().getStackInSlot(2).getName() + Player.getOpenedInventory().getStackInSlot(20).getName() + Player.getOpenedInventory().getStackInSlot(24).getName()//4, 24, 20
-            if(this.confirm_temp !== this_confirm_temp_str){
+            if(this.confirm_temp !== this_confirm_temp_str || first){
                 this.confirm_temp = this_confirm_temp_str
 
                 this.itemsBox.clearChildren()
@@ -484,6 +539,17 @@ class MuseumGui {
                     this.itemsBox.addChild(confirmButton)
                 }
             }
+
+            this.favoriteBox.visable = false
+            this.favoriteTitleBox.visable = false
+        }else{
+            if(this.confirm_temp && this.searchText){
+                this.showSearchItems()
+            }
+            this.confirm_temp = ""
+
+            this.favoriteBox.visable = true
+            this.favoriteTitleBox.visable = true
         }
 
         this.pageTitle.setText("§5"+Player.getOpenedInventory().getName())
@@ -493,7 +559,7 @@ class MuseumGui {
     regenDonateItems(){
         this.donateBox.clearChildren()
         this.donateItems.forEach((item, i)=>{
-            let itemButton = new ButtonWithArrow().setText(item.name.startsWith("§f")?"&7"+item.name.substr(2):item.name).setLocation(0.1,0.05+0.125*i,0.8,0.1).setLore(item.lore)
+            let itemButton = new ButtonWithArrow().setText(item.name.startsWith("§f")?"&7"+item.name.substr(2):item.name).setLocation(0.05,0.025+0.125*i,0.9,0.1).setLore(item.lore)
             itemButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
                 Player.getOpenedInventory().click(item.slot, false, "LEFT")
             }))
@@ -501,7 +567,140 @@ class MuseumGui {
         })
     }
 
+    showSearchItems(){
+        if(Player.getOpenedInventory().getName() === "Confirm Donation") return
+
+        if(!this.searchText){
+            this.tickMenu(true)
+            return
+        }
+
+
+        this.itemsBox.clearChildren()
+
+        let items = []
+
+        // this.itemsInPages[page][page2]
+        Object.keys(this.itemsInPages).forEach((pageKey)=>{
+            let page = this.itemsInPages[pageKey]
+            page.forEach((page2, page2I)=>{
+                if(!page2) return
+                if(items.length >= 4*7) return
+                page2.forEach((item, slotNum)=>{
+                    if(!item) return
+                    if(items.length >= 4*7) return
+                    if(item.name.toLowerCase().includes(this.searchText.toLowerCase())){
+                        let loreNew = []
+                        Object.values(item.lore).forEach(a=>{
+                            loreNew.push(a)
+                        })
+                        item.lore = loreNew
+                        item.page = pageKey //category eg: Weapons, armour sets ect
+                        item.page2 = page2I //pagenum of category
+                        item.slotNum = slotNum //slotnum
+
+                        items.push(item)
+                    }
+                })
+            })
+        })
+
+        let y = 0.0325
+        let itemNum = 0
+        let width = 3
+        let widthPer = 1/(width+1)
+        let offset = 0.0125
+
+        items.forEach((slot, slotNum)=>{
+            if(!slot) return
+
+            let child
+
+            if(slot.sb_id === "NA"){
+                child =new BoxWithText().setText(slot.name.startsWith("§f")?"&7"+slot.name.substr(2):slot.name).setLore(slot.lore)
+                if(slot.name.startsWith("§c")){
+                    child.setColor(255, 100, 100)
+                    child.setText("&0"+slot.name.substr(2))
+                }
+                if(slot.name.startsWith("§e")){
+                    child.setColor(255, 255, 100)
+                    child.setText("&0"+slot.name.substr(2))
+                }
+            }else{
+                let fItem = slot
+                child = new ButtonWithArrow().setText(slot.name.startsWith("§f")?"&7"+slot.name.substr(2):slot.name).setLore(slot.lore)
+                child.addEvent(new SoopyMouseClickEvent().setHandler((mouseX, mouseY, button)=>{
+                    if(button === 2){ //middle click -> add item to favorites
+                        this.addItemToFavorites(fItem, fItem.page, fItem.page2, fItem.slotNum)
+                        return
+                    }
+                    // Player.getOpenedInventory().click(item.slotNum, false,button===1?"RIGHT":"LEFT")
+                    
+                    let currPage, pageNum
+                    if(Player.getOpenedInventory().getName().includes("/")){
+                        [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
+                    }
+                    
+                    if(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()]===fItem.page){
+                        if(currPage === fItem.page2){
+                            Player.getOpenedInventory().click(fItem.slotNum, false,"LEFT")
+                        }else{
+                            if(currPage < fItem.page2){
+                                Player.getOpenedInventory().click(53, false,"MIDDLE")
+                            }else{
+                                Player.getOpenedInventory().click(45, false,"MIDDLE")
+                            }
+                        }
+                    }else{
+                        this.clickedTopButton(fItem.page)
+                    }
+                })).addEvent(new SoopyRenderEvent().setHandler(()=>{
+                    if(child.hovered){
+    
+                        child.setColorOffset(-20, -20, -20, 100)
+        
+                        Renderer.translate(0,0,100)
+                        Renderer.drawRect(Renderer.color(0,0,0,100), child.location.getXExact(), child.location.getYExact(), child.location.getWidthExact(), child.location.getHeightExact())
+                        
+                        let clicks = "?"
+                        let currPage, pageNum
+                        if(Player.getOpenedInventory().getName().includes("/")){
+                            [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
+                        }
+                        let pageClicks = Math.abs(currPage-fItem.page2)
+                        if(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()]===fItem.page){
+                            clicks = (pageClicks+1) + ""
+                        }else{
+                            if(Player.getOpenedInventory().getName() === "Your Museum"){
+                                clicks = (1+fItem.page2) + ""
+                            }else{
+                                clicks = (2+fItem.page2) + ""
+                            }
+                        }
+    
+                        Renderer.translate(0,0,100)
+                        renderLibs.drawStringCenteredFull(clicks, child.location.getXExact()+child.location.getWidthExact()/2, child.location.getYExact()+child.location.getHeightExact()/2, Math.min(child.location.getWidthExact()/Renderer.getStringWidth(clicks)/4, child.location.getHeightExact()/4/2))
+                    
+                    }
+                }))
+                if(this.favoriteIds.includes(slot.sb_id)){
+                    child.setColor(200, 255, 200)
+                }
+            }
+            child.setLocation(offset+widthPer*itemNum,y,widthPer*9/10,0.125)
+            this.itemsBox.addChild(child)
+
+            itemNum++
+            if(itemNum>width){
+                itemNum = 0
+                y+=0.135
+            }
+        })
+    }
+
     regenItems(page2){
+        if(this.searchText) return
+
         this.itemsBox.clearChildren()
 
         let page = this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()] 
@@ -585,7 +784,7 @@ class MuseumGui {
         this.favoriteBox.clearChildren()
 
         this.favoriteItems.forEach((fItem, i)=>{
-            let item = new ButtonWithArrow().setText(fItem.name.startsWith("§f")?"&7"+fItem.name.substr(2):fItem.name).setLocation(0.1,0.05+0.125*i,0.8,0.1).setLore(fItem.lore)
+            let item = new ButtonWithArrow().setText(fItem.name.startsWith("§f")?"&7"+fItem.name.substr(2):fItem.name).setLocation(0.05,0.025+0.125*i,0.9,0.1).setLore(fItem.lore)
 
             item.addEvent(new SoopyMouseClickEvent().setHandler((mouseX, mouseY, button)=>{
                 if(button === 2){ //middle click -> remove item from favorites (calling add will remove because it alr exists)
@@ -653,8 +852,13 @@ class MuseumGui {
     }
 
     guiOpened(event){
+        let name = ""
+        if(event.gui && event.gui.field_147002_h instanceof ContainerChest){
+            name = event.gui.field_147002_h.func_85151_d().func_145748_c_().func_150260_c()
+        }
         if(this.dontOpen > 0){
             this.dontOpen--
+            cancel(event)
             return
         }
         if(this.soopyGui.ctGui.isOpen()){
@@ -677,7 +881,38 @@ class MuseumGui {
         if(this.isInMuseum){
             this.soopyGui.ctGui.open()
         }else{
-            this.checkMenu = true
+            if(name === "Your Museum" && !this.isInMuseum){
+
+                if(event.gui && event.gui.field_147002_h) Player.getPlayer().field_71070_bA = event.gui.field_147002_h
+                
+                this.isInMuseum = true
+
+                this.soopyGui.open()
+                event.gui = this.soopyGui.ctGui
+                this.guiOpenTickThing = true
+
+                this.itemsBox.clearChildren()
+                let rewardsButton = new ButtonWithArrow().setText("§5Rewards").setLocation(0.1,0.05,0.8,0.2)
+                rewardsButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+                    Player.getOpenedInventory().click(40, false, "MIDDLE")
+                }))
+                this.itemsBox.addChild(rewardsButton)
+                let browserButton = new ButtonWithArrow().setText("§5Museum Browser").setLocation(0.1,0.3,0.8,0.2)
+                browserButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+                    Player.getOpenedInventory().click(50, false, "MIDDLE")
+                }))
+                this.itemsBox.addChild(browserButton)
+                
+                this.nextButton.visable = false
+                this.previousButton.visable = false
+
+                this.donateTitleBox.visable = false
+                this.donateBox.visable = false
+
+                this.pageTitle.setText("§5"+name)
+
+                this.tickMenu(true)
+            }
         }
     }
 
@@ -685,6 +920,7 @@ class MuseumGui {
         if(keyId === 1){ //escape key
             this.isInMuseum = false
             this.dontOpen = 3
+            Client.currentGui.close()
         }
     }
 
@@ -706,17 +942,6 @@ class MuseumGui {
             this.weaponsProgressBar.setProgress(0)
             this.armourProgressBar.setProgress(0)
             this.raritiesProgressBar.setProgress(0)
-        }
-
-        if(this.checkMenu){
-            if(Player.getOpenedInventory().getName() === "Your Museum" && !this.isInMuseum){
-                this.isInMuseum = true
-
-                this.soopyGui.open()
-                this.guiOpenTickThing = true
-                this.tickMenu(true)
-            }
-            this.checkMenu = false
         }
 
         if(this.dontOpen > 0){
