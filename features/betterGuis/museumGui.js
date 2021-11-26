@@ -30,6 +30,8 @@ class MuseumGui {
 
         this.soopyGui = new SoopyGui()
 
+        this.soopyGui.optimisedLocations = true
+
         this.soopyGui.element.addEvent(new SoopyKeyPressEvent().setHandler((...args)=>{
             this.keyPress(...args)
         }))
@@ -884,7 +886,7 @@ class MuseumGui {
             if(name === "Your Museum" && !this.isInMuseum){
 
                 if(event.gui && event.gui.field_147002_h) Player.getPlayer().field_71070_bA = event.gui.field_147002_h
-                
+
                 this.isInMuseum = true
 
                 this.soopyGui.open()
