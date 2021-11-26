@@ -8,6 +8,7 @@ import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow"
 import ProgressBar from "../../../guimanager/GuiElement/ProgressBar"
 import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement"
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement"
+import SoopyMarkdownElement from "../../../guimanager/GuiElement/SoopyMarkdownElement"
 import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement"
 import TextBox from "../../../guimanager/GuiElement/TextBox"
 import Notification from "../../../guimanager/Notification"
@@ -784,6 +785,12 @@ class MuseumGui {
 
     updatedFavorites(saveToFile=true){
         this.favoriteBox.clearChildren()
+
+        if(this.favoriteItems.length === 0 ){
+            let item = new SoopyMarkdownElement().setText("Middle click to add an item to your favorites list").setLocation(0.05,0.025,0.9,0.9)
+
+            this.favoriteBox.addChild(item)
+        }
 
         this.favoriteItems.forEach((fItem, i)=>{
             let item = new ButtonWithArrow().setText(fItem.name.startsWith("§f")?"&7"+fItem.name.substr(2):fItem.name).setLocation(0.05,0.025+0.125*i,0.9,0.1).setLore(fItem.lore)
