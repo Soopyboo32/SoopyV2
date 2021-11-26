@@ -3,6 +3,7 @@
 import Feature from "../../featureClass/class";
 import soopyV2Server from "../../socketConnection";
 import SettingBase from "../settings/settingThings/settingBase";
+import * as numberUtils from "../../utils/numberUtils";
 
 class StatNextToName extends Feature {
     constructor() {
@@ -55,7 +56,7 @@ class StatNextToName extends Feature {
         nameTagString += " &2["
         if(stats.usingSoopyv2) nameTagString += "&d⚝&2"
         if(stats.exists && stats[this.statsThing]){
-            nameTagString +=stats[this.statsThing].toFixed(this.decimalPlaces)
+            nameTagString += numberUtils.numberWithCommas(stats[this.statsThing].toFixed(this.decimalPlaces))
         }else{
             nameTagString += "?"
         }
