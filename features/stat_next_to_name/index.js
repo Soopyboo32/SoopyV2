@@ -23,6 +23,7 @@ class StatNextToName extends Feature {
         soopyV2Server.onPlayerStatsLoaded = (stats)=>{this.playerStatsLoaded.call(this, stats)}
 
         this.registerStep(false, 5, this.loadPlayerStatsTick)
+        this.registerEvent("worldLoad", this.worldLoad)
     }
 
     loadPlayerStatsTick(){
@@ -35,6 +36,7 @@ class StatNextToName extends Feature {
                 return
             }
             if(this.loadingStats.includes(player.getUUID().toString().replace(/-/g, ""))) return
+            if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
 
             let dist = Math.pow(player.getX() - Player.getX(), 2) + Math.pow(player.getY() - Player.getY(), 2) + Math.pow(player.getZ() - Player.getZ(), 2)
             if(dist < nearestDistance){
@@ -45,6 +47,15 @@ class StatNextToName extends Feature {
 
         if(nearestPlayer){
             this.loadPlayerStats(nearestPlayer)
+        }
+    }
+
+    worldLoad(){
+        let playerStats = this.userStats[Player.getUUID().toString().replace(/-/g, "")]
+        this.userStats = {}
+        this.loadingStats = []
+        if(playerStats){
+            this.userStats[Player.getUUID().toString().replace(/-/g, "")] = playerStats
         }
     }
 

@@ -9,8 +9,6 @@ import HudTextElement from "./HudTextElement";
 class Hud extends Feature {
     constructor() {
         super()
-    
-        this.initVariables()
     }
 
     initVariables(){
@@ -58,6 +56,7 @@ class Hud extends Feature {
     }
 
     onEnable(){
+        this.initVariables()
 
         this.numberUtils = require("../../utils/numberUtils.js")
 

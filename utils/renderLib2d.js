@@ -3,9 +3,10 @@
 //                          CODE BY DJtheRedstoner
 //             IM COPYING THIS BECAUSE THE UPLOADED VERSION IS FOR
 //                             CT 2.0.0 ONLY
+//
+//  Edit: iv added some features to this so might keep as is
 //--------------------------------------------------------------------------
 
-//TODO: just require the module when ct 2.0 comes out
 
 
 const GL11 = Java.type("org.lwjgl.opengl.GL11");
@@ -19,6 +20,8 @@ const projectionMatrix = BufferUtils.createFloatBuffer(16);
 const viewportDims = BufferUtils.createIntBuffer(16);
 
 const ScaledResolution = net.minecraft.client.gui.ScaledResolution;
+
+const AxisAlignedBB = Java.type("net.minecraft.util.AxisAlignedBB")
 
 register('renderWorld', () => {
     GlStateManager.func_179094_E();
@@ -64,6 +67,19 @@ export default class RenderLib2D {
         y = sr.func_78328_b() - y; // getScaledHeight
     
         return { x, y, z };
+    }
+
+    static drawLine(x1, y1, z1, x2, y2, z2, color, thickness=1) {
+        let pos1 = RenderLib2D.projectPoint(x1, y1, z1);
+        let pos2 = RenderLib2D.projectPoint(x2, y2, z2);
+
+        if(!pos1 || !pos2) return;
+
+        let {x, y} = pos1
+        let {x:ox, y:oy} = pos2
+
+        console.log(x, y, ox, oy, thickness)
+        Renderer.drawLine(color, x, y, ox, oy, thickness);
     }
 
     // Original made by DJtheRedstoner
@@ -145,5 +161,9 @@ export default class RenderLib2D {
         if (projected[0] && projected[3]) Renderer.drawLine(color, projected[0].x, projected[0].y, projected[3].x, projected[3].y, thickness);
         if (projected[4] && projected[7]) Renderer.drawLine(color, projected[4].x, projected[4].y, projected[7].x, projected[7].y, thickness);
         if (projected[5] && projected[6]) Renderer.drawLine(color, projected[5].x, projected[5].y, projected[6].x, projected[6].y, thickness);
+    }
+
+    static getBlockAABB = (x, y, z) => {
+        return new AxisAlignedBB(x, y, z, x + 1, y + 1, z + 1);
     }
 }

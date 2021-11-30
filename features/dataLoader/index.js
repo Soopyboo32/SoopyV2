@@ -46,7 +46,7 @@ class DataLoader extends Feature {
     }
 
     loadApiData(type, soopyServer){
-        while(this.FeatureManager.features["globalSettings"] === undefined){
+        while(this.FeatureManager.features["globalSettings"] === undefined || this.FeatureManager.features["globalSettings"].class.apiKeySetting === undefined){
             Thread.sleep(100)
         }
         let key = this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()

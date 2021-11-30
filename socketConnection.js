@@ -86,6 +86,8 @@ class SoopyV2Server extends WebsiteCommunicator {
     }
 }
 
-let soopyV2Server = new SoopyV2Server()
+if(!global.soopyV2Server){
+    global.soopyV2Server = new SoopyV2Server()
+}
 
-export default soopyV2Server
+export default global.soopyV2Server

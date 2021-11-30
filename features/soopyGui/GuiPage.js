@@ -5,15 +5,31 @@ class GuiPage{
         this.currentPageId = 0;
         this.priority = priority
 
-        this.soopyGui = require('./index.js').class;
+        this.soopyGui = undefined;
+        new Thread(()=>{
+            while(global.soopyv2featuremanagerthing.features["soopyGui"] === undefined){
+                Thread.sleep(100)
+            }
+            
+            this.soopyGui = global.soopyv2featuremanagerthing.features["soopyGui"].class;
+
+            if(this.finalisedLoading){
+                this.finaliseLoading()
+            }
+        }).start()
         this.name = ""
 
         this.pages = {}
 
         this.showBackButton = true
+        this.finalisedLoading = false
     }
 
     finaliseLoading(){
+        if(!this.soopyGui){
+            this.finalisedLoading = true
+            return
+        }
         this.soopyGui.addCategory(this);
     }
 

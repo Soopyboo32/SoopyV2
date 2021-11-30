@@ -41,7 +41,8 @@ class Events extends Feature {
                 .requires(this.burrialWaypointsEnabled)
                 .editTempText("&6Update&7> &f100s"))
         this.hudElements.push(this.updateTimer)
-
+        
+        
         this.registerEvent("worldLoad", this.worldLoad)
         this.registerEvent("spawnParticle", this.spawnParticle)
         this.registerEvent("renderWorld", this.renderWorld)
@@ -75,14 +76,7 @@ class Events extends Feature {
             })
         }	
         if(this.showingWaypoints){
-            let sorted = [...this.burrialData.locations]
-            sorted.sort((a,b)=>{
-                let aDist = calculateDistanceQuick([Player.getX(),Player.getY(),Player.getZ()],[a.x+0.5,a.y+2.5,a.z+0.5])
-                let bDist = calculateDistanceQuick([Player.getX(),Player.getY(),Player.getZ()],[b.x+0.5,b.y+2.5,b.z+0.5])
-
-                return bDist-aDist
-            })
-            sorted.forEach((loc,i)=>{
+            this.burrialData.locations.forEach((loc,i)=>{
 
                 let typeReplace = [
                     "Start",
@@ -117,6 +111,17 @@ class Events extends Feature {
                 }
             })
         }
+    }
+
+    sortBurrialLocations(){
+        let sorted = [...this.burrialData.locations]
+        sorted.sort((a,b)=>{
+            let aDist = calculateDistanceQuick([Player.getX(),Player.getY(),Player.getZ()],[a.x+0.5,a.y+2.5,a.z+0.5])
+            let bDist = calculateDistanceQuick([Player.getX(),Player.getY(),Player.getZ()],[b.x+0.5,b.y+2.5,b.z+0.5])
+
+            return bDist-aDist
+        })
+        this.burrialData.locations = sorted
     }
 
     step(){
@@ -160,6 +165,7 @@ class Events extends Feature {
                 }).start()
             }
         }
+        this.sortBurrialLocations()
     }
 
     worldLoad(){
@@ -234,6 +240,7 @@ class Events extends Feature {
         })
 
         this.burrialData.locations = newLocs
+        this.sortBurrialLocations()
         this.updateBurrialPath()
     }
 
@@ -376,7 +383,7 @@ class Events extends Feature {
             return false
         })
         if(this.burrialData.historicalLocations.length > 10) this.burrialData.historicalLocations.pop()
-        this.lastPathCords.shift()
+        if(this.lastPathCords) this.lastPathCords.shift()
         new Thread(()=>{
             this.updateBurrialPath()
         }).start()

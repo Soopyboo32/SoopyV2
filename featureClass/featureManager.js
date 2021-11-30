@@ -7,8 +7,30 @@ import metadata from "../metadata.js"
 import soopyV2Server from "../socketConnection";
 import { registerForge as registerForgeBase, unregisterForge as unregisterForgeBase} from "./forgeEvents.js"
 
+const JSLoader = Java.type("com.chattriggers.ctjs.engine.langs.js.JSLoader")
+const UrlModuleSourceProvider = Java.type("org.mozilla.javascript.commonjs.module.provider.UrlModuleSourceProvider")
+const UrlModuleSourceProviderInstance = new UrlModuleSourceProvider(null, null)
+const StrongCachingModuleScriptProviderClass = Java.type("org.mozilla.javascript.commonjs.module.provider.StrongCachingModuleScriptProvider")
+let StrongCachingModuleScriptProvider = new StrongCachingModuleScriptProviderClass(UrlModuleSourceProviderInstance)
+let CTRequire = new JSLoader.CTRequire(StrongCachingModuleScriptProvider)
+
+let loadedModules = []
+
+function RequireNoCache(place){
+    if(loadedModules.includes(place)){
+        loadedModules.push(place)
+        return require(place) //performance optimisation
+    }
+    if(!logger.isDev) return require(place)
+    StrongCachingModuleScriptProvider = new StrongCachingModuleScriptProviderClass(UrlModuleSourceProviderInstance)
+    CTRequire = new JSLoader.CTRequire(StrongCachingModuleScriptProvider)
+    return CTRequire(place)
+}
+
 class FeatureManager {
     constructor(){
+
+        this.isDev = logger.isDev
 
         this.messagePrefix = "&6[SOOPY V2]&7 "
         this.enabled = true //make triggers work with this context
@@ -68,8 +90,47 @@ class FeatureManager {
         }, this)
 
         this.registerEvent("worldUnload", this.saveFeatureSettings, this)
-        this.registerEvent("gameUnload", this.saveFeatureSettings, this)
-        this.registerEvent("gameUnload", this.unloadAllFeatures, this)
+
+        this.registerEvent("gameUnload", ()=>{
+            this.saveFeatureSettings()
+            this.unloadAllFeatures()
+
+            this.enabled = false
+        }, this)
+        this.registerStep(true, 2, ()=>{
+            if(this.reloadModuleTime!==0 && Date.now()-this.reloadModuleTime > 0){
+                new Thread(()=>{
+                    this.reloadModuleTime = 0
+                    this.reloadingModules.forEach(m=>{
+                        this.unloadFeature(m)
+                    })
+                    this.reloadingModules.forEach(m=>{
+                        this.loadFeature(m)
+                    })
+                    this.reloadingModules = []
+                }).start()
+            }
+        }, this)
+
+        this.watches = {}
+        this.addedWatches = []
+        this.watchService = Java.type("java.nio.file.FileSystems").getDefault().newWatchService();
+        this.reloadingModules = []
+        this.reloadModuleTime = 0
+        new Thread(()=>{
+            while(this.enabled){
+                key = this.watchService.take();
+                let moduleToReload = this.watches[key]
+                if(this.features[moduleToReload] && !this.reloadingModules.includes(moduleToReload)){ //if enabled && not alr in queue
+                    this.reloadingModules.push(moduleToReload)
+                    this.reloadModuleTime = Date.now()+1000
+                }
+                key.pollEvents()/*.forEach(event=>{
+                    console.log(event.context().toString())
+                })*/
+                key.reset();
+            }
+        }).start()
 
         this.registerCommand("soopyunloadfeature", (args)=>{
             new Thread(()=>{
@@ -421,8 +482,10 @@ class FeatureManager {
         if(this.features[feature]) return
         
         try{
-            let LoadedFeature = require("../features/" + feature + "/index.js")
-    
+            
+            let LoadedFeature = RequireNoCache("../features/" + feature + "/index.js")
+            // let LoadedFeature = RequireNoCache(new File("config/ChatTriggers/modules/" + metadata.name + "/features/" + feature + "/index.js"))
+            
             this.features[feature] = LoadedFeature
     
             LoadedFeature.class.setId(feature)
@@ -430,6 +493,12 @@ class FeatureManager {
             LoadedFeature.class._onEnable(this)
     
             logger.logMessage("Loaded feature " + feature, 3)
+
+            if(this.isDev && !this.addedWatches.includes(feature)){
+                this.addedWatches.push(feature)
+                let path = Java.type("java.nio.file.Paths").get("./config/ChatTriggers/modules/SoopyV2/features/" + feature + "/");
+                this.watches[path.register(this.watchService, Java.type("java.nio.file.StandardWatchEventKinds").ENTRY_MODIFY)] = feature
+            }
         }catch(e){
             logger.logMessage("Error loading feature " + feature, 1)
             console.log(JSON.stringify(e, undefined, 2))
@@ -503,3 +572,13 @@ if(!global.soopyv2featuremanagerthing){
     global.soopyv2featuremanagerthing = new FeatureManager()
 }
 export default global.soopyv2featuremanagerthing
+
+
+function getField(e, field){
+    
+    let field2 = e.class.getDeclaredField(field);
+            
+    field2.setAccessible(true)
+
+    return field2.get(e)
+}
