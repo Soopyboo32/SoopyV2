@@ -1,7 +1,4 @@
 /// <reference types="../../CTAutocomplete" />
-
-import logger from "../logger"
-
 /// <reference lib="es2015" />
 
 class Feature {
@@ -27,7 +24,9 @@ class Feature {
     _onDisable(){
         Object.values(this.events).forEach(e=>this.FeatureManager.unregisterEvent(e)) //calling parent unregister to avoid the set in unregister event
         Object.values(this.customEvents).forEach(e=>this.FeatureManager.unregisterCustom(e)) //calling parent unregister to avoid the set in unregister event
-        
+        Object.values(this.forgeEvents).forEach(e=>this.FeatureManager.unregisterForge(e)) //calling parent unregister to avoid the set in unregister event
+        Object.values(this.soopyEvents).forEach(e=>this.FeatureManager.unregisterSoopy(e)) //calling parent unregister to avoid the set in unregister event
+
         this.onDisable()
         
         this.events = {}
