@@ -1,6 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
+import { f } from "../../mappings/mappings";
 import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawLine } from "../../utils/renderUtils";
 import { calculateDistance, calculateDistanceQuick, fastestPathThrough } from "../../utils/utils";
 import HudTextElement from "../hud/HudTextElement";
@@ -63,9 +64,9 @@ class Events extends Feature {
 
     renderWorld(ticks){
         if(this.showingWaypoints && this.lastPathCords && this.burrialWaypointsPath.getValue()){
-            let startPoint = [Player.getPlayer().field_70142_S+Player.getPlayer().field_70159_w*ticks,
-                Player.getPlayer().field_70137_T+Player.getPlayer().field_70181_x*ticks,
-                Player.getPlayer().field_70136_U+Player.getPlayer().field_70179_y*ticks]
+            let startPoint = [Player.getPlayer()[f.lastTickPosX]+Player.getPlayer()[f.motionX.Entity]*ticks,
+                Player.getPlayer()[f.lastTickPosY]+Player.getPlayer()[f.motionY.Entity]*ticks,
+                Player.getPlayer()[f.lastTickPosZ]+Player.getPlayer()[f.motionZ.Entity]*ticks]
     
             let lastPoint = startPoint || [0,0,0]
     

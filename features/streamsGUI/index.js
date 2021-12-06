@@ -10,6 +10,7 @@ import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import BoxWithText from "../../../guimanager/GuiElement/BoxWithText";
+import { drawBoxAtBlock } from "../../utils/renderUtils";
 
 class StreamsGui extends Feature {
     constructor() {
@@ -20,6 +21,7 @@ class StreamsGui extends Feature {
         this.initVariables()
 
         this.GuiPage = new StreamPage()
+
     }
 
     initVariables(){

@@ -2,6 +2,7 @@
 /// <reference lib="es2015" />
 import SoopyNumber from "../../../guimanager/Classes/SoopyNumber";
 import Feature from "../../featureClass/class";
+import { m } from "../../mappings/mappings";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import HudTextElement from "./HudTextElement";
@@ -113,6 +114,8 @@ class Hud extends Feature {
         this.lastframe = 0
         this.slowestFrameTime = 0
 
+        this.lastSwappedPet = 0
+
         this.lastWitherImpact = 0
         this.aup = 0
         this.lastTickEventEpochTimestamp = 0
@@ -137,23 +140,33 @@ class Hud extends Feature {
         this.registerChat("&cAutopet &eequipped your ${pet}&e! &a&lVIEW RULE&r", (pet)=>{
             this.petElement.setText("&6Pet&7> "+pet)
             this.petText = "&6Pet&7> "+pet
+
+            this.lastSwappedPet = Date.now()
         })
         this.registerChat("&r&aYou summoned your &r${pet}&r&a!&r", (pet)=>{
             this.petElement.setText("&6Pet&7> &7[Lvl " + this.petLevels[pet.replace("&", "§")] +"] "+pet)
             this.petText = "&6Pet&7> &7[Lvl " + this.petLevels[pet.replace("&", "§")] +"] "+pet
+
+            this.lastSwappedPet = Date.now()
         })
         this.registerChat("&r&aYou despawned your &r${*}&r&a!&r", ()=>{
             this.petElement.setText("&6Pet&7> &cNone")
             this.petText = "&6Pet&7> &cNone"
+
+            this.lastSwappedPet = Date.now()
         })
         this.registerChat("&r&aYour &r${pet} &r&alevelled up to level &r&9${level}&r&a!&r", (pet, level)=>{
             this.petElement.setText("&6Pet&7> &7[Lvl " + level +"] "+pet)
             this.petText = "&6Pet&7> &7[Lvl " + level +"] "+pet
+
+            this.lastSwappedPet = Date.now()
         })
 
         this.registerSoopy("apiLoad", this.apiLoad)
         if(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock){
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock, "skyblock", true, true)
+
+            this.lastSwappedPet = Date.now()
         }
 
         this.registerActionBar("${m}", this.actionbarMessage)
@@ -262,11 +275,20 @@ class Hud extends Feature {
                 if(inv[i]!=null && inv[i].getName().includes("[Lvl ")){
                     let level = inv[i].getName().split(" ")[1].replace("]", "")
                     if(!this.petLevels[inv[i].getName().split("] ")[1]] || this.petLevels[inv[i].getName().split("] ")[1]] < level)this.petLevels[inv[i].getName().split("] ")[1]] = level
+
+                    if(Date.now()-this.lastSwappedPet > 1000){
+                        inv[i].getLore().forEach(line => {
+                            if(line.includes("Click to despawn.")){
+                                this.petElement.setText("&6Pet&7> &7" + inv[i].getName().split("(")[0])
+                                this.petText = "&6Pet&7> &7" + inv[i].getName().split("(")[0]
+                            }
+                        })
+                    }
                 }
             }
         }
 
-        if(Player.getPlayer().func_110139_bj() > this.lastAbsorbtion){
+        if(Player.getPlayer()[m.getAbsorptionAmount]() > this.lastAbsorbtion){
             if(Date.now()-this.impactTest < 750){
                 this.lastWitherImpact = Date.now()
                 this.impactTest = 0
@@ -274,7 +296,7 @@ class Hud extends Feature {
                 this.aup = Date.now()
             }
         }
-        this.lastAbsorbtion = Player.getPlayer().func_110139_bj()
+        this.lastAbsorbtion = Player.getPlayer()[m.getAbsorptionAmount]()
     }
 
     step_5second(){

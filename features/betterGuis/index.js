@@ -2,6 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import logger from "../../logger";
+import { f } from "../../mappings/mappings";
 import ToggleSetting from "../settings/settingThings/toggle";
 import MuseumGui from "./museumGui.js";
 
@@ -16,9 +17,9 @@ class BetterGuis extends Feature {
         this.museumGui = new MuseumGui()
 
         this.replaceSbMenuClicks = new ToggleSetting("Improve Clicks on SBMENU", "This will change clicks to middle clicks, AND use commands where possible (eg /pets)", true, "sbmenu_clicks", this)
-        this.reliableSbMenuClicks = {getValue: ()=>false}//removed because hypixel fixed may add back later //new ToggleSetting("Make SBMENU clicks reliable", "This will delay clicks on sbmenu to time them so they dont get canceled", true, "sbmenu_time", this)
+        this.reliableSbMenuClicks = {getValue: ()=>false}//removed because hypixel fixed, code kept incase hypixel adds back bug later //new ToggleSetting("Make SBMENU clicks reliable", "This will delay clicks on sbmenu to time them so they dont get canceled", true, "sbmenu_time", this)
         
-        this.museumGuiEnabled = /*{getValue: ()=>false} //Removed because not finished yet*/ new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this)
+        this.museumGuiEnabled = new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this)
     
         this.lastWindowId = 0
         this.shouldHold = 10
@@ -108,7 +109,7 @@ class BetterGuis extends Feature {
             let hoveredSlot = gui.getSlotUnderMouse()
             if(!hoveredSlot) return
 
-            let hoveredSlotId = hoveredSlot.field_75222_d
+            let hoveredSlotId = hoveredSlot[f.slotNumber]
 
             // logger.logMessage(hoveredSlotId, 4)
 

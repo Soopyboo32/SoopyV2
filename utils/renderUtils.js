@@ -45,8 +45,8 @@ module.exports = {
     
         Tessellator.begin(3).colorize(r, g, b);
     
-        Tessellator.pos(x, y, z).tex(0, 0);
-        Tessellator.pos(x2, y2, z2).tex(0, 0);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x2, y2, z2);
     
         Tessellator.draw();
     
@@ -68,8 +68,8 @@ module.exports = {
     
         Tessellator.begin(3).colorize(r, g, b);
     
-        Tessellator.pos(x, y, z).tex(0, 0);
-        Tessellator.pos(x2, y2, z2).tex(0, 0);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x2, y2, z2);
     
         Tessellator.draw();
     
@@ -83,8 +83,8 @@ module.exports = {
     
         Tessellator.begin(3).colorize(r, g, b);
     
-        Tessellator.pos(x, y, z).tex(0, 0);
-        Tessellator.pos(x2, y2, z2).tex(0, 0);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x2, y2, z2);
     
         Tessellator.draw();
     },
@@ -101,25 +101,25 @@ module.exports = {
         
         Tessellator.begin(3).colorize(colorR, colorG, colorB);
             
-        Tessellator.pos(x+1.01,y+1.01,z+1.01).tex(0, 0);
-        Tessellator.pos(x+1.01,y+1.01,z).tex(0, 0);
-        Tessellator.pos(x,y+1.01,z).tex(0, 0);
-        Tessellator.pos(x,y+1.01,z+1.01).tex(0, 0);
-        Tessellator.pos(x+1.01,y+1.01,z+1.01).tex(0, 0);
-        Tessellator.pos(x+1.01,y,z+1.01).tex(0, 0);
-        Tessellator.pos(x+1.01,y,z).tex(0, 0);
-        Tessellator.pos(x,y,z).tex(0, 0);
-        Tessellator.pos(x,y,z+1.01).tex(0, 0);
-        Tessellator.pos(x,y,z).tex(0, 0);
-        Tessellator.pos(x,y+1.01,z).tex(0, 0);
-        Tessellator.pos(x,y,z).tex(0, 0);
-        Tessellator.pos(x+1.01,y,z).tex(0, 0);
-        Tessellator.pos(x+1.01,y+1.01,z).tex(0, 0);
-        Tessellator.pos(x+1.01,y,z).tex(0, 0);
-        Tessellator.pos(x+1.01,y,z+1.01).tex(0, 0);
-        Tessellator.pos(x,y,z+1.01).tex(0, 0);
-        Tessellator.pos(x,y+1.01,z+1.01).tex(0, 0);
-        Tessellator.pos(x+1.01,y+1.01,z+1.01).tex(0, 0);
+        Tessellator.pos(x+1.01,y+1.01,z+1.01);
+        Tessellator.pos(x+1.01,y+1.01,z);
+        Tessellator.pos(x,y+1.01,z);
+        Tessellator.pos(x,y+1.01,z+1.01);
+        Tessellator.pos(x+1.01,y+1.01,z+1.01);
+        Tessellator.pos(x+1.01,y,z+1.01);
+        Tessellator.pos(x+1.01,y,z);
+        Tessellator.pos(x,y,z);
+        Tessellator.pos(x,y,z+1.01);
+        Tessellator.pos(x,y,z);
+        Tessellator.pos(x,y+1.01,z);
+        Tessellator.pos(x,y,z);
+        Tessellator.pos(x+1.01,y,z);
+        Tessellator.pos(x+1.01,y+1.01,z);
+        Tessellator.pos(x+1.01,y,z);
+        Tessellator.pos(x+1.01,y,z+1.01);
+        Tessellator.pos(x,y,z+1.01);
+        Tessellator.pos(x,y+1.01,z+1.01);
+        Tessellator.pos(x+1.01,y+1.01,z+1.01);
     
         Tessellator.draw();
     
@@ -140,25 +140,25 @@ module.exports = {
         
         Tessellator.begin(3).colorize(colorR, colorG, colorB);
             
-        Tessellator.pos(x+1,y+1,z+1).tex(0, 0);
-        Tessellator.pos(x+1,y+1,z).tex(0, 0);
-        Tessellator.pos(x,y+1,z).tex(0, 0);
-        Tessellator.pos(x,y+1,z+1).tex(0, 0);
-        Tessellator.pos(x+1,y+1,z+1).tex(0, 0);
-        Tessellator.pos(x+1,y,z+1).tex(0, 0);
-        Tessellator.pos(x+1,y,z).tex(0, 0);
-        Tessellator.pos(x,y,z).tex(0, 0);
-        Tessellator.pos(x,y,z+1).tex(0, 0);
-        Tessellator.pos(x,y,z).tex(0, 0);
-        Tessellator.pos(x,y+1,z).tex(0, 0);
-        Tessellator.pos(x,y,z).tex(0, 0);
-        Tessellator.pos(x+1,y,z).tex(0, 0);
-        Tessellator.pos(x+1,y+1,z).tex(0, 0);
-        Tessellator.pos(x+1,y,z).tex(0, 0);
-        Tessellator.pos(x+1,y,z+1).tex(0, 0);
-        Tessellator.pos(x,y,z+1).tex(0, 0);
-        Tessellator.pos(x,y+1,z+1).tex(0, 0);
-        Tessellator.pos(x+1,y+1,z+1).tex(0, 0);
+        Tessellator.pos(x+1,y+1,z+1);
+        Tessellator.pos(x+1,y+1,z);
+        Tessellator.pos(x,y+1,z);
+        Tessellator.pos(x,y+1,z+1);
+        Tessellator.pos(x+1,y+1,z+1);
+        Tessellator.pos(x+1,y,z+1);
+        Tessellator.pos(x+1,y,z);
+        Tessellator.pos(x,y,z);
+        Tessellator.pos(x,y,z+1);
+        Tessellator.pos(x,y,z);
+        Tessellator.pos(x,y+1,z);
+        Tessellator.pos(x,y,z);
+        Tessellator.pos(x+1,y,z);
+        Tessellator.pos(x+1,y+1,z);
+        Tessellator.pos(x+1,y,z);
+        Tessellator.pos(x+1,y,z+1);
+        Tessellator.pos(x,y,z+1);
+        Tessellator.pos(x,y+1,z+1);
+        Tessellator.pos(x+1,y+1,z+1);
     
         Tessellator.draw();
     
@@ -191,25 +191,25 @@ module.exports = {
         
         Tessellator.begin(3).colorize(colorR, colorG, colorB);
             
-        Tessellator.pos(x+width,y+height,z+width).tex(0, 0);
-        Tessellator.pos(x+width,y+height,z-width).tex(0, 0);
-        Tessellator.pos(x-width,y+height,z-width).tex(0, 0);
-        Tessellator.pos(x-width,y+height,z+width).tex(0, 0);
-        Tessellator.pos(x+width,y+height,z+width).tex(0, 0);
-        Tessellator.pos(x+width,y,z+width).tex(0, 0);
-        Tessellator.pos(x+width,y,z-width).tex(0, 0);
-        Tessellator.pos(x-width,y,z-width).tex(0, 0);
-        Tessellator.pos(x-width,y,z+width).tex(0, 0);
-        Tessellator.pos(x-width,y,z-width).tex(0, 0);
-        Tessellator.pos(x-width,y+height,z-width).tex(0, 0);
-        Tessellator.pos(x-width,y,z-width).tex(0, 0);
-        Tessellator.pos(x+width,y,z-width).tex(0, 0);
-        Tessellator.pos(x+width,y+height,z-width).tex(0, 0);
-        Tessellator.pos(x+width,y,z-width).tex(0, 0);
-        Tessellator.pos(x+width,y,z+width).tex(0, 0);
-        Tessellator.pos(x-width,y,z+width).tex(0, 0);
-        Tessellator.pos(x-width,y+height,z+width).tex(0, 0);
-        Tessellator.pos(x+width,y+height,z+width).tex(0, 0);
+        Tessellator.pos(x+width,y+height,z+width);
+        Tessellator.pos(x+width,y+height,z-width);
+        Tessellator.pos(x-width,y+height,z-width);
+        Tessellator.pos(x-width,y+height,z+width);
+        Tessellator.pos(x+width,y+height,z+width);
+        Tessellator.pos(x+width,y,z+width);
+        Tessellator.pos(x+width,y,z-width);
+        Tessellator.pos(x-width,y,z-width);
+        Tessellator.pos(x-width,y,z+width);
+        Tessellator.pos(x-width,y,z-width);
+        Tessellator.pos(x-width,y+height,z-width);
+        Tessellator.pos(x-width,y,z-width);
+        Tessellator.pos(x+width,y,z-width);
+        Tessellator.pos(x+width,y+height,z-width);
+        Tessellator.pos(x+width,y,z-width);
+        Tessellator.pos(x+width,y,z+width);
+        Tessellator.pos(x-width,y,z+width);
+        Tessellator.pos(x-width,y+height,z+width);
+        Tessellator.pos(x+width,y+height,z+width);
     
         Tessellator.draw();
     

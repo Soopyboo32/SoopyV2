@@ -7,6 +7,8 @@
 //  Edit: iv added some features to this so might keep as is
 //--------------------------------------------------------------------------
 
+import { f, m } from "../mappings/mappings";
+
 
 
 const GL11 = Java.type("org.lwjgl.opengl.GL11");
@@ -24,7 +26,7 @@ const ScaledResolution = net.minecraft.client.gui.ScaledResolution;
 const AxisAlignedBB = Java.type("net.minecraft.util.AxisAlignedBB")
 
 register('renderWorld', () => {
-    GlStateManager.func_179094_E();
+    GlStateManager[m.pushMatrix]();
 
 	let x = Player.getX();
 	let y = Player.getY();
@@ -35,7 +37,7 @@ register('renderWorld', () => {
 	GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, modelViewMatrix);
 	GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, projectionMatrix);
 
-	GlStateManager.func_179121_F();
+	GlStateManager[m.popMatrix]();
 
 	GL11.glGetInteger(GL11.GL_VIEWPORT, viewportDims);
 });
@@ -61,10 +63,10 @@ export default class RenderLib2D {
     
         const sr = new ScaledResolution(Client.getMinecraft());
     
-        const x = coords.get(0) / sr.func_78325_e(); // getScaleFactor
-        let y = coords.get(1) / sr.func_78325_e(); // getScaleFactor
+        const x = coords.get(0) / sr[m.getScaleFactor](); // getScaleFactor
+        let y = coords.get(1) / sr[m.getScaleFactor](); // getScaleFactor
         // OpenGL starts at bottom left, mc starts at top left
-        y = sr.func_78328_b() - y; // getScaledHeight
+        y = sr[m.getScaledHeight]() - y; // getScaledHeight
     
         return { x, y, z };
     }
@@ -78,7 +80,7 @@ export default class RenderLib2D {
         let {x, y} = pos1
         let {x:ox, y:oy} = pos2
 
-        console.log(x, y, ox, oy, thickness)
+        // console.log(x, y, ox, oy, thickness)
         Renderer.drawLine(color, x, y, ox, oy, thickness);
     }
 
@@ -110,14 +112,14 @@ export default class RenderLib2D {
     static getVertices = (box) => {
         let list = [];
     
-        list.push({ x: box.field_72340_a, y: box.field_72338_b, z: box.field_72339_c });
-        list.push({ x: box.field_72336_d, y: box.field_72338_b, z: box.field_72339_c });
-        list.push({ x: box.field_72336_d, y: box.field_72337_e, z: box.field_72339_c });
-        list.push({ x: box.field_72340_a, y: box.field_72337_e, z: box.field_72339_c });
-        list.push({ x: box.field_72340_a, y: box.field_72338_b, z: box.field_72334_f });
-        list.push({ x: box.field_72336_d, y: box.field_72338_b, z: box.field_72334_f });
-        list.push({ x: box.field_72336_d, y: box.field_72337_e, z: box.field_72334_f });
-        list.push({ x: box.field_72340_a, y: box.field_72337_e, z: box.field_72334_f });
+        list.push({ x: box[f.minX.AxisAlignedBB], y: box[f.minY.AxisAlignedBB], z: box[f.minZ.AxisAlignedBB] });
+        list.push({ x: box[f.maxX.AxisAlignedBB], y: box[f.minY.AxisAlignedBB], z: box[f.minZ.AxisAlignedBB] });
+        list.push({ x: box[f.maxX.AxisAlignedBB], y: box[f.maxY.AxisAlignedBB], z: box[f.minZ.AxisAlignedBB] });
+        list.push({ x: box[f.minX.AxisAlignedBB], y: box[f.maxY.AxisAlignedBB], z: box[f.minZ.AxisAlignedBB] });
+        list.push({ x: box[f.minX.AxisAlignedBB], y: box[f.minY.AxisAlignedBB], z: box[f.maxZ.AxisAlignedBB] });
+        list.push({ x: box[f.maxX.AxisAlignedBB], y: box[f.minY.AxisAlignedBB], z: box[f.maxZ.AxisAlignedBB] });
+        list.push({ x: box[f.maxX.AxisAlignedBB], y: box[f.maxY.AxisAlignedBB], z: box[f.maxZ.AxisAlignedBB] });
+        list.push({ x: box[f.minX.AxisAlignedBB], y: box[f.maxY.AxisAlignedBB], z: box[f.maxZ.AxisAlignedBB] });
     
         return list;
     }

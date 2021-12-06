@@ -3,6 +3,7 @@
 import Feature from "../../featureClass/class";
 import DragonWings from "./cosmetic/dragon/dragonWings"
 import Toggle from "../settings/settingThings/toggle"
+import { f } from "../../mappings/mappings";
 
 class Cosmetics extends Feature {
     constructor() {
@@ -41,14 +42,14 @@ class Cosmetics extends Feature {
         this.registerStep(false, 60*10, ()=>{
             new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
         })
-        // this.registerEvent("renderEntity", this.renderEntity)
+        this.registerEvent("renderEntity", this.renderEntity)
         this.loadedRenderEntity = false
     }
 
     renderWorld(ticks){
-        this.loadedCosmetics.forEach(cosmetic => {
+        for(cosmetic of this.loadedCosmetics){
             cosmetic.onRenderEntity(ticks, false)
-        })
+        }
     }
 
     renderEntity(entity, pos, ticks, event){
@@ -66,7 +67,7 @@ class Cosmetics extends Feature {
         this.cosmeticsData = data
         this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g,"")]
         if(this.playerHasACosmeticA && !this.loadedRenderEntity){
-            this.registerEvent("renderEntity", this.renderEntity)
+            // this.registerEvent("renderEntity", this.renderEntity)
             this.loadedRenderEntity = true
         }
 
@@ -157,7 +158,7 @@ class Cosmetics extends Feature {
         this.loadedCosmetics = this.loadedCosmetics.filter(cosmetic => {
             if(tick) cosmetic.onTick()
             if(cosmetic.player.getUUID().toString() === Player.getUUID().toString()) return true
-            if(cosmetic.player.getPlayer().field_70128_L){  //filter out players that are no longer loaded
+            if(cosmetic.player.getPlayer()[f.isDead]){  //filter out players that are no longer loaded
                 this.uuidToCosmetic[cosmetic.id][cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
                 
                 this.uuidToCosmeticDirect[cosmetic.player.getUUID().toString()] = undefined

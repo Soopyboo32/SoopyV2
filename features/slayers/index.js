@@ -1,6 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
+import { f, m } from "../../mappings/mappings";
 import { numberWithCommas } from "../../utils/numberUtils";
 import { drawBoxAtBlock, drawBoxAtEntity, drawFilledBox, drawLine } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
@@ -107,7 +108,7 @@ class Slayers extends Feature {
                 World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(e=>{
                     if(e.getName().includes("Voidgloom Seraph")){
                         //if distance from e to event.entity < 5
-                        if((e.getX() - event.entity.field_70165_t)**2 + (e.getY() - event.entity.field_70163_u)**2 + (e.getZ() - event.entity.field_70161_v)**2 < 25){
+                        if((e.getX() - event.entity[f.posX.Entity])**2 + (e.getY() - event.entity[f.posY.Entity])**2 + (e.getZ() - event.entity[f.posZ.Entity])**2 < 25){
                             this.emanBoss = e
                         }
                     }
@@ -205,15 +206,15 @@ class Slayers extends Feature {
 
         this.todoE.forEach(e=>{
             try{
-                if(e instanceof net.minecraft.entity.item.EntityArmorStand && e.func_71124_b(4)){
-                    if(e.func_71124_b(4).func_82833_r() === "Beacon"){
+                if(e instanceof net.minecraft.entity.item.EntityArmorStand && e[m.getEquipmentInSlot](4)){
+                    if(e[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]() === "Beacon"){
                         
                         let closestEIsGaming = false
                         let closestDist = Infinity
                         World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(e2=>{
                             if(e2.getName().includes("Voidgloom Seraph")){
-                                if((e2.getX() - e.field_70165_t)**2 + (e2.getY() - e.field_70163_u)**2 + (e2.getZ() - e.field_70161_v)**2 < closestDist){
-                                    closestDist = (e2.getX() - e.field_70165_t)**2 + (e2.getY() - e.field_70163_u)**2 + (e2.getZ() - e.field_70161_v)**2
+                                if((e2.getX() - e[f.posX.Entity])**2 + (e2.getY() - e[f.posY.Entity])**2 + (e2.getZ() - e[f.posZ.Entity])**2 < closestDist){
+                                    closestDist = (e2.getX() - e[f.posX.Entity])**2 + (e2.getY() - e[f.posY.Entity])**2 + (e2.getZ() - e[f.posZ.Entity])**2
                                     closestEIsGaming = this.emanBoss?e2.getUUID().toString()===this.emanBoss.getUUID().toString():false
                                 }
                             }
@@ -222,27 +223,27 @@ class Slayers extends Feature {
                             this.beaconE.push(e)
                         }
                     }
-                    if(e.func_71124_b(4).func_82833_r().startsWith("§a")){
+                    if(e[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().startsWith("§a")){
 
                         let closestEIsGaming = false
                         let closestDist = Infinity
                         World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(e2=>{
                             if(e2.getName().includes("Voidgloom Seraph")){
-                                if((e2.getX() - e.field_70165_t)**2 + (e2.getY() - e.field_70163_u)**2 + (e2.getZ() - e.field_70161_v)**2 < closestDist){
-                                    closestDist = (e2.getX() - e.field_70165_t)**2 + (e2.getY() - e.field_70163_u)**2 + (e2.getZ() - e.field_70161_v)**2
+                                if((e2.getX() - e[f.posX.Entity])**2 + (e2.getY() - e[f.posY.Entity])**2 + (e2.getZ() - e[f.posZ.Entity])**2 < closestDist){
+                                    closestDist = (e2.getX() - e[f.posX.Entity])**2 + (e2.getY() - e[f.posY.Entity])**2 + (e2.getZ() - e[f.posZ.Entity])**2
                                     closestEIsGaming = this.emanBoss?e2.getUUID().toString()===this.emanBoss.getUUID().toString():false
                                 }
                             }
                         })
                         
-                        if(closestEIsGaming && new Item(e.func_71124_b(4)).getNBT().getCompoundTag("tag").getCompoundTag("SkullOwner").getCompoundTag("Properties").getRawNBT().func_150295_c("textures", 10).func_150305_b(0).func_74779_i("Value") === "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWIwNzU5NGUyZGYyNzM5MjFhNzdjMTAxZDBiZmRmYTExMTVhYmVkNWI5YjIwMjllYjQ5NmNlYmE5YmRiYjRiMyJ9fX0="){
+                        if(closestEIsGaming && new Item(e[m.getEquipmentInSlot](4)).getNBT().getCompoundTag("tag").getCompoundTag("SkullOwner").getCompoundTag("Properties").getRawNBT()[m.getTagList]("textures", 10)[m.getCompoundTagAt](0)[m.getString.NBTTagCompound]("Value") === "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWIwNzU5NGUyZGYyNzM5MjFhNzdjMTAxZDBiZmRmYTExMTVhYmVkNWI5YjIwMjllYjQ5NmNlYmE5YmRiYjRiMyJ9fX0="){
                             this.eyeE.push(new Entity(e))
                         }
-                        // console.log(":" + new Item(e.func_71124_b(4)).getNBT().getCompoundTag("tag").getCompoundTag("SkullOwner").getCompoundTag("Properties").getRawNBT().func_150295_c("textures", 10).func_150305_b(0).func_74779_i("Value"))
+                        // console.log(":" + new Item(e[m.getEquipmentInSlot](4)).getNBT().getCompoundTag("tag").getCompoundTag("SkullOwner").getCompoundTag("Properties").getRawNBT().func_150295_c("textures", 10).func_150305_b(0).func_74779_i("Value"))
                     }
                 }
 
-                if(e.func_95999_t() && e.func_95999_t().includes("Voidgloom Seraph")){
+                if(e[m.getCustomNameTag]() && e[m.getCustomNameTag]().includes("Voidgloom Seraph")){
                     if(Date.now()-this.nextIsBoss < 3000){
                         this.emanBoss = new Entity(e)
                         this.nextIsBoss = false
@@ -253,25 +254,25 @@ class Slayers extends Feature {
         this.todoE = this.todoE2
         this.todoE2 = []
 
-        if(this.emanBoss && this.emanBoss.getEntity().field_70128_L) this.emanBoss = undefined
-        this.eyeE = this.eyeE.filter(e=>!e.getEntity().field_70128_L)
+        if(this.emanBoss && this.emanBoss.getEntity()[f.isDead]) this.emanBoss = undefined
+        this.eyeE = this.eyeE.filter(e=>!e.getEntity()[f.isDead])
         this.beaconE = this.beaconE.filter((e)=>{
-            if(e.field_70128_L){
-                this.deadE.push([Date.now(), e.func_110124_au().toString()])
+            if(e[f.isDead]){
+                this.deadE.push([Date.now(), e[m.getUniqueID.Entity]().toString()])
 
-                let pos = [e.field_70165_t+0.5, e.field_70163_u+0.7, e.field_70161_v+0.5]
+                let pos = [e[f.posX.Entity]+0.5, e[f.posY.Entity]+0.7, e[f.posZ.Entity]+0.5]
                 //check for a beacon block within 5 blocks of pos
                 for(let x = pos[0] - 5; x <= pos[0] + 5; x++){
                     for(let y = pos[1] - 5; y <= pos[1] + 5; y++){
                         for(let z = pos[2] - 5; z <= pos[2] + 5; z++){
                             if(World.getBlockAt(Math.floor(x), Math.floor(y), Math.floor(z)).getID() === 138){
-                                this.beaconLocations[e.func_110124_au().toString()] = [Math.floor(x), Math.floor(y), Math.floor(z)]
+                                this.beaconLocations[e[m.getUniqueID.Entity]().toString()] = [Math.floor(x), Math.floor(y), Math.floor(z)]
                             }
                         }
                     }
                 }
 
-                // if(!this.beaconLocations[e.func_110124_au().toString()]){
+                // if(!this.beaconLocations[e[m.getUniqueID.Entity]().toString()]){
                 //     console.log("Diddnt find beacon wtf?????")
                 // }
 
@@ -281,9 +282,9 @@ class Slayers extends Feature {
         })
 
         this.beaconE.forEach((e)=>{
-            if(!this.beaconPoints[e.func_110124_au().toString()])this.beaconPoints[e.func_110124_au().toString()] = []
+            if(!this.beaconPoints[e[m.getUniqueID.Entity]().toString()])this.beaconPoints[e[m.getUniqueID.Entity]().toString()] = []
 
-            this.beaconPoints[e.func_110124_au().toString()].push([e.field_70165_t+0.5, e.field_70163_u+0.7, e.field_70161_v+0.5])//x, y, z
+            this.beaconPoints[e[m.getUniqueID.Entity]().toString()].push([e[f.posX.Entity]+0.5, e[f.posY.Entity]+0.7, e[f.posZ.Entity]+0.5])//x, y, z
         })
 
         this.deadE = this.deadE.filter(e=>{

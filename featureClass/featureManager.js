@@ -22,6 +22,7 @@ function RequireNoCache(place){
         return require(place) //performance optimisation
     }
     if(!logger.isDev) return require(place)
+    
     StrongCachingModuleScriptProvider = new StrongCachingModuleScriptProviderClass(UrlModuleSourceProviderInstance)
     CTRequire = new JSLoader.CTRequire(StrongCachingModuleScriptProvider)
     return CTRequire(place)
@@ -60,7 +61,7 @@ class FeatureManager {
 
         //PERFORMANCE RECORDING
         this.recordingPerformanceUsage = false
-        this.performanceUsage = {} //{moduleName: {event: {time: 0, count: 0}}}
+        this.performanceUsage = {} //{<moduleName>: {<event>: {time: 0, count: 0}}}
 
 
         this.featureMetas = {}

@@ -19,7 +19,7 @@ class FragBot extends Feature {
         new SettingBase("To host a fragbot use /fragbot", "", undefined, "host_fragbot_info", this)
         new SettingBase("NOTE: All this does atm is accept party invites", "More features for this coming soon", true, "stat_next_to_name_description", this)
 
-        this.uploadToWebsite = new ToggleSetting("Advertise fragbot status", "Will show up as a fragbot in other peoples fragbot lists", true, "advertise_fragbot", this)
+        // this.uploadToWebsite = new ToggleSetting("Advertise fragbot status", "Will show up as a fragbot in other peoples fragbot lists", true, "advertise_fragbot", this)
 
         this.registerCommand("fragbot", this.fragbotCommand)
 

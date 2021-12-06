@@ -57,6 +57,7 @@ class SoopyV2Server extends WebsiteCommunicator {
     }
 
     reportError(error, description){
+        // ChatLib.chat(JSON.stringify(error))
         if(this.reportErrorsSetting && !this.reportErrorsSetting.getValue()) return
         let data = {
             lineNumber: error.lineNumber,

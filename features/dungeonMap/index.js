@@ -1,6 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
+import { f, m } from "../../mappings/mappings";
 const BufferedImage = Java.type("java.awt.image.BufferedImage")
 
 class DungeonMap extends Feature {
@@ -120,11 +121,11 @@ class DungeonMap extends Feature {
         let mapData
         try {
             let item = Player.getInventory().getStackInSlot(8)
-            mapData = item.getItem().func_77873_a(item.getItemStack(), World.getWorld()); // ItemStack.getItem().getMapData()
+            mapData = item.getItem()[m.getMapData](item.getItemStack(), World.getWorld()); // ItemStack.getItem().getMapData()
         } catch (error) {
         }
         if(mapData){
-            mapData.field_76203_h.forEach((icon, vec4b) => {
+            mapData[f.mapDecorations].forEach((icon, vec4b) => {
                 let x = vec4b.func_176112_b()
                 let y = vec4b.func_176113_c()
                 let rot = vec4b.func_176111_d()
@@ -148,7 +149,7 @@ class DungeonMap extends Feature {
             });
 
             // console.log("has map data poggies")
-            let bytes = mapData.field_76198_e
+            let bytes = mapData[f.colors.MapData]
 
             let x = 0
             let y = 0
@@ -157,7 +158,7 @@ class DungeonMap extends Feature {
 
                 if(bytes[i] !== 0){
                     let j = bytes[i]&255
-                    let color = net.minecraft.block.material.MapColor.field_76281_a[j>>2].func_151643_b(j & 3);
+                    let color = net.minecraft.block.material.MapColor[f.mapColorArray][j>>2][m.getMapColor](j & 3);
                     mapImage.setRGB(x, y, color)
                     newImage.setRGB(x, y, color)
                 }

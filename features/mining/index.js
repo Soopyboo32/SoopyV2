@@ -1,6 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
+import { m } from "../../mappings/mappings";
 import * as stringUtils from "../../utils/stringUtils";
 import * as utils from "../../utils/utils"
 import HudTextElement from "../hud/HudTextElement";
@@ -76,13 +77,13 @@ class Mining extends Feature {
 
                 if(unlockedGems){
 
-                    if(unlockedGems.func_74745_c() === 0){
+                    if(unlockedGems[m.tagCount]() === 0){
                         utils.addLore(item, ChatLib.addColor("&d&lGemstones Unlocked: &f"), ChatLib.addColor("&cNone!"))
                     }else{
                         let gemstoneString = ""
 
-                        for(let i = 0; i < unlockedGems.func_74745_c(); i++){
-                            let gem = String(unlockedGems.func_150307_f(i)).split("_")
+                        for(let i = 0; i < unlockedGems[m.tagCount](); i++){
+                            let gem = String(unlockedGems[m.getStringTagAt](i)).split("_")
 
                             let name = stringUtils.firstLetterCapital(gem[0].toLowerCase())
 
@@ -132,7 +133,7 @@ class Mining extends Feature {
             if(this.FeatureManager.features["dataLoader"].class.area === "Crystal Hollows" && this.FeatureManager.features["dataLoader"].class.areaFine === "Khazad-dm"){
                 
                 this.balEntity = undefined
-                World.getAllEntities().filter(a=>a.getName()==="Magma Cube").filter(a=>a.getEntity().func_70809_q() > 10).forEach((bal)=>{
+                World.getAllEntities().filter(a=>a.getName()==="Magma Cube").filter(a=>a.getEntity()[m.getSlimeSize]() > 10).forEach((bal)=>{
                     //Bal found
                     this.balEntity = bal
                 })

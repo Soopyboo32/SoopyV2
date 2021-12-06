@@ -24,6 +24,6 @@ class SettingsCommunicator {
     }
 }
 
-const settingsCommunicator = new SettingsCommunicator()
+if(!global.soopyv2SettingsCommunicator) global.soopyv2SettingsCommunicator = new SettingsCommunicator()
 
-export default settingsCommunicator
+export default global.soopyv2SettingsCommunicator
