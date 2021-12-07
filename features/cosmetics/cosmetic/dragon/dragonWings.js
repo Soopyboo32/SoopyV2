@@ -50,7 +50,7 @@ class DragonWings extends Cosmetic {
         // console.log(rotation, entity.getEntity().field_70761_aq+(entity.getEntity().field_70761_aq-entity.getEntity().field_70760_ar)*ticks)
         let horisontalSpeed = Math.sqrt((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX])**2+(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ])**2)
 
-        let verticleSpeed = this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ]
+        let verticleSpeed = this.player.getPlayer()[f.posY.Entity]-this.player.getPlayer()[f.lastTickPosY]
         
         this.animOffset += Math.min(1, horisontalSpeed)*10*timeSince+1*timeSince
 
@@ -301,8 +301,7 @@ class DragonWings extends Cosmetic {
         }
 
         let horisontalSpeed = Math.sqrt((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX])**2+(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ])**2)
-
-        let verticleSpeed = this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ]
+        let verticleSpeed = this.player.getPlayer()[f.posY.Entity]-this.player.getPlayer()[f.lastTickPosY]
 
 
         // if((this.player === Player &&this.player.getPlayer().field_71075_bZ.field_75100_b) || (this.player !== Player && Math.abs(verticleSpeed)<0.2 && !this.player.getPlayer().field_70122_E)){//playerCapabilities.isFlying
@@ -371,7 +370,7 @@ class DragonWings extends Cosmetic {
 
         let horisontalSpeed = Math.sqrt((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX])**2+(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ])**2)
 
-        let verticleSpeed = this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ]
+        let verticleSpeed = this.player.getPlayer()[f.posY.Entity]-this.player.getPlayer()[f.lastTickPosY]
         
         this.animOffset += Math.min(1, horisontalSpeed)*10*timeSince+1*timeSince
 
