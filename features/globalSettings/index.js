@@ -33,7 +33,7 @@ class Hud extends Feature {
         this.findApiKey = new ButtonSetting("Attempt to load api key from other mods", "This will scan other mods configs to attempt to find your key", "find_key", this, "Click!", this.findKey, undefined)
 
 
-        this.notifyNewVersion = new ToggleSetting("Notify when there is a new update", "Will notify you when there is a new version of soopyv2 avalible for download", true, "notify_update", this) //TODO: Make false by default when uploaded on ct website
+        this.notifyNewVersion = new ToggleSetting("Notify when there is a new update", "Will notify you when there is a new version of soopyv2 avalible for download", false, "notify_update", this)
 
 
         this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
@@ -52,15 +52,19 @@ class Hud extends Feature {
         this.ranFirstLoadThing = false
 
         if(!this.firstLoadPageData.shown){
-            while(!World || this.FeatureManager.finishedLoading){
-                Thread.sleep(100)
-            }
-            this.showFirstLoadPage.call(this)
+            new Thread(()=>{
+                while(!World || !this.FeatureManager.finishedLoading){
+                    Thread.sleep(100)
+                }
+                Thread.sleep(500)
+                this.showFirstLoadPage.call(this)
+            }).start()
         }
     }
 
     showFirstLoadPage(){
         if(!this.ranFirstLoadThing && World && !this.firstLoadPageData.shown){
+            ChatLib.chat(this.FeatureManager.messagePrefix + "Opening first load page, if you accidentally close it run /soopyv2 and click the button")
             ChatLib.command("soopyv2 first_load_thing", true)
             this.ranFirstLoadThing = true
             this.firstLoadPageData.shown = true
