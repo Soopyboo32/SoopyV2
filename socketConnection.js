@@ -89,6 +89,10 @@ class SoopyV2Server extends WebsiteCommunicator {
 
 if(!global.soopyV2Server){
     global.soopyV2Server = new SoopyV2Server()
+    
+    register("gameUnload", ()=>{
+        global.soopyV2Server = undefined
+    })
 }
 
 export default global.soopyV2Server

@@ -463,7 +463,7 @@ class FeatureManager {
     }
 
     loadFeatureMetas(){
-        featuresDir = new File("./config/ChatTriggers/modules/" + metadata.name + "/features")
+        let featuresDir = new File("./config/ChatTriggers/modules/" + metadata.name + "/features")
 
         featuresDir.list().forEach((pathName)=>{
             if(pathName.includes(".")) return;
@@ -475,7 +475,10 @@ class FeatureManager {
                 }
                 data.id = pathName
                 this.featureMetas[pathName] = data
-            }catch(_){}
+            }catch(e){
+                console.log("Error loading feature metadata for " + pathName)
+                console.log(JSON.stringify(e, undefined, 2))
+            }
         })
     }
 
@@ -571,6 +574,9 @@ class FeatureManager {
 
 if(!global.soopyv2featuremanagerthing){
     global.soopyv2featuremanagerthing = new FeatureManager()
+    register("gameUnload", ()=>{
+        global.soopyv2featuremanagerthing = undefined
+    })
 }
 export default global.soopyv2featuremanagerthing
 

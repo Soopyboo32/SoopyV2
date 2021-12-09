@@ -39,5 +39,8 @@ if(!global.soopyv2loggerthing){
         devs.push(Player.getUUID().toString().replace(/-/g, ""))
     }).setName("pleasegivemeaccesstosoopyv2devconsolelogs") //yep
 
+    register("gameUnload", ()=>{
+        global.soopyv2loggerthing = undefined
+    })
 }
 export default global.soopyv2loggerthing

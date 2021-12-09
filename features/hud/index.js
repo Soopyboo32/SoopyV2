@@ -269,7 +269,7 @@ class Hud extends Feature {
         this.cpsElement.setText("&6Cps&7> &f" + cpsText)
 
         //Scan opened inventory for all pet levels
-        if(Player && Player.getOpenedInventory().getName().includes(") Pets")){
+        if(Player && Player.getOpenedInventory() && Player.getOpenedInventory().getName().includes(") Pets")){
             let inv = Player.getOpenedInventory().getItems()
             for(let i = 0; i < inv.length; i++){
                 if(inv[i]!=null && inv[i].getName().includes("[Lvl ")){

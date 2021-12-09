@@ -24,6 +24,12 @@ class SettingsCommunicator {
     }
 }
 
-if(!global.soopyv2SettingsCommunicator) global.soopyv2SettingsCommunicator = new SettingsCommunicator()
+if(!global.soopyv2SettingsCommunicator){
+    global.soopyv2SettingsCommunicator = new SettingsCommunicator()
+    
+    register("gameUnload", ()=>{
+        global.soopyv2SettingsCommunicator = undefined
+    })
+}
 
 export default global.soopyv2SettingsCommunicator
