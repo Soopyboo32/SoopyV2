@@ -1,7 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import { m } from "../../mappings/mappings";
+import { m } from "../../../mappings/mappings";
 import * as stringUtils from "../../utils/stringUtils";
 import * as utils from "../../utils/utils"
 import HudTextElement from "../hud/HudTextElement";

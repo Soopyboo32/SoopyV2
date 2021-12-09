@@ -1,4 +1,4 @@
-import { f, m, m } from "../../../../mappings/mappings.js";
+import { f, m, m } from "../../../../../mappings/mappings.js";
 import Cosmetic from "../../cosmetic.js";
 
 const ModelDragon = Java.type("net.minecraft.client.model.ModelDragon")

@@ -3,7 +3,7 @@
 import Feature from "../../featureClass/class";
 import DragonWings from "./cosmetic/dragon/dragonWings"
 import Toggle from "../settings/settingThings/toggle"
-import { f } from "../../mappings/mappings";
+import { f } from "../../../mappings/mappings";
 
 class Cosmetics extends Feature {
     constructor() {

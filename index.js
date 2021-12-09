@@ -8,9 +8,6 @@ class SoopyAddons {
         this.FeatureManager.parent = this
     }
 }
-register("command", ()=>{
-    require("./mappings/mappingCreator.js")
-}).setName("soopyreloadmappingsfile")
 
 if(FileLib.read("soopyAddonsData", "deletesoopyv1please.txt") === "true"){
     new Thread(()=>{

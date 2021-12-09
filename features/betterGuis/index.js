@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import logger from "../../logger";
-import { f } from "../../mappings/mappings";
+import { f } from "../../../mappings/mappings";
 import ToggleSetting from "../settings/settingThings/toggle";
 import MuseumGui from "./museumGui.js";
 

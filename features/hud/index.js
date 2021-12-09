@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import SoopyNumber from "../../../guimanager/Classes/SoopyNumber";
 import Feature from "../../featureClass/class";
-import { m } from "../../mappings/mappings";
+import { m } from "../../../mappings/mappings";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import HudTextElement from "./HudTextElement";

@@ -1,7 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import { f, m } from "../../mappings/mappings";
+import { f, m } from "../../../mappings/mappings";
 const BufferedImage = Java.type("java.awt.image.BufferedImage")
 
 class DungeonMap extends Feature {

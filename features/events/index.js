@@ -1,7 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import { f } from "../../mappings/mappings";
+import { f } from "../../../mappings/mappings";
 import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawLine } from "../../utils/renderUtils";
 import { calculateDistance, calculateDistanceQuick, fastestPathThrough } from "../../utils/utils";
 import HudTextElement from "../hud/HudTextElement";
