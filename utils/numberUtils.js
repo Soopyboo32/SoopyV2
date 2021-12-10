@@ -46,5 +46,34 @@ module.exports = {
         }
 
         return returnVal;
+    },
+    timeSince:function (date) {
+        if (typeof date !== 'object') {
+            date = new Date(date);
+        }
+    
+        var seconds = Math.floor((new Date()-date) / 1000);
+        var intervalType;
+    
+        var interval = Math.floor(seconds / 31536000);
+        interval = Math.floor(seconds / 86400);
+        if (interval >= 1) {
+            intervalType = 'd';
+        } else {
+            interval = Math.floor(seconds / 3600);
+            if (interval >= 1) {
+                intervalType = "h";
+            } else {
+                interval = Math.floor(seconds / 60);
+                if (interval >= 1) {
+                    intervalType = "m";
+                } else {
+                    interval = seconds;
+                    intervalType = "s";
+                }
+            }
+        }
+    
+        return interval + '' + intervalType;
     }
 }

@@ -35,6 +35,7 @@ class SoopyGui extends Feature {
         // this.gui.isDebugEnabled = true
 
         this.registerCommand("soopyv2", this.openCommand)
+        this.registerCommand("soopy", this.openCommand)
 
         this.mainWindowElement = new SoopyBoxElement().setLocation(0.25, 0.2, 0.5, 0.6)
 
@@ -87,6 +88,13 @@ class SoopyGui extends Feature {
 
     addCategory(category){
         this.pages.push(category)
+        this.sortPages()
+
+        this.updateButtons()
+    }
+
+    deleteCategory(category){
+        this.pages = this.pages.filter(a=>a!==category)
         this.sortPages()
 
         this.updateButtons()

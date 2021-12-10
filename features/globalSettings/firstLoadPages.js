@@ -70,7 +70,7 @@ class HowToOpenMenuPage extends FirstLoadPage{
 
         this.addChild(new SoopyTextElement().setText("§0Your all set!").setLocation(0.1, 0.1,0.8,0.3).setMaxTextScale(10));
 
-        this.addChild(new SoopyTextElement().setText("§7To change any settings, or to access this menu again run §2/soopyv2§7.").setLocation(0.1, 0.3,0.8,0.1).setMaxTextScale(10));
+        this.addChild(new SoopyTextElement().setText("§7To change any settings, or to access this menu again run §2/soopy§7.").setLocation(0.1, 0.3,0.8,0.1).setMaxTextScale(10));
 
         let openSettingsButton = new ButtonWithArrow().setText("§0Open settings").setLocation(0.1, 0.5,0.3,0.2).setDirectionRight(false)
 

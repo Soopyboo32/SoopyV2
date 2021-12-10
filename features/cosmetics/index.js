@@ -39,7 +39,6 @@ class Cosmetics extends Feature {
         this.registerEvent("playerLeft", this.playerLeft)
         this.registerEvent("worldLoad", this.worldLoad)
         this.registerStep(false, 5, this.step)
-        this.registerStep(false, 1, this.step1)
         this.registerStep(false, 60*10, ()=>{
             new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
         })

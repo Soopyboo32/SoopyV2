@@ -7,7 +7,7 @@ class GuiPage{
 
         this.soopyGui = undefined;
         new Thread(()=>{
-            while(global.soopyv2featuremanagerthing.features["soopyGui"] === undefined){
+            while(global.soopyv2featuremanagerthing.features === undefined || global.soopyv2featuremanagerthing.features["soopyGui"] === undefined){
                 Thread.sleep(100)
             }
             
@@ -53,6 +53,10 @@ class GuiPage{
     }
     closeSidebarPage(){
         this.soopyGui.closeSidebarPage()
+    }
+
+    delete(){
+        this.soopyGui.deleteCategory(this);
     }
 
     //Override me :D

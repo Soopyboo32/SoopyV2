@@ -85,7 +85,8 @@ class Hud extends Feature {
         this.petElement = new HudTextElement()
             .setToggleSetting(this.petEnabledSetting)
             .setLocationSetting(new LocationSetting("Pet Location", "Allows you to edit the location of the pet text", "pet_location", this, [10, 30, 1, 1])
-                .requires(this.petEnabledSetting))
+                .requires(this.petEnabledSetting)
+                .editTempText("&6Pet&7> &7[Lvl 100] &aEnderman"))
         this.hudElements.push(this.petElement)
         
         this.soulflowEnabledSetting = new ToggleSetting("Show Soulflow", "Whether the soulflow count is rendered onto the screen", true, "soulflow_enabled", this)
@@ -94,7 +95,8 @@ class Hud extends Feature {
         this.soulflowElement = new HudTextElement()
             .setToggleSetting(this.soulflowEnabledSetting)
             .setLocationSetting(new LocationSetting("Soulflow Location", "Allows you to edit the location of the soulflow text", "soulflow_location", this, [10, 40, 1, 1])
-                .requires(this.soulflowEnabledSetting))
+                .requires(this.soulflowEnabledSetting)
+                .editTempText("&6Soulflow&7> &f12,345"))
         this.hudElements.push(this.soulflowElement)
 
         this.witherImpactCooldownSetting = new ToggleSetting("Show Wither Impact Cooldown", "This will render a small cooldown above your crosshair", true, "wither_impact_cooldown_enabled", this)
