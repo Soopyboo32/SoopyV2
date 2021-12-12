@@ -75,5 +75,19 @@ module.exports = {
         }
     
         return interval + '' + intervalType;
+    },
+    timeNumber: function(time){
+        let mins = Math.floor(time/1000/60)
+        let secs = Math.floor(time/1000)%60
+    
+        if(mins === 0) return secs + "s"
+        return `${mins}m ${secs}s`
+    },
+    timeNumber2: function(time){
+        let hours = Math.floor(time/1000/60/60)
+        let mins = Math.floor(time/1000/60)%60
+    
+        if(hours === 0) return mins + "m"
+        return `${hours}h ${mins}m`
     }
 }

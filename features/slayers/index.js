@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import { f, m } from "../../../mappings/mappings";
-import { numberWithCommas } from "../../utils/numberUtils";
+import { numberWithCommas, timeNumber } from "../../utils/numberUtils";
 import { drawBoxAtBlock, drawBoxAtEntity, drawFilledBox, drawLine } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
@@ -379,12 +379,4 @@ class Slayers extends Feature {
 
 module.exports = {
     class: new Slayers()
-}
-
-function timeNumber(time){
-    let mins = Math.floor(time/1000/60)
-    let secs = Math.floor(time/1000)%60
-
-    if(mins === 0) return secs + "s"
-    return `${mins}m ${secs}s`
 }
