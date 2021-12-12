@@ -145,7 +145,7 @@ class DragonWings extends Cosmetic {
 
 
         //Higher = more elytra like
-        wing[f.rotateAngleZ] = 0.25; //rotateAngleY
+        wing[f.rotateAngleY] = 0.25; //rotateAngleY
 
         let shouldStandingStillWingThing = false
 
