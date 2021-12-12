@@ -12,6 +12,9 @@ class SoopyV2Server extends WebsiteCommunicator {
 
         this.errorsToReport = []
 
+        this.lbdatathing = undefined
+        this.lbdatathingupdated = 0
+
         this.reportErrorsSetting = undefined
 
         this.onPlayerStatsLoaded = undefined
@@ -26,6 +29,10 @@ class SoopyV2Server extends WebsiteCommunicator {
         }
         if(data.type === "playerStatsQuick"){
             if(this.onPlayerStatsLoaded) this.onPlayerStatsLoaded(data.data)
+        }
+        if(data.type === "updateLbDataThing"){
+            this.lbdatathing = data.data
+            this.lbdatathingupdated = data.lastUpdated
         }
     }
 

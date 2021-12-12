@@ -1,0 +1,8 @@
+{
+    "name": "Locked Features",
+    "description": "A bunch of random features that are only accessable to some people\n§0(eg only people in specific guild)",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}
