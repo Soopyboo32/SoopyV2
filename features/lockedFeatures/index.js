@@ -5,7 +5,7 @@ import ToggleSetting from "../settings/settingThings/toggle";
 import SoopyV2Server from "../../socketConnection"
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
-import { numberWithCommas, timeNumber, timeSince } from "../../utils/numberUtils";
+import { numberWithCommas, timeNumber2, timeSince } from "../../utils/numberUtils";
 
 class LockedFeatures extends Feature {
     constructor() {
@@ -70,17 +70,17 @@ class LockedFeatures extends Feature {
         let timeTillIncrease = Infinity
         let timeTillDecrease = Infinity
         if(nextProgress[1]-playerProgress[1] < 0){
-            timeTillIncrease = Math.abs((nextProgress[0]-playerProgress[0])/(nextProgress[1]-playerProgress[1])*60*60*1000)
+            timeTillIncrease = ((nextProgress[0]-playerProgress[0])/(playerProgress[1]-nextProgress[1])*60*60*1000)
         }
         if(prevProgress[1]-playerProgress[1] < 0){
-            timeTillDecrease = Math.abs((prevProgress[0]-playerProgress[0])/(prevProgress[1]-playerProgress[1])*60*60*1000)
+            timeTillDecrease = ((playerProgress[0]-prevProgress[0])/(prevProgress[1]-playerProgress[1])*60*60*1000)
         }
 
-        if(timeTillIncrease < timeTillDecrease && timeTillIncrease < 10000000000){
-            text = "&dRank increasing in ~" + timeNumber(timeTillIncrease) + "\n"+text
+        if((timeTillIncrease < timeTillDecrease || (timeTillIncrease > 0)) && timeTillDecrease < 0 && timeTillIncrease < 10000000000){
+            text = "&d  ^ in " + timeNumber2(timeTillIncrease) + "\n"+text
         }
-        if(timeTillIncrease > timeTillDecrease && timeTillDecrease < 10000000000){
-            text = "&dRank decreasing in ~" + timeNumber(timeTillDecrease) + "\n"+text
+        if((timeTillIncrease > timeTillDecrease || (timeTillDecrease>0))&&timeTillIncrease<0 && timeTillDecrease < 10000000000){
+            text = "&d  V in " + timeNumber2(timeTillDecrease) + "\n"+text
         }
 
         this.guildLbElement.setText(text)
