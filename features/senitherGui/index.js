@@ -87,9 +87,9 @@ class SettingPage extends GuiPage {
         this.playerSearchBox = new TextBox().setPlaceholder("Click to search").setLocation(0.2, 0.15, 0.6, 0.1)
         this.playerPage.addChild(this.playerSearchBox)
 
-        this.playerPage.addChild(new SoopyTextElement().setText("§0Pos").setLocation(0.1,0.3,0.075*0.8,0.1))
-        this.playerPage.addChild(new SoopyTextElement().setText("§0Name").setLocation(0.1+0.1*0.8,0.3,0.2*0.8,0.1))
-        this.playerPage.addChild(new SoopyTextElement().setText("§0Guild").setLocation(0.1+0.325*0.8,0.3,0.2*0.8,0.1))
+        this.playerPage.addChild(new SoopyTextElement().setText("§7Pos").setLocation(0.1,0.3,0.075*0.8,0.1))
+        this.playerPage.addChild(new SoopyTextElement().setText("§7Name").setLocation(0.1+0.1*0.8,0.3,0.2*0.8,0.1))
+        this.playerPage.addChild(new SoopyTextElement().setText("§7Guild").setLocation(0.1+0.325*0.8,0.3,0.2*0.8,0.1))
         let weight = new SoopyTextElement().setText("§0Weight").setLocation(0.1+0.55*0.8,0.3,0.2*0.8,0.1).setLore(["Click to set sorting to weight"])
         this.playerPage.addChild(weight)
         weight.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
@@ -97,6 +97,9 @@ class SettingPage extends GuiPage {
             this.playerInformationUpdated = false
             this.playersBox.location.scroll.y.set(0, 100)
             this.playersBox._scrollAmount = 0
+
+            dropdown.setColorPrefix("&7")
+            weight.setText("§0Weight")
         }))
 
         let dropdown = new Dropdown().setOptions({
@@ -140,7 +143,8 @@ class SettingPage extends GuiPage {
             "carpentry_xp": "Carpentry Xp",
             "runecrafting": "Runecrafting Level",
             "runecrafting_xp": "Runecrafting Xp",
-        }).setSelectedOption("average_skill_progress").setLocation(0.1+0.75*0.8,0.3,0.25*0.8,0.1).renderBox(false)
+        }).setSelectedOption("average_skill_progress").setLocation(0.1+0.75*0.8,0.3,0.25*0.8,0.1).renderBox(false).setColorPrefix("&7")
+        
         this.playerPage.addChild(dropdown)
         dropdown.text.setMaxTextScale(1)
 
@@ -152,6 +156,9 @@ class SettingPage extends GuiPage {
             this.playerInformationUpdated = false
             this.playersBox.location.scroll.y.set(0, 100)
             this.playersBox._scrollAmount = 0
+
+            dropdown.setColorPrefix("&0")
+            weight.setText("§7Weight")
         }))
 
         // element.addChild(new SoopyTextElement().setText("§0#"+(i+1)).setLocation(0,0,0.075,1))
@@ -191,18 +198,47 @@ class SettingPage extends GuiPage {
         this.guildPage.addChild(this.guildSearchBox)
         this.guildSearch = ""
 
-        this.guildPage.addChild(new SoopyTextElement().setText("§0Pos").setLocation(0.1,0.3,0.075*0.8,0.1))
-        this.guildPage.addChild(new SoopyTextElement().setText("§0Name").setLocation(0.1+0.1*0.8,0.3,0.2*0.8,0.1))
-        this.guildPage.addChild(new SoopyTextElement().setText("§0Weight").setLocation(0.1+0.325*0.8,0.3,0.15*0.8,0.1))
-        this.guildPage.addChild(new SoopyTextElement().setText("§0Members").setLocation(0.1+0.475*0.8,0.3,(0.1+0.05/4)*0.8,0.1))
-        this.guildPage.addChild(new SoopyTextElement().setText("§0Skill").setLocation(0.1+0.5875*0.8,0.3,(0.1+0.05/4)*0.8,0.1))
-        this.guildPage.addChild(new SoopyTextElement().setText("§0Slayer").setLocation(0.1+0.7*0.8,0.3,(0.15+0.05/4)*0.8,0.1))
-        this.guildPage.addChild(new SoopyTextElement().setText("§0Catacombs").setLocation(0.1+0.8625*0.8,0.3,(0.1+0.05/4)*0.8,0.1))
+
+        this.guildSortThing = "weight.total"
+
+        this.oldSortElm = undefined
+
+        sortify = (sort, name, elm)=>{
+            elm.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+                if(this.oldSortElm){
+                    this.oldSortElm[0].setText("&7"+this.oldSortElm[1])
+                }
+
+                this.oldSortElm = [elm, name]
+                this.guildSortThing = sort
+                
+                elm.setText("&0"+name)
+                this.regenGuildElements()
+            }))
+
+            elm.setLore(["Click to sort by " + name.toLowerCase()])
+
+            if(sort===this.guildSortThing){
+                this.oldSortElm = [elm, name]
+                elm.setText("&0"+name)
+            }else{
+                elm.setText("&7"+name)
+            }
+
+            return elm
+        }
+
+        this.guildPage.addChild(new SoopyTextElement().setText("§7Pos").setLocation(0.1,0.3,0.075*0.8,0.1))
+        this.guildPage.addChild(new SoopyTextElement().setText("§7Name").setLocation(0.1+0.1*0.8,0.3,0.2*0.8,0.1))
+        this.guildPage.addChild(sortify("weight.total", "Weight", new SoopyTextElement().setLocation(0.1+0.325*0.8,0.3,0.15*0.8,0.1)))
+        this.guildPage.addChild(sortify("members", "Members", new SoopyTextElement().setLocation(0.1+0.475*0.8,0.3,(0.1+0.05/4)*0.8,0.1)))
+        this.guildPage.addChild(sortify("average_skill_progress", "Skill", new SoopyTextElement().setLocation(0.1+0.5875*0.8,0.3,(0.1+0.05/4)*0.8,0.1)))
+        this.guildPage.addChild(sortify("average_slayer", "Slayer", new SoopyTextElement().setLocation(0.1+0.7*0.8,0.3,(0.15+0.05/4)*0.8,0.1)))
+        this.guildPage.addChild(sortify("average_catacomb", "Catacombs", new SoopyTextElement().setLocation(0.1+0.8625*0.8,0.3,(0.1+0.05/4)*0.8,0.1)))
 
         this.guildsBox = new SoopyGuiElement().setLocation(0.1,0.4,0.8,0.6).setScrollable(true)
         this.guildPage.addChild(this.guildsBox)
 
-        this.guildSortThing = "weight.total"
 
 
         this.finaliseLoading()
