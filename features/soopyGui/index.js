@@ -1,7 +1,6 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import * as GuiManager from "../../../guimanager/index.js"
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
 import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement";
 import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";
@@ -9,6 +8,7 @@ import TextWithArrow from "../../../guimanager/GuiElement/TextWithArrow";
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import SoopyOpenGuiEvent from "../../../guimanager/EventListener/SoopyOpenGuiEvent";
+import SoopyGui2 from "../../../guimanager/SoopyGui";
 
 
 class SoopyGui extends Feature {
@@ -30,7 +30,7 @@ class SoopyGui extends Feature {
     }
 
     onEnable(){
-        this.gui = new GuiManager.SoopyGui()
+        this.gui = new SoopyGui2()
 
         // this.gui.isDebugEnabled = true
 

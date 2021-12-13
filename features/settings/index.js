@@ -1,7 +1,6 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import * as GuiManager from "../../../guimanager/index.js"
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
 import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement";
 import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";
@@ -14,6 +13,7 @@ import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyCont
 import SoopyOpenGuiEvent from "../../../guimanager/EventListener/SoopyOpenGuiEvent";
 import settingsCommunicator from "./settingsCommunicator";
 import GuiPage from "../soopyGui/GuiPage"
+import { SoopyRenderEvent } from "../../../guimanager";
 
 
 class SettingsRenderer extends Feature {
@@ -102,7 +102,7 @@ class SettingPage extends GuiPage {
 
         this.SettingPage = undefined
 
-        this.pages[0].addEvent(new GuiManager.SoopyRenderEvent().setHandler(()=>{this.updateLocs()}))
+        this.pages[0].addEvent(new SoopyRenderEvent().setHandler(()=>{this.updateLocs()}))
 
         //###############################################################################################
         //                                     Settings Category Page
