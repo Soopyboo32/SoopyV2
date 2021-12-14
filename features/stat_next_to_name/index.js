@@ -4,6 +4,7 @@ import Feature from "../../featureClass/class";
 import soopyV2Server from "../../socketConnection";
 import SettingBase from "../settings/settingThings/settingBase";
 import * as numberUtils from "../../utils/numberUtils";
+import DropdownSetting from "../settings/settingThings/dropdownSetting";
 
 class StatNextToName extends Feature {
     constructor() {
@@ -11,14 +12,24 @@ class StatNextToName extends Feature {
     }
 
     onEnable(){
-        new SettingBase("(ONLY WEIGHT ATM) NOTE: A pink star thing (&d⚝§0)", "Means that player is also using SoopyV2", true, "stat_next_to_name_description", this)
+        new SettingBase("NOTE: A pink star thing (&d⚝§0)", "Means that player is also using SoopyV2", true, "stat_next_to_name_description", this)
+        this.statToShow = new DropdownSetting("Stat to show", "", "weight", "stat_selected_nexttoname", this, {
+            "weight": "Weight",
+            "catacombsLevel": "Catacombs Level",
+            "skillAvg": "Skill Average",
+            "totalSlayer": "Total Slayer Exp"
+        })
+
+        this.decimals = {
+            "weight": 0,
+            "catacombsLevel": 2,
+            "skillAvg": 2,
+            "totalSlayer": 0
+        }
 
         this.userStats = {}
 
         this.loadingStats = []
-
-        this.statsThing = "weight"
-        this.decimalPlaces = 0
 
         soopyV2Server.onPlayerStatsLoaded = (stats)=>{this.playerStatsLoaded.call(this, stats)}
 
@@ -66,8 +77,8 @@ class StatNextToName extends Feature {
 
         nameTagString += " &2["
         if(stats.usingSoopyv2) nameTagString += "&d⚝&2"
-        if(stats.exists && stats[this.statsThing]){
-            nameTagString += numberUtils.numberWithCommas(stats[this.statsThing].toFixed(this.decimalPlaces))
+        if(stats.exists && stats[this.statToShow.getValue()]){
+            nameTagString += numberUtils.numberWithCommas(stats[this.statToShow.getValue()].toFixed(this.decimals[this.statToShow.getValue()]))
         }else{
             nameTagString += "?"
         }
@@ -84,6 +95,7 @@ class StatNextToName extends Feature {
     playerStatsLoaded(stats){
         // console.log(JSON.stringify(stats, undefined, 2))
         this.userStats[stats.uuid] = stats
+    
     }
 
     onDisable(){

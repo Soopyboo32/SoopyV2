@@ -25,6 +25,8 @@ class DragonWings extends Cosmetic {
 
         this.lastFlapSound = this.animOffset
         this.i = 0
+
+        this.flying = false
     }
 
     onRenderEntity(ticks, isInGui){
@@ -70,7 +72,7 @@ class DragonWings extends Cosmetic {
 
 
         // if((this.player === Player &&this.player.getPlayer().field_71075_bZ.field_75100_b) || (this.player !== Player && Math.abs(verticleSpeed)<0.2 && !this.player.getPlayer().field_70122_E)){//playerCapabilities.isFlying
-        if((verticleSpeed>-0.2) && !this.player.getPlayer()[f.onGround.Entity] && !isInGui){ //flying
+        if(this.flying){ //flying
             this.animOffset += 5*timeSince //flap in mid air
 
             flapAmountMultiplyer *= 1.75 //flap harder
@@ -152,7 +154,7 @@ class DragonWings extends Cosmetic {
         let changeStandingStillWingThing = 0
 
         if(horisontalSpeed < 0.01){
-            if(!((verticleSpeed>-0.2) && !this.player.getPlayer()[f.onGround.Entity])){ //not flying
+            if(!(this.flying)){ //not flying
                 let amt = (this.animOffset+Math.PI/2)%(20*Math.PI)
                 if(amt < 1*Math.PI){
                     this.animOffset += 2*timeSince*Math.min(1,(amt/(1*Math.PI))*2)
@@ -305,7 +307,7 @@ class DragonWings extends Cosmetic {
 
 
         // if((this.player === Player &&this.player.getPlayer().field_71075_bZ.field_75100_b) || (this.player !== Player && Math.abs(verticleSpeed)<0.2 && !this.player.getPlayer().field_70122_E)){//playerCapabilities.isFlying
-        if((verticleSpeed>-0.2) && !this.player.getPlayer()[f.onGround.Entity]){ //flying
+        if(this.flying){ //flying
             
             if(this.animOffset-this.lastFlapSound > 2*Math.PI){
 
@@ -317,7 +319,7 @@ class DragonWings extends Cosmetic {
         }
 
         if(horisontalSpeed < 0.01){
-            if(!((verticleSpeed>-0.2) && !this.player.getPlayer()[f.onGround.Entity])){ //not flying
+            if(!(this.flying)){ //not flying
                 let amt = (this.animOffset+Math.PI/2)%(20*Math.PI)
                 if(amt < 1*Math.PI){
                     if(amt > 0.65*Math.PI && (2*Math.PI+this.animOffset)-this.lastFlapSound > 2*Math.PI){
@@ -333,6 +335,7 @@ class DragonWings extends Cosmetic {
     }
 
     onTick(){
+
         this.updateIfNotRendering()
 
         this.testPlaySound()
@@ -360,6 +363,10 @@ class DragonWings extends Cosmetic {
     }
 
     updateIfNotRendering(){
+        let verticleSpeed = this.player.getPlayer()[f.posY.Entity]-this.player.getPlayer()[f.lastTickPosY]
+
+        this.flying = (verticleSpeed>-0.2) && !this.player.getPlayer()[f.onGround.Entity]
+
         let timeSince = (Date.now()-this.lastRender)/1000
 
         if(timeSince < 0.020){
@@ -370,7 +377,6 @@ class DragonWings extends Cosmetic {
 
         let horisontalSpeed = Math.sqrt((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX])**2+(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ])**2)
 
-        let verticleSpeed = this.player.getPlayer()[f.posY.Entity]-this.player.getPlayer()[f.lastTickPosY]
         
         this.animOffset += Math.min(1, horisontalSpeed)*10*timeSince+1*timeSince
 
@@ -380,7 +386,7 @@ class DragonWings extends Cosmetic {
 
 
         // if((this.player === Player &&this.player.getPlayer().field_71075_bZ.field_75100_b) || (this.player !== Player && Math.abs(verticleSpeed)<0.2 && !this.player.getPlayer().field_70122_E)){//playerCapabilities.isFlying
-        if((verticleSpeed>-0.2) && !this.player.getPlayer()[f.onGround]){ //flying
+        if(this.flying){ //flying
             this.animOffset += 5*timeSince //flap in mid air
 
             if(verticleSpeed > 0){
@@ -392,7 +398,7 @@ class DragonWings extends Cosmetic {
         }
 
         if(horisontalSpeed < 0.01){
-            if(!((verticleSpeed>-0.2) && !this.player.getPlayer()[f.onGround])){ //not flying
+            if(!(this.flying)){ //not flying
                 let amt = (this.animOffset+Math.PI/2)%(20*Math.PI)
                 if(amt < 1*Math.PI){
                     this.animOffset += 2*timeSince*Math.min(1,(amt/(1*Math.PI))*2)
