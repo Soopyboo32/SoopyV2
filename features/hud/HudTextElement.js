@@ -41,9 +41,16 @@ class HudTextElement{
     getText(){
         let text = this.text
         let blackText = this.blackText
-        if(this.editTempTextV && Date.now()-this.editTempTimeV < 100){
-            text = this.editTempTextV
-            blackText = "&0" + ChatLib.removeFormatting(text)
+        if(Date.now()-this.editTempTimeV < 100){
+            if(this.editTempTextV){
+                text = this.editTempTextV
+                blackText = "&0" + ChatLib.removeFormatting(text)
+            }
+
+            if(ChatLib.removeFormatting(text) === ""){
+                text = "&0Empty string"
+                blackText = "&0Empty string"
+            }
         }
         return [text.split("\n"), blackText.split("\n")]
     }

@@ -7,7 +7,7 @@ class GuiPage{
 
         this.soopyGui = undefined;
         new Thread(()=>{
-            while(global.soopyv2featuremanagerthing.features === undefined || global.soopyv2featuremanagerthing.features["soopyGui"] === undefined){
+            while(global.soopyv2featuremanagerthing === undefined || global.soopyv2featuremanagerthing.features === undefined || global.soopyv2featuremanagerthing.features["soopyGui"] === undefined){
                 Thread.sleep(100)
             }
             

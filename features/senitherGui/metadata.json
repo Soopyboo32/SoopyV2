@@ -1,0 +1,8 @@
+{
+    "name": "Friends gui",
+    "description": "Gui for friends",
+    "isHidden": true,
+    "isTogglable": false,
+    "defaultEnabled": true,
+    "sortA": 0
+}
