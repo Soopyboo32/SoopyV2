@@ -197,6 +197,14 @@ class SettingPage extends GuiPage {
         this.guildSearchBox = new TextBox().setPlaceholder("Click to search").setLocation(0.2, 0.15, 0.6, 0.1)
         this.guildPage.addChild(this.guildSearchBox)
         this.guildSearch = ""
+        this.guildSearchBox.text.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun)=>{
+            this.guildSearch = newVal
+
+            this.guildsBox.location.scroll.y.set(0, 100)
+            this.guildsBox._scrollAmount = 0
+            
+            this.regenGuildElements()
+        }))
 
 
         this.guildSortThing = "weight.total"
@@ -310,36 +318,40 @@ class SettingPage extends GuiPage {
     regenGuildElements(){
         this.guildsBox.clearChildren()
 
+        let yPosThing = 0
+
         this.guildData.sort((a, b)=>{
             return getThing(b, this.guildSortThing.split("."))-getThing(a, this.guildSortThing.split("."))
         }).forEach((g, i)=>{
 
-            let element = new SoopyBoxElement().setLocation(0,i*0.175, 1, 0.15)
+            if(g.name.toLowerCase().includes(this.guildSearch.toLowerCase())){
+                let element = new SoopyBoxElement().setLocation(0,yPosThing*0.175, 1, 0.15)
 
-            element.addEvent(new SoopyHoverChangeEvent().setHandler(()=>{
-                if(element.hovered){
-                    if(element.color[0]+element.color[1]+element.color[2]<0.5*(255+255+255)){
-                        element.setColorOffset(10, 10, 10, 100)
+                element.addEvent(new SoopyHoverChangeEvent().setHandler(()=>{
+                    if(element.hovered){
+                        if(element.color[0]+element.color[1]+element.color[2]<0.5*(255+255+255)){
+                            element.setColorOffset(10, 10, 10, 100)
+                        }else{
+                            element.setColorOffset(-10, -10, -10, 100)
+                        }
                     }else{
-                        element.setColorOffset(-10, -10, -10, 100)
+                        element.setColorOffset(0, 0, 0, 100)
                     }
-                }else{
-                    element.setColorOffset(0, 0, 0, 100)
-                }
-            }))
+                }))
 
-            element.addChild(new SoopyTextElement().setText("§0#"+(i+1)).setLocation(0,0,0.075,1))
-            element.addChild(new SoopyTextElement().setText("§0"+g.name).setLocation(0.1,0,0.2,1))
-            element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(Math.floor(g.weight.total))).setLocation(0.325,0,0.15,1).setLore(["§6" + numberWithCommas(g.weight.skill) + " §7skill weight", "§6" + numberWithCommas(g.weight.slayer) + " §7slayer weight", "§6" + numberWithCommas(g.weight.catacomb) + " §7dungeons weight", "§6"+g.weight.multiplier + " §7multiplier"]))
-            element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(g.members)).setLocation(0.475,0,0.1,1))
-            element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(g.average_skill_progress)).setLocation(0.5875,0,0.1,1))
-            element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(Math.floor(g.average_slayer))).setLocation(0.7,0,0.15,1))
-            element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(g.average_catacomb)).setLocation(0.8625,0,0.1,1))
-            // element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(g.members)).setLocation(0.75,0,0.2,1))
+                element.addChild(new SoopyTextElement().setText("§0#"+(i+1)).setLocation(0,0,0.075,1))
+                element.addChild(new SoopyTextElement().setText("§0"+g.name).setLocation(0.1,0,0.2,1))
+                element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(Math.floor(g.weight.total))).setLocation(0.325,0,0.15,1).setLore(["§6" + numberWithCommas(g.weight.skill) + " §7skill weight", "§6" + numberWithCommas(g.weight.slayer) + " §7slayer weight", "§6" + numberWithCommas(g.weight.catacomb) + " §7dungeons weight", "§6"+g.weight.multiplier + " §7multiplier"]))
+                element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(g.members)).setLocation(0.475,0,0.1,1))
+                element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(g.average_skill_progress)).setLocation(0.5875,0,0.1,1))
+                element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(Math.floor(g.average_slayer))).setLocation(0.7,0,0.15,1))
+                element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(g.average_catacomb)).setLocation(0.8625,0,0.1,1))
+                // element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(g.members)).setLocation(0.75,0,0.2,1))
 
-            this.guildsBox.addChild(element)
+                this.guildsBox.addChild(element)
 
-            
+                yPosThing++
+            }
         // this.guildPage.addChild(new SoopyTextElement().setText("§0Pos").setLocation(0.1,0.3,0.075*0.8,0.1))
         // this.guildPage.addChild(new SoopyTextElement().setText("§0Name").setLocation(0.1+0.1*0.8,0.3,0.2*0.8,0.1))
         // this.guildPage.addChild(new SoopyTextElement().setText("§0Weight").setLocation(0.1+0.325*0.8,0.3,0.15*0.8,0.1))

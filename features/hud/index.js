@@ -101,6 +101,8 @@ class Hud extends Feature {
 
         this.witherImpactCooldownSetting = new ToggleSetting("Show Wither Impact Cooldown", "This will render a small cooldown above your crosshair", true, "wither_impact_cooldown_enabled", this)
 
+        this.guidedSheepCooldownSetting = new ToggleSetting("Show Guided Sheep / Explosive Shot Cooldown", "This will render a small cooldown below your crosshair", true, "guided_sheep_cooldown_enabled", this)
+
         // this.showDragonDamages = new ToggleSetting("Show dragon damages", "This will render the top 3 damages + your damage during a dragon fight", true, "dragon_dmg_enable", this).requires(this.soulflowEnabledSetting)
         // this.dragonDamageElement = new HudTextElement()
         //     .setToggleSetting(this.showDragonDamages)
@@ -200,6 +202,7 @@ class Hud extends Feature {
         if (this.witherImpactCooldownSetting.getValue() && Date.now()-this.lastWitherImpact < 10000) {
             Renderer.drawString(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s") / 2, Renderer.screen.getHeight() / 2 - 15)
         }
+
     }
     
     renderWorld(){
