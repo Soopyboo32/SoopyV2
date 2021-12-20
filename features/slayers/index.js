@@ -44,7 +44,7 @@ class Slayers extends Feature {
             this.slayerExp[this.lastSlayerType] = this.lastSlayerExp + (this.slayerExp[this.lastSlayerType] || 0)
             if(this.expOnKill.getValue()){
                 cancel(e)
-                ChatLib.chat("&r  &r&a&lSLAYER QUEST COMPLETE!&r")
+                ChatLib.chat("&r  &r&a&lSLAYER QUEST COMPLETE!&a&r")
                 ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(this.slayerExp[this.lastSlayerType]) + " " + this.lastSlayerType + " XP&r&7!&r")
                 ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t)=>t+a, 0)) + " total XP&r&7!&r")
                 if(Date.now()-this.lastBossSlain < 60000*5) ChatLib.chat("&r   &r&aBoss took &d" + timeNumber((Date.now()-this.lastBossSlain)) + " &ato spawn and kill&r&7!"+/* (" + timeNumber(Date.now()-this.lastBossSpawned) + " to kill) */"&r") //TODO: Seperate setting for this
@@ -314,7 +314,7 @@ class Slayers extends Feature {
         })
 
         if(this.emanBoss){
-            this.emanHpElement.setText("&6Enderman&7> " + this.emanBoss.getName().split("Voidgloom Seraph")[1].trim())
+            this.emanHpElement.setText("&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1]||"").trim())
         }else{
             this.emanHpElement.setText("")
         }

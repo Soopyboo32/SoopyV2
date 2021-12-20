@@ -450,7 +450,7 @@ class MuseumGui {
 
                         donateArmorSets[setId] = (donateArmorSets[setId]||0)+1
 
-                        if(donateArmorSets[setId] === 4){
+                        if(donateArmorSets[setId] === 3){
                             this.donateItems.push({
                                 sb_id: sb_id || "NA",
                                 name: item.getName() || "",
