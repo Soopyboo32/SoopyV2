@@ -1,3 +1,4 @@
+const { f, m } = require("../../mappings/mappings");
 
 const GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
 const GL11 = Java.type("org.lwjgl.opengl.GL11");
@@ -135,7 +136,7 @@ module.exports = {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(false);
-        GlStateManager.func_179094_E();
+        GlStateManager[m.pushMatrix]()
     
         
         Tessellator.begin(3).colorize(colorR, colorG, colorB);
@@ -162,7 +163,7 @@ module.exports = {
     
         Tessellator.draw();
     
-        GlStateManager.func_179121_F();
+        GlStateManager[m.popMatrix]()
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(true);
