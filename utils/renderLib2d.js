@@ -10,10 +10,6 @@
 import { f, m } from "../mappings/mappings";
 
 
-
-const GL11 = Java.type("org.lwjgl.opengl.GL11");
-const GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
-
 const BufferUtils = org.lwjgl.BufferUtils;
 const Project = org.lwjgl.util.glu.Project;
 

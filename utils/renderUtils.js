@@ -1,8 +1,5 @@
 const { f, m } = require("../../mappings/mappings");
 
-const GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
-const GL11 = Java.type("org.lwjgl.opengl.GL11");
-
 module.exports = {
 
     /* accepts parameters
