@@ -1,8 +1,9 @@
 const { f, m } = require("../../mappings/mappings");
 
-const GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
-const GL11 = Java.type("org.lwjgl.opengl.GL11");
-
+if(!GlStateManager){
+    var GL11 = Java.type("org.lwjgl.opengl.GL11"); //using var so it goes to global scope
+    var GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
+}
 module.exports = {
 
     /* accepts parameters

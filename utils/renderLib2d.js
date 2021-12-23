@@ -10,16 +10,17 @@
 import { f, m } from "../mappings/mappings";
 
 
-
-const GL11 = Java.type("org.lwjgl.opengl.GL11");
-const GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
-
 const BufferUtils = org.lwjgl.BufferUtils;
 const Project = org.lwjgl.util.glu.Project;
 
 const modelViewMatrix = BufferUtils.createFloatBuffer(16);
 const projectionMatrix = BufferUtils.createFloatBuffer(16);
 const viewportDims = BufferUtils.createIntBuffer(16);
+
+if(!GlStateManager){
+    var GL11 = Java.type("org.lwjgl.opengl.GL11"); //using var so it goes to global scope
+    var GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
+}
 
 const ScaledResolution = net.minecraft.client.gui.ScaledResolution;
 
