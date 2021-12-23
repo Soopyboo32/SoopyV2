@@ -4,6 +4,7 @@ import Feature from "../../featureClass/class";
 import DragonWings from "./cosmetic/dragon/dragonWings"
 import Toggle from "../settings/settingThings/toggle"
 import { f } from "../../../mappings/mappings";
+import FakeRequireToggle from "../settings/settingThings/FakeRequireToggle";
 
 class Cosmetics extends Feature {
     constructor() {
@@ -29,6 +30,13 @@ class Cosmetics extends Feature {
         this.firstPersonVisable = new Toggle("Cosmetics visable in first person", "", false, "cosmetics_first_person_visable", this)
         this.lessFirstPersonVisable = new Toggle("Make cosmetics less visable in first person mode", "", true, "cosmetics_first_person_less_visable", this).requires(this.firstPersonVisable)
 
+        this.dragon_wings_enabled = new Toggle("Dragon Wings Toggle", "", true, "cosmetic_dragon_wings_toggle", this).requires(new FakeRequireToggle(false)).onchange(this, ()=>{
+            global.soopyV2Server.updateCosmeticsData({
+                cosmetic: "dragon_wings",
+                type: this.dragon_wings_enabled.getValue() ? "enable" : "disable"
+            })
+        })
+
         this.loadCosmeticsData()
 
         this.worldLoad()
@@ -44,6 +52,20 @@ class Cosmetics extends Feature {
         })
         this.registerEvent("renderEntity", this.renderEntity)
         this.loadedRenderEntity = false
+
+        if(global.soopyV2Server.userCosmeticPermissions){
+            this.updateUserCosmeticPermissionSettings()
+        }
+    }
+
+    updateUserCosmeticPermissionSettings(){
+        if(!this.enabled) return
+
+        if(global.soopyV2Server.userCosmeticPermissions === "*" || global.soopyV2Server.userCosmeticPermissions.dragon_wings){
+            this.dragon_wings_enabled.requiresO.set(true)
+        }else{
+            this.dragon_wings_enabled.requiresO.set(false)
+        }
     }
 
     renderWorld(ticks){
@@ -54,8 +76,8 @@ class Cosmetics extends Feature {
 
     renderEntity(entity, pos, ticks, event){
         if(ticks !== 1) return
-        if(this.uuidToCosmeticDirect[entity.getUUID().toString()]){
-            Object.values(this.uuidToCosmeticDirect[entity.getUUID().toString()]).forEach(cosmetic => {
+        if(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")]){
+            Object.values(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")]).forEach(cosmetic => {
                 cosmetic.onRenderEntity(ticks, true)
             })
         }
@@ -76,14 +98,26 @@ class Cosmetics extends Feature {
 
     setUserCosmeticsInformation(uuid, cosmetics){
         if(!this.enabled) return
-        
-        this.filterUnloadedCosmetics()
+        uuid = uuid.replace(/-/g,"")
 
         if(!cosmetics){
             delete this.cosmeticsData[uuid]
             return
         }
         this.cosmeticsData[uuid] = cosmetics
+
+        this.loadedCosmetics = this.loadedCosmetics.filter(cosmetic=>{
+            if(cosmetic.player.getUUID().toString().replace(/-/g,"") === uuid){
+                return false
+            }
+            return true
+        })
+        Object.keys(this.uuidToCosmetic).forEach(cosmeticName=>{
+            delete this.uuidToCosmetic[cosmeticName][uuid]
+        })
+
+        delete this.uuidToCosmeticDirect[uuid]
+        
         this.scanForNewCosmetics()
     }
 
@@ -93,7 +127,7 @@ class Cosmetics extends Feature {
     scanForNewCosmetics(){
         this.loadCosmeticsForPlayer(Player)
         World.getAllPlayers().forEach(p=>{
-            if(p.getUUID().toString() === Player.getUUID().toString()) return
+            if(p.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return
             this.loadCosmeticsForPlayer(p)
         })
     }
@@ -109,8 +143,8 @@ class Cosmetics extends Feature {
                 this.loadedCosmetics.push(cosmetic)
                 this.uuidToCosmetic[cosmeticName][player.getUUID().toString().replace(/-/g,"")] = cosmetic
                 
-                if(!this.uuidToCosmeticDirect[player.getUUID.toString()]) this.uuidToCosmeticDirect[player.getUUID().toString()] = {}
-                this.uuidToCosmeticDirect[player.getUUID().toString()][cosmeticName] = cosmetic
+                if(!this.uuidToCosmeticDirect[player.getUUID.toString()]) this.uuidToCosmeticDirect[player.getUUID().toString().replace(/-/g,"")] = {}
+                this.uuidToCosmeticDirect[player.getUUID().toString().replace(/-/g,"")][cosmeticName] = cosmetic
             }
         })
     }
@@ -125,18 +159,18 @@ class Cosmetics extends Feature {
     }
 
     playerJoined(player){
-        if(player.getUUID().toString() === Player.getUUID().toString()) return
+        if(player.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return
         
         this.loadCosmeticsForPlayer(player)
     }
 
     playerLeft(playerName){
-        this.loadedCosmetics.filter(cosmetic=>{
-            if(cosmetic.player.getUUID().toString() === Player.getUUID().toString()) return true
+        this.loadedCosmetics= this.loadedCosmetics.filter(cosmetic=>{
+            if(cosmetic.player.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return true
             if(cosmetic.player.getName() === playerName){
                 this.uuidToCosmetic[cosmetic.id][cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
             
-                this.uuidToCosmeticDirect[cosmetic.player.getUUID().toString()] = undefined
+                this.uuidToCosmeticDirect[cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
                 return false
             }
             return true
@@ -157,11 +191,11 @@ class Cosmetics extends Feature {
     filterUnloadedCosmetics(tick=false){
         this.loadedCosmetics = this.loadedCosmetics.filter(cosmetic => {
             if(tick) cosmetic.onTick()
-            if(cosmetic.player.getUUID().toString() === Player.getUUID().toString()) return true
+            if(cosmetic.player.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return true
             if(cosmetic.player.getPlayer()[f.isDead]){  //filter out players that are no longer loaded
                 this.uuidToCosmetic[cosmetic.id][cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
                 
-                this.uuidToCosmeticDirect[cosmetic.player.getUUID().toString()] = undefined
+                this.uuidToCosmeticDirect[cosmetic.player.getUUID().toString().replace(/-/g,"")] = undefined
                 return false
             }
             return true
@@ -199,6 +233,8 @@ class Cosmetics extends Feature {
     }
 }
 
+let instance = new Cosmetics()
+
 module.exports = {
-    class: new Cosmetics()
+    class: instance
 }

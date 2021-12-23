@@ -1,3 +1,4 @@
+
 class Cosmetic{
     constructor(player, parent, id){
 

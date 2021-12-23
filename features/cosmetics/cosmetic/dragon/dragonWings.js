@@ -1,10 +1,11 @@
 import { f, m, m } from "../../../../../mappings/mappings.js";
+import ToggleSetting from "../../../settings/settingThings/toggle.js";
 import Cosmetic from "../../cosmetic.js";
 
 const ModelDragon = Java.type("net.minecraft.client.model.ModelDragon")
 
 if(!GlStateManager){
-    var GL11 = Java.type("org.lwjgl.opengl.GL11"); //using var so it goes to global scope
+    // var GL11 = Java.type("org.lwjgl.opengl.GL11"); //using var so it goes to global scope
     var GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
 }
 const Essential = Java.type("gg.essential.Essential")

@@ -40,6 +40,10 @@ class SettingBase {
         this.temp_val = temp_val_temp
 
         this.requiresO = undefined
+
+        this.onchangethings = []
+
+        this.initTime = Date.now()
     }
 
     getValue(){
@@ -47,6 +51,7 @@ class SettingBase {
     }
 
     setValue(val){
+        if(this.val === val) return
         this.val = val;
 
         if(!this.requiresO || this.requiresO.getValue()){
@@ -63,6 +68,8 @@ class SettingBase {
 
             this.module.FeatureManager.featureSettingsDataLastUpdated = true
         }
+
+        if(this.onchangethings && Date.now()-this.initTime > 1000) this.onchangethings.forEach(([fun, context])=>{fun.call(context)})
     }
 
     getName(){
@@ -101,6 +108,11 @@ class SettingBase {
 
     delete(){
         settingsCommunicator.removeSetting(this.module, this.settingId)
+    }
+
+    onchange(context, fun){
+        this.onchangethings.push([fun, context])
+        return this
     }
 }
 

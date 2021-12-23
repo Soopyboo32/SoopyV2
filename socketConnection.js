@@ -18,9 +18,15 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.reportErrorsSetting = undefined
 
         this.onPlayerStatsLoaded = undefined
+
+        this.userCosmeticPermissions = undefined
     }
 
     onData(data){
+        if(data.type === "updateCosmeticPermissions"){
+            this.userCosmeticPermissions = data.permissions
+            Cosmetics.class.updateUserCosmeticPermissionSettings.call(Cosmetics.class)
+        }
         if(data.type === "updateCosmetics"){
             Cosmetics.class.setUserCosmeticsInformation.call(Cosmetics.class, data.uuid, data.cosmetics)
         }
@@ -53,6 +59,13 @@ class SoopyV2Server extends WebsiteCommunicator {
             })
             this.errorsToReport = []
         }).start()
+    }
+
+    updateCosmeticsData(data){
+        this.sendData({
+            type: "cosmeticSettings",
+            data: data
+        })
     }
 
     sendMessageToServer(message, lobbyId){

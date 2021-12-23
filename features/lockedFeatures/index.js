@@ -6,6 +6,7 @@ import SoopyV2Server from "../../socketConnection"
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import { numberWithCommas, timeNumber2, timeSince } from "../../utils/numberUtils";
+import FakeRequireToggle from "../settings/settingThings/FakeRequireToggle";
 
 class LockedFeatures extends Feature {
     constructor() {
@@ -101,29 +102,4 @@ class LockedFeatures extends Feature {
 
 module.exports = {
     class: new LockedFeatures()
-}
-
-class FakeRequireToggle{
-    constructor(val){
-        this.val = val
-
-        this.thisToggleEvents = []
-
-        this.toggleObject = {
-            addEvent: (event)=>{
-                this.thisToggleEvents.push(event)
-            }
-        }
-    }
-
-    set(newVal){
-        if(this.val === newVal) return
-        this.val = newVal
-
-        this.thisToggleEvents.forEach(e=>e._trigger(this, [this.val]))
-    }
-
-    getValue(){
-        return this.val
-    }
 }
