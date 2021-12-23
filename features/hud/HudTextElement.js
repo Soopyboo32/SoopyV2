@@ -46,7 +46,7 @@ class HudTextElement{
                 text = this.editTempTextV
                 blackText = "&0" + ChatLib.removeFormatting(text)
             }
-
+            
             if(ChatLib.removeFormatting(text) === ""){
                 text = "&0Empty string"
                 blackText = "&0Empty string"
