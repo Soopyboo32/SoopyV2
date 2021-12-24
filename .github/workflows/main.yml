@@ -27,4 +27,4 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Check for Chattriggers 2.0 and 1.3 support
-        run: node supporttest.js
+        run: node CI/supporttest.js
