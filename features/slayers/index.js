@@ -119,6 +119,8 @@ class Slayers extends Feature {
     }
 
     renderWorld(ticks){
+        
+        if(this.emanBoss) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false)
 
         Object.values(this.beaconPoints).forEach(line=>{
             let lastPoint = undefined
@@ -137,8 +139,6 @@ class Slayers extends Feature {
 
             drawBoxAtBlock(x-0.5, y+0.7, z-0.5, 255, 0, 0)
         })
-
-        if(this.emanBoss) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false)
 
         Object.values(this.beaconLocations).forEach(loc=>{
             drawFilledBox(loc[0]+0.5, loc[1], loc[2]+0.5, 1.01, 1.01, 0, 0, 1, 1, true)

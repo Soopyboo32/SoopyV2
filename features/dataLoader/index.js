@@ -78,7 +78,7 @@ class DataLoader extends Feature {
                 }
             })
         }
-        
+
         if(this.stats["Dungeon"]){
             this.stats["Area"] = this.stats["Dungeon"]
             this.isInDungeon = true
@@ -105,7 +105,7 @@ class DataLoader extends Feature {
             }
         })
 
-        this.isInSkyblock = Scoreboard.getTitle()?.removeFormatting().endsWith("SKYBLOCK")
+        this.isInSkyblock = Scoreboard.getTitle()?.removeFormatting().includes("SKYBLOCK")
         this.area = this.stats["Area"]
     }
 
