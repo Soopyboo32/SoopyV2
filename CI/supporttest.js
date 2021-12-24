@@ -7,10 +7,9 @@
     let fs = require("fs")
     let errors = []
 
-    console.log(__dirname)
-    let dirName = (__dirname).split("\\")
+    let dirName = (__dirname).split(/[\\/]/g)
     dirName.pop()
-    dirName = dirName.join("\\")
+    dirName = dirName.join("/")
 
     console.log("Reading directory... " + dirName)
 
