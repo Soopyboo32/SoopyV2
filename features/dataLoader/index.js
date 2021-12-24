@@ -69,12 +69,16 @@ class DataLoader extends Feature {
     step(){ //2fps
         this.stats["Area"] = undefined
         this.stats["Dungeon"] = undefined
-        TabList.getNames().forEach(n=>{
-            n = ChatLib.removeFormatting(n)
-            if(n.includes(": ")){
-                this.stats[n.split(": ")[0].trim()] = n.split(": ")[1].trim()
-            }
-        })
+
+        if(TabList && TabList.getNames()){
+            TabList.getNames().forEach(n=>{
+                n = ChatLib.removeFormatting(n)
+                if(n.includes(": ")){
+                    this.stats[n.split(": ")[0].trim()] = n.split(": ")[1].trim()
+                }
+            })
+        }
+        
         if(this.stats["Dungeon"]){
             this.stats["Area"] = this.stats["Dungeon"]
             this.isInDungeon = true

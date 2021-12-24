@@ -123,7 +123,7 @@ class BetterGuis extends Feature {
         if(this.museumGuiEnabled.getValue()) this.museumGui.tick.call(this.museumGui)
         
         if(this.replaceSbMenuClicks.getValue()){
-            if(Player.getOpenedInventory().getName()==="SkyBlock Menu"){
+            if(Player.getOpenedInventory() && Player.getOpenedInventory().getName()==="SkyBlock Menu"){
                 if(this.lastWindowId === 0){
                     this.lastWindowId = Player.getOpenedInventory().getWindowId()
                     return;

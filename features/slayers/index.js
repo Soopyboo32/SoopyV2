@@ -206,7 +206,7 @@ class Slayers extends Feature {
         }
 
 
-        this.todoE.forEach(e=>{
+        this.todoE.forEach((e)=>{
             try{
                 if(e instanceof net.minecraft.entity.item.EntityArmorStand && e[m.getEquipmentInSlot](4)){
                     if(e[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]() === "Beacon"){
@@ -264,11 +264,23 @@ class Slayers extends Feature {
 
                 let pos = [e[f.posX.Entity]+0.5, e[f.posY.Entity]+0.7, e[f.posZ.Entity]+0.5]
                 //check for a beacon block within 5 blocks of pos
-                for(let x = pos[0] - 5; x <= pos[0] + 5; x++){
-                    for(let y = pos[1] - 5; y <= pos[1] + 5; y++){
-                        for(let z = pos[2] - 5; z <= pos[2] + 5; z++){
-                            if(World.getBlockAt(Math.floor(x), Math.floor(y), Math.floor(z)).getID() === 138){
-                                this.beaconLocations[e[m.getUniqueID.Entity]().toString()] = [Math.floor(x), Math.floor(y), Math.floor(z)]
+                if(World.getBlockAt(0,0,0).getID){
+                    for(let x = pos[0] - 5; x <= pos[0] + 5; x++){
+                        for(let y = pos[1] - 5; y <= pos[1] + 5; y++){
+                            for(let z = pos[2] - 5; z <= pos[2] + 5; z++){
+                                if(World.getBlockAt(Math.floor(x), Math.floor(y), Math.floor(z)).getID() === 138){
+                                    this.beaconLocations[e[m.getUniqueID.Entity]().toString()] = [Math.floor(x), Math.floor(y), Math.floor(z)]
+                                }
+                            }
+                        }
+                    }
+                }else{ //CT 2.0 support
+                    for(let x = pos[0] - 5; x <= pos[0] + 5; x++){
+                        for(let y = pos[1] - 5; y <= pos[1] + 5; y++){
+                            for(let z = pos[2] - 5; z <= pos[2] + 5; z++){
+                                if(World.getBlockAt(Math.floor(x), Math.floor(y), Math.floor(z)).getType().getID() === 138){
+                                    this.beaconLocations[e[m.getUniqueID.Entity]().toString()] = [Math.floor(x), Math.floor(y), Math.floor(z)]
+                                }
                             }
                         }
                     }
