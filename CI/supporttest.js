@@ -188,6 +188,16 @@
                         }
                     }
                 }
+
+                //Test for registering an entity attack event
+                if(file.replace(/ /g, "").includes("this.registerEvent(\"attackEntity\",")){
+                    errors.push([
+                        "Entity attack event doesent work on chattriggers 1.3",
+                        dir,
+                        "To fix change it into a forge trigger",
+                        "this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, (event)=>{})"
+                    ])
+                }
             }
         }
     }
