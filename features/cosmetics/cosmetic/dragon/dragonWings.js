@@ -348,20 +348,24 @@ class DragonWings extends Cosmetic {
 
         let wingCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.WINGS)
         if(wingCosmetic !== null){
-            this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic)).getModel().getModel().boneList.forEach(b=>{
-                b.isHidden = true
-                this.parent.hiddenEssentialCosmetics.push(b)
-            })
+            if(this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic))){
+                this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic)).getModel().getModel().boneList.forEach(b=>{
+                    b.isHidden = true
+                    this.parent.hiddenEssentialCosmetics.push(b)
+                })
+            }
         }else{
             let fullBodyCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.FULL_BODY)
             if(fullBodyCosmetic === "DRAGON_ONESIE_2"){
-                this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic)).getModel().getModel().boneList.forEach(b=>{
-                    if(b.boxName === "wing_left_1" || b.boxName === "wing_right_1"){
-                        b.isHidden = true
-                        
-                        this.parent.hiddenEssentialCosmetics.push(b)
-                    }
-                })
+                if(this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic))){
+                    this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic)).getModel().getModel().boneList.forEach(b=>{
+                        if(b.boxName === "wing_left_1" || b.boxName === "wing_right_1"){
+                            b.isHidden = true
+                            
+                            this.parent.hiddenEssentialCosmetics.push(b)
+                        }
+                    })
+                }
             }
         }
     }
