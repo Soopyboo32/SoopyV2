@@ -7,7 +7,7 @@
     let fs = require("fs")
     let errors = []
 
-    let dirName = __dirname.split("\\")
+    let dirName = (__dirname || process.env.HOME).split("\\")
     dirName.pop()
     dirName = dirName.join("\\")
 

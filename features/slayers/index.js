@@ -274,6 +274,16 @@ class Slayers extends Feature {
                             }
                         }
                     }
+                }else{ //CT 2.0 support
+                    for(let x = pos[0] - 5; x <= pos[0] + 5; x++){
+                        for(let y = pos[1] - 5; y <= pos[1] + 5; y++){
+                            for(let z = pos[2] - 5; z <= pos[2] + 5; z++){
+                                if(World.getBlockAt(Math.floor(x), Math.floor(y), Math.floor(z)).getType().getID() === 138){
+                                    this.beaconLocations[e[m.getUniqueID.Entity]().toString()] = [Math.floor(x), Math.floor(y), Math.floor(z)]
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // if(!this.beaconLocations[e[m.getUniqueID.Entity]().toString()]){
