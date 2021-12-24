@@ -61,7 +61,7 @@ class Slayers extends Feature {
 
         
         this.registerSoopy("apiLoad", this.apiLoad)
-        if(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock){
+        if(this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock){
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock, "skyblock", true, true)
         }
 
