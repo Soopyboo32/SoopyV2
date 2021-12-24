@@ -11,7 +11,7 @@
     dirName.pop()
     dirName = dirName.join("/")
 
-    console.log("Reading directory... " + dirName)
+    console.log("Reading directory...")
 
     let dirs = await walkP(dirName)
 
