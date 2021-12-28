@@ -100,12 +100,6 @@ class Cosmetics extends Feature {
         if(!this.enabled) return
         uuid = uuid.replace(/-/g,"")
 
-        if(!cosmetics){
-            delete this.cosmeticsData[uuid]
-            return
-        }
-        this.cosmeticsData[uuid] = cosmetics
-
         this.loadedCosmetics = this.loadedCosmetics.filter(cosmetic=>{
             if(cosmetic.player.getUUID().toString().replace(/-/g,"") === uuid){
                 return false
@@ -117,6 +111,12 @@ class Cosmetics extends Feature {
         })
 
         delete this.uuidToCosmeticDirect[uuid]
+
+        if(!cosmetics){
+            delete this.cosmeticsData[uuid]
+            return
+        }
+        this.cosmeticsData[uuid] = cosmetics
         
         this.scanForNewCosmetics()
     }

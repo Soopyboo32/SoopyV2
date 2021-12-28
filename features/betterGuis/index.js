@@ -65,7 +65,8 @@ class BetterGuis extends Feature {
             "Bank Withdrawal",
             "Personal Bank Account",
             "Bazaar Orders",
-            "Co-op Bazaar Orders"
+            "Co-op Bazaar Orders",
+            "Pets"
         ]
         this.middleClickStartsWith = [
             "Bestiary",
@@ -89,7 +90,7 @@ class BetterGuis extends Feature {
         this.middleClickEndsWith = [
             "Recipe",
             "Recipes",
-            "Pets",
+            ") Pets",
             "Collection",
             "Active Effects"
         ]

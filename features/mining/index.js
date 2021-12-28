@@ -7,6 +7,7 @@ import * as utils from "../../utils/utils"
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
+import { numberWithCommas } from "../../utils/numberUtils";
 
 class Mining extends Feature {
     constructor() {
@@ -31,10 +32,25 @@ class Mining extends Feature {
         this.showUnlockedGemstoneSlots = new ToggleSetting("Show unlocked gemstone slots", "This will show the unlocked gemstone slots of an item.", true, "unlocked_gemstones", this)
         this.showContainedGemstoneSlots = new ToggleSetting("Show contained gemstones", "This will show the gemstones currently on an item.", true, "contained_gemstones", this)
 
+
+        this.compactProgressHud = new ToggleSetting("Show compact blocks in the current session", "This will add a HUD element with the compact progress", true, "compact_progress_hud", this)
+        this.compactHudElement = new HudTextElement()
+        .setToggleSetting(this.compactProgressHud)
+        .setLocationSetting(new LocationSetting("HUD Location", "Allows you to edit the location of the compact progress", "compact_progress_location", this, [10, 50, 1, 1])
+            .requires(this.compactProgressHud)
+            .editTempText("&6Compact Session&7> &f12,345"))
+        this.hudElements.push(this.compactHudElement)
+        this.compactProgressHudOnlyWhenMoreThan0 = new ToggleSetting("Only show compact progress when it is above 0", "So that you dont need to disable it when you start doing something else", true, "compact_progress_disable_0", this).requires(this.compactProgressHud)
+
         this.seenBalDamages = []
         this.balHP = 250
         this.lastBalAlive = 0
         this.balDespawnDebounce = 0
+
+        this.totalCompact = 0
+        this.compactProgress = 0
+        this.compactItems = 0
+
         this.armourstandClass = Java.type("net.minecraft.entity.item.EntityArmorStand").class
 
         this.registerEvent("renderOverlay", this.renderOverlay)
@@ -128,6 +144,34 @@ class Mining extends Feature {
     }
 
     tick(){
+        let oldCompactItems = this.compactItems
+        let oldTotalCompact = this.totalCompact
+        this.totalCompact = 0
+        this.compactItems = 0
+        let slots = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+        
+        slots.forEach(a=>{
+            item = Player.getInventory().getStackInSlot(a)
+            if(item.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getInteger("compact_blocks")){
+                this.compactItems++
+                this.totalCompact += item.getNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getInteger("compact_blocks")
+            }
+        })
+
+        if(oldCompactItems === this.compactItems){
+            this.compactProgress += this.totalCompact-oldTotalCompact
+        }
+        if(this.compactItems === 0){
+            this.compactProgress = 0
+        }
+
+        if(this.compactProgress === 0 && this.compactProgressHudOnlyWhenMoreThan0.getValue()){
+            this.compactHudElement.setText("")
+        }else{
+            this.compactHudElement.setText("&6Compact Session&7> &f" + numberWithCommas(this.compactProgress))
+        }
+
+
         if(!this.FeatureManager.features["dataLoader"]) return
         if(this.guessBalHp.getValue() || this.balRespawnHud.getValue()){
             if(this.FeatureManager.features["dataLoader"].class.area === "Crystal Hollows" && this.FeatureManager.features["dataLoader"].class.areaFine === "Khazad-dm"){
