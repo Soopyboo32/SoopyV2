@@ -41,6 +41,7 @@ class StatNextToName extends Feature {
 
     loadPlayerStatsTick(){
         let nearestPlayer = undefined
+        let nearestPlayerName = undefined
         let nearestDistance = Infinity
 
         World.getAllPlayers().forEach(player => {
@@ -55,11 +56,12 @@ class StatNextToName extends Feature {
             if(dist < nearestDistance){
                 nearestDistance = dist
                 nearestPlayer = player.getUUID().toString().replace(/-/g, "")
+                nearestPlayerName = player.getName()
             }
         })
 
         if(nearestPlayer){
-            this.loadPlayerStats(nearestPlayer)
+            this.loadPlayerStats(nearestPlayer, nearestPlayerName)
         }
     }
 
@@ -92,9 +94,9 @@ class StatNextToName extends Feature {
         player.setNametagName(new TextComponent(nameTagString));
     }
 
-    loadPlayerStats(uuid){
+    loadPlayerStats(uuid, username){
         // console.log("loading stats for " + uuid)
-        soopyV2Server.requestPlayerStats(uuid)
+        soopyV2Server.requestPlayerStats(uuid, username)
         this.loadingStats.push(uuid)
     }
 

@@ -409,7 +409,7 @@ class MuseumGui {
         let itempages = ["Weapons", "Armor Sets", "Rarities", "Special Items"]
         if(itempages.includes(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()])){
             let page = this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()]
-            let [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
+            let [currPage, pageNum] = Player.getOpenedInventory().getName().includes("/")?Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a)):[1,1]
 
             if(!this.searchText){
                 if(currPage > 1){

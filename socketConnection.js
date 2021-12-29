@@ -99,10 +99,11 @@ class SoopyV2Server extends WebsiteCommunicator {
         }
     }
 
-    requestPlayerStats(uuid){
+    requestPlayerStats(uuid, username){
         this.sendData({
             type: "loadStatsQuick",
-            uuid: uuid
+            uuid: uuid,
+            username: username
         })
     }
 }
