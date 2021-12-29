@@ -50,7 +50,7 @@ class Cosmetics extends Feature {
         this.registerStep(false, 60*10, ()=>{
             new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
         })
-        this.registerEvent("renderEntity", this.renderEntity)
+        // this.registerEvent("renderEntity", this.renderEntity)
         this.loadedRenderEntity = false
 
         if(global.soopyV2Server.userCosmeticPermissions){
@@ -89,7 +89,7 @@ class Cosmetics extends Feature {
         this.cosmeticsData = data
         this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g,"")]
         if(this.playerHasACosmeticA && !this.loadedRenderEntity){
-            // this.registerEvent("renderEntity", this.renderEntity)
+            this.registerEvent("renderEntity", this.renderEntity)
             this.loadedRenderEntity = true
         }
 
@@ -123,6 +123,7 @@ class Cosmetics extends Feature {
 
     step(){
         this.scanForNewCosmetics()
+        console.log(this.loadedCosmetics.length)
     }
     scanForNewCosmetics(){
         this.loadCosmeticsForPlayer(Player)

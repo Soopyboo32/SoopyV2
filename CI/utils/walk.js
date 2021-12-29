@@ -23,7 +23,7 @@ var walk = function(dir, done) {
   });
 };
 
-async function walkP(dir){
+async function walkP(dir){ //walk function but promisified
     return new Promise((res, rej)=>{
         walk(dir, (err, resu)=>{
             if(err){

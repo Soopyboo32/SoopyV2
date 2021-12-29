@@ -17,14 +17,16 @@ class StatNextToName extends Feature {
             "weight": "Weight",
             "catacombsLevel": "Catacombs Level",
             "skillAvg": "Skill Average",
-            "totalSlayer": "Total Slayer Exp"
+            "totalSlayer": "Total Slayer Exp",
+            "networth": "Networth"
         })
 
         this.decimals = {
             "weight": 0,
             "catacombsLevel": 2,
             "skillAvg": 2,
-            "totalSlayer": 0
+            "totalSlayer": 0,
+            "networth": "small"
         }
 
         this.userStats = {}
@@ -78,7 +80,11 @@ class StatNextToName extends Feature {
         nameTagString += " &2["
         if(stats.usingSoopyv2) nameTagString += "&d⚝&2"
         if(stats.exists && stats[this.statToShow.getValue()]){
-            nameTagString += numberUtils.numberWithCommas(stats[this.statToShow.getValue()].toFixed(this.decimals[this.statToShow.getValue()]))
+            if(this.decimals[this.statToShow.getValue()] === "small"){
+                nameTagString += numberUtils.addNotation("oneLetters",Math.round(stats[this.statToShow.getValue()]))
+            }else{
+                nameTagString += numberUtils.numberWithCommas(stats[this.statToShow.getValue()].toFixed(this.decimals[this.statToShow.getValue()]))
+            }
         }else{
             nameTagString += "?"
         }

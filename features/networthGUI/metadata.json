@@ -1,0 +1,8 @@
+{
+    "name": "Streams gui",
+    "description": "Gui for skyblock streams",
+    "isHidden": true,
+    "isTogglable": false,
+    "defaultEnabled": true,
+    "sortA": 0
+}
