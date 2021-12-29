@@ -115,7 +115,7 @@ class NetworthPage extends GuiPage {
 
             box.addChild(new SoopyMarkdownElement().setLocation(0,0,1,1).setText(data.items.filter(i=>i.name).splice(0,5).map(a=>{
                 let name = (a.name.startsWith("§f") || a.name.startsWith("[Lvl "))?a.name.replace("§f","§7"):a.name
-                return "§0" + name + ": §2$" + numberWithCommas(Math.round(a.p)).replace(/,/g, "§7,§2")
+                return "§0" + name + "§0: §2$" + numberWithCommas(Math.round(a.p)).replace(/,/g, "§7,§2")
             }).join("\n")))
         
             let boxName = new SoopyTextElement().setLocation(i%2===0?0:0.525, 0.4+Math.floor(i/2)*0.35, 0.475, 0.05).setText("§0" + renderName + "§0: §2$" + numberWithCommas(Math.round(data.total)).replace(/,/g, "§7,§2"))
@@ -123,6 +123,9 @@ class NetworthPage extends GuiPage {
             this.statArea.addChild(box)
             this.statArea.addChild(boxName)
         })
+
+        this.statArea._scrollAmount = 0
+        this.statArea.location.scroll.y.set(0,100)
     }
 
     onOpen(){
@@ -130,6 +133,13 @@ class NetworthPage extends GuiPage {
             this.playerLoad = Player.getName()
             this.updateData(Player.getName())
         }).start()
+
+        let sidebar = new SoopyGuiElement().setLocation(0.1,0.1,0.8,0.8).setScrollable(true)
+        this.openSidebarPage(sidebar)
+        let markdown = new SoopyMarkdownElement().setText("There will be a networth leaderboard here once enough players networths have been loaded and added to the leaderboard")
+        sidebar.addChild(markdown)
+
+        sidebar.setScrollable(true)
     }
 }
 
