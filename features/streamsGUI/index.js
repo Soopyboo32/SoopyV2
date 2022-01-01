@@ -43,7 +43,16 @@ class StreamPage extends GuiPage {
         this.pages = [this.newPage()]
 
 
-        this.pages[0].addChild(new SoopyTextElement().setText("§0Skyblock Streams").setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1))
+        this.pages[0].addChild(new SoopyTextElement().setText("§0Skyblock Streams").setMaxTextScale(3).setLocation(0.1, 0.05, 0.6, 0.1))
+
+        let button = new ButtonWithArrow().setText("§0Open in browser").setLocation(0.7, 0.05, 0.2, 0.1)
+        this.pages[0].addChild(button)
+
+        button.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+            java.awt.Desktop.getDesktop().browse(
+                new java.net.URI("https://soopymc.my.to/skyblockstreams")
+              );
+        }))
 
         this.streamsBox = new SoopyGuiElement().setLocation(0.1, 0.15, 0.8, 0.85)
 
