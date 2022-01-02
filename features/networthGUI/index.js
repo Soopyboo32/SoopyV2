@@ -179,7 +179,7 @@ class NetworthPage extends GuiPage {
         
         if(player !== this.playerLoad) return
 
-        if(leaderboardData.success)nameElm.setText("§0#" + (leaderboardData.data.data.position+1) + " " + playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7"))
+        if(leaderboardData.success)nameElm.setText("§0#" + numberWithCommas(leaderboardData.data.data.position+1) + " " + playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7"))
     }
 
     onOpen(){
@@ -219,7 +219,7 @@ class NetworthPage extends GuiPage {
         this.leaderboardArea.clearChildren()
         data.data.data.forEach((user, i)=>{
             this.leaderboardArea.addChild(
-                new SoopyTextElement().setText("§0#" + (i+1+page*100) + ": " + user.username).setMaxTextScale(1.5).setLocation(0.05, i*0.1, 0.5, 0.1).setLore(["Click to show detailed stats"]).addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+                new SoopyTextElement().setText("§0#" + numberWithCommas(i+1+page*100) + ": " + user.username).setMaxTextScale(1.5).setLocation(0.05, i*0.1, 0.5, 0.1).setLore(["Click to show detailed stats"]).addEvent(new SoopyMouseClickEvent().setHandler(()=>{
                     new Thread(()=>{
                         this.updateData(user.uuid)
                     }).start()
