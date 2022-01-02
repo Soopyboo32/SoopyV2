@@ -146,10 +146,15 @@ class NetworthPage extends GuiPage {
             return
         }
 
-        let nwData = skyblockData.data.profiles[skyblockData.data.stats.bestProfileId].members[playerData.data.uuid].soopyNetworth
+        let highestProf = undefined
+        Object.keys(skyblockData.data.profiles).forEach(prof=>{
+            if(highestProf === undefined || skyblockData.data.profiles[prof].members[playerData.data.uuid].soopyNetworth.networth > skyblockData.data.profiles[highestProf].members[playerData.data.uuid].soopyNetworth.networth) highestProf = prof
+        })
+
+        let nwData = skyblockData.data.profiles[highestProf].members[playerData.data.uuid].soopyNetworth
         let nameElm = new SoopyTextElement().setText(playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7")).setMaxTextScale(2).setLocation(0.1, 0.05, 0.8, 0.1)
         this.statArea.addChild(nameElm)
-        this.statArea.addChild(new SoopyTextElement().setText("§0Networth (Highest weight profile): §2$" + numberWithCommas(Math.round(nwData.networth)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.1, 0.15, 0.8, 0.1))
+        this.statArea.addChild(new SoopyTextElement().setText("§0Networth (" + skyblockData.data.profiles[highestProf].stats.cute_name + "): §2$" + numberWithCommas(Math.round(nwData.networth)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.1, 0.15, 0.8, 0.1))
         this.statArea.addChild(new SoopyTextElement().setText("§0Purse: §2$" + numberWithCommas(Math.round(nwData.purse)).replace(/,/g, "§7,§2") + "§0 | Bank: §2$" + numberWithCommas(Math.round(nwData.bank)).replace(/,/g, "§7,§2") + "§0 | Sack: §2$" + numberWithCommas(Math.round(nwData.sack)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.1, 0.25, 0.8, 0.1))
     
         Object.keys(nwData.categories).sort((a, b)=>nwData.categories[b].total-nwData.categories[a].total).forEach((name, i)=>{
