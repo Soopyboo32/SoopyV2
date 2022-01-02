@@ -123,7 +123,6 @@ class Cosmetics extends Feature {
 
     step(){
         this.scanForNewCosmetics()
-        console.log(this.loadedCosmetics.length)
     }
     scanForNewCosmetics(){
         this.loadCosmeticsForPlayer(Player)

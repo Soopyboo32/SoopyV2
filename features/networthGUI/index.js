@@ -114,7 +114,7 @@ class NetworthPage extends GuiPage {
             let box = new SoopyBoxElement().setLocation(i%2===0?0:0.525, 0.45 + Math.floor(i/2)*0.35, 0.475, 0.25)
 
             box.addChild(new SoopyMarkdownElement().setLocation(0,0,1,1).setText(data.items.filter(i=>i.name).splice(0,5).map(a=>{
-                let name = (a.name.startsWith("§f") || a.name.startsWith("[Lvl "))?a.name.replace("§f","§7"):a.name
+                let name = (a.name.startsWith("§f") || a.name.startsWith("§7[Lvl "))?a.name.replace("§f","§7"):a.name
                 return "§0" + name + "§0: §2$" + numberWithCommas(Math.round(a.p)).replace(/,/g, "§7,§2")
             }).join("\n")))
         
