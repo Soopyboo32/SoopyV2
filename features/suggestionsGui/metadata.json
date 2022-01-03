@@ -1,6 +1,6 @@
 {
-    "name": "Networth gui",
-    "description": "Gui for Networth and Networth leaderboard",
+    "name": "Suggestions gui",
+    "description": "Gui for voting on SoopyV2 suggestions",
     "isHidden": true,
     "isTogglable": false,
     "defaultEnabled": true,

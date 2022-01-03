@@ -88,6 +88,7 @@ class SoopyGui extends Feature {
 
     addCategory(category){
         // this.pages = this.pages.filter(a=>a.name!==category.name)
+
         this.pages.push(category)
         this.sortPages()
 

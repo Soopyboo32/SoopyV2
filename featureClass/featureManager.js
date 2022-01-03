@@ -124,7 +124,7 @@ class FeatureManager {
                 let moduleToReload = this.watches[key]
                 if(this.features[moduleToReload] && !this.reloadingModules.includes(moduleToReload)){ //if enabled && not alr in queue
                     this.reloadingModules.push(moduleToReload)
-                    this.reloadModuleTime = Date.now()+1000
+                    this.reloadModuleTime = Date.now()+5000
                 }
                 key.pollEvents()/*.forEach(event=>{
                     console.log(event.context().toString())
