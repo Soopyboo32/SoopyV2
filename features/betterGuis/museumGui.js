@@ -1,5 +1,6 @@
 import { SoopyGui, SoopyRenderEvent } from "../../../guimanager"
 import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent"
+import SoopyHoverChangeEvent from "../../../guimanager/EventListener/SoopyHoverChangeEvent"
 import SoopyKeyPressEvent from "../../../guimanager/EventListener/SoopyKeyPressEvent"
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent"
 import SoopyOpenGuiEvent from "../../../guimanager/EventListener/SoopyOpenGuiEvent"
@@ -235,7 +236,7 @@ class MuseumGui {
         this.donateTitleBox.addChild(donateTitle)
         this.mainPage.addChild(this.donateTitleBox)
 
-        this.donateBox =  new SoopyBoxElement().setLocation(0.5+widthPer*3/2+0.025, 0.35, 0.5-widthPer*1.5-0.05, 0.6).setScrollable(true)
+        this.donateBox =  new SoopyBoxElement().setLocation(0.5+widthPer*3/2+0.025, 0.35, 0.5-widthPer*1.5-0.05, 0.6).setScrollable(true).enableFrameBuffer()
         this.mainPage.addChild(this.donateBox)
 
         this.favoriteTitleBox = new SoopyBoxElement().setLocation(0.025, 0.25, 0.5-widthPer*1.5-0.05, 0.075)
@@ -244,11 +245,22 @@ class MuseumGui {
         this.favoriteTitleBox.addChild(favoriteTitle)
         this.mainPage.addChild(this.favoriteTitleBox)
 
-        this.favoriteBox =  new SoopyBoxElement().setLocation(0.025, 0.35, 0.5-widthPer*1.5-0.05, 0.6).setScrollable(true)
+        this.favoriteBox =  new SoopyBoxElement().setLocation(0.025, 0.35, 0.5-widthPer*1.5-0.05, 0.6).setScrollable(true).enableFrameBuffer()
         this.mainPage.addChild(this.favoriteBox)
 
-        this.itemsBox = new SoopyBoxElement().setLocation(0.5-widthPer*3/2, 0.35, widthPer*3, 0.6)
+        this.itemsBox = new SoopyBoxElement().setLocation(0.5-widthPer*3/2, 0.35, widthPer*3, 0.6).enableFrameBuffer()
         this.mainPage.addChild(this.itemsBox)
+
+        new Array(this.donateBox, this.favoriteBox).forEach((box, i)=>{
+            box.addEvent(new SoopyHoverChangeEvent().setHandler((hovered)=>{
+                if(hovered){
+                    box.disableFrameBuffer()
+                }else{
+                    box.enableFrameBuffer()
+                    box.dirtyFrameBuffer(1000)
+                }
+            }))
+        })
 
         this.donateItems = []
 
@@ -541,6 +553,8 @@ class MuseumGui {
                     }))
                     this.itemsBox.addChild(confirmButton)
                 }
+                
+                this.itemsBox.dirtyFrameBuffer()
             }
 
             this.favoriteBox.visable = false
@@ -568,6 +582,8 @@ class MuseumGui {
             }))
             this.donateBox.addChild(itemButton)
         })
+
+        this.donateBox.dirtyFrameBuffer()
     }
 
     showSearchItems(){
@@ -699,6 +715,8 @@ class MuseumGui {
                 y+=0.135
             }
         })
+
+        this.itemsBox.dirtyFrameBuffer()
     }
 
     regenItems(page2){
@@ -754,6 +772,8 @@ class MuseumGui {
                 y+=0.135
             }
         })
+
+        this.itemsBox.dirtyFrameBuffer()
     }
 
     addItemToFavorites(slot, page, page2, slotNum){
@@ -858,6 +878,8 @@ class MuseumGui {
                 FileLib.write("soopyAddonsData","museumFavoriteData.json", JSON.stringify(this.favoriteItems))
             }).start()
         }
+
+        this.favoriteBox.dirtyFrameBuffer()
     }
 
     guiOpened(event){
@@ -884,11 +906,15 @@ class MuseumGui {
                 event.gui = this.soopyGui.ctGui
                 this.guiUpdated = true
                 this.soopyGui.ctGui.open()
+                
+                this.itemsBox.dirtyFrameBuffer()
             }
             return
         }
         if(this.isInMuseum){
             this.soopyGui.ctGui.open()
+            
+            this.itemsBox.dirtyFrameBuffer()
         }else{
             if(name === "Your Museum" && !this.isInMuseum){
 
@@ -921,6 +947,8 @@ class MuseumGui {
                 this.pageTitle.setText("§5"+name)
 
                 this.tickMenu(true)
+                
+                this.itemsBox.dirtyFrameBuffer()
             }
         }
     }
