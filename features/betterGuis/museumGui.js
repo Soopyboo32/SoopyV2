@@ -409,6 +409,8 @@ class MuseumGui {
                     Player.getOpenedInventory().click(50, false, "MIDDLE")
                 }))
                 this.itemsBox.addChild(browserButton)
+                
+                this.itemsBox.dirtyFrameBuffer()
             }
         }
 
