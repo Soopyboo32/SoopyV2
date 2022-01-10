@@ -6,6 +6,9 @@ import { m } from "../../../mappings/mappings";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import HudTextElement from "./HudTextElement";
+import DropdownSetting from "../settings/settingThings/dropdownSetting";
+import { getLevelByXp } from "../../utils/statUtils";
+import { firstLetterCapital } from "../../utils/stringUtils";
 
 class Hud extends Feature {
     constructor() {
@@ -103,6 +106,54 @@ class Hud extends Feature {
 
         this.guidedSheepCooldownSetting = new ToggleSetting("Show Guided Sheep / Explosive Shot Cooldown", "This will render a small cooldown below your crosshair", true, "guided_sheep_cooldown_enabled", this)
 
+        let hudStatTypes = {
+            "cata": "Catacombs level + Exp",
+            "totaldeaths": "Total deaths"
+        }
+
+        this.skillLevelCaps = {
+            "experience_skill_combat": 60,
+            "experience_skill_foraging": 50,
+            "experience_skill_farming": 60,
+            "experience_skill_fishing": 50,
+            "experience_skill_alchemy": 50,
+            "experience_skill_enchanting": 60,
+            "experience_skill_mining": 60,
+            "experience_skill_taming": 50,
+        };
+
+        Object.keys(this.skillLevelCaps).forEach(skill => {
+            hudStatTypes[skill] = firstLetterCapital(skill.split("_").pop()) + " level + Exp"
+        })
+
+        hudStatTypes.completions_enterance = "Enterance completions"
+        for(let i = 1;i<8;i++){
+            hudStatTypes["completions_floor_"+i] = "Floor " + i + " completions"
+        }
+        for(let i = 1;i<7;i++){
+            hudStatTypes["completions_master_"+i] = "Master " + i + " completions"
+        }
+        for(let i = 1;i<8;i++){
+            hudStatTypes["completions_dungeon_"+i] = "Dungeon " + i + " completions"
+        }
+
+        this.hudStat = []
+        for(let i = 0;i<5;i++){
+            this.hudStat[i] = {}
+            this.hudStat[i].enabled = new ToggleSetting("Hud Stat Slot #"+(i+1), "Allows you to render a custom stat on your hud", false, "hud_stat_"+i, this)
+            this.hudStat[i].type = new DropdownSetting("Hud Stat Slot #" + (i + 1) + " Type", "The type of stat to render", "weight" , "hud_stat_" + i + "_type", this, hudStatTypes)
+            this.hudStat[i].location = new LocationSetting("Hud Stat Slot #"+(i+1)+" Location", "Allows you to edit the location of the hud stat", "hud_stat_"+i+"_location", this, [10, 50+i*10, 1, 1]).editTempText("&6Hud Stat&7> &f12,345")
+            this.hudStat[i].textElement = new HudTextElement().setToggleSetting(this.hudStat[i].enabled).setLocationSetting(this.hudStat[i].location).setText("&6Hud Stat&7> &fLoading...")
+            this.hudStat[i].onlySb = new ToggleSetting("Hud Stat Slot #"+(i+1)+" Only SB", "Only render this stat when you are in skyblock", true, "hud_stat_"+i+"_only_sb", this).requires(this.hudStat[i].enabled)
+
+            this.hudStat[i].location.requires(this.hudStat[i].enabled)
+            this.hudStat[i].type.requires(this.hudStat[i].enabled)
+            if(this.hudStat[i-1]){
+                this.hudStat[i].enabled.requires(this.hudStat[i-1].enabled)
+            }
+        }
+
+
         // this.showDragonDamages = new ToggleSetting("Show dragon damages", "This will render the top 3 damages + your damage during a dragon fight", true, "dragon_dmg_enable", this).requires(this.soulflowEnabledSetting)
         // this.dragonDamageElement = new HudTextElement()
         //     .setToggleSetting(this.showDragonDamages)
@@ -126,6 +177,10 @@ class Hud extends Feature {
         this.lastAbsorbtion = 0
         this.impactTest = false
 
+        this.lastUpdatedStatData = 0
+
+        this.lastStatData = undefined
+
         this.lastFrameRates = [0,0,0,0,0,0,0,0,0,0]
         this.lastFrameRatesS = [0,0,0,0,0,0,0,0,0,0]
 
@@ -138,6 +193,7 @@ class Hud extends Feature {
         this.registerStep(true, 5, this.step)
         this.registerStep(false, 5, this.step_5second)
         this.registerEvent("renderWorld", this.renderWorld)
+        this.registerEvent("worldLoad", this.worldLoad)
 
         this.petLevels = {}
         this.petText = ""
@@ -172,6 +228,9 @@ class Hud extends Feature {
 
             this.lastSwappedPet = Date.now()
         }
+        if(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw){
+            this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw, "skyblock", false, true)
+        }
 
         this.registerActionBar("${m}", this.actionbarMessage)
     }
@@ -203,6 +262,10 @@ class Hud extends Feature {
             Renderer.drawString(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s") / 2, Renderer.screen.getHeight() / 2 - 15)
         }
 
+        
+        this.hudStat.forEach(stat=>{
+            stat.textElement.render()
+        })
     }
     
     renderWorld(){
@@ -233,6 +296,7 @@ class Hud extends Feature {
     }
     
     step(){
+        this.updateHudThingos()
         let fps = 0
 
         if(this.fpsEnabledSetting.getValue() && this.fpsFastSetting.getValue()){
@@ -305,6 +369,7 @@ class Hud extends Feature {
     }
 
     step_5second(){
+
         if(!this.soulflowEnabledSetting.getValue()) return
         if(!Player.getPlayer()) return
         if(!Player.getInventory()) return
@@ -352,7 +417,82 @@ class Hud extends Feature {
         this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(soulflowCount))
     }
 
+    statApiLoadThingo(data){
+        data.profiles.forEach(p=>{
+            if(!this.lastStatData || (p.members[Player.getUUID().toString().replace(/-/g,"")] && p.members[Player.getUUID().toString().replace(/-/g,"")].last_save > this.lastStatData.last_save)){
+                this.lastStatData = p.members[Player.getUUID().toString().replace(/-/g,"")]
+            }
+        })
+
+        this.updateHudThingos()
+    }
+
+    updateHudThingos(){
+        let insb = this.FeatureManager.features["dataLoader"].class.isInSkyblock
+        if(Date.now()-this.lastUpdatedStatData > 5*60000 && this.hudStat[0].enabled.getValue() && (insb || this.hudStat.map(a=>a.onlySb.getValue()).includes(false))){
+            new Thread(()=>{
+                this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
+            }).start()
+            this.lastUpdatedStatData = Date.now()
+            return
+        }
+
+        this.hudStat.forEach(stat=>{
+            if(stat.enabled.getValue()){
+                this.updateHudThing(stat, insb)
+            }
+        })
+    }
+
+    updateHudThing(thing, insb){
+        if(!this.lastStatData) return
+
+        if(!insb && thing.onlySb.getValue()){
+            thing.textElement.setText("")
+            return
+        }
+
+        let type = thing.type.getValue()
+        
+        let string = "Unknown stat"
+        if(type === "totaldeaths"){
+            string = "&6Deaths&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData.death_count)
+        }
+        if(type === "cata"){
+            let cataData = getLevelByXp(this.lastStatData.dungeons.dungeon_types.catacombs.experience, 2, 50)
+            string = "&6Cata&7> &f" + (cataData.level+cataData.progress).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(cataData.xpCurrent) + (cataData.level===50?"":"/" + this.numberUtils.numberWithCommas(cataData.xpForNext)) + ")"
+        }
+        
+        Object.keys(this.skillLevelCaps).forEach(skill => {
+            if(type === skill){
+                let skillData = getLevelByXp(this.lastStatData[skill], 0, this.skillLevelCaps[skill])
+                string = "&6" + firstLetterCapital(skill.split("_").pop()) + "&7> &f" + (skillData.level+skillData.progress).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(skillData.xpCurrent) + (skillData.level===this.skillLevelCaps[skill]?"":"/" + this.numberUtils.numberWithCommas(skillData.xpForNext)) + ")"
+            }
+        })
+
+        if(type === "completions_enterance"){
+            string = "&6E Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.catacombs?.tier_completions?.[0]||0))
+        }
+        if(type.startsWith("completions_floor_")){
+            let floor = parseInt(type.split("_").pop())
+            string = "&6F" + floor +" Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.catacombs?.tier_completions?.[floor]||0))
+        }
+        if(type.startsWith("completions_master_")){
+            let floor = parseInt(type.split("_").pop())
+            string = "&6F" + floor +" Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.master_catacombs?.tier_completions?.[floor]||0))
+        }
+        if(type.startsWith("completions_dungeon_")){
+            let floor = parseInt(type.split("_").pop())
+            string = "&6Dungeon " + floor +" Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.catacombs?.tier_completions?.[floor]||0)+(this.lastStatData.dungeons?.dungeon_types?.master_catacombs?.tier_completions?.[floor]||0))
+        }
+        
+        thing.textElement.setText(string)
+    }
+
     apiLoad(data, dataType, isSoopyServer, isLatest){
+        if(dataType === "skyblock" && !isSoopyServer){
+            this.statApiLoadThingo(data)
+        }
         if(!isSoopyServer || !isLatest) return
         if(dataType !== "skyblock") return
 
@@ -375,6 +515,10 @@ class Hud extends Feature {
 
         this.petElement.setText("&6Pet&7> &7[Lvl " + pet.level.level + "] " + petTierColor[pet.tier] + pet.name)
         this.petText = "&6Pet&7> &7[Lvl " + pet.level.level + "] " + petTierColor[pet.tier] + pet.name
+    }
+
+    worldLoad(){
+        this.lastUpdatedStatData = 0
     }
 }
 

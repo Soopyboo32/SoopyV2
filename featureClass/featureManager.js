@@ -69,6 +69,13 @@ class FeatureManager {
         this.featureSettingsData = {}
 
         new Thread(()=>{
+
+            try{
+                FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/ping")
+            }catch(e){
+                ChatLib.chat(this.messagePrefix + "&cError: Could not connect to Soopy's server. This may cause issues with features breaking but will (hopefully) be back soon.")
+            }
+
             this.loadFeatureMetas()
             
             this.loadFeatureSettings()

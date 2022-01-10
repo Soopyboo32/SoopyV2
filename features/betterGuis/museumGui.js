@@ -251,8 +251,16 @@ class MuseumGui {
         this.itemsBox = new SoopyBoxElement().setLocation(0.5-widthPer*3/2, 0.35, widthPer*3, 0.6).enableFrameBuffer()
         this.mainPage.addChild(this.itemsBox)
 
-        new Array(this.donateBox, this.favoriteBox).forEach((box, i)=>{
+        new Array(this.donateBox, this.favoriteBox, this.itemsBox).forEach((box, i)=>{
             box.addEvent(new SoopyHoverChangeEvent().setHandler((hovered)=>{
+                if(i===2){
+                    if(this.searchText){
+
+                    }else{
+                    box.enableFrameBuffer()
+                        return
+                    }
+                }
                 if(hovered){
                     box.disableFrameBuffer()
                 }else{

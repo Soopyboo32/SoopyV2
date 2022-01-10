@@ -29,6 +29,7 @@ class StatNextToName extends Feature {
             "networth": "small"
         }
 
+        this.oldUserStats = {}
         this.userStats = {}
 
         this.loadingStats = []
@@ -45,7 +46,7 @@ class StatNextToName extends Feature {
         let nearestDistance = Infinity
 
         World.getAllPlayers().forEach(player => {
-            if(this.userStats[player.getUUID().toString().replace(/-/g, "")]){
+            if(this.userStats[player.getUUID().toString().replace(/-/g, "")] || this.oldUserStats[player.getUUID().toString().replace(/-/g, "")]){
                 this.updatePlayerNametag(player)
                 return
             }
@@ -67,6 +68,7 @@ class StatNextToName extends Feature {
 
     worldLoad(){
         let playerStats = this.userStats[Player.getUUID().toString().replace(/-/g, "")]
+        this.oldUserStats = this.userStats
         this.userStats = {}
         this.loadingStats = []
         if(playerStats){
@@ -75,7 +77,7 @@ class StatNextToName extends Feature {
     }
 
     updatePlayerNametag(player){
-        let stats = this.userStats[player.getUUID().toString().replace(/-/g, "")]
+        let stats = this.userStats[player.getUUID().toString().replace(/-/g, "")] || this.oldUserStats[player.getUUID().toString().replace(/-/g, "")]
 
         let nameTagString = player.getName()
 

@@ -120,17 +120,22 @@ class Slayers extends Feature {
 
     renderWorld(ticks){
         
-        if(this.emanBoss) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false)
+        if(this.emanBoss && this.boxAroundEmanBoss.getValue()) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false)
 
-        Object.values(this.beaconPoints).forEach(line=>{
-            let lastPoint = undefined
-            line.forEach(p=>{
-                if(lastPoint){
-                    drawLine(lastPoint[0], lastPoint[1], lastPoint[2], p[0], p[1], p[2], 0, 0, 255, 3)
-                }
-                lastPoint = p
+        if(this.boxToEmanBeacon.getValue()){
+            Object.values(this.beaconPoints).forEach(line=>{
+                let lastPoint = undefined
+                line.forEach(p=>{
+                    if(lastPoint){
+                        drawLine(lastPoint[0], lastPoint[1], lastPoint[2], p[0], p[1], p[2], 0, 0, 255, 3)
+                    }
+                    lastPoint = p
+                })
             })
-        })
+            Object.values(this.beaconLocations).forEach(loc=>{
+                drawFilledBox(loc[0]+0.5, loc[1], loc[2]+0.5, 1.01, 1.01, 0, 0, 1, 1, true)
+            })
+        }
 
         this.eyeE.forEach(e=>{ 
             let x = e.getX() + ((e.getX()-e.getLastX())*ticks)
@@ -140,9 +145,6 @@ class Slayers extends Feature {
             drawBoxAtBlock(x-0.5, y+0.7, z-0.5, 255, 0, 0)
         })
 
-        Object.values(this.beaconLocations).forEach(loc=>{
-            drawFilledBox(loc[0]+0.5, loc[1], loc[2]+0.5, 1.01, 1.01, 0, 0, 1, 1, true)
-        })
     }
 
     entityJoinWorldEvent(event){

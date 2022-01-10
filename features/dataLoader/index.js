@@ -22,6 +22,8 @@ class DataLoader extends Feature {
 
         this.api_loaded_event = this.createCustomEvent("apiLoad")
 
+        this.loadedApiDatas = {}
+
         this.lastApiData = {
             "skyblock": undefined,
             "player": undefined,
@@ -51,6 +53,12 @@ class DataLoader extends Feature {
         }
         let key = this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()
         if(!key) return
+
+        if(this.loadedApiDatas[type] !== undefined){
+            if(Date.now()-this.loadedApiDatas[type] < 5000) return
+        }
+
+        this.loadedApiDatas[type] = Date.now()
 
         if(soopyServer){
 
