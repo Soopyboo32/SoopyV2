@@ -29,6 +29,7 @@ class Cosmetics extends Feature {
 
         this.firstPersonVisable = new Toggle("Cosmetics visable in first person", "", false, "cosmetics_first_person_visable", this)
         this.lessFirstPersonVisable = new Toggle("Make cosmetics less visable in first person mode", "", true, "cosmetics_first_person_less_visable", this).requires(this.firstPersonVisable)
+        this.ownCosmeticAudio = new Toggle("Audio for own cosmetics", "", false, "cosmetics_own_audio", this)
 
         this.dragon_wings_enabled = new Toggle("Dragon Wings Toggle", "", true, "cosmetic_dragon_wings_toggle", this).requires(new FakeRequireToggle(false)).onchange(this, ()=>{
             global.soopyV2Server.updateCosmeticsData({
