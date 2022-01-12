@@ -1,5 +1,6 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
+import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import * as renderUtils from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
@@ -48,19 +49,45 @@ class DungeonSolvers extends Feature {
             .editTempText("&dBow Destroyed in: &c15s"))
 
         this.hudElements.push(this.spiritBowDestroyElement)
+
+        this.bloodCampAssist = new ToggleSetting("Assist blood camp", "Helps guess where and when blood mobs will spawn", true, "blood_camp_assist", this)
         
         this.spiritBowPickUps = []
         this.registerChat("&r&aYou picked up the &r&5Spirit Bow&r&a! Use it to attack &r&cThorn&r&a!&r", ()=>{
             this.spiritBowPickUps.push(Date.now())
         })
+
+        this.todoE = []
+        this.eMovingThing = {}
+        this.bloodX = -1
+        this.bloodY = -1
+        this.startSpawningTime = 0
+        this.spawnIdThing = 0
+
+        this.checkingPing = false
+        this.lastPingCheck = 0
         
         this.registerStep(true, 2, this.step)
         this.registerEvent("worldLoad", this.onWorldLoad)
         
         this.registerEvent("renderOverlay", this.renderHud)
         this.registerEvent("renderWorld", this.renderWorld)
+
+        this.registerChat("&b&bYou are currently connected to server &6${*}&r", (e)=>{
+            if(this.checkingPing){
+                this.ping = Date.now()-this.lastPingCheck
+                cancel(e)
+                this.checkingPing = false
+            }
+        })
+
+        this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent)
         // this.registerEvent("renderEntity", this.renderEntity)
         this.renderEntityEvent = undefined
+    }
+
+    entityJoinWorldEvent(event){
+        if(this.bloodCampAssist.getValue())this.todoE.push(event.entity)
     }
 
     renderWorld(ticks){
@@ -69,6 +96,85 @@ class DungeonSolvers extends Feature {
                 renderUtils.drawBoxAtEntity(this.lividData.correctLividEntity, 255, 0, 0, 0.75, -2, ticks)
             }
         }
+
+        if(this.bloodCampAssist.getValue()){
+        this.skulls.forEach(skull => {
+            let skullE = skull.getEntity()
+            // renderUtils.drawBoxAtEntity(skull, 255, 0, 0, 0.5, 0.5, ticks)
+
+            let xSpeed = skullE[f.posX.Entity]-skullE[f.lastTickPosX]
+            let ySpeed = skullE[f.posY.Entity]-skullE[f.lastTickPosY]
+            let zSpeed = skullE[f.posZ.Entity]-skullE[f.lastTickPosZ]
+            
+            if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
+
+                let xSpeed2 = (skullE[f.posX.Entity]-this.eMovingThing[skull.getUUID().toString()].startX)/this.eMovingThing[skull.getUUID().toString()].timeTook
+                let ySpeed2 = (skullE[f.posY.Entity]-this.eMovingThing[skull.getUUID().toString()].startY)/this.eMovingThing[skull.getUUID().toString()].timeTook
+                let zSpeed2 = (skullE[f.posZ.Entity]-this.eMovingThing[skull.getUUID().toString()].startZ)/this.eMovingThing[skull.getUUID().toString()].timeTook
+
+                let time = ((this.spawnIdThing>=4?2900:4850)-this.eMovingThing[skull.getUUID().toString()].timeTook)
+                let startPoint = [skullE[f.posX.Entity], skullE[f.posY.Entity], skullE[f.posZ.Entity]]
+                let endPoint = [skullE[f.posX.Entity]+xSpeed2*time, skullE[f.posY.Entity]+ySpeed2*time, skullE[f.posZ.Entity]+zSpeed2*time]
+                let pingPoint = [skullE[f.posX.Entity]+xSpeed2*this.ping, skullE[f.posY.Entity]+ySpeed2*this.ping, skullE[f.posZ.Entity]+zSpeed2*this.ping]
+                renderUtils.drawLine(startPoint[0], startPoint[1]+2, startPoint[2], endPoint[0], endPoint[1]+2, endPoint[2], 255, 0, 0, 2)
+
+                renderUtils.drawBoxAtBlock(pingPoint[0]-0.5, pingPoint[1]+1, pingPoint[2]-0.5, 0, 255, 0)
+                renderUtils.drawBoxAtBlock(endPoint[0]-0.5, endPoint[1]+1, endPoint[2]-0.5, 255, 0, 0)
+
+                // if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
+                //     Tessellator.drawString((time/1000).toFixed(3)+"s", endPoint[0], endPoint[1]+2, endPoint[2])
+                // }
+            }
+
+
+            //TODO: move this out of render world
+
+            if(this.eMovingThing[skull.getUUID().toString()] && Date.now()-this.eMovingThing[skull.getUUID().toString()].startMovingTime > 5000){
+                this.eMovingThing[skull.getUUID().toString()].logged = true
+                this.spawnIdThing++
+
+                delete this.eMovingThing[skull.getUUID().toString()] 
+                this.skulls = this.skulls.filter(e=>{
+                    if(e.getUUID().toString() === skull.getUUID().toString()){
+                        return false
+                    }
+                    return true
+                })
+                return
+            }
+
+            if(xSpeed !== 0 || ySpeed !== 0){
+                if(!this.eMovingThing[skull.getUUID().toString()])this.eMovingThing[skull.getUUID().toString()] = {startMovingTime: Date.now(),startX: skullE[f.posX.Entity],startY: skullE[f.posY.Entity],startZ: skullE[f.posZ.Entity]}
+
+
+                if(this.eMovingThing[skull.getUUID().toString()].lastX !== skullE[f.posX.Entity]
+                || this.eMovingThing[skull.getUUID().toString()].lastY !== skullE[f.posY.Entity]){
+                    this.eMovingThing[skull.getUUID().toString()].timeTook = Date.now()-this.eMovingThing[skull.getUUID().toString()].startMovingTime
+                }else if(!this.eMovingThing[skull.getUUID().toString()].logged && (
+                    skullE[f.isDead]
+                    || !skullE[m.getEquipmentInSlot](4)
+                    || !skullE[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")
+                )){
+                    this.eMovingThing[skull.getUUID().toString()].logged = true
+                    this.spawnIdThing++
+
+                    delete this.eMovingThing[skull.getUUID().toString()] 
+                    this.skulls = this.skulls.filter(e=>{
+                        if(e.getUUID().toString() === skull.getUUID().toString()){
+                            return false
+                        }
+                        return true
+                    })
+                    return
+                }
+
+                this.eMovingThing[skull.getUUID().toString()].lastX= skullE[f.posX.Entity]
+                this.eMovingThing[skull.getUUID().toString()].lastY= skullE[f.posY.Entity]
+
+                if(!this.startSpawningTime) this.startSpawningTime = Date.now()
+            }
+        })
+    }
     }
 
     renderEntity(entity, position, ticks, event){
@@ -94,6 +200,42 @@ class DungeonSolvers extends Feature {
         this.lividData.sayLividColors2 = []
         this.lividData.correctLividEntity = undefined
         this.lividHpElement && this.lividHpElement.setText("")
+
+        this.startSpawningTime = 0
+        this.spawnIdThing = 0
+        this.eMovingThing = {}
+        this.bloodX = -1
+        this.bloodY = -1
+        this.skulls = []
+        World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(e=>{
+            if(e.getEntity()[m.getEquipmentInSlot](4) && e.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")){
+                this.addSkull(e)
+            }
+        })
+    }
+
+    addSkull(skull){
+        if(this.bloodX !== -1){
+            let xA = skull.getX()-(skull.getX()%32)
+            let yA = skull.getZ()-(skull.getZ()%32)
+
+            if(xA !== this.bloodX || yA !== this.bloodY) return
+        }else{
+            if(skull.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().trim() === Player.getName() + "'s Head"
+            || skull.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().trim() === Player.getName() + "' Head"){
+                this.bloodX = skull.getX()-(skull.getX()%32)
+                this.bloodY = skull.getZ()-(skull.getZ()%32)
+                this.skulls = []
+                World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(e=>{
+                    if(e.getEntity()[m.getEquipmentInSlot](4) && e.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")){
+                        this.addSkull(e)
+                    }
+                })
+            }
+            return
+        }
+        this.skulls.push(skull)
+
     }
 
     step(){ //2fps
@@ -166,6 +308,23 @@ class DungeonSolvers extends Feature {
             this.spiritBowDestroyElement.setText("")
         }
         // this.spiritBowPickUps
+        if(this.bloodCampAssist.getValue()){
+            this.todoE.forEach(e=>{
+                let en = new Entity(e)
+                // console.log(en.getName())
+                if(en.getName().trim() === "Armor Stand" && e[m.getEquipmentInSlot](4) && e[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")){
+                    this.addSkull(en)
+                }
+            })
+                
+            this.todoE = []
+
+            if(Date.now()-this.lastPingCheck> 60000*30){
+                this.lastPingCheck = Date.now()
+                ChatLib.command("whereami")
+                this.checkingPing = true
+            }
+        }
     }
 
     initVariables(){
