@@ -39,8 +39,20 @@ class DungeonSolvers extends Feature {
         this.lividFindChat = new ToggleSetting("Say correct livid in chat", "Sends the correct livid in chat", false, "livid_chat_enabled", this).requires(this.lividFindEnabled)
         this.lividFindBox = new ToggleSetting("Put a box around the correct livid", "This helps to locate it in the group", true, "livid_box_enabled", this).requires(this.lividFindEnabled)
         this.lividFindNametags = new ToggleSetting("Hide the nametags of incorrect livids", "This helps to locate it in the group", true, "livid_nametags_enabled", this).requires(this.lividFindEnabled)
+        
+        this.spiritBowDestroyTimer = new ToggleSetting("Timer for when the spirit bow will self destruct", "", true, "spirit_bow_destroy_timer", this)
+        this.spiritBowDestroyElement = new HudTextElement()
+        .setToggleSetting(this.spiritBowDestroyTimer)
+        .setLocationSetting(new LocationSetting("Spirit bow destroy timer location", "Allows you to edit the location of the timer", "spirit_destroy_location", this, [10, 70, 3, 1])
+            .requires(this.spiritBowDestroyTimer)
+            .editTempText("&dBow Destroyed in: &c15s"))
 
-        this.hudElements.push(this.lividHpElement)
+        this.hudElements.push(this.spiritBowDestroyElement)
+        
+        this.spiritBowPickUps = []
+        this.registerChat("&r&aYou picked up the &r&5Spirit Bow&r&a! Use it to attack &r&cThorn&r&a!&r", ()=>{
+            this.spiritBowPickUps.push(Date.now())
+        })
         
         this.registerStep(true, 2, this.step)
         this.registerEvent("worldLoad", this.onWorldLoad)
@@ -146,6 +158,14 @@ class DungeonSolvers extends Feature {
                 this.unregisterEvent(this.renderEntityEvent)
             }
         }
+
+        this.spiritBowPickUps = this.spiritBowPickUps.filter(pickUp => Date.now() - pickUp < 20000)
+        if(this.spiritBowPickUps[0]){
+            this.spiritBowDestroyElement.setText("&dBow Destroyed in: &c" + Math.round((this.spiritBowPickUps[0] + 20000 - Date.now()) / 1000) + "s")
+        }else{
+            this.spiritBowDestroyElement.setText("")
+        }
+        // this.spiritBowPickUps
     }
 
     initVariables(){
