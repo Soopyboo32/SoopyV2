@@ -66,6 +66,9 @@ class DungeonSolvers extends Feature {
 
         this.checkingPing = false
         this.lastPingCheck = 0
+        this.lastPings = [undefined, undefined, undefined]
+        this.ping = 0
+        this.pingI = 0
         
         this.registerStep(true, 2, this.step)
         this.registerEvent("worldLoad", this.onWorldLoad)
@@ -75,9 +78,16 @@ class DungeonSolvers extends Feature {
 
         this.registerChat("&b&bYou are currently connected to server &6${*}&r", (e)=>{
             if(this.checkingPing){
-                this.ping = Date.now()-this.lastPingCheck
+                this.lastPings[this.pingI%3] = Date.now()-this.lastPingCheck
                 cancel(e)
                 this.checkingPing = false
+
+                if(this.lastPings.includes(undefined)){
+                    this.ping = this.lastPings[this.pingI%3]
+                }else{
+                    this.ping = ([...this.lastPings]).sort((a, b)=>a-b)[1]
+                }
+                this.pingI++
             }
         })
 
@@ -319,7 +329,8 @@ class DungeonSolvers extends Feature {
                 
             this.todoE = []
 
-            if(Date.now()-this.lastPingCheck> 60000*30){
+            if(Date.now()-this.lastPingCheck> 60000*30
+            || Date.now()-this.lastPingCheck> 60000 && this.lastPings.includes(undefined)){
                 this.lastPingCheck = Date.now()
                 ChatLib.command("whereami")
                 this.checkingPing = true
