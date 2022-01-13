@@ -35,14 +35,14 @@ module.exports = {
             b: b * 255
         };
     },
-    drawLine:function (x, y, z, x2, y2, z2, r, g, b, thickness=1, phase=true) {
+    drawLine:function (x, y, z, x2, y2, z2, r, g, b, thickness=1) {
     
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(thickness);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
-        if(phase)GL11.glDepthMask(false);
+        GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
     
         Tessellator.begin(3).colorize(r, g, b);
@@ -56,7 +56,7 @@ module.exports = {
         GlStateManager.func_179121_F();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
-        if(phase)GL11.glDepthMask(true);
+        GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
     drawLineWithDepth:function (x, y, z, x2, y2, z2, r, g, b,t) {
