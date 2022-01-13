@@ -108,14 +108,15 @@ class DungeonSolvers extends Feature {
             
             if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
 
-                let xSpeed2 = (skullE[f.posX.Entity]-this.eMovingThing[skull.getUUID().toString()].startX)/this.eMovingThing[skull.getUUID().toString()].timeTook
-                let ySpeed2 = (skullE[f.posY.Entity]-this.eMovingThing[skull.getUUID().toString()].startY)/this.eMovingThing[skull.getUUID().toString()].timeTook
-                let zSpeed2 = (skullE[f.posZ.Entity]-this.eMovingThing[skull.getUUID().toString()].startZ)/this.eMovingThing[skull.getUUID().toString()].timeTook
-
-                let time = ((this.spawnIdThing>=4?2900:4850)-this.eMovingThing[skull.getUUID().toString()].timeTook)
                 let startPoint = [skullE[f.posX.Entity], skullE[f.posY.Entity], skullE[f.posZ.Entity]]
-                let endPoint = [skullE[f.posX.Entity]+xSpeed2*time, skullE[f.posY.Entity]+ySpeed2*time, skullE[f.posZ.Entity]+zSpeed2*time]
-                let pingPoint = [skullE[f.posX.Entity]+xSpeed2*this.ping, skullE[f.posY.Entity]+ySpeed2*this.ping, skullE[f.posZ.Entity]+zSpeed2*this.ping]
+                
+                let xSpeed2 = (startPoint[0]-this.eMovingThing[skull.getUUID().toString()].startX)/this.eMovingThing[skull.getUUID().toString()].timeTook
+                let ySpeed2 = (startPoint[1]-this.eMovingThing[skull.getUUID().toString()].startY)/this.eMovingThing[skull.getUUID().toString()].timeTook
+                let zSpeed2 = (startPoint[2]-this.eMovingThing[skull.getUUID().toString()].startZ)/this.eMovingThing[skull.getUUID().toString()].timeTook
+
+                let time = (this.spawnIdThing>=4?2900:4850)-this.eMovingThing[skull.getUUID().toString()].timeTook
+                let endPoint = [startPoint[0]+xSpeed2*time, startPoint[1]+ySpeed2*time, startPoint[2]+zSpeed2*time]
+                let pingPoint = [startPoint[0]+xSpeed2*(this.ping), startPoint[1]+(ySpeed2*this.ping), startPoint[2]+(zSpeed2*this.ping)]
                 renderUtils.drawLineWithDepth(startPoint[0], startPoint[1]+2, startPoint[2], endPoint[0], endPoint[1]+2, endPoint[2], 255, 0, 0, 2)
                 renderUtils.drawBoxAtBlockNotVisThruWalls(pingPoint[0]-0.5, pingPoint[1]+1, pingPoint[2]-0.5, 0, 255, 0)
                 renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0]-0.5, endPoint[1]+1, endPoint[2]-0.5, 255, 0, 0)
