@@ -116,10 +116,10 @@ class DungeonSolvers extends Feature {
                 let startPoint = [skullE[f.posX.Entity], skullE[f.posY.Entity], skullE[f.posZ.Entity]]
                 let endPoint = [skullE[f.posX.Entity]+xSpeed2*time, skullE[f.posY.Entity]+ySpeed2*time, skullE[f.posZ.Entity]+zSpeed2*time]
                 let pingPoint = [skullE[f.posX.Entity]+xSpeed2*this.ping, skullE[f.posY.Entity]+ySpeed2*this.ping, skullE[f.posZ.Entity]+zSpeed2*this.ping]
-                renderUtils.drawLine(startPoint[0], startPoint[1]+2, startPoint[2], endPoint[0], endPoint[1]+2, endPoint[2], 255, 0, 0, 2)
+                renderUtils.drawLine(startPoint[0], startPoint[1]+2, startPoint[2], endPoint[0], endPoint[1]+2, endPoint[2], 255, 0, 0, 2, false)
 
-                renderUtils.drawBoxAtBlock(pingPoint[0]-0.5, pingPoint[1]+1, pingPoint[2]-0.5, 0, 255, 0)
-                renderUtils.drawBoxAtBlock(endPoint[0]-0.5, endPoint[1]+1, endPoint[2]-0.5, 255, 0, 0)
+                renderUtils.drawBoxAtBlockNotVisThruWalls(pingPoint[0]-0.5, pingPoint[1]+1, pingPoint[2]-0.5, 0, 255, 0)
+                renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0]-0.5, endPoint[1]+1, endPoint[2]-0.5, 255, 0, 0)
 
                 // if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
                 //     Tessellator.drawString((time/1000).toFixed(3)+"s", endPoint[0], endPoint[1]+2, endPoint[2])
