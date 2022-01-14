@@ -33,14 +33,28 @@ class StatNextToName extends Feature {
         this.userStats = {}
 
         this.loadingStats = []
+        this.lastWorldLoad = undefined
 
         soopyV2Server.onPlayerStatsLoaded = (stats)=>{this.playerStatsLoaded.call(this, stats)}
 
         this.registerStep(false, 5, this.loadPlayerStatsTick)
         this.registerEvent("worldLoad", this.worldLoad)
+        
+        this.registerEvent("playerJoined", this.playerJoined)
+
+        this.worldLoad()
     }
 
     loadPlayerStatsTick(){
+
+        if(this.lastWorldLoad && Date.now() - this.lastWorldLoad > 1000){
+            World.getAllPlayers().forEach(player => {
+                if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
+                this.loadPlayerStatsCache(player.getUUID().toString().replace(/-/g, ""), player.getName())
+            })
+            this.lastWorldLoad = undefined
+        }
+
         let nearestPlayer = undefined
         let nearestPlayerName = undefined
         let nearestDistance = Infinity
@@ -74,6 +88,16 @@ class StatNextToName extends Feature {
         if(playerStats){
             this.userStats[Player.getUUID().toString().replace(/-/g, "")] = playerStats
         }
+
+        this.lastWorldLoad = Date.now()
+    }
+    
+    playerJoined(player){
+        if(player.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return
+        
+        if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
+    
+        this.loadPlayerStatsCache(player.getUUID().toString().replace(/-/g, ""), player.getName())
     }
 
     updatePlayerNametag(player){
@@ -102,10 +126,13 @@ class StatNextToName extends Feature {
         this.loadingStats.push(uuid)
     }
 
+    loadPlayerStatsCache(uuid, username){
+        // console.log("loading stats for " + uuid)
+        soopyV2Server.requestPlayerStatsCache(uuid, username)
+    }
+
     playerStatsLoaded(stats){
-        // console.log(JSON.stringify(stats, undefined, 2))
         this.userStats[stats.uuid] = stats
-    
     }
 
     onDisable(){

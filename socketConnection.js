@@ -106,6 +106,14 @@ class SoopyV2Server extends WebsiteCommunicator {
             username: username
         })
     }
+
+    requestPlayerStatsCache(uuid, username){
+        this.sendData({
+            type: "loadStatsQuickCache",
+            uuid: uuid,
+            username: username
+        })
+    }
 }
 
 if(!global.soopyV2Server){
