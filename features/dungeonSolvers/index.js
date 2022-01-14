@@ -2,6 +2,7 @@
 /// <reference lib="es2015" />
 import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
+import { numberWithCommas } from "../../utils/numberUtils";
 import * as renderUtils from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
@@ -51,7 +52,28 @@ class DungeonSolvers extends Feature {
         this.hudElements.push(this.spiritBowDestroyElement)
 
         this.bloodCampAssist = new ToggleSetting("Assist blood camp", "Helps guess where and when blood mobs will spawn", true, "blood_camp_assist", this)
-        
+
+        this.runSpeedRates = new ToggleSetting("Show run speed and exp rates", "(Run speed includes downtime inbetween runs, only shows while doing dungeon runs)", true, "run_speed_rates", this)
+        this.runSpeedRatesElement = new HudTextElement().setText("&eRun Speed: &floading...\n&eExp/hour: &floading...")
+        .setToggleSetting(this.runSpeedRates)
+        .setLocationSetting(new LocationSetting("Run speed and exp rates location", "Allows you to edit the location of the information", "run_speed_rates_location", this, [10, 100, 1, 1])
+            .requires(this.runSpeedRates)
+            .editTempText("&6Run speed&7> &f4:30\n&6Exp/hour&7> &f1,234,567\n&6Runs/hour&7> &f17"))
+
+        this.lastDungFinishes = []
+        this.lastDungExps = []
+        this.registerChat("&r&r&r                      &r&8+&r&3${exp} Catacombs Experience&r", (exp)=>{
+            this.lastDungExps.push(parseFloat(exp.replace(/,/gi, "")))
+            if(this.lastDungExps.length > 5){
+                this.lastDungExps.shift()
+            }
+
+            this.lastDungFinishes.push(Date.now())
+            if(this.lastDungFinishes.length > 5){
+                this.lastDungFinishes.shift()
+            }
+        })
+    
         this.spiritBowPickUps = []
         this.registerChat("&r&aYou picked up the &r&5Spirit Bow&r&a! Use it to attack &r&cThorn&r&a!&r", ()=>{
             this.spiritBowPickUps.push(Date.now())
@@ -201,6 +223,8 @@ class DungeonSolvers extends Feature {
         for(let element of this.hudElements){
             element.render()
         }
+
+        this.runSpeedRatesElement.render()
     }
 
     onWorldLoad(){
@@ -335,6 +359,21 @@ class DungeonSolvers extends Feature {
                 ChatLib.command("whereami")
                 this.checkingPing = true
             }
+        }
+
+        let averageExp = this.lastDungExps.reduce((a, b) => a + b, 0) / this.lastDungExps.length
+        let averageLength = (this.lastDungFinishes[this.lastDungFinishes.length-1] - this.lastDungFinishes[0])/(this.lastDungFinishes.length-1)
+        let runsperHour = 60000*60/averageLength
+        let expPerHour = averageExp*runsperHour
+
+        if(Date.now()-this.lastDungFinishes[this.lastDungFinishes.length-1] < 60000*5 || (this.FeatureManager.features["dataLoader"].class.dungeonFloor)){
+            if(this.lastDungFinishes.length > 1){
+                this.runSpeedRatesElement.setText("&6Run speed&7> &f" + Math.floor(averageLength/60000) + ":" + ((Math.floor(averageLength/1000)%60<10?"0":"") + Math.floor(averageLength/1000)%60) + "\n&6Exp/hour&7> &f" + numberWithCommas(Math.round(expPerHour)) + "\n&6Runs/hour&7> &f" + Math.floor(runsperHour))
+            }else{
+                this.runSpeedRatesElement.setText("&6Run speed&7> &floading...\n&6Exp/hour&7> &floading...\n&6Runs/hour&7> &floading...")
+            }
+        }else{
+            this.runSpeedRatesElement.setText("")
         }
     }
 

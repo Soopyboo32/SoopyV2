@@ -16,7 +16,7 @@ class HudTextElement{
     setText(text){
         this.text = text
         
-        if(this.locationSetting.shadowType === 2){
+        if(this.locationSetting && this.locationSetting.shadowType === 2){
             this.blackText = "&0" + ChatLib.removeFormatting(text)
         }
         return this
@@ -28,6 +28,10 @@ class HudTextElement{
     setLocationSetting(setting){
         this.locationSetting = setting
         setting.setParent(this)
+
+        if(this.locationSetting.shadowType === 2){
+            this.blackText = "&0" + ChatLib.removeFormatting(text)
+        }
         return this
     }
 
@@ -36,6 +40,13 @@ class HudTextElement{
         if(Date.now()-this.tempDisableTime < 100) return
 
         this.renderRaw()
+    }
+
+    getWidth(){
+        return Math.max(...(this.getText()[0].map(a=>Renderer.getStringWidth(ChatLib.removeFormatting(a)))))
+    }
+    getHeight(){
+        return 9*this.getText()[0].length
     }
 
     getText(){
