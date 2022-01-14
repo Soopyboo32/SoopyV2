@@ -49,6 +49,7 @@ class StatNextToName extends Feature {
 
         if(this.lastWorldLoad && Date.now() - this.lastWorldLoad > 1000){
             World.getAllPlayers().forEach(player => {
+                if(this.userStats[player.getUUID().toString().replace(/-/g, "")] || this.oldUserStats[player.getUUID().toString().replace(/-/g, "")]) return
                 if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
                 this.loadPlayerStatsCache(player.getUUID().toString().replace(/-/g, ""), player.getName())
             })
@@ -94,7 +95,7 @@ class StatNextToName extends Feature {
     
     playerJoined(player){
         if(player.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return
-        
+        if(this.userStats[player.getUUID().toString().replace(/-/g, "")] || this.oldUserStats[player.getUUID().toString().replace(/-/g, "")]) return
         if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
     
         this.loadPlayerStatsCache(player.getUUID().toString().replace(/-/g, ""), player.getName())
