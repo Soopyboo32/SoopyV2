@@ -65,7 +65,8 @@ class DungeonSolvers extends Feature {
 
         this.lastDungFinishes = []
         this.lastDungExps = []
-        this.registerChat("&r&r&r                      &r&8+&r&3${exp} Catacombs Experience&r", (exp)=>{
+        this.registerChat("${start}+&r&3${exp} Catacombs Experience&r", (start, exp)=>{
+            if(ChatLib.removeFormatting(start).replace(/ /gi, "").length > 0) return
             this.lastDungExps.push(parseFloat(exp.replace(/,/gi, "")))
             if(this.lastDungExps.length > 5){
                 this.lastDungExps.shift()
