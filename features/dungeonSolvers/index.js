@@ -24,7 +24,7 @@ class DungeonSolvers extends Feature {
             "Doctor": "&7",
             "Frog": "&2",
             "Smile": "&a",
-            "Scream": "&1",
+            "Scream": "&9",
             "Purple": "&5",
             "Arcade": "&e"
         }
@@ -38,7 +38,8 @@ class DungeonSolvers extends Feature {
                 .requires(this.lividFindHud)
                 .editTempText("§r§e﴾ §c§lLivid§r §a7M§c❤ §e﴿§r"))
 
-        this.lividFindChat = new ToggleSetting("Say correct livid in chat", "Sends the correct livid in chat", false, "livid_chat_enabled", this).requires(this.lividFindEnabled)
+                this.hudElements.push(this.lividHpElement)
+
         this.lividFindBox = new ToggleSetting("Put a box around the correct livid", "This helps to locate it in the group", true, "livid_box_enabled", this).requires(this.lividFindEnabled)
         this.lividFindNametags = new ToggleSetting("Hide the nametags of incorrect livids", "This helps to locate it in the group", true, "livid_nametags_enabled", this).requires(this.lividFindEnabled)
         
@@ -60,6 +61,8 @@ class DungeonSolvers extends Feature {
             .requires(this.runSpeedRates)
             .editTempText("&6Run speed&7> &f4:30\n&6Exp/hour&7> &f1,234,567\n&6Runs/hour&7> &f17"))
 
+            this.hudElements.push(this.runSpeedRatesElement)
+
         this.lastDungFinishes = []
         this.lastDungExps = []
         this.registerChat("&r&r&r                      &r&8+&r&3${exp} Catacombs Experience&r", (exp)=>{
@@ -73,7 +76,15 @@ class DungeonSolvers extends Feature {
                 this.lastDungFinishes.shift()
             }
         })
-    
+        this.forgorEnabled = new ToggleSetting("Change withermancer death message to forgor ", "", true, "withermancer_forgor", this)
+        
+        this.registerChat("&r&c ☠ &r${player} were killed by Withermancer&r&7 and became a ghost&r&7.&r", (player, e)=>{
+            if(this.forgorEnabled.getValue()){
+                cancel(e)
+                ChatLib.chat(player + " forgor ☠")
+            }
+        })
+
         this.spiritBowPickUps = []
         this.registerChat("&r&aYou picked up the &r&5Spirit Bow&r&a! Use it to attack &r&cThorn&r&a!&r", ()=>{
             this.spiritBowPickUps.push(Date.now())
@@ -223,8 +234,6 @@ class DungeonSolvers extends Feature {
         for(let element of this.hudElements){
             element.render()
         }
-
-        this.runSpeedRatesElement.render()
     }
 
     onWorldLoad(){
@@ -273,54 +282,32 @@ class DungeonSolvers extends Feature {
     }
 
     step(){ //2fps
-        if(this.lividFindEnabled.getValue() && (this.FeatureManager.features["dataLoader"].class.dungeonFloor === "F5")){ //TODO: fix on M5 (detect correct livid based on roof color)
+        if(this.lividFindEnabled.getValue() && (this.FeatureManager.features["dataLoader"].class.dungeonFloor === "F5" || this.FeatureManager.features["dataLoader"].class.dungeonFloor === "M5")){
+            let type = World.getBlockAt(208,108,245).getMetadata()
+
+            let typeReplace = {
+                0: "Vendetta",
+                2: "Crossed",
+                4: "Arcade",
+                5: "Smile",
+                6: "Crossed",
+                7: "Doctor",
+                8: "Doctor",
+                10: "Purple",
+                11: "Scream",
+                13: "Frog",
+                14: "Hockey"
+            }
+            
             World.getAllEntities().forEach(entity => {
                 let entityName = entity.getName()
-				if (/(?:Vendetta|Crossed|Hockey|Doctor|Frog|Smile|Scream|Purple|Arcade) Livid/g.test(entityName)) {
-					let lividName = entityName.replace(" Livid", "")
 
-					if (!this.lividData.sayLividColors2.includes(lividName)) {
-						this.lividData.sayLividColors2.push(lividName)
-						if (this.lividData.sayLividColors2.length === 1) {
-							this.lividData.correctLividColor = lividName
-						}
-						if (this.lividData.sayLividColors2.length === 9) {
-                            if(this.lividFindChat.getValue()){
-                                ChatLib.chat(this.FeatureManager.messagePrefix + "Correct livid is: " + this.lividData.lividColor[lividName] + lividName)
-                            }
-							this.lividData.correctLividColor = lividName
-						}
-					}
-					return;
-				}
                 if (entityName.includes("Livid") && entityName.includes("❤")) {
-                    if (!this.lividData.sayLividColors.includes(entityName.substr(0, 3))) {
-                        this.lividData.sayLividColors.push(entityName.substr(0, 3))
-                        if (this.lividData.sayLividColors.length === 9) {
-                            this.lividData.correctLividColorHP = entityName.substr(0, 3)
-                        }
-                        if (this.lividData.sayLividColors.length === 1) {
-                            this.lividData.correctLividColorHP = entityName.substr(0, 3)
-                        }
+                    // ChatLib.chat("D: " + entityName.substr(1, 1) + " asd " + this.lividData.lividColor[typeReplace[type]].split("").pop())
+                    if (entityName.substr(1, 1) === this.lividData.lividColor[typeReplace[type]].split("").pop()) {
+                        this.lividHpElement.setText(entityName)
+                        this.lividData.correctLividEntity = entity
                     }
-
-                    if (this.lividData.sayLividColors.length === 1) {
-                        if (entityName.includes("Livid") && entityName.includes("❤")) {
-                            this.lividHpElement.setText(entityName)
-                        }
-                    } else {
-                        if (this.lividData.correctLividColorHP !== undefined) {
-                            // if (this.lividData.correctLividColor === "Arcade") {
-                            //     this.lividHpElement.setText("Unknown Health (Yellow Livid)")
-                            // } else {
-                                if (entityName.includes(this.lividData.correctLividColorHP)) {
-                                    this.lividHpElement.setText(entityName)
-                                    this.lividData.correctLividEntity = entity
-                                }
-                            // }
-                        }
-                    }
-
                 }
             })
         }
@@ -332,6 +319,7 @@ class DungeonSolvers extends Feature {
         }else{
             if(this.renderEntityEvent){
                 this.unregisterEvent(this.renderEntityEvent)
+                this.renderEntityEvent = undefined
             }
         }
 
