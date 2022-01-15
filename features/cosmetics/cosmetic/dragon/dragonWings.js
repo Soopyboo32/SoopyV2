@@ -39,11 +39,12 @@ class DragonWings extends Cosmetic {
             return
         }
 
-        let thirdPersonView = Client.getMinecraft()[f.gameSettings.Minecraft][f.thirdPersonView]
-        if(!this.parent.firstPersonVisable.getValue() && thirdPersonView === 0) return
 
         let isSelfPlayer = this.player.getUUID().toString() === Player.getUUID().toString()
         let isInInv = isSelfPlayer && ticks === 1
+        let thirdPersonView = Client.getMinecraft()[f.gameSettings.Minecraft][f.thirdPersonView]
+
+        if(!this.parent.firstPersonVisable.getValue() && thirdPersonView === 0 && isSelfPlayer && !isInInv) return
 
         // return;
         // wing.func_78785_a(1)

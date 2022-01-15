@@ -108,6 +108,7 @@ class DungeonSolvers extends Feature {
         this.registerEvent("worldLoad", this.onWorldLoad)
         
         this.registerEvent("renderOverlay", this.renderHud)
+        this.registerEvent("tick", this.tick)
         this.registerEvent("renderWorld", this.renderWorld)
 
         this.registerChat("&b&bYou are currently connected to server &6${*}&r", (e)=>{
@@ -142,83 +143,37 @@ class DungeonSolvers extends Feature {
         }
 
         if(this.bloodCampAssist.getValue()){
-        this.skulls.forEach(skull => {
-            let skullE = skull.getEntity()
-            // renderUtils.drawBoxAtEntity(skull, 255, 0, 0, 0.5, 0.5, ticks)
-
-            let xSpeed = skullE[f.posX.Entity]-skullE[f.lastTickPosX]
-            let ySpeed = skullE[f.posY.Entity]-skullE[f.lastTickPosY]
-            let zSpeed = skullE[f.posZ.Entity]-skullE[f.lastTickPosZ]
-            
-            if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
-
-                let startPoint = [skullE[f.posX.Entity], skullE[f.posY.Entity], skullE[f.posZ.Entity]]
+            this.skulls.forEach(skull => {
+                let skullE = skull.getEntity()
+                // renderUtils.drawBoxAtEntity(skull, 255, 0, 0, 0.5, 0.5, ticks)
                 
-                let xSpeed2 = (startPoint[0]-this.eMovingThing[skull.getUUID().toString()].startX)/this.eMovingThing[skull.getUUID().toString()].timeTook
-                let ySpeed2 = (startPoint[1]-this.eMovingThing[skull.getUUID().toString()].startY)/this.eMovingThing[skull.getUUID().toString()].timeTook
-                let zSpeed2 = (startPoint[2]-this.eMovingThing[skull.getUUID().toString()].startZ)/this.eMovingThing[skull.getUUID().toString()].timeTook
+                if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
 
-                let time = (this.spawnIdThing>=4?2900:4850)-this.eMovingThing[skull.getUUID().toString()].timeTook
-                let endPoint = [startPoint[0]+xSpeed2*time, startPoint[1]+ySpeed2*time, startPoint[2]+zSpeed2*time]
-                let pingPoint = [startPoint[0]+xSpeed2*(this.ping), startPoint[1]+(ySpeed2*this.ping), startPoint[2]+(zSpeed2*this.ping)]
-                renderUtils.drawLineWithDepth(startPoint[0], startPoint[1]+2, startPoint[2], endPoint[0], endPoint[1]+2, endPoint[2], 255, 0, 0, 2)
-                renderUtils.drawBoxAtBlockNotVisThruWalls(pingPoint[0]-0.5, pingPoint[1]+1, pingPoint[2]-0.5, 0, 255, 0)
-                renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0]-0.5, endPoint[1]+1, endPoint[2]-0.5, 255, 0, 0)
+                    let startPoint = [skullE[f.posX.Entity], skullE[f.posY.Entity], skullE[f.posZ.Entity]]
+                    
+                    let xSpeed2 = (startPoint[0]-this.eMovingThing[skull.getUUID().toString()].startX)/this.eMovingThing[skull.getUUID().toString()].timeTook
+                    let ySpeed2 = (startPoint[1]-this.eMovingThing[skull.getUUID().toString()].startY)/this.eMovingThing[skull.getUUID().toString()].timeTook
+                    let zSpeed2 = (startPoint[2]-this.eMovingThing[skull.getUUID().toString()].startZ)/this.eMovingThing[skull.getUUID().toString()].timeTook
 
-                // if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
-                //     Tessellator.drawString((time/1000).toFixed(3)+"s", endPoint[0], endPoint[1]+2, endPoint[2])
-                // }
-            }
+                    let time = (this.spawnIdThing>=4?2900:4850)-this.eMovingThing[skull.getUUID().toString()].timeTook
+                    let endPoint = this.eMovingThing[skull.getUUID().toString()].endPoint
+                    let pingPoint = [startPoint[0]+xSpeed2*(this.ping), startPoint[1]+(ySpeed2*this.ping), startPoint[2]+(zSpeed2*this.ping)]
 
+                    renderUtils.drawLineWithDepth(startPoint[0], startPoint[1]+2, startPoint[2], endPoint[0], endPoint[1]+2, endPoint[2], 255, 0, 0, 2)
 
-            //TODO: move this out of render world
-
-            if(this.eMovingThing[skull.getUUID().toString()] && Date.now()-this.eMovingThing[skull.getUUID().toString()].startMovingTime > 5000){
-                this.eMovingThing[skull.getUUID().toString()].logged = true
-                this.spawnIdThing++
-
-                delete this.eMovingThing[skull.getUUID().toString()] 
-                this.skulls = this.skulls.filter(e=>{
-                    if(e.getUUID().toString() === skull.getUUID().toString()){
-                        return false
+                    if(this.ping < time){
+                        renderUtils.drawBoxAtBlockNotVisThruWalls(pingPoint[0]-0.5, pingPoint[1]+1.5, pingPoint[2]-0.5, 0, 255, 0)
+                        renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0]-0.5, endPoint[1]+1.5, endPoint[2]-0.5, 255, 0, 0)
+                    }else{
+                        renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0]-0.5, endPoint[1]+1.5, endPoint[2]-0.5, 0, 0, 255)
                     }
-                    return true
-                })
-                return
-            }
 
-            if(xSpeed !== 0 || ySpeed !== 0){
-                if(!this.eMovingThing[skull.getUUID().toString()])this.eMovingThing[skull.getUUID().toString()] = {startMovingTime: Date.now(),startX: skullE[f.posX.Entity],startY: skullE[f.posY.Entity],startZ: skullE[f.posZ.Entity]}
-
-
-                if(this.eMovingThing[skull.getUUID().toString()].lastX !== skullE[f.posX.Entity]
-                || this.eMovingThing[skull.getUUID().toString()].lastY !== skullE[f.posY.Entity]){
-                    this.eMovingThing[skull.getUUID().toString()].timeTook = Date.now()-this.eMovingThing[skull.getUUID().toString()].startMovingTime
-                }else if(!this.eMovingThing[skull.getUUID().toString()].logged && (
-                    skullE[f.isDead]
-                    || !skullE[m.getEquipmentInSlot](4)
-                    || !skullE[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")
-                )){
-                    this.eMovingThing[skull.getUUID().toString()].logged = true
-                    this.spawnIdThing++
-
-                    delete this.eMovingThing[skull.getUUID().toString()] 
-                    this.skulls = this.skulls.filter(e=>{
-                        if(e.getUUID().toString() === skull.getUUID().toString()){
-                            return false
-                        }
-                        return true
-                    })
-                    return
+                    // if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
+                    //     Tessellator.drawString((time/1000).toFixed(3)+"s", endPoint[0], endPoint[1]+2, endPoint[2])
+                    // }
                 }
-
-                this.eMovingThing[skull.getUUID().toString()].lastX= skullE[f.posX.Entity]
-                this.eMovingThing[skull.getUUID().toString()].lastY= skullE[f.posY.Entity]
-
-                if(!this.startSpawningTime) this.startSpawningTime = Date.now()
-            }
-        })
-    }
+            })
+        }
     }
 
     renderEntity(entity, position, ticks, event){
@@ -256,6 +211,82 @@ class DungeonSolvers extends Feature {
                 this.addSkull(e)
             }
         })
+    }
+
+    tick(){
+        
+        if(this.bloodCampAssist.getValue()){
+            this.skulls.forEach(skull => {
+                let skullE = skull.getEntity()
+                // renderUtils.drawBoxAtEntity(skull, 255, 0, 0, 0.5, 0.5, ticks)
+    
+                let xSpeed = skullE[f.posX.Entity]-skullE[f.lastTickPosX]
+                let ySpeed = skullE[f.posY.Entity]-skullE[f.lastTickPosY]
+                let zSpeed = skullE[f.posZ.Entity]-skullE[f.lastTickPosZ]
+    
+                if(this.eMovingThing[skull.getUUID().toString()] && Date.now()-this.eMovingThing[skull.getUUID().toString()].startMovingTime > 5000){
+                    this.eMovingThing[skull.getUUID().toString()].logged = true
+                    this.spawnIdThing++
+    
+                    delete this.eMovingThing[skull.getUUID().toString()] 
+                    this.skulls = this.skulls.filter(e=>{
+                        if(e.getUUID().toString() === skull.getUUID().toString()){
+                            return false
+                        }
+                        return true
+                    })
+                    return
+                }
+    
+                if(xSpeed !== 0 || ySpeed !== 0){
+                    if(!this.eMovingThing[skull.getUUID().toString()])this.eMovingThing[skull.getUUID().toString()] = {startMovingTime: Date.now(),startX: skullE[f.posX.Entity],startY: skullE[f.posY.Entity],startZ: skullE[f.posZ.Entity]}
+    
+    
+                    if(this.eMovingThing[skull.getUUID().toString()].lastX !== skullE[f.posX.Entity]
+                    || this.eMovingThing[skull.getUUID().toString()].lastY !== skullE[f.posY.Entity]){
+                        this.eMovingThing[skull.getUUID().toString()].timeTook = Date.now()-this.eMovingThing[skull.getUUID().toString()].startMovingTime
+                    }else if(!this.eMovingThing[skull.getUUID().toString()].logged && (
+                        skullE[f.isDead]
+                        || !skullE[m.getEquipmentInSlot](4)
+                        || !skullE[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")
+                    )){
+                        this.eMovingThing[skull.getUUID().toString()].logged = true
+                        this.spawnIdThing++
+    
+                        delete this.eMovingThing[skull.getUUID().toString()] 
+                        this.skulls = this.skulls.filter(e=>{
+                            if(e.getUUID().toString() === skull.getUUID().toString()){
+                                return false
+                            }
+                            return true
+                        })
+                        return
+                    }
+    
+                    this.eMovingThing[skull.getUUID().toString()].lastX= skullE[f.posX.Entity]
+                    this.eMovingThing[skull.getUUID().toString()].lastY= skullE[f.posY.Entity]
+    
+                    if(!this.startSpawningTime) this.startSpawningTime = Date.now()
+                }
+                
+                if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
+    
+                    let startPoint = [skullE[f.posX.Entity], skullE[f.posY.Entity], skullE[f.posZ.Entity]]
+                    
+                    let xSpeed2 = (startPoint[0]-this.eMovingThing[skull.getUUID().toString()].startX)/this.eMovingThing[skull.getUUID().toString()].timeTook
+                    let ySpeed2 = (startPoint[1]-this.eMovingThing[skull.getUUID().toString()].startY)/this.eMovingThing[skull.getUUID().toString()].timeTook
+                    let zSpeed2 = (startPoint[2]-this.eMovingThing[skull.getUUID().toString()].startZ)/this.eMovingThing[skull.getUUID().toString()].timeTook
+    
+                    let time = (this.spawnIdThing>=4?2900:4850)-this.eMovingThing[skull.getUUID().toString()].timeTook
+                    let endPoint = [startPoint[0]+xSpeed2*time, startPoint[1]+ySpeed2*time, startPoint[2]+zSpeed2*time]
+                    this.eMovingThing[skull.getUUID().toString()].endPoint = endPoint
+    
+                    // if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
+                    //     Tessellator.drawString((time/1000).toFixed(3)+"s", endPoint[0], endPoint[1]+2, endPoint[2])
+                    // }
+                }
+            })
+        }
     }
 
     addSkull(skull){
