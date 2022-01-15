@@ -479,7 +479,7 @@ class Hud extends Feature {
         }
         if(type.startsWith("completions_master_")){
             let floor = parseInt(type.split("_").pop())
-            string = "&6F" + floor +" Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.master_catacombs?.tier_completions?.[floor]||0))
+            string = "&6M" + floor +" Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.master_catacombs?.tier_completions?.[floor]||0))
         }
         if(type.startsWith("completions_dungeon_")){
             let floor = parseInt(type.split("_").pop())
