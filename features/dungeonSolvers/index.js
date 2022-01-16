@@ -252,8 +252,6 @@ class DungeonSolvers extends Feature {
                     )){
                         this.eMovingThing[skull.getUUID().toString()].logged = true
                         this.spawnIdThing++
-    
-                        console.log(this.eMovingThing[skull.getUUID().toString()].timeTook )
 
                         delete this.eMovingThing[skull.getUUID().toString()] 
                         this.skulls = this.skulls.filter(e=>{
