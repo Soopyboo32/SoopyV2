@@ -111,10 +111,10 @@ class DungeonSolvers extends Feature {
         this.pingI = 0
         
         this.registerStep(true, 2, this.step)
+        this.registerStep(true, 10, this.step2)
         this.registerEvent("worldLoad", this.onWorldLoad)
         
         this.registerEvent("renderOverlay", this.renderHud)
-        this.registerEvent("tick", this.tick)
         this.registerEvent("renderWorld", this.renderWorld)
 
         this.registerChat("&b&bYou are currently connected to server &6${*}&r", (e)=>{
@@ -162,7 +162,10 @@ class DungeonSolvers extends Feature {
                     let zSpeed2 = (startPoint[2]-this.eMovingThing[skull.getUUID().toString()].startZ)/this.eMovingThing[skull.getUUID().toString()].timeTook
 
                     let time = (this.spawnIdThing>=4?2900:4850)-this.eMovingThing[skull.getUUID().toString()].timeTook
-                    let endPoint = this.eMovingThing[skull.getUUID().toString()].endPoint
+                    let endPoint1 = this.eMovingThing[skull.getUUID().toString()].endPoint
+                    let endPoint2 = this.eMovingThing[skull.getUUID().toString()].endPointLast
+                    let endPointUpdated = Math.min(Date.now()-this.eMovingThing[skull.getUUID().toString()].endPointUpdated,100)
+                    let endPoint = [endPoint2[0]+(endPoint1[0]-endPoint2[0])*endPointUpdated/100, endPoint2[1]+(endPoint1[1]-endPoint2[1])*endPointUpdated/100, endPoint2[2]+(endPoint1[2]-endPoint2[2])*endPointUpdated/100]
                     let pingPoint = [startPoint[0]+xSpeed2*(this.ping), startPoint[1]+(ySpeed2*this.ping), startPoint[2]+(zSpeed2*this.ping)]
 
                     renderUtils.drawLineWithDepth(startPoint[0], startPoint[1]+2, startPoint[2], endPoint[0], endPoint[1]+2, endPoint[2], 255, 0, 0, 2)
@@ -219,7 +222,7 @@ class DungeonSolvers extends Feature {
         })
     }
 
-    tick(){
+    step2(){
         
         if(this.bloodCampAssist.getValue()){
             this.skulls.forEach(skull => {
@@ -285,7 +288,10 @@ class DungeonSolvers extends Feature {
     
                     let time = (this.spawnIdThing>=4?2900:4875)-this.eMovingThing[skull.getUUID().toString()].timeTook
                     let endPoint = [startPoint[0]+xSpeed2*time, startPoint[1]+ySpeed2*time, startPoint[2]+zSpeed2*time]
+                    
+                    this.eMovingThing[skull.getUUID().toString()].endPointLast = this.eMovingThing[skull.getUUID().toString()].endPoint
                     this.eMovingThing[skull.getUUID().toString()].endPoint = endPoint
+                    this.eMovingThing[skull.getUUID().toString()].endPointUpdated = Date.now()
     
                     // if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
                     //     Tessellator.drawString((time/1000).toFixed(3)+"s", endPoint[0], endPoint[1]+2, endPoint[2])
