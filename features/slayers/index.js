@@ -34,6 +34,17 @@ class Slayers extends Feature {
                 .editTempText("&6Enderman&7> &f&l30 Hits"))
         this.hudElements.push(this.emanHpElement)
 
+        this.slayerSpeedRates = new ToggleSetting("Show slayer speed and exp rates", "(Slayer speed includes downtime inbetween slayers, only shows while doing slayers)", true, "slayer_speed_rates", this)
+        this.slayerSpeedRatesElement = new HudTextElement().setText("&6Slayer speed&7> &floading...\n&6Exp/hour&7> &floading...\n&6Kills/hour&7> &floading...")
+        .setToggleSetting(this.slayerSpeedRates)
+        .setLocationSetting(new LocationSetting("Slayer speed and exp rates location", "Allows you to edit the location of the information", "slayer_speed_rates_location", this, [10, 100, 1, 1])
+            .requires(this.slayerSpeedRates)
+            .editTempText("&6Slayer speed&7> &f4:30\n&6Exp/hour&7> &f1,234,567\n&6Kills/hour&7> &f17"))
+
+        this.hudElements.push(this.slayerSpeedRatesElement)
+
+        this.lastSlayerFinishes = []
+        this.lastSlayerExps = []
         this.slayerExp = {}
         this.slayerExpLoaded = false
         
@@ -41,6 +52,17 @@ class Slayers extends Feature {
         this.lastSlayerExp = 0
         this.lastBossSlain = 0
         this.registerChat("&r  &r&a&lSLAYER QUEST COMPLETE!&r",(e)=>{
+
+            this.lastSlayerExps.push(this.lastSlayerExp)
+            if(this.lastSlayerExps.length > 5){
+                this.lastSlayerExps.shift()
+            }
+
+            this.lastSlayerFinishes.push(Date.now())
+            if(this.lastSlayerFinishes.length > 5){
+                this.lastSlayerFinishes.shift()
+            }
+
             this.slayerExp[this.lastSlayerType] = this.lastSlayerExp + (this.slayerExp[this.lastSlayerType] || 0)
             if(this.expOnKill.getValue()){
                 cancel(e)
@@ -84,6 +106,7 @@ class Slayers extends Feature {
         this.registerEvent("renderWorld", this.renderWorld)
         this.registerEvent("worldLoad", this.worldLoad)
         this.registerEvent("renderOverlay", this.renderHud)
+        this.registerStep(true, 2, this.step)
     }
 
     renderHud(){
@@ -370,6 +393,23 @@ class Slayers extends Feature {
             Renderer.scale(1/scale, 1/scale)
             Renderer.drawString("&4BOSS SPAWNED", (Renderer.screen.getWidth()*0.125)*scale, (Renderer.screen.getHeight()/2-9/scale)*scale)
             Renderer.scale(1, 1)
+        }
+    }
+
+    step(){
+        let averageExp = this.lastSlayerExps.reduce((a, b) => a + b, 0) / this.lastSlayerExps.length
+        let averageLength = (this.lastSlayerFinishes[this.lastSlayerFinishes.length-1] - this.lastSlayerFinishes[0])/(this.lastSlayerFinishes.length-1)
+        let runsperHour = 60000*60/averageLength
+        let expPerHour = averageExp*runsperHour
+
+        if(Date.now()-this.lastSlayerFinishes[this.lastSlayerFinishes.length-1] < 60000*5 || (this.FeatureManager.features["dataLoader"].class.slayerXpToSpawn && this.FeatureManager.features["dataLoader"].class.slayerXpToSpawn[0] !== 0)){
+            if(this.lastSlayerFinishes.length > 1){
+                this.slayerSpeedRatesElement.setText("&6Slayer speed&7> &f" + Math.floor(averageLength/60000) + ":" + ((Math.floor(averageLength/1000)%60<10?"0":"") + Math.floor(averageLength/1000)%60) + "\n&6Exp/hour&7> &f" + numberWithCommas(Math.round(expPerHour)) + "\n&6Kills/hour&7> &f" + Math.floor(runsperHour))
+            }else{
+                this.slayerSpeedRatesElement.setText("&6Slayer speed&7> &floading...\n&6Exp/hour&7> &floading...\n&6Kills/hour&7> &floading...")
+            }
+        }else{
+            this.slayerSpeedRatesElement.setText("")
         }
     }
 

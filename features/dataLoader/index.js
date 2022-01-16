@@ -95,6 +95,7 @@ class DataLoader extends Feature {
         }
 
         this.dungeonFloor = undefined
+        this.slayerXpToSpawn = undefined
         Scoreboard.getLines().forEach(line=>{
             let name = ChatLib.removeFormatting(line.getName()).replace(/[^A-z0-9 \:\(\)\.]/g, "")
             if(this.isInDungeon){
@@ -110,6 +111,10 @@ class DataLoader extends Feature {
             }
             if(name.startsWith("Bits: ")){
                 this.bits = parseInt(name.split("Bits: ")[1].split(" ")[0])
+            }
+
+            if(name.endsWith("Combat XP")){
+                this.slayerXpToSpawn = ChatLib.removeFormatting(name).split("(")[1].split(")")[0].split("/").map(parseInt)
             }
         })
 

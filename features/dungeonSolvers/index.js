@@ -55,7 +55,7 @@ class DungeonSolvers extends Feature {
         this.bloodCampAssist = new ToggleSetting("Assist blood camp", "Helps guess where and when blood mobs will spawn", true, "blood_camp_assist", this)
 
         this.runSpeedRates = new ToggleSetting("Show run speed and exp rates", "(Run speed includes downtime inbetween runs, only shows while doing dungeon runs)", true, "run_speed_rates", this)
-        this.runSpeedRatesElement = new HudTextElement().setText("&eRun Speed: &floading...\n&eExp/hour: &floading...")
+        this.runSpeedRatesElement = new HudTextElement().setText("&6Run speed&7> &floading...\n&6Exp/hour&7> &floading...\n&6Runs/hour&7> &floading...")
         .setToggleSetting(this.runSpeedRates)
         .setLocationSetting(new LocationSetting("Run speed and exp rates location", "Allows you to edit the location of the information", "run_speed_rates_location", this, [10, 100, 1, 1])
             .requires(this.runSpeedRates)
@@ -80,6 +80,12 @@ class DungeonSolvers extends Feature {
         this.forgorEnabled = new ToggleSetting("Change withermancer death message to forgor ", "", true, "withermancer_forgor", this)
         
         this.registerChat("&r&c ☠ &r${player} were killed by Withermancer&r&7 and became a ghost&r&7.&r", (player, e)=>{
+            if(this.forgorEnabled.getValue()){
+                cancel(e)
+                ChatLib.chat(player + " forgor ☠")
+            }
+        })
+        this.registerChat("&r&c ☠ &r${player} was killed by Withermancer&r&7 and became a ghost&r&7.&r", (player, e)=>{
             if(this.forgorEnabled.getValue()){
                 cancel(e)
                 ChatLib.chat(player + " forgor ☠")
