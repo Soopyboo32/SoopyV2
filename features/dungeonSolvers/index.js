@@ -253,6 +253,8 @@ class DungeonSolvers extends Feature {
                         this.eMovingThing[skull.getUUID().toString()].logged = true
                         this.spawnIdThing++
     
+                        console.log(this.eMovingThing[skull.getUUID().toString()].timeTook )
+
                         delete this.eMovingThing[skull.getUUID().toString()] 
                         this.skulls = this.skulls.filter(e=>{
                             if(e.getUUID().toString() === skull.getUUID().toString()){
@@ -277,7 +279,7 @@ class DungeonSolvers extends Feature {
                     let ySpeed2 = (startPoint[1]-this.eMovingThing[skull.getUUID().toString()].startY)/this.eMovingThing[skull.getUUID().toString()].timeTook
                     let zSpeed2 = (startPoint[2]-this.eMovingThing[skull.getUUID().toString()].startZ)/this.eMovingThing[skull.getUUID().toString()].timeTook
     
-                    let time = (this.spawnIdThing>=4?2900:4850)-this.eMovingThing[skull.getUUID().toString()].timeTook
+                    let time = (this.spawnIdThing>=4?2900:4875)-this.eMovingThing[skull.getUUID().toString()].timeTook
                     let endPoint = [startPoint[0]+xSpeed2*time, startPoint[1]+ySpeed2*time, startPoint[2]+zSpeed2*time]
                     this.eMovingThing[skull.getUUID().toString()].endPoint = endPoint
     
