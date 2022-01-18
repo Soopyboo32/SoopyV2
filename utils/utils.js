@@ -30,7 +30,7 @@ let utils = {
             .func_74782_a("Lore", list);
     },
     getSBID: function(item){
-        return item.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getString("id") || null
+        return item?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getString("id") || null
     },
     calculateDistance: function(p1, p2) {
         var a = p2[0] - p1[0];

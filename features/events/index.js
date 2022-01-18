@@ -126,10 +126,10 @@ class Events extends Feature {
     }
 
     step(){
+        if(!Player.getInventory()) return
         
         hasDianaShovle = false
         let slots = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-        
         slots.forEach(a=>{
             item = Player.getInventory().getStackInSlot(a)
             if(!item) return
