@@ -86,6 +86,7 @@ class Mining extends Feature {
      * @param {Item} item
      */
     addLore(item){
+        if(!item) return
         if(this.showUnlockedGemstoneSlots.getValue()){
             let gems = item.getNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getCompoundTag("gems")
             if(gems){
