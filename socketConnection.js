@@ -2,7 +2,6 @@ import WebsiteCommunicator from "./../soopyApis/websiteCommunicator"
 import socketData from "../soopyApis/socketData"
 import logger from "./logger"
 import metadata from "./metadata"
-const Cosmetics = require("./features/cosmetics/index.js")
 
 class SoopyV2Server extends WebsiteCommunicator {
     constructor(){
@@ -25,10 +24,10 @@ class SoopyV2Server extends WebsiteCommunicator {
     onData(data){
         if(data.type === "updateCosmeticPermissions"){
             this.userCosmeticPermissions = data.permissions
-            Cosmetics.class.updateUserCosmeticPermissionSettings.call(Cosmetics.class)
+            if(global.soopyv2featuremanagerthing.features.cosmetics)global.soopyv2featuremanagerthing.features.cosmetics.class.updateUserCosmeticPermissionSettings()
         }
         if(data.type === "updateCosmetics"){
-            Cosmetics.class.setUserCosmeticsInformation.call(Cosmetics.class, data.uuid, data.cosmetics)
+            if(global.soopyv2featuremanagerthing.features.cosmetics)global.soopyv2featuremanagerthing.features.cosmetics.class.setUserCosmeticsInformation(data.uuid, data.cosmetics)
         }
         if(data.type === "spammedmessage"){
             this.spammedMessages.push(...data.messages)

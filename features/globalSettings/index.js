@@ -30,7 +30,7 @@ class Hud extends Feature {
 
     onEnable(){
         this.apiKeySetting = new TextSetting("Api Key", "Your hypixel api key", "", "api_key", this, "Run /api new to load", true)
-        this.verifyApiKey = new ButtonSetting("Verify api key", "Click this to make sure the api key is working", "verify_key", this, "Click!", this.verifyKey, undefined)
+        this.verifyApiKey = new ButtonSetting("Verify api key", "Click this to make sure the api key is working", "verify_key", this, "Click!", this.verifyKey2, undefined)
         this.newApiKey = new ButtonSetting("Run /api new", "This is here so u dont need to exit and re-enter", "api_new_command", this, "Click!", this.apiNewCommand, undefined)
         this.findApiKey = new ButtonSetting("Attempt to load api key from other mods", "This will scan other mods configs to attempt to find your key", "find_key", this, "Click!", this.findKey, undefined)
 
@@ -156,29 +156,28 @@ class Hud extends Feature {
             FileLib.write("soopyAddonsData", "soopyv2firstloaddata.json", JSON.stringify(this.firstLoadPageData))
         }
     }
+    verifyKey(key){
+        // console.log(key)
+        if(key){
+            try{
+                var url = "https://api.hypixel.net/key?key=" + key
+                let data = JSON.parse(FileLib.getUrlContent(url))
 
-    findKey(){
-        function verifyKey(key){
-            // console.log(key)
-            if(key){
-                try{
-                    var url = "https://api.hypixel.net/key?key=" + key
-                    let data = JSON.parse(FileLib.getUrlContent(url))
+                // console.log(data)
 
-                    // console.log(data)
-    
-                    if(data.success){
-                        return true
-                    }else{
-                        return false
-                    }
-                }catch(e){
+                if(data.success){
+                    return true
+                }else{
                     return false
                 }
-            }else{
+            }catch(e){
                 return false
             }
+        }else{
+            return false
         }
+    }
+    findKey(){
         new Notification("Finding key...", [])
         new Thread(()=>{
 
@@ -186,7 +185,7 @@ class Hud extends Feature {
             try{
                 let testKey = JSON.parse(new JavaString(Files.readAllBytes(Paths.get("./config/notenoughupdates/configNew.json")))).apiKey.apiKey
                 if(testKey){
-                    if(verifyKey(testKey)){
+                    if(this.verifyKey(testKey)){
                         this.module.apiKeySetting.setValue(testKey)
                         new Notification("§aSuccess!", ["Found api key in NotEnoughUpdates!"])
                         return;
@@ -200,7 +199,7 @@ class Hud extends Feature {
             // try{
                 let testKey = JSON.parse(new JavaString(Files.readAllBytes(Paths.get("./config/SkyblockExtras.cfg")))).values.apiKey
                 if(testKey){
-                    if(verifyKey(testKey)){
+                    if(this.verifyKey(testKey)){
                         this.module.apiKeySetting.setValue(testKey)
                         new Notification("§aSuccess!", ["Found api key in SkyblockExtras!"])
                         return;
@@ -219,7 +218,7 @@ class Hud extends Feature {
                     }
                 })
                 if(testKey){
-                    if(verifyKey(testKey)){
+                    if(this.verifyKey(testKey)){
                         this.module.apiKeySetting.setValue(testKey)
                         new Notification("§aSuccess!", ["Found api key in Skytils!"])
                         return;
@@ -233,7 +232,7 @@ class Hud extends Feature {
             try{
                 let testKey = FileLib.read("soopyAddonsData", "apikey.txt")
                 if(testKey){
-                    if(verifyKey(testKey)){
+                    if(this.verifyKey(testKey)){
                         this.module.apiKeySetting.setValue(testKey)
                         new Notification("§aSuccess!", ["Found api key in old soopyaddons version!"])
                         return;
@@ -247,7 +246,7 @@ class Hud extends Feature {
             try{
                 let testKey = JSON.parse(FileLib.read("HypixelApiKeyManager", "localdata.json")).key
                 if(testKey){
-                    if(verifyKey(testKey)){
+                    if(this.verifyKey(testKey)){
                         this.module.apiKeySetting.setValue(testKey)
                         new Notification("§aSuccess!", ["Found api key in HypixelApiKeyManager!"])
                         return;
@@ -266,7 +265,7 @@ class Hud extends Feature {
         ChatLib.command("api new")
     }
 
-    verifyKey(key){
+    verifyKey2(key){
         if(key){
             try{
                 var url = "https://api.hypixel.net/key?key=" + key

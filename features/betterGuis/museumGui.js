@@ -354,7 +354,7 @@ class MuseumGui {
         this.lastGuiTitle = Player.getOpenedInventory().getName()
         
         if(Player.getOpenedInventory().getName() === "Your Museum"){//main page
-            if(Player.getOpenedInventory().getStackInSlot(19).getID() === -1) return
+            if(!Player.getOpenedInventory().getStackInSlot(19)) return
 
             let lore = Player.getOpenedInventory().getStackInSlot(19).getLore()
             lore.forEach((line, i)=>{
@@ -530,7 +530,7 @@ class MuseumGui {
         }
 
         if(Player.getOpenedInventory().getName() === "Confirm Donation"){
-            let this_confirm_temp_str = Player.getOpenedInventory().getStackInSlot(4).getName() +Player.getOpenedInventory().getStackInSlot(2).getName() + Player.getOpenedInventory().getStackInSlot(20).getName() + Player.getOpenedInventory().getStackInSlot(24).getName()//4, 24, 20
+            let this_confirm_temp_str = (Player.getOpenedInventory().getStackInSlot(4)?.getName() || "") +(Player.getOpenedInventory().getStackInSlot(2)?.getName() || "") + (Player.getOpenedInventory().getStackInSlot(20)?.getName() || "") + (Player.getOpenedInventory().getStackInSlot(24)?.getName() || "")//4, 24, 20
             if(this.confirm_temp !== this_confirm_temp_str || first){
                 this.confirm_temp = this_confirm_temp_str
 

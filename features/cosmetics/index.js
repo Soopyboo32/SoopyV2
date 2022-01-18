@@ -70,7 +70,7 @@ class Cosmetics extends Feature {
     }
 
     renderWorld(ticks){
-        for(cosmetic of this.loadedCosmetics){
+        for(let cosmetic of this.loadedCosmetics){
             cosmetic.onRenderEntity(ticks, false)
         }
     }
