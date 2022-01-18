@@ -132,6 +132,7 @@ class Events extends Feature {
         
         slots.forEach(a=>{
             item = Player.getInventory().getStackInSlot(a)
+            if(!item) return
             if(ChatLib.removeFormatting(item.getName()) === "Ancestral Spade"){
                 hasDianaShovle = true
             }

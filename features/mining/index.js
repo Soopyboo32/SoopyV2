@@ -153,6 +153,7 @@ class Mining extends Feature {
         
         slots.forEach(a=>{
             item = Player.getInventory().getStackInSlot(a)
+            if(!item) return
             if(item.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getInteger("compact_blocks")){
                 this.compactItems++
                 this.totalCompact += item.getNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getInteger("compact_blocks")
