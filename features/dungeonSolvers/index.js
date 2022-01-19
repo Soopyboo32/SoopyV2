@@ -366,7 +366,7 @@ class DungeonSolvers extends Feature {
 
       this.todoE = [];
 
-      if (Date.now() - this.lastPingCheck > 60000 * 30 || (Date.now() - this.lastPingCheck > 60000 && this.lastPings.includes(undefined))) {
+      if (Date.now() - this.lastPingCheck > 60000 * 30 || (Date.now() - this.lastPingCheck > 60000 && this.lastPings.includes(undefined)) && this.bloodX!== -1) {
         this.lastPingCheck = Date.now();
         ChatLib.command("whereami");
         this.checkingPing = true;
