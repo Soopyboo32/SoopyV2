@@ -176,6 +176,8 @@ class Events extends Feature {
         this.burrialData.historicalLocations = []
 
         this.showingWaypoints = false
+
+        this.nextUpdateApprox = Date.now()
     }
 
     loadApi(){
