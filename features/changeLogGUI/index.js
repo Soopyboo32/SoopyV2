@@ -27,32 +27,32 @@ class ChangeLogGui extends Feature {
 
         this.latestAnnouncedVersion = this.ChangelogPage.currVersionId
 
-        this.registerEvent("worldLoad", this.worldLoad)
+        // this.registerEvent("worldLoad", this.worldLoad)
     }
 
-    worldLoad(){
-        if(!this.FeatureManager.features["globalSettings"]) return
-        if(!this.FeatureManager.features["globalSettings"].class.notifyNewVersion.getValue()) return
-        if(this.ChangelogPage.downloadableVersion === -1) return
-        if(this.latestAnnouncedVersion < this.ChangelogPage.downloadableVersion){
-            let version = ""
-            this.ChangelogPage.changelogData.forEach(data=>{
+    // worldLoad(){
+    //     if(!this.FeatureManager.features["globalSettings"]) return
+    //     if(!this.FeatureManager.features["globalSettings"].class.notifyNewVersion.getValue()) return
+    //     if(this.ChangelogPage.downloadableVersion === -1) return
+    //     if(this.latestAnnouncedVersion < this.ChangelogPage.downloadableVersion){
+    //         let version = ""
+    //         this.ChangelogPage.changelogData.forEach(data=>{
     
-                if(this.ChangelogPage.downloadableVersion === data.versionId && this.ChangelogPage.downloadableVersion > this.ChangelogPage.currVersionId){
-                    //add button to download this version
-                    version = data.version
-                }
-            })
+    //             if(this.ChangelogPage.downloadableVersion === data.versionId && this.ChangelogPage.downloadableVersion > this.ChangelogPage.currVersionId){
+    //                 //add button to download this version
+    //                 version = data.version
+    //             }
+    //         })
 
-            ChatLib.chat("&1" + ChatLib.getChatBreak("-").substr(1))
-            ChatLib.chat("     &6New Soopyaddons Version is avalible (" + version + ")")
-            ChatLib.chat("")
-            new TextComponent(" &e[CLICK] &7- View changelog and download update").setHover("show_text", "&2Open changelog").setClick("run_command", "/soopyv2 changelog").chat()
-            ChatLib.chat("&1" + ChatLib.getChatBreak("-").substr(1))
+    //         ChatLib.chat("&1" + ChatLib.getChatBreak("-").substr(1))
+    //         ChatLib.chat("     &6New Soopyaddons Version is avalible (" + version + ")")
+    //         ChatLib.chat("")
+    //         new TextComponent(" &e[CLICK] &7- View changelog and download update").setHover("show_text", "&2Open changelog").setClick("run_command", "/soopyv2 changelog").chat()
+    //         ChatLib.chat("&1" + ChatLib.getChatBreak("-").substr(1))
 
-            this.latestAnnouncedVersion = this.ChangelogPage.downloadableVersion
-        }
-    }
+    //         this.latestAnnouncedVersion = this.ChangelogPage.downloadableVersion
+    //     }
+    // }
 
     initVariables(){
         this.ChangelogPage = undefined
@@ -89,33 +89,33 @@ class ChangelogPage extends GuiPage {
         this.updateTitle = new SoopyTextElement().setText("§0Update to SoopyAddons ").setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1)
         this.updatingSidebarConfirmPage.addChild(this.updateTitle)
 
-        this.warningMessage = new SoopyMarkdownElement().setLocation(0.1, 0.2, 0.8, 0.8)
-        this.warningMessage.setText(`# NOTE
-Updating SoopyAddons through this method is downloading the code from _§cmy server_
-This means that there is _§cno_ third party that is double checking the code to ensure there is no virus in it.
-This is fine if you trust me to not put a virus in it, but if you dont you should instead wait for the update to be checked and verified by the chattriggers people.`)
-        this.updatingSidebarConfirmPage.addChild(this.warningMessage)
+//         this.warningMessage = new SoopyMarkdownElement().setLocation(0.1, 0.2, 0.8, 0.8)
+//         this.warningMessage.setText(`# NOTE
+// Updating SoopyAddons through this method is downloading the code from _§cmy server_
+// This means that there is _§cno_ third party that is double checking the code to ensure there is no virus in it.
+// This is fine if you trust me to not put a virus in it, but if you dont you should instead wait for the update to be checked and verified by the chattriggers people.`)
+//         this.updatingSidebarConfirmPage.addChild(this.warningMessage)
 
-        this.updateButton = new ButtonWithArrow().setText("§0Update").setLocation(0.3, 0.3+this.warningMessage.getHeight(), 0.4, 0.2)
-        this.updatingSidebarConfirmPage.addChild(this.updateButton)
+        // this.updateButton = new ButtonWithArrow().setText("§0Update").setLocation(0.3, 0.3+this.warningMessage.getHeight(), 0.4, 0.2)
+        // this.updatingSidebarConfirmPage.addChild(this.updateButton)
 
-        this.updatingSidebarConfirmPage.setScrollable(true)
+        // this.updatingSidebarConfirmPage.setScrollable(true)
 
-        this.updateButton.addEvent(new SoopyRenderEvent().setHandler(()=>{
-            this.updateButton.location.location.y.set(0.3+this.warningMessage.getHeight(),0)
-        }))
-        this.updateButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-            this.downloadUpdate()
-        }))
+        // this.updateButton.addEvent(new SoopyRenderEvent().setHandler(()=>{
+        //     this.updateButton.location.location.y.set(0.3+this.warningMessage.getHeight(),0)
+        // }))
+        // this.updateButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+        //     this.downloadUpdate()
+        // }))
 
-        this.updatingSidebarLoadingPage = new SoopyGuiElement().setLocation(1,0,1,1)
-        this.updatingSidebar.addChild(this.updatingSidebarLoadingPage)
+        // this.updatingSidebarLoadingPage = new SoopyGuiElement().setLocation(1,0,1,1)
+        // this.updatingSidebar.addChild(this.updatingSidebarLoadingPage)
 
-        let updatingTitle = new SoopyTextElement().setText("§0Updating...").setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1)
-        this.updatingSidebarLoadingPage.addChild(updatingTitle)
+        // let updatingTitle = new SoopyTextElement().setText("§0Updating...").setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1)
+        // this.updatingSidebarLoadingPage.addChild(updatingTitle)
 
-        this.progressBar = new ProgressBar().setLocation(0.1, 0.2, 0.8, 0.1)
-        this.updatingSidebarLoadingPage.addChild(this.progressBar)
+        // this.progressBar = new ProgressBar().setLocation(0.1, 0.2, 0.8, 0.1)
+        // this.updatingSidebarLoadingPage.addChild(this.progressBar)
 
         this.currVersionId = metadata.versionId
 
@@ -140,72 +140,72 @@ This is fine if you trust me to not put a virus in it, but if you dont you shoul
         }).start()
     }
 
-    showConfirmUpdatePage(){
-        let version = ""
-        this.changelogData.forEach(data=>{
+    // showConfirmUpdatePage(){
+    //     let version = ""
+    //     this.changelogData.forEach(data=>{
 
-            if(this.downloadableVersion === data.versionId && this.downloadableVersion > this.currVersionId){
-                //add button to download this version
-                version = data.version
-            }
-        })
-        this.updateTitle.setText("§0Update to SoopyAddons " + version)
+    //         if(this.downloadableVersion === data.versionId && this.downloadableVersion > this.currVersionId){
+    //             //add button to download this version
+    //             version = data.version
+    //         }
+    //     })
+    //     this.updateTitle.setText("§0Update to SoopyAddons " + version)
 
-        this.updateButton.location.location.y.set(0.3+this.warningMessage.getHeight(),0)
+    //     this.updateButton.location.location.y.set(0.3+this.warningMessage.getHeight(),0)
 
-        this.openSidebarPage(this.updatingSidebar)
-    }
+    //     this.openSidebarPage(this.updatingSidebar)
+    // }
 
-    downloadUpdate(){
-        new Thread(()=>{
-            this.updatingSidebarConfirmPage.location.location.x.set(-1,500)
-            this.updatingSidebarLoadingPage.location.location.x.set(0,500)
+    // downloadUpdate(){
+    //     new Thread(()=>{
+    //         this.updatingSidebarConfirmPage.location.location.x.set(-1,500)
+    //         this.updatingSidebarLoadingPage.location.location.x.set(0,500)
 
-            new File("./config/ChatTriggers/modules/SoopyAddonsTempDownload").mkdir()
+    //         new File("./config/ChatTriggers/modules/SoopyAddonsTempDownload").mkdir()
 
-            this.progressBar.setProgress(0.1)
+    //         this.progressBar.setProgress(0.1)
 
-            this.urlToFile("http://soopymc.my.to/api/soopyv2/downloadLatest.zip", "./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons.zip", 10000, 20000)
+    //         this.urlToFile("http://soopymc.my.to/api/soopyv2/downloadLatest.zip", "./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons.zip", 10000, 20000)
 
-            this.progressBar.setProgress(0.5)
+    //         this.progressBar.setProgress(0.5)
 
-            FileLib.unzip("./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons.zip", "./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons/")
+    //         FileLib.unzip("./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons.zip", "./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons/")
 
-            this.progressBar.setProgress(0.75)
+    //         this.progressBar.setProgress(0.75)
 
-            FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/SoopyV2"))
+    //         FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/SoopyV2"))
 
-            this.progressBar.setProgress(0.9)
+    //         this.progressBar.setProgress(0.9)
 
-            new File("./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons/SoopyV2").renameTo(new File("./config/ChatTriggers/modules/SoopyV2"))
+    //         new File("./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons/SoopyV2").renameTo(new File("./config/ChatTriggers/modules/SoopyV2"))
 
-            FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/SoopyAddonsTempDownload"))
+    //         FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/SoopyAddonsTempDownload"))
 
-            this.progressBar.setProgress(1)
+    //         this.progressBar.setProgress(1)
 
-            Client.currentGui.close()
+    //         Client.currentGui.close()
 
-            ChatLib.command("ct load", true)
-        }).start()
-    }
+    //         ChatLib.command("ct load", true)
+    //     }).start()
+    // }
 
-    urlToFile(url, destination, connecttimeout, readtimeout) {
-        const d = new File(destination);
-        d.getParentFile().mkdirs();
-        const connection = new URL(url).openConnection();
-        connection.setDoOutput(true);
-        connection.setConnectTimeout(connecttimeout);
-        connection.setReadTimeout(readtimeout);
-        const IS = connection.getInputStream();
-        const FilePS = new PrintStream(destination);
-        let buf = new Packages.java.lang.reflect.Array.newInstance(Byte.TYPE, 65536);
-        let len;
-        while ((len = IS.read(buf)) > 0) {
-            FilePS.write(buf, 0, len);
-        }
-        IS.close();
-        FilePS.close();
-    }
+    // urlToFile(url, destination, connecttimeout, readtimeout) {
+    //     const d = new File(destination);
+    //     d.getParentFile().mkdirs();
+    //     const connection = new URL(url).openConnection();
+    //     connection.setDoOutput(true);
+    //     connection.setConnectTimeout(connecttimeout);
+    //     connection.setReadTimeout(readtimeout);
+    //     const IS = connection.getInputStream();
+    //     const FilePS = new PrintStream(destination);
+    //     let buf = new Packages.java.lang.reflect.Array.newInstance(Byte.TYPE, 65536);
+    //     let len;
+    //     while ((len = IS.read(buf)) > 0) {
+    //         FilePS.write(buf, 0, len);
+    //     }
+    //     IS.close();
+    //     FilePS.close();
+    // }
 
     updateText(){
         this.changelogArea.children = []
@@ -214,17 +214,17 @@ This is fine if you trust me to not put a virus in it, but if you dont you shoul
 
         this.changelogData.forEach(data=>{
 
-            if(this.downloadableVersion === data.versionId && this.downloadableVersion > this.currVersionId){
-                //add button to download this version
-                let button = new ButtonWithArrow().setText("§0Download this version").setLocation(0.7, height, 0.3, 0.1)
-                this.changelogArea.addChild(button)
+            // if(this.downloadableVersion === data.versionId && this.downloadableVersion > this.currVersionId){
+            //     //add button to download this version
+            //     let button = new ButtonWithArrow().setText("§0Download this version").setLocation(0.7, height, 0.3, 0.1)
+            //     this.changelogArea.addChild(button)
 
-                button.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                    this.showConfirmUpdatePage()
-                }))
+            //     button.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+            //         this.showConfirmUpdatePage()
+            //     }))
 
-                height += 0.05
-            }
+            //     height += 0.05
+            // }
 
             let changes = new SoopyMarkdownElement().setLocation(0,height, 1, 0)
 
