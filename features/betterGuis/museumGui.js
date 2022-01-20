@@ -436,11 +436,11 @@ class MuseumGui {
             if(!this.searchText){
                 if(currPage > 1){
                     this.previousButton.visable = true
-                    if(Player.getOpenedInventory().getStackInSlot(45).getID() !== -1) this.previousButton.setLore(Player.getOpenedInventory().getStackInSlot(45).getLore())
+                    if(Player.getOpenedInventory().getStackInSlot(45)) this.previousButton.setLore(Player.getOpenedInventory().getStackInSlot(45).getLore())
                 }
                 if(currPage < pageNum){
                     this.nextButton.visable = true
-                    if(Player.getOpenedInventory().getStackInSlot(53).getID() !== -1)this.nextButton.setLore(Player.getOpenedInventory().getStackInSlot(53).getLore())
+                    if(Player.getOpenedInventory().getStackInSlot(53))this.nextButton.setLore(Player.getOpenedInventory().getStackInSlot(53).getLore())
                 }
             }
             
@@ -549,7 +549,7 @@ class MuseumGui {
                     this.itemsBox.addChild(itemBox)
                 }
 
-                if(Player.getOpenedInventory().getStackInSlot(24).getID() !== -1 && Player.getOpenedInventory().getStackInSlot(20).getID() !== -1){
+                if(Player.getOpenedInventory().getStackInSlot(24) && Player.getOpenedInventory().getStackInSlot(20)){
 
                     let cancelButton = new ButtonWithArrow().setText("§cCancel").setLocation(0.1,0.4,0.35,0.2).setDirectionRight(false).setLore(Player.getOpenedInventory().getStackInSlot(24).getLore())
                     cancelButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
