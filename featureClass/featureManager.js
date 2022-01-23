@@ -586,13 +586,3 @@ if(!global.soopyv2featuremanagerthing){
     })
 }
 export default global.soopyv2featuremanagerthing
-
-
-function getField(e, field){
-    
-    let field2 = e.class.getDeclaredField(field);
-            
-    field2.setAccessible(true)
-
-    return field2.get(e)
-}

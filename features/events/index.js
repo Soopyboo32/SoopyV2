@@ -23,6 +23,7 @@ class Events extends Feature {
         }
         this.lastRequestTime = 0
         this.nextUpdateApprox = -1
+        this.lastWorldChange = 0
         this.lastRequest = 0
         this.potentialParticleLocs = {}
         this.showingWaypoints = false
@@ -138,7 +139,7 @@ class Events extends Feature {
             }
         })
 
-        let showingWaypointsNew = hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.burrialWaypointsEnabled.getValue()
+        let showingWaypointsNew = (this.lastWorldChange+5000<Date.now()?hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.burrialWaypointsEnabled.getValue():this.showingWaypoints)
 
         if(!this.showingWaypoints && showingWaypointsNew){
             this.loadApi()
@@ -175,9 +176,9 @@ class Events extends Feature {
         this.burrialData.locations = []
         this.burrialData.historicalLocations = []
 
-        this.showingWaypoints = false
-
         this.nextUpdateApprox = Date.now()
+
+        this.lastWorldChange = Date.now()
     }
 
     loadApi(){

@@ -296,6 +296,7 @@ class Hud extends Feature {
     }
     
     step(){
+        if(!Player.getPlayer()) return
         this.updateHudThingos()
         let fps = 0
 

@@ -72,10 +72,16 @@ class Feature {
         delete this.soopyEvents[event.id]
     }
 
-    registerForge(event, func){
-        let theEvent = this.FeatureManager.registerForge(event, func, this)
+    registerForge(event, func, messageIfError){
+        let theEvent
+        try{
+        theEvent = this.FeatureManager.registerForge(event, func, this)
 
         this.forgeEvents[theEvent.id] = theEvent
+        }catch(e){
+            if(!messageIfError) messageIfError = "An error occured while registering the event " + event.toString() + ", this may cause " + this.constructor.name + " to not work properly."
+            ChatLib.chat(this.FeatureManager.messagePrefix + messageIfError)
+        }
 
         return theEvent
     }

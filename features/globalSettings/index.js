@@ -119,7 +119,7 @@ class Hud extends Feature {
             return "&a"+firstLetterCapital(dungeons)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons[dungeons].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons[dungeons].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons[dungeons].overflow)) + ")"
         }).filter(a=>a).join("\n"))).chat()
         if(sbData.data.stats.bestProfileId !== sbData.data.stats.currentProfileId){
-            ChatLib.chat(userData.data.stats.nameWithPrefix + "'s senither weight (best profile):")
+            ChatLib.chat(userData.data.stats.nameWithPrefix + "'s senither weight (current profile):")
             ChatLib.chat("&aTotal: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.total)))
             new Message(new TextComponent("&aSkills: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill.total)))
             .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill).map(skill=>{

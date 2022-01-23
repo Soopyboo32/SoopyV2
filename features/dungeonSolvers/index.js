@@ -155,6 +155,7 @@ class DungeonSolvers extends Feature {
           let endPoint1 = this.eMovingThing[skull.getUUID().toString()].endPoint;
           let endPoint2 = this.eMovingThing[skull.getUUID().toString()].endPointLast;
           let endPointUpdated = Math.min(Date.now() - this.eMovingThing[skull.getUUID().toString()].endPointUpdated, 100);
+		  if(!endPoint2) return
           let endPoint = [endPoint2[0] + ((endPoint1[0] - endPoint2[0]) * endPointUpdated) / 100, endPoint2[1] + ((endPoint1[1] - endPoint2[1]) * endPointUpdated) / 100, endPoint2[2] + ((endPoint1[2] - endPoint2[2]) * endPointUpdated) / 100];
           let pingPoint = [startPoint[0] + xSpeed2 * this.ping, startPoint[1] + ySpeed2 * this.ping, startPoint[2] + zSpeed2 * this.ping];
 
