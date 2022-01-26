@@ -9,6 +9,10 @@ import HudTextElement from "./HudTextElement";
 import DropdownSetting from "../settings/settingThings/dropdownSetting";
 import { getLevelByXp } from "../../utils/statUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
+import renderLibs from "../../../guimanager/renderLibs";
+
+const ProcessBuilder = Java.type("java.lang.ProcessBuilder")
+const Scanner = Java.type("java.util.Scanner")
 
 class Hud extends Feature {
     constructor() {
@@ -105,6 +109,21 @@ class Hud extends Feature {
         this.witherImpactCooldownSetting = new ToggleSetting("Show Wither Impact Cooldown", "This will render a small cooldown above your crosshair", true, "wither_impact_cooldown_enabled", this)
 
         this.guidedSheepCooldownSetting = new ToggleSetting("Show Guided Sheep / Explosive Shot Cooldown", "This will render a small cooldown below your crosshair", true, "guided_sheep_cooldown_enabled", this)
+        
+        this.showSpotifyPlaying = new ToggleSetting("Show Current Playing Spotify Song", "(Only tested with spotify from windows store)", false, "spotify_now_playing", this)
+        this.spotifyElement = new HudTextElement()
+            .setText("&6Spotify&7> ")
+            .setToggleSetting(this.showSpotifyPlaying)
+            .setLocationSetting(new LocationSetting("Spotify Location", "Allows you to edit the location of the spotify text", "spotify_now_playing_location", this, [10, 80, 1, 1])
+                .requires(this.showSpotifyPlaying)
+                .editTempText("&6Spotify&7> &cNot open"))
+        this.spotifyElement2 = new HudTextElement().setToggleSetting(this.showSpotifyPlaying).setLocationSetting({
+            setParent: ()=>{},
+            x: this.spotifyElement.locationSetting.x+this.spotifyElement.getWidth(),
+            y: this.spotifyElement.locationSetting.y,
+            scale: this.spotifyElement.locationSetting.scale,
+            shadowType: this.spotifyElement.locationSetting.shadowType
+        })
 
         let hudStatTypes = {
             "cata": "Catacombs level + Exp",
@@ -232,6 +251,13 @@ class Hud extends Feature {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw, "skyblock", false, true)
         }
 
+        new Thread(()=>{
+            while(this.enabled){
+                this.updateSpotify()
+                Thread.sleep(5000)
+            }
+        }).start()
+
         this.registerActionBar("${m}", this.actionbarMessage)
     }
 
@@ -256,6 +282,36 @@ class Hud extends Feature {
         for(let element of this.hudElements){
             element.render()
         }
+
+        if(this.showSpotifyPlaying.getValue() && Date.now()-this.spotifyElement.tempDisableTime > 100){
+            let scale = this.spotifyElement.locationSetting.scale
+            let spotifyWidth1 = this.spotifyElement.getWidth()*scale
+            this.spotifyElement.render()
+            this.spotifyElement2.locationSetting.x = this.spotifyElement.locationSetting.x+spotifyWidth1
+            this.spotifyElement2.locationSetting.y = this.spotifyElement.locationSetting.y
+            this.spotifyElement2.locationSetting.scale = scale
+            this.spotifyElement2.locationSetting.shadowType = this.spotifyElement.locationSetting.shadowType        
+
+            let spotifyWidth2 = this.spotifyElement2.getWidth()*scale
+            if(spotifyWidth2>150*scale){
+                let w2 = spotifyWidth2/scale-150
+                let offX = (Date.now()/50)%(w2*2+100)
+                offX=Math.max(0,offX-50)
+                if(offX>w2+50){
+                    offX = w2-(offX-w2-50)
+                }else if(offX>w2){
+                    offX = w2
+                }
+                this.spotifyElement2.locationSetting.x = this.spotifyElement.locationSetting.x+spotifyWidth1-offX*scale
+                
+                renderLibs.scizzorFast(this.spotifyElement.locationSetting.x+spotifyWidth1, this.spotifyElement2.locationSetting.y, 150*scale, this.spotifyElement2.getHeight()*scale)
+                this.spotifyElement2.render()
+                renderLibs.stopScizzor()
+            }else{
+                this.spotifyElement2.render()
+            }
+        }
+
 
         
         if (this.witherImpactCooldownSetting.getValue() && Date.now()-this.lastWitherImpact < 10000) {
@@ -426,6 +482,52 @@ class Hud extends Feature {
         })
 
         this.updateHudThingos()
+    }
+
+    updateSpotify(){
+        if(!this.showSpotifyPlaying.getValue()) return
+        
+        let currentSong = "&cNot open"
+        let spotifyProcesses = []
+        let process = new ProcessBuilder("tasklist.exe", "/fo", "csv", "/nh").start();
+        let sc = new Scanner(process.getInputStream());
+        if (sc.hasNextLine()) sc.nextLine();
+        while (sc.hasNextLine()) {
+            let line = sc.nextLine();
+            let parts = line.replace("\"","").split("\",\"");
+            let unq = parts[0]
+            let pid = parts[1]
+            if(unq==="Spotify.exe"){
+                spotifyProcesses.push(pid)
+                // console.log(parts.join(" "));
+            }
+        }
+        process.waitFor();
+
+        while(spotifyProcesses.length > 0){
+            let pid = spotifyProcesses.pop()
+            // console.log("Loading pid " + pid)
+            let process = new ProcessBuilder("tasklist.exe", "/FO", "csv", "/V", "/FI", "\"PID eq " + pid + "\"").start();
+            let sc = new Scanner(process.getInputStream());
+            if (sc.hasNextLine()) sc.nextLine();
+            while (sc.hasNextLine()) {
+                let line = sc.nextLine();
+                let parts = line.replace("\"","").split("\",\"");
+                let song = parts[parts.length-1].substr(0,parts[parts.length-1].length-1)
+                if(song === "N/A") continue
+                
+                if(song === "Spotify Free"||song === "AngleHiddenWindow"){
+                    currentSong = "&cPaused"
+                }else{
+                    if(song === "Spotify") song = "Advertisement"
+                    currentSong = "&a" + song.replace(" - "," &7-&b ")
+                }
+
+            }
+            process.waitFor();
+        }
+
+        this.spotifyElement2.setText(currentSong)
     }
 
     updateHudThingos(){

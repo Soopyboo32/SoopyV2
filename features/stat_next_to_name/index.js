@@ -18,7 +18,8 @@ class StatNextToName extends Feature {
             "catacombsLevel": "Catacombs Level",
             "skillAvg": "Skill Average",
             "totalSlayer": "Total Slayer Exp",
-            "networth": "Networth"
+            "networth": "Networth",
+            "classAverage": "Class Average"
         })
 
         this.decimals = {
@@ -26,6 +27,7 @@ class StatNextToName extends Feature {
             "catacombsLevel": 2,
             "skillAvg": 2,
             "totalSlayer": 0,
+            "classAverage": 2,
             "networth": "small"
         }
 
