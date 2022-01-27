@@ -78,7 +78,7 @@ class Hud extends Feature {
 
     soopyWeight(user){
 
-        ChatLib.chat(this.FeatureManager.messagePrefix + " Finding senither weight for " + user)
+        ChatLib.chat(this.FeatureManager.messagePrefix + "Finding senither weight for " + user)
 
         let userData = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/player/"+user))
 

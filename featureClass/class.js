@@ -79,7 +79,7 @@ class Feature {
 
         this.forgeEvents[theEvent.id] = theEvent
         }catch(e){
-            if(!messageIfError) messageIfError = "An error occured while registering the event " + event.toString() + ", this may cause " + this.constructor.name + " to not work properly."
+            if(!messageIfError) messageIfError = "An error occured while registering the event " + event.class.toString().split(".").pop() + ", this may cause " + this.constructor.name + " to not work properly."
             ChatLib.chat(this.FeatureManager.messagePrefix + messageIfError)
         }
 
