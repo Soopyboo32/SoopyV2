@@ -4,9 +4,14 @@ import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import { numberWithCommas } from "../../utils/numberUtils";
 import * as renderUtils from "../../utils/renderUtils";
+import { drawLine } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
+
+const EntityArrow = Java.type("net.minecraft.entity.projectile.EntityArrow")
+const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze")
+const AxisAlignedBB = Java.type("net.minecraft.util.AxisAlignedBB")
 
 class DungeonSolvers extends Feature {
   constructor() {
@@ -53,6 +58,8 @@ class DungeonSolvers extends Feature {
       .setLocationSetting(new LocationSetting("Run speed and exp rates location", "Allows you to edit the location of the information", "run_speed_rates_location", this, [10, 100, 1, 1]).requires(this.runSpeedRates).editTempText("&6Run speed&7> &f4:30\n&6Exp/hour&7> &f1,234,567\n&6Runs/hour&7> &f17"));
 
     this.hudElements.push(this.runSpeedRatesElement);
+
+    this.blazeSolver = new ToggleSetting("Blaze Puzzle Solver", "Shows what order to kill the blazes in", true, "blaze_solver", this);
 
     this.lastDungFinishes = [];
     this.lastDungExps = [];
@@ -101,6 +108,11 @@ class DungeonSolvers extends Feature {
     this.ping = 0;
     this.pingI = 0;
 
+	this.arrows = []
+	this.blazes = []
+    this.blazeX = -1;
+    this.blazeY = -1;
+
     this.registerStep(true, 2, this.step);
     this.registerStep(true, 10, this.step2);
     this.registerEvent("worldLoad", this.onWorldLoad);
@@ -126,10 +138,20 @@ class DungeonSolvers extends Feature {
     this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent);
     // this.registerEvent("renderEntity", this.renderEntity)
     this.renderEntityEvent = undefined;
+
+	this.onWorldLoad();
   }
 
   entityJoinWorldEvent(event) {
     if (this.bloodCampAssist.getValue()) this.todoE.push(event.entity);
+
+	// if(event.entity instanceof EntityArrow){
+	// 	this.arrows.push(new Entity(event.entity))
+	// }
+	if(event.entity instanceof EntityBlaze){
+		console.log("Blaze joined world")
+		this.addBlaze(new Entity(event.entity))
+	}
   }
 
   renderWorld(ticks) {
@@ -174,6 +196,18 @@ class DungeonSolvers extends Feature {
         }
       });
     }
+
+	if(this.blazeX !== -1 && this.blazes.length > 0){
+		renderUtils.drawBoxAtEntity(this.blazes[0], 255, 0, 0, 1, 2, ticks, 2)
+
+		let lastLoc = [this.blazes[0].getX(), this.blazes[0].getY()+1.5, this.blazes[0].getZ()]
+		this.blazes.forEach((blaze, i) => {
+			if(i<3 && i!==0){
+				drawLine(lastLoc[0], lastLoc[1], lastLoc[2], blaze.getX(), blaze.getY()+1.5, blaze.getZ(), i===1?0:255, i===1?255:0, 0, 3/i)
+				lastLoc = [blaze.getX(), blaze.getY()+1.5,blaze.getZ()]
+			}
+		})
+	}
   }
 
   renderEntity(entity, position, ticks, event) {
@@ -205,12 +239,22 @@ class DungeonSolvers extends Feature {
     this.eMovingThing = {};
     this.bloodX = -1;
     this.bloodY = -1;
+    this.blazeX = -1;
+    this.blazeY = -1;
     this.skulls = [];
+	this.arrows = []
+	this.blazes = []
     World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((e) => {
-      if (e.getEntity()[m.getEquipmentInSlot](4) && e.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")) {
-        this.addSkull(e);
-      }
+		if (e.getEntity()[m.getEquipmentInSlot](4) && e.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")) {
+			this.addSkull(e);
+		}
     });
+    World.getAllEntitiesOfType(EntityBlaze).forEach((e) => {
+		this.addBlaze(e)
+    });
+    // World.getAllEntitiesOfType(EntityArrow).forEach((e) => {
+	// 	this.arrows.push(e)
+    // });
   }
 
   step2() {
@@ -282,6 +326,52 @@ class DungeonSolvers extends Feature {
         }
       });
     }
+
+	if(this.blazeX !== -1){
+		this.blazes = this.blazes.filter(e=>!e.getEntity()[f.isDead])
+
+		this.blazes.sort((a, b)=>a.getEntity().func_110143_aJ()-b.getEntity().func_110143_aJ())
+		if(World.getBlockAt(this.blazeX+17, 18, this.blazeY+16).getType().getID() === 9){
+			this.blazes = this.blazes.reverse()
+		}
+	}
+
+	// this.arrows = this.arrows.filter(e=>{
+	// 	let x = e.getX()
+	// 	let y = e.getY()
+	// 	let z = e.getZ()
+
+	// 	let mX = e.getMotionX()
+	// 	let mY = e.getMotionY()
+	// 	let mZ = e.getMotionZ()
+
+	// 	for(let i = 0;i<100;i++){
+	// 		x+=mX
+	// 		y+=mY
+	// 		z+=mZ
+
+	// 		mX*=0.99
+	// 		mY*=0.99
+	// 		mZ*=0.99
+
+	// 		mY-=0.05
+
+	// 		this.blazes = this.blazes.filter(e1=>{
+	// 			let boundingBox = e1.getEntity().func_174813_aQ()
+
+	// 			if(boundingBox.intersectsWith(new AxisAlignedBB(x-e.getEntity().field_70130_N/2,y,z-e.getEntity().field_70130_N/2,x+e.getEntity().field_70130_N/2,y+e.getEntity().field_70131_O,z+e.getEntity().field_70130_N/2))){
+	// 				return false
+	// 			}
+	// 			return true
+	// 		})
+			
+	// 		if(World.getBlockAt(x, y, z).getType().getID() !== 0){
+	// 			break;
+	// 		}
+	// 	}
+
+	// 	return !e.getEntity()[f.isDead]
+	// })
   }
 
   addSkull(skull) {
@@ -305,6 +395,50 @@ class DungeonSolvers extends Feature {
     }
     this.skulls.push(skull);
   }
+
+	addBlaze(blaze){
+		if(!this.FeatureManager.features["dataLoader"].class.dungeonFloor) return
+		if(this.blazeX === -1){
+			this.blazes.push(blaze)
+			let locs = {}
+
+			this.blazes.forEach(b=>{
+				if(!locs[(b.getX()-b.getX()%32)+"_"+(b.getZ()-b.getZ()%32)])locs[(b.getX()-b.getX()%32)+"_"+(b.getZ()-b.getZ()%32)] = 0
+				locs[(b.getX()-b.getX()%32)+"_"+(b.getZ()-b.getZ()%32)]++
+			})
+
+			Object.keys(locs).forEach(k=>{
+				if(locs[k] === 4){
+					[this.blazeX, this.blazeY] = k.split("_").map(a=>~~a)
+				}
+			})
+
+			if(this.blazeX !== -1){
+				this.blazes = []
+				World.getAllEntitiesOfType(EntityBlaze).forEach((e)=>{
+					if(e.getX()-e.getX()%32 === this.blazeX && e.getZ()-e.getZ()%32 === this.blazeY){
+						this.blazes.push(e)
+					}
+				})
+			}
+		}else{
+			if(blaze.getX()-blaze.getX()%32 === this.blazeX && blaze.getZ()-blaze.getZ()%32 === this.blazeY){
+				this.blazes.push(blaze)
+				this.blazes.sort((a, b)=>a.getEntity().func_110143_aJ()-b.getEntity().func_110143_aJ())
+				if(World.getBlockAt(this.blazeX+17, 18, this.blazeY+16).getType().getID() === 9){
+					this.blazes = this.blazes.reverse()
+				}
+
+				let lastHp = -1
+				this.blazes.forEach(b=>{
+					if(b.getEntity().func_110143_aJ() === lastHp){
+						ChatLib.chat(this.FeatureManager.messagePrefix + "&cWARNING: Detected 2 blazes with the same hp.")
+					}
+					lastHp = b.getEntity().func_110143_aJ()
+				})
+			}
+		}
+	}
 
   step() {
     //2fps

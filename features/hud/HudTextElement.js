@@ -10,7 +10,20 @@ class HudTextElement{
         this.editTempTimeV = 0
         this.editTempTextV = undefined
 
+        this.editBaseWidth = undefined
+        this.editBaseHeight = undefined
+
         this.tempDisableTime = 0
+    }
+
+    setBaseEditWidth(width){
+        this.editBaseWidth = width
+        return this
+    }
+
+    setBaseEditHeight(height){
+        this.editBaseHeight = height
+        return this
     }
 
     setText(text){
@@ -42,10 +55,12 @@ class HudTextElement{
         this.renderRaw()
     }
 
-    getWidth(){
+    getWidth(locationBox=false){
+        if(locationBox && this.editBaseWidth) return this.editBaseWidth
         return Math.max(...(this.getText()[0].map(a=>Renderer.getStringWidth(ChatLib.removeFormatting(a)))))
     }
-    getHeight(){
+    getHeight(locationBox=false){
+        if(locationBox && this.editBaseHeight) return this.editBaseHeight
         return 9*this.getText()[0].length
     }
 

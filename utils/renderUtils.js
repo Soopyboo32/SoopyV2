@@ -81,6 +81,20 @@ module.exports = {
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
+    setupLineSmall: function(width){
+        GL11.glBlendFunc(770, 771);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glLineWidth(width);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDepthMask(false);
+        GlStateManager.func_179094_E();
+    },
+    endLineSmall: function(){
+        GlStateManager.func_179121_F();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDepthMask(true);
+        GL11.glDisable(GL11.GL_BLEND);
+    },
     drawLineSmall:function (x, y, z, x2, y2, z2, r, g, b) {
     
         Tessellator.begin(3).colorize(r, g, b);
@@ -89,6 +103,28 @@ module.exports = {
         Tessellator.pos(x2, y2, z2);
     
         Tessellator.draw();
+    },
+    drawLinePoints: function(locations, r, g, b, thickness=1){
+        GL11.glBlendFunc(770, 771);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glLineWidth(thickness);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDepthMask(false);
+        GlStateManager.func_179094_E();
+    
+        Tessellator.begin(3).colorize(r, g, b);
+    
+        locations.forEach(loc => {
+            Tessellator.pos(...loc);
+        });
+    
+        Tessellator.draw();
+    
+    
+        GlStateManager.func_179121_F();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDepthMask(true);
+        GL11.glDisable(GL11.GL_BLEND);
     },
     drawBoxAtBlockNotVisThruWalls:function (x, y, z, colorR, colorG, colorB){
         GL11.glBlendFunc(770, 771);

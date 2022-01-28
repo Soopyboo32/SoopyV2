@@ -166,7 +166,7 @@ class LocationSetting extends ButtonSetting {
 
     clicked(mouseX, mouseY){
         let width = this.getWidth()
-        let height = this.parent.getHeight()
+        let height = this.parent.getHeight(true)
 
         let locations = [[this.x, this.y], [this.x+width*this.scale, this.y], [this.x, this.y+height*this.scale], [this.x+width*this.scale, this.y+height*this.scale]]
 
@@ -195,12 +195,12 @@ class LocationSetting extends ButtonSetting {
     }
 
     getWidth(){
-        return this.parent.getWidth()
+        return this.parent.getWidth(true)
     }
 
     updateLocation(mouseX, mouseY, drawCollidingBox){
         let width = this.getWidth()
-        let height = this.parent.getHeight()
+        let height = this.parent.getHeight(true)
 
         if(this.dragging){
             this.x = mouseX+this.dragOffset[0]
@@ -283,7 +283,7 @@ class LocationSetting extends ButtonSetting {
         }
 
         let width = this.getWidth()
-        let height = this.parent.getHeight()
+        let height = this.parent.getHeight(true)
 
         this.updateLocation(mouseX, mouseY, true)
 
@@ -313,7 +313,7 @@ class LocationSetting extends ButtonSetting {
 
     renderBox(drawHandles){
         let width = this.getWidth()
-        let height = this.parent.getHeight()
+        let height = this.parent.getHeight(true)
 
         Renderer.drawRect(Renderer.color(255, 255, 255), this.x, this.y, width*this.scale, 1)
         Renderer.drawRect(Renderer.color(255, 255, 255), this.x, this.y, 1, height*this.scale)

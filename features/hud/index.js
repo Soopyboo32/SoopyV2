@@ -113,6 +113,7 @@ class Hud extends Feature {
         this.showSpotifyPlaying = new ToggleSetting("Show Current Playing Spotify Song", "(Only tested with spotify from windows store)", false, "spotify_now_playing", this)
         this.spotifyElement = new HudTextElement()
             .setText("&6Spotify&7> ")
+            .setBaseEditWidth(Renderer.getStringWidth("Spotify> ")+150)
             .setToggleSetting(this.showSpotifyPlaying)
             .setLocationSetting(new LocationSetting("Spotify Location", "Allows you to edit the location of the spotify text", "spotify_now_playing_location", this, [10, 80, 1, 1])
                 .requires(this.showSpotifyPlaying)
@@ -527,7 +528,7 @@ class Hud extends Feature {
             process.waitFor();
         }
 
-        this.spotifyElement2.setText(currentSong)
+        this.spotifyElement2.setText(currentSong.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
     }
 
     updateHudThingos(){
