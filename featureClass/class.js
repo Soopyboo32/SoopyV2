@@ -76,17 +76,18 @@ class Feature {
         let theEvent
         try{
         theEvent = this.FeatureManager.registerForge(event, func, this)
-
-        this.forgeEvents[theEvent.id] = theEvent
         }catch(e){
             if(!messageIfError) messageIfError = "An error occured while registering the event " + event.class.toString().split(".").pop() + ", this may cause " + this.constructor.name + " to not work properly."
             ChatLib.chat(this.FeatureManager.messagePrefix + messageIfError)
         }
+        if(theEvent)this.forgeEvents[theEvent.id] = theEvent
 
         return theEvent
     }
 
     unregisterForge(event){
+        if(!event) return
+        
         this.FeatureManager.unregisterForge(event)
 
         delete this.forgeEvents[event.id]
