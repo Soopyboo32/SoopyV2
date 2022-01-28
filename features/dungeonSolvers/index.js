@@ -331,8 +331,14 @@ class DungeonSolvers extends Feature {
 		this.blazes = this.blazes.filter(e=>!e.getEntity()[f.isDead])
 
 		this.blazes.sort((a, b)=>a.getEntity().func_110143_aJ()-b.getEntity().func_110143_aJ())
-		if(World.getBlockAt(this.blazeX+17, 18, this.blazeY+16).getType().getID() === 9){
-			this.blazes = this.blazes.reverse()
+		if(World.getBlockAt(0,0,0).getID){
+			if(World.getBlockAt(this.blazeX+17, 18, this.blazeY+16).getID() === 9){
+				this.blazes = this.blazes.reverse()
+			}
+		}else{
+			if(World.getBlockAt(this.blazeX+17, 18, this.blazeY+16).getType().getID() === 9){
+				this.blazes = this.blazes.reverse()
+			}
 		}
 	}
 
