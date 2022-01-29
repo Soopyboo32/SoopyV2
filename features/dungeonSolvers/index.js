@@ -4,7 +4,6 @@ import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import { numberWithCommas } from "../../utils/numberUtils";
 import * as renderUtils from "../../utils/renderUtils";
-import { drawLine } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
@@ -203,7 +202,7 @@ class DungeonSolvers extends Feature {
 		let lastLoc = [this.blazes[0].getX(), this.blazes[0].getY()+1.5, this.blazes[0].getZ()]
 		this.blazes.forEach((blaze, i) => {
 			if(i<3 && i!==0){
-				drawLine(lastLoc[0], lastLoc[1], lastLoc[2], blaze.getX(), blaze.getY()+1.5, blaze.getZ(), i===1?0:255, i===1?255:0, 0, 3/i)
+				renderUtils.drawLineWithDepth(lastLoc[0], lastLoc[1], lastLoc[2], blaze.getX(), blaze.getY()+1.5, blaze.getZ(), i===1?0:255, i===1?255:0, 0, 3/i)
 				lastLoc = [blaze.getX(), blaze.getY()+1.5,blaze.getZ()]
 			}
 		})
@@ -438,7 +437,7 @@ class DungeonSolvers extends Feature {
 				let lastHp = -1
 				this.blazes.forEach(b=>{
 					if(b.getEntity().func_110143_aJ() === lastHp){
-						ChatLib.chat(this.FeatureManager.messagePrefix + "&cWARNING: Detected 2 blazes with the same hp.")
+						ChatLib.chat(this.FeatureManager.messagePrefix + "&cWARNING: Detected 2 blazes with the same hp. (" + lastHp + ")")
 					}
 					lastHp = b.getEntity().func_110143_aJ()
 				})
