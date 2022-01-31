@@ -148,7 +148,7 @@ class DungeonSolvers extends Feature {
 	// 	this.arrows.push(new Entity(event.entity))
 	// }
 	if(event.entity instanceof EntityBlaze){
-		console.log("Blaze joined world")
+		// console.log("Blaze joined world")
 		this.addBlaze(new Entity(event.entity))
 	}
   }
@@ -437,7 +437,7 @@ class DungeonSolvers extends Feature {
 				let lastHp = -1
 				this.blazes.forEach(b=>{
 					if(b.getEntity().func_110143_aJ() === lastHp){
-						ChatLib.chat(this.FeatureManager.messagePrefix + "&cWARNING: Detected 2 blazes with the same hp. (" + lastHp + ")")
+						ChatLib.chat(this.FeatureManager.messagePrefix + "&cWARNING: Detected 2 blazes with the same hp. (" + lastHp + "," + b.getEntity().func_110143_aJ() + ")")
 					}
 					lastHp = b.getEntity().func_110143_aJ()
 				})

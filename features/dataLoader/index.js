@@ -78,7 +78,7 @@ class DataLoader extends Feature {
         this.stats["Area"] = undefined
         this.stats["Dungeon"] = undefined
 
-        if(TabList && TabList.getNames()){
+        if(World.getWorld() && TabList.getNames()){
             TabList.getNames().forEach(n=>{
                 n = ChatLib.removeFormatting(n)
                 if(n.includes(": ")){
