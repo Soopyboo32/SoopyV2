@@ -110,7 +110,7 @@ class Hud extends Feature {
 
         this.guidedSheepCooldownSetting = new ToggleSetting("Show Guided Sheep / Explosive Shot Cooldown", "This will render a small cooldown below your crosshair", true, "guided_sheep_cooldown_enabled", this)
         
-        this.showSpotifyPlaying = new ToggleSetting("Show Current Playing Spotify Song", "(Only tested with spotify from windows store)", false, "spotify_now_playing", this)
+        this.showSpotifyPlaying = new ToggleSetting("Show Current Playing Spotify Song", "(WINDOWS + Spotify Desktop only)", false, "spotify_now_playing", this)
         this.spotifyElement = new HudTextElement()
             .setText("&6Spotify&7> ")
             .setBaseEditWidth(Renderer.getStringWidth("Spotify> ")+150)
@@ -595,6 +595,7 @@ class Hud extends Feature {
 
     apiLoad(data, dataType, isSoopyServer, isLatest){
         if(dataType === "skyblock" && !isSoopyServer){
+            console.log(this.constructor.name)
             this.statApiLoadThingo(data)
         }
         if(!isSoopyServer || !isLatest) return

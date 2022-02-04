@@ -9,6 +9,7 @@ import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import SoopyOpenGuiEvent from "../../../guimanager/EventListener/SoopyOpenGuiEvent";
 import SoopyGui2 from "../../../guimanager/SoopyGui";
+import categoryManager from "./categoryManager";
 
 
 class SoopyGui extends Feature {
@@ -17,7 +18,6 @@ class SoopyGui extends Feature {
 
         this.gui = undefined
 
-        this.pages = []
         this.currentPage = 0
         this.backButton = undefined
 
@@ -78,7 +78,7 @@ class SoopyGui extends Feature {
         this.gui.open()
 
         if(page){
-            this.pages.forEach(p=>{
+            this.getPages().forEach(p=>{
                 if(p.name.replace(/ /g, "_").toLowerCase() === page.toLowerCase()){
                     this.clickedOpen(p, false)
                 }
@@ -86,20 +86,8 @@ class SoopyGui extends Feature {
         }
     }
 
-    addCategory(category){
-        // this.pages = this.pages.filter(a=>a.name!==category.name)
-
-        this.pages.push(category)
-        this.sortPages()
-
-        this.updateButtons()
-    }
-
-    deleteCategory(category){
-        this.pages = this.pages.filter(a=>a!==category)
-        this.sortPages()
-
-        this.updateButtons()
+    getPages(){
+        return categoryManager.arr
     }
 
     updateButtons(){
@@ -107,7 +95,7 @@ class SoopyGui extends Feature {
 
         this.buttonListElm.children = []
 
-        this.pages.forEach((p, i)=>{
+        this.getPages().forEach((p, i)=>{
             let settingsButton = new ButtonWithArrow().setText("§0" + p.name).setLocation(0, 0.225*i, 1, 0.2)
             settingsButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{this.clickedOpen(p)}))
             this.buttonListElm.addChild(settingsButton)
@@ -137,18 +125,11 @@ class SoopyGui extends Feature {
         category.onOpen()
     }
 
-    sortPages(){
-        this.pages = this.pages.sort((a, b)=>{
-            return b.priority - a.priority
-        })
-    }
-
     onDisable(){
         this.gui.delete()
 
         this.gui = undefined
 
-        this.pages = []
         this.currentPage = 0
         this.backButton = undefined
         this.activePages = []
@@ -169,7 +150,7 @@ class SoopyGui extends Feature {
 
         this.currentPage = pageNum
 
-        this.pages.forEach((p)=>{
+        this.getPages().forEach((p)=>{
             Object.values(p.pages).forEach((e, i)=>{
                 e.location.location.x.set(i-pageNum+1, animate?500:0)
             })
@@ -185,9 +166,10 @@ class SoopyGui extends Feature {
         if(pageNum===0){
             this.currCategory = undefined
             this.closeSidebarPage()
+            this.updateButtons()
         }
 
-        this.pages.forEach((p)=>{
+        this.getPages().forEach((p)=>{
             Object.values(p.pages).forEach((e, i)=>{
                 e.location.location.x.set(i-pageNum+1, animate?500:0)
             })

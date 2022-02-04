@@ -1,4 +1,5 @@
 import SoopyGuiElement from '../../../guimanager/GuiElement/SoopyGuiElement.js';
+import categoryManager from './categoryManager.js';
 
 class GuiPage{
     constructor(priority){
@@ -12,10 +13,6 @@ class GuiPage{
             }
             
             this.soopyGui = global.soopyv2featuremanagerthing.features["soopyGui"].class;
-
-            if(this.finalisedLoading){
-                this.finaliseLoading()
-            }
         }).start()
         this.name = ""
 
@@ -26,11 +23,7 @@ class GuiPage{
     }
 
     finaliseLoading(){
-        if(!this.soopyGui){
-            this.finalisedLoading = true
-            return
-        }
-        this.soopyGui.addCategory(this);
+        categoryManager.addCategory(this);
     }
 
     newPage(){
@@ -56,7 +49,7 @@ class GuiPage{
     }
 
     delete(){
-        this.soopyGui.deleteCategory(this);
+        categoryManager.deleteCategory(this)
     }
 
     //Override me :D

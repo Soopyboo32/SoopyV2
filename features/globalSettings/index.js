@@ -55,7 +55,7 @@ class Hud extends Feature {
 
         if(!this.firstLoadPageData.shown){
             new Thread(()=>{
-                while(!World || !this.FeatureManager.finishedLoading){
+                while(!World.isLoaded() || !this.FeatureManager.finishedLoading){
                     Thread.sleep(100)
                 }
                 Thread.sleep(500)
@@ -147,7 +147,7 @@ class Hud extends Feature {
     }
 
     showFirstLoadPage(){
-        if(!this.ranFirstLoadThing && World && !this.firstLoadPageData.shown){
+        if(!this.ranFirstLoadThing && World.isLoaded() && !this.firstLoadPageData.shown){
             ChatLib.chat(this.FeatureManager.messagePrefix + "Opening first load page, if you accidentally close it run /soopyv2 and click the button")
             ChatLib.command("soopyv2 first_load_thing", true)
             this.ranFirstLoadThing = true
