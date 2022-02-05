@@ -92,7 +92,7 @@ class DungeonMap extends Feature {
     renderWorld(){
         if(this.isInDungeon() && this.brBox.getValue()){
             if(this.brBoxLoc){
-                drawBoxAtBlock(this.brBoxLoc[0], 69, this.brBoxLoc[1], 255,0,0, 3, 4)
+                drawBoxAtBlock(this.brBoxLoc[0]-1.5, 69, this.brBoxLoc[1]-1.5, 255,0,0, 3, 4)
             }
         }
     }
@@ -333,8 +333,8 @@ class DungeonMap extends Feature {
                             && bytes[(x-1)+(y)*128] === 119 && bytes[(x+1)+(y)*128] === 119
                             && bytes[(x)+(y-1)*128] === 119 && bytes[(x)+(y+1)*128] === 119){
 
-                            let locX = x-1
-                            let locY = y-1
+                            let locX = x
+                            let locY = y
                             while(bytes[(locX)+(locY-1)*128] === 119){locY--}
                             while(bytes[(locX-1)+(locY)*128] === 119){locX--}
 
@@ -343,25 +343,25 @@ class DungeonMap extends Feature {
                             while(bytes[(locX+w)+(locY)*128] === 119) w++
                             while(bytes[(locX)+(locY+h)*128] === 119) h++
 
-                            let ux = locX - (h>w?1:0)
-                            let uy = locY - (w>h?1:0)
+                            let ux = locX +w/2
+                            let uy = locY +h/2
 
                             brBoxTemp = [
-                                (ux-mortLocationOnMap[0])/this.roomWidth*32+this.mortLocation[0]+3,
-                                (uy-mortLocationOnMap[1])/this.roomWidth*32+this.mortLocation[1]+3
+                                (ux-mortLocationOnMap[0])/this.roomWidth*32+this.mortLocation[0],
+                                (uy-mortLocationOnMap[1])/this.roomWidth*32+this.mortLocation[1]
                             ]
 
                             brBoxTemp = [
-                                Math.round(brBoxTemp[0]),
-                                Math.round(brBoxTemp[1])
+                                (~~brBoxTemp[0])+0.5,
+                                (~~brBoxTemp[1])+0.5
                             ]
                         }
                         if(bytes[x+y*128] === 18
                             && bytes[(x-1)+(y)*128] === 18 && bytes[(x+1)+(y)*128] === 18
                             && bytes[(x)+(y-1)*128] === 18 && bytes[(x)+(y+1)*128] === 18){
 
-                            let locX = x-1
-                            let locY = y-1
+                            let locX = x
+                            let locY = y
                             while(bytes[(locX)+(locY-1)*128] === 18){locY--}
                             while(bytes[(locX-1)+(locY)*128] === 18){locX--}
 
@@ -371,17 +371,17 @@ class DungeonMap extends Feature {
                             while(bytes[(locX)+(locY+h)*128] === 18) h++
                             if(w<10 && h<10){
 
-                                let ux = locX - (h>w?1:0)
-                                let uy = locY - (w>h?1:0)
+                                let ux = locX +w/2
+                                let uy = locY +h/2
 
                                 brBoxTemp = [
-                                    (ux-mortLocationOnMap[0])/this.roomWidth*32+this.mortLocation[0]+3,
-                                    (uy-mortLocationOnMap[1])/this.roomWidth*32+this.mortLocation[1]+3
+                                    (ux-mortLocationOnMap[0])/this.roomWidth*32+this.mortLocation[0],
+                                    (uy-mortLocationOnMap[1])/this.roomWidth*32+this.mortLocation[1]
                                 ]
 
                                 brBoxTemp = [
-                                    Math.round(brBoxTemp[0]),
-                                    Math.round(brBoxTemp[1])
+                                    (~~brBoxTemp[0])+0.5,
+                                    (~~brBoxTemp[1])+0.5
                                 ]
                             }
                         }
