@@ -22,7 +22,7 @@ class DungeonMap extends Feature {
     onEnable(){
         this.initVariables()
 
-        this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud", false, "dmap_render", this)
+        this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud (scuffed)", false, "dmap_render", this)
         this.brBox = new ToggleSetting("Box around doors in br", "In map category because it uses map to find location (no esp)", true, "dmap_door", this)
         
         this.MAP_QUALITY_SCALE = 2
