@@ -37,7 +37,7 @@ let utils = {
         var b = p2[1] - p1[1];
         var c = p2[2] - p1[2];
     
-        let ret = Math.sqrt(a * a + b * b + c * c)
+        let ret = Math.hypot(a,b,c)
     
         if(ret<0){
             ret *= -1

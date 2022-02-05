@@ -55,7 +55,7 @@ class DragonWings extends Cosmetic {
         let rotation = isInInv?0:this.player.getPlayer()[f.prevRenderYawOffset]+(this.player.getPlayer()[f.renderYawOffset]-this.player.getPlayer()[f.prevRenderYawOffset])*ticks
         // rotation += entity.field_70761_aq+(entity.field_70761_aq-entity.field_70760_ar)*ticks
         // console.log(rotation, entity.getEntity().field_70761_aq+(entity.getEntity().field_70761_aq-entity.getEntity().field_70760_ar)*ticks)
-        let horisontalSpeed = Math.sqrt((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX])**2+(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ])**2)
+        let horisontalSpeed = Math.hypot((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX]),(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ]))
 
         let verticleSpeed = this.player.getPlayer()[f.posY.Entity]-this.player.getPlayer()[f.lastTickPosY]
         
@@ -310,7 +310,7 @@ class DragonWings extends Cosmetic {
             return
         }
 
-        let horisontalSpeed = Math.sqrt((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX])**2+(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ])**2)
+        let horisontalSpeed = Math.hypot((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX]),(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ]))
         
 
         // if((this.player === Player &&this.player.getPlayer().field_71075_bZ.field_75100_b) || (this.player !== Player && Math.abs(verticleSpeed)<0.2 && !this.player.getPlayer().field_70122_E)){//playerCapabilities.isFlying
@@ -318,7 +318,7 @@ class DragonWings extends Cosmetic {
             
             if(this.animOffset-this.lastFlapSound > 2*Math.PI){
 
-                let dist = Math.sqrt((Player.getX()-this.player.getX())**2+(Player.getY()-this.player.getY())**2+(Player.getZ()-this.player.getZ())**2)+1
+                let dist = Math.hypot((Player.getX()-this.player.getX()),(Player.getY()-this.player.getY()),(Player.getZ()-this.player.getZ()))+1
 
                 World.playSound("mob.enderdragon.wings", (this.settings.scale*15)*Math.min(1, 50/(dist*dist)), 1)
                 this.lastFlapSound = this.animOffset-this.animOffset%(Math.PI*2)
@@ -331,7 +331,7 @@ class DragonWings extends Cosmetic {
                 if(amt < 1*Math.PI){
                     if(amt > 0.65*Math.PI && (2*Math.PI+this.animOffset)-this.lastFlapSound > 2*Math.PI){
         
-                        let dist = Math.sqrt((Player.getX()-this.player.getX())**2+(Player.getY()-this.player.getY())**2+(Player.getZ()-this.player.getZ())**2)+1
+                        let dist = Math.hypot((Player.getX()-this.player.getX()),(Player.getY()-this.player.getY()),(Player.getZ()-this.player.getZ()))+1
         
                         World.playSound("mob.enderdragon.wings", (Math.max(0.005,this.settings.scale-0.005)*25)*Math.min(1, 50/Math.min(1,dist*dist))/50, 1-(Math.max(0.005,this.settings.scale-0.005)*25))
                         this.lastFlapSound = 2*Math.PI+(this.animOffset)-this.animOffset%(Math.PI*2)
@@ -386,7 +386,7 @@ class DragonWings extends Cosmetic {
 
         this.lastRender = Date.now()
 
-        let horisontalSpeed = Math.sqrt((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX])**2+(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ])**2)
+        let horisontalSpeed = Math.hypot((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX]),(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ]))
 
         
         this.animOffset += Math.min(1, horisontalSpeed)*10*timeSince+1*timeSince
