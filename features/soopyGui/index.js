@@ -47,8 +47,16 @@ class SoopyGui extends Feature {
 
         this.categoryPage = new SoopyGuiElement().setLocation(0, 0, 1, 1)
         
-        let title = new SoopyTextElement().setText("§0Soopy Addons!").setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1)
+        let title = new SoopyTextElement().setText("§0Soopy Addons!").setMaxTextScale(3).setLocation(0.1, 0.05, 0.5, 0.1)
         this.categoryPage.addChild(title)
+
+        let discordButton = new ButtonWithArrow().setText("§0Discord").setLocation(0.7, 0.05, 0.25, 0.1)
+        discordButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+            java.awt.Desktop.getDesktop().browse(
+                new java.net.URI("https://discord.gg/dfSMq96RSN")
+              );
+        })) 
+        this.categoryPage.addChild(discordButton)
 
         this.buttonListElm = new SoopyGuiElement().setLocation(0.1, 0.2, 0.8, 0.8).setScrollable(true)
         this.categoryPage.addChild(this.buttonListElm)
