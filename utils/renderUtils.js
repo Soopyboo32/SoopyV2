@@ -165,7 +165,7 @@ module.exports = {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawBoxAtBlock:function (x, y, z, colorR, colorG, colorB){
+    drawBoxAtBlock:function (x, y, z, colorR, colorG, colorB, w=1, h=1){
     
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
@@ -178,25 +178,25 @@ module.exports = {
         
         Tessellator.begin(3).colorize(colorR, colorG, colorB);
             
-        Tessellator.pos(x+1,y+1,z+1);
-        Tessellator.pos(x+1,y+1,z);
-        Tessellator.pos(x,y+1,z);
-        Tessellator.pos(x,y+1,z+1);
-        Tessellator.pos(x+1,y+1,z+1);
-        Tessellator.pos(x+1,y,z+1);
-        Tessellator.pos(x+1,y,z);
+        Tessellator.pos(x+w,y+h,z+w);
+        Tessellator.pos(x+w,y+h,z);
+        Tessellator.pos(x,y+h,z);
+        Tessellator.pos(x,y+h,z+w);
+        Tessellator.pos(x+w,y+h,z+w);
+        Tessellator.pos(x+w,y,z+w);
+        Tessellator.pos(x+w,y,z);
         Tessellator.pos(x,y,z);
-        Tessellator.pos(x,y,z+1);
+        Tessellator.pos(x,y,z+w);
         Tessellator.pos(x,y,z);
-        Tessellator.pos(x,y+1,z);
+        Tessellator.pos(x,y+h,z);
         Tessellator.pos(x,y,z);
-        Tessellator.pos(x+1,y,z);
-        Tessellator.pos(x+1,y+1,z);
-        Tessellator.pos(x+1,y,z);
-        Tessellator.pos(x+1,y,z+1);
-        Tessellator.pos(x,y,z+1);
-        Tessellator.pos(x,y+1,z+1);
-        Tessellator.pos(x+1,y+1,z+1);
+        Tessellator.pos(x+w,y,z);
+        Tessellator.pos(x+w,y+h,z);
+        Tessellator.pos(x+w,y,z);
+        Tessellator.pos(x+w,y,z+w);
+        Tessellator.pos(x,y,z+w);
+        Tessellator.pos(x,y+h,z+w);
+        Tessellator.pos(x+w,y+h,z+w);
     
         Tessellator.draw();
     

@@ -6,6 +6,8 @@ const Color = Java.type("java.awt.Color")
 import Feature from "../../featureClass/class";
 import { f, m } from "../../../mappings/mappings";
 import renderLibs from "../../../guimanager/renderLibs";
+import ToggleSetting from "../settings/settingThings/toggle";
+import { drawBoxAtBlock } from "../../utils/renderUtils";
 const BufferedImage = Java.type("java.awt.image.BufferedImage")
 
 class DungeonMap extends Feature {
@@ -20,6 +22,8 @@ class DungeonMap extends Feature {
     onEnable(){
         this.initVariables()
 
+        this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud", false, "dmap_render", this)
+        this.brBox = new ToggleSetting("Box around doors in br", "In map category because it uses map to find location (no esp)", true, "dmap_door", this)
         
         this.MAP_QUALITY_SCALE = 2
         this.IMAGE_SIZE = 128*this.MAP_QUALITY_SCALE
@@ -33,6 +37,7 @@ class DungeonMap extends Feature {
         this.puzzlesTab = []
         this.roomWidth = 1
         this.newPuzzlesTab = []
+        this.brBoxLoc = undefined
         this.invMapImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB)
         this.renderImage = new BufferedImage(this.IMAGE_SIZE,this.IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB)
         this.mapImage = new Image(this.renderImage)
@@ -43,6 +48,7 @@ class DungeonMap extends Feature {
         // this.registerEvent("tick", this.tick)
         this.registerStep(true, 3, this.step)
         this.registerEvent("renderOverlay", this.renderOverlay)
+        this.registerEvent("renderWorld", this.renderWorld)
         this.registerEvent("worldLoad", this.worldLoad)
 
         this.running = true
@@ -80,16 +86,25 @@ class DungeonMap extends Feature {
         this.puzzles = {}
         this.puzzlesTab = []
         this.newPuzzlesTab = []
+        this.brBoxLoc = undefined
+    }
+
+    renderWorld(){
+        if(this.isInDungeon() && this.brBox.getValue()){
+            if(this.brBoxLoc){
+                drawBoxAtBlock(this.brBoxLoc[0], 69, this.brBoxLoc[1], 255,0,0, 3, 4)
+            }
+        }
     }
 
     renderOverlay(){
-        if(this.isInDungeon()){
+        if(this.isInDungeon() && this.renderMap.getValue()){
             if(this.mapImage){
                 this.mapImage.draw(...this.mapLocation, this.mapRenderScale*this.IMAGE_SIZE, this.mapRenderScale*this.IMAGE_SIZE)
                 
-                this.drawPlayersLocations()
-
                 this.drawOtherMisc()
+                
+                this.drawPlayersLocations()
             }
         }
     }
@@ -136,6 +151,7 @@ class DungeonMap extends Feature {
     }
 
     step(){
+        if(!World.getWorld()) return
         // console.log("asjbfoasbgp")
         TabList.getNames().forEach(name=>{
             name = ChatLib.removeFormatting(name).trim().split(" ")
@@ -237,6 +253,7 @@ class DungeonMap extends Feature {
             //4 inbetween
 
             //finding room offsets
+            let brBoxTemp = undefined
             let roomOffsets
             let roomWidth1 = 0
             let roomWidth2 = 0
@@ -305,9 +322,75 @@ class DungeonMap extends Feature {
                             this.puzzles[x+y*128] = this.newPuzzlesTab.shift()
                         }
                     }
+
                 }
 
             }
+            if(mortLocationOnMap && this.mortLocation){
+                for(let x = 0;x<128;x++){
+                    for(let y = 0;y<128;y++){
+                        if(bytes[x+y*128] === 119
+                            && bytes[(x-1)+(y)*128] === 119 && bytes[(x+1)+(y)*128] === 119
+                            && bytes[(x)+(y-1)*128] === 119 && bytes[(x)+(y+1)*128] === 119){
+
+                            let locX = x-1
+                            let locY = y-1
+                            while(bytes[(locX)+(locY-1)*128] === 119){locY--}
+                            while(bytes[(locX-1)+(locY)*128] === 119){locX--}
+
+                            let w=1
+                            let h=1
+                            while(bytes[(locX+w)+(locY)*128] === 119) w++
+                            while(bytes[(locX)+(locY+h)*128] === 119) h++
+
+                            let ux = locX - (h>w?1:0)
+                            let uy = locY - (w>h?1:0)
+
+                            brBoxTemp = [
+                                (ux-mortLocationOnMap[0])/this.roomWidth*32+this.mortLocation[0]+3,
+                                (uy-mortLocationOnMap[1])/this.roomWidth*32+this.mortLocation[1]+3
+                            ]
+
+                            brBoxTemp = [
+                                Math.round(brBoxTemp[0]),
+                                Math.round(brBoxTemp[1])
+                            ]
+                        }
+                        if(bytes[x+y*128] === 18
+                            && bytes[(x-1)+(y)*128] === 18 && bytes[(x+1)+(y)*128] === 18
+                            && bytes[(x)+(y-1)*128] === 18 && bytes[(x)+(y+1)*128] === 18){
+
+                            let locX = x-1
+                            let locY = y-1
+                            while(bytes[(locX)+(locY-1)*128] === 18){locY--}
+                            while(bytes[(locX-1)+(locY)*128] === 18){locX--}
+
+                            let w=1
+                            let h=1
+                            while(bytes[(locX+w)+(locY)*128] === 18) w++
+                            while(bytes[(locX)+(locY+h)*128] === 18) h++
+                            if(w<10 && h<10){
+
+                                let ux = locX - (h>w?1:0)
+                                let uy = locY - (w>h?1:0)
+
+                                brBoxTemp = [
+                                    (ux-mortLocationOnMap[0])/this.roomWidth*32+this.mortLocation[0]+3,
+                                    (uy-mortLocationOnMap[1])/this.roomWidth*32+this.mortLocation[1]+3
+                                ]
+
+                                brBoxTemp = [
+                                    Math.round(brBoxTemp[0]),
+                                    Math.round(brBoxTemp[1])
+                                ]
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            this.brBoxLoc = brBoxTemp
 
             if(roomOffsets){
                 // for(let x = 0;x<128;x++){

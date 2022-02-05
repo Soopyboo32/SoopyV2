@@ -595,7 +595,6 @@ class Hud extends Feature {
 
     apiLoad(data, dataType, isSoopyServer, isLatest){
         if(dataType === "skyblock" && !isSoopyServer){
-            console.log(this.constructor.name)
             this.statApiLoadThingo(data)
         }
         if(!isSoopyServer || !isLatest) return
