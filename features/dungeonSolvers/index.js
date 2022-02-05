@@ -196,7 +196,7 @@ class DungeonSolvers extends Feature {
       });
     }
 
-	if(this.blazeX !== -1 && this.blazes.length > 0){
+	if(this.blazeX !== -1 && this.blazes.length > 0 && this.blazeSolver.getValue()){
 		renderUtils.drawBoxAtEntity(this.blazes[0], 255, 0, 0, 1, 2, ticks, 2)
 
 		let lastLoc = [this.blazes[0].getX(), this.blazes[0].getY()+1.5, this.blazes[0].getZ()]
@@ -437,7 +437,7 @@ class DungeonSolvers extends Feature {
 				let lastHp = -1
 				this.blazes.forEach(b=>{
 					if(b.getEntity().func_110143_aJ() === lastHp){
-						ChatLib.chat(this.FeatureManager.messagePrefix + "&cWARNING: Detected 2 blazes with the same hp. (" + lastHp + "," + b.getEntity().func_110143_aJ() + ")")
+						if(this.blazeSolver.getValue())ChatLib.chat(this.FeatureManager.messagePrefix + "&cWARNING: Detected 2 blazes with the same hp. (" + lastHp + "," + b.getEntity().func_110143_aJ() + ")")
 					}
 					lastHp = b.getEntity().func_110143_aJ()
 				})
