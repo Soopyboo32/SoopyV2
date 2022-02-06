@@ -6,14 +6,6 @@ class GuiPage{
         this.currentPageId = 0;
         this.priority = priority
 
-        this.soopyGui = undefined;
-        new Thread(()=>{
-            while(global.soopyv2featuremanagerthing === undefined || global.soopyv2featuremanagerthing.features === undefined || global.soopyv2featuremanagerthing.features["soopyGui"] === undefined){
-                Thread.sleep(100)
-            }
-            
-            this.soopyGui = global.soopyv2featuremanagerthing.features["soopyGui"].class;
-        }).start()
         this.name = ""
 
         this.pages = {}
@@ -24,6 +16,10 @@ class GuiPage{
 
     finaliseLoading(){
         categoryManager.addCategory(this);
+    }
+
+    getSoopyGui(){
+        return global.soopyv2featuremanagerthing.features["soopyGui"].class
     }
 
     newPage(){
@@ -38,14 +34,14 @@ class GuiPage{
     }
 
     goToPage(page, anim){
-        this.soopyGui.goToPageNum(page, anim)
+        this.getSoopyGui().goToPageNum(page, anim)
     }
 
     openSidebarPage(child){
-        this.soopyGui.openSidebarPage(child)
+        this.getSoopyGui().openSidebarPage(child)
     }
     closeSidebarPage(){
-        this.soopyGui.closeSidebarPage()
+        this.getSoopyGui().closeSidebarPage()
     }
 
     delete(){
