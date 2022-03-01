@@ -267,7 +267,10 @@ class Events extends Feature {
         if(this.shinyBlockOverlayEnabled.getValue()){
             if(particle.toString().startsWith("EntitySpellParticleFX,")){
                 if(particle.getUnderlyingEntity().func_70534_d()===particle.getUnderlyingEntity().func_70535_g()){
-                    this.shinyBlocks.push([[particle.getX(), particle.getY(), particle.getZ()], Date.now()])
+                    let arr = [particle.getX(), particle.getY(), particle.getZ()]
+                    if(arr.map(a=>Math.abs(a%1)).includes(0.25) || arr.map(a=>Math.abs(a%1)).includes(0.75)){
+                        this.shinyBlocks.push([[particle.getX(), particle.getY(), particle.getZ()], Date.now()])
+                    }
                 }
             }
         }
