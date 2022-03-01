@@ -20,17 +20,10 @@ class Improvements extends Feature {
                 ChatLib.chat(color + "&m" + ChatLib.getChatBreak(" ") + "&r");
             }
         }).trigger.triggerIfCanceled(false)
-
-        this.registerCommand("warp", (...args)=>{
-            if(args[0] === "dung") args[0] = "dungeon_hub"
-
-            ChatLib.command("warp " + args.join(" "))
-        })
         this.registerCommand("dung", (...args)=>{
             ChatLib.command("warp dungeon_hub")
         })
     }
-
 
     initVariables(){
         this.betterLineBreaks = undefined

@@ -76,23 +76,23 @@ let utils = {
         let lastOrder = []
         let lastOrderLength = Infinity
        
-        allOrders.forEach((order)=>{
+        for(let i = 0;i<allOrders.length;i++){
+            let order = allOrders[i]
             let lastPoint = startPoint
             let positions = order.map((a)=>{
                 return points[a]
             })
             let len = 0
-            positions.forEach((pos)=>{
-                len += utils.calculateDistance(lastPoint,pos)
-                lastPoint = pos
-            })
+            for(let i = 0;i<positions.length;i++){
+                len += utils.calculateDistance(lastPoint,positions[i])
+                lastPoint = positions[i]
+            }
     
             if(len < lastOrderLength){
                 lastOrder = order
                 lastOrderLength = len
             }
-        })
-    
+        }
         
         return lastOrder;
     },

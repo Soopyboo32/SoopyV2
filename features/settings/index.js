@@ -135,6 +135,7 @@ class SettingPage extends GuiPage {
         this.updateSettingCategories()
         this.settingsCategoryArea.location.scroll.x.set(0, 0)
         this.settingsCategoryArea.location.scroll.y.set(0, 0)
+        this.settingsCategoryArea._scrollAmount = 0
     }
 
     updateSettingCategories(){
@@ -241,6 +242,7 @@ class SettingPage extends GuiPage {
 
         this.settingsArea.location.scroll.x.set(0, 0)
         this.settingsArea.location.scroll.y.set(0, 0)
+        this.settingsArea._scrollAmount = 0
     }
 }
 

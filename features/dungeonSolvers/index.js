@@ -11,6 +11,7 @@ import ToggleSetting from "../settings/settingThings/toggle";
 const EntityArrow = Java.type("net.minecraft.entity.projectile.EntityArrow")
 const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze")
 const AxisAlignedBB = Java.type("net.minecraft.util.AxisAlignedBB")
+let translate = net.minecraft.util.StringTranslate.func_74808_a()
 
 class DungeonSolvers extends Feature {
   constructor() {
@@ -244,7 +245,7 @@ class DungeonSolvers extends Feature {
 	this.arrows = []
 	this.blazes = []
     World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((e) => {
-		if (e.getEntity()[m.getEquipmentInSlot](4) && e.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")) {
+		if (e.getEntity()[m.getEquipmentInSlot](4) && e.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith(translate.func_74805_b("item.skull.char.name"))) {
 			this.addSkull(e);
 		}
     });
@@ -285,7 +286,7 @@ class DungeonSolvers extends Feature {
 
           if (this.eMovingThing[skull.getUUID().toString()].lastX !== skullE[f.posX.Entity] || this.eMovingThing[skull.getUUID().toString()].lastY !== skullE[f.posY.Entity]) {
             this.eMovingThing[skull.getUUID().toString()].timeTook = Date.now() - this.eMovingThing[skull.getUUID().toString()].startMovingTime;
-          } else if (!this.eMovingThing[skull.getUUID().toString()].logged && (skullE[f.isDead] || !skullE[m.getEquipmentInSlot](4) || !skullE[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head"))) {
+          } else if (!this.eMovingThing[skull.getUUID().toString()].logged && (skullE[f.isDead] || !skullE[m.getEquipmentInSlot](4) || !skullE[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith(translate.func_74805_b("item.skull.char.name")))) {
             this.eMovingThing[skull.getUUID().toString()].logged = true;
             this.spawnIdThing++;
 
@@ -386,12 +387,12 @@ class DungeonSolvers extends Feature {
 
       if (xA !== this.bloodX || yA !== this.bloodY) return;
     } else {
-      if (skull.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().trim() === Player.getName() + "'s Head" || skull.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().trim() === Player.getName() + "' Head") {
+      if (skull.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().trim() === translate.func_74805_b("item.skull.player.name").replace("%s",Player.getName())) {
         this.bloodX = skull.getX() - (skull.getX() % 32);
         this.bloodY = skull.getZ() - (skull.getZ() % 32);
         this.skulls = [];
         World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((e) => {
-          if (e.getEntity()[m.getEquipmentInSlot](4) && e.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")) {
+          if (e.getEntity()[m.getEquipmentInSlot](4) && e.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith(translate.func_74805_b("item.skull.char.name"))) {
             this.addSkull(e);
           }
         });
@@ -499,7 +500,7 @@ class DungeonSolvers extends Feature {
       this.todoE.forEach((e) => {
         let en = new Entity(e);
         // console.log(en.getName())
-        if (en.getName().trim() === "Armor Stand" && e[m.getEquipmentInSlot](4) && e[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith("Head")) {
+        if (en.getName().trim() === translate.func_74805_b("item.armorStand.name") && e[m.getEquipmentInSlot](4) && e[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith(translate.func_74805_b("item.skull.char.name"))) {
           this.addSkull(en);
         }
       });

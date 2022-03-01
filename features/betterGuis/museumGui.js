@@ -899,8 +899,6 @@ class MuseumGui {
         }
         if(this.dontOpen > 0){
             this.dontOpen--
-            cancel(event)
-            return
         }
         if(this.soopyGui.ctGui.isOpen()){
             if(event.gui && event.gui.field_147002_h){
@@ -966,7 +964,7 @@ class MuseumGui {
     keyPress(key, keyId){
         if(keyId === 1){ //escape key
             this.isInMuseum = false
-            this.dontOpen = 3
+            // this.dontOpen = 1
             Client.currentGui.close()
         }
     }

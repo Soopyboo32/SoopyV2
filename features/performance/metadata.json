@@ -1,0 +1,8 @@
+{
+    "name": "Performance Settings",
+    "description": "Settings that may improve / decrease performance",
+    "isHidden": "hiddenRequirement.js",
+    "isTogglable": true,
+    "defaultEnabled": false,
+    "sortA": 0
+}

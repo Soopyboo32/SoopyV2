@@ -564,7 +564,7 @@ class Hud extends Feature {
         }
         if(type === "cata"){
             let cataData = getLevelByXp(this.lastStatData.dungeons.dungeon_types.catacombs.experience, 2, 50)
-            string = "&6Cata&7> &f" + (cataData.level+cataData.progress).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(cataData.xpCurrent) + (cataData.level===50?"":"/" + this.numberUtils.numberWithCommas(cataData.xpForNext)) + ")"
+            string = "&6Cata&7> &f" + (~~((cataData.level+cataData.progress)*100)/100).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(cataData.xpCurrent) + (cataData.level===50?"":"/" + this.numberUtils.numberWithCommas(cataData.xpForNext)) + ")"
         }
         
         Object.keys(this.skillLevelCaps).forEach(skill => {

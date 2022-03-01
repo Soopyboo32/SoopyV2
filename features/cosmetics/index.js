@@ -48,9 +48,9 @@ class Cosmetics extends Feature {
         this.registerEvent("playerLeft", this.playerLeft)
         this.registerEvent("worldLoad", this.worldLoad)
         this.registerStep(false, 2, this.step)
-        this.registerStep(false, 60*10, ()=>{
-            new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
-        })
+        // this.registerStep(false, 60*10, ()=>{
+        //     new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
+        // })
         // this.registerEvent("renderEntity", this.renderEntity)
         this.loadedRenderEntity = false
 
@@ -90,7 +90,7 @@ class Cosmetics extends Feature {
         this.cosmeticsData = data
         this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g,"")]
         if(this.playerHasACosmeticA && !this.loadedRenderEntity){
-            this.registerEvent("renderEntity", this.renderEntity)
+            this.registerEvent("postRenderEntity", this.renderEntity)
             this.loadedRenderEntity = true
         }
 

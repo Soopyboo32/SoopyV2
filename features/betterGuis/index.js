@@ -149,6 +149,7 @@ class BetterGuis extends Feature {
     }
 
     guiSlotClicked(inventoryName, slotId){
+        if(inventoryName.endsWith(" Sack")) return false
         switch(inventoryName){
             case "SkyBlock Menu":
                 switch(slotId){

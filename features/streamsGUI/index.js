@@ -93,8 +93,9 @@ class StreamPage extends GuiPage {
         let title = new SoopyMarkdownElement().setText(data.title).setLocation(0.1, 0.15, 0.8, 0.1)
         sidebar.addChild(title)
 
-        let image = new SoopyImageElement().setImage(data.image).setLocation(0.1, 0.15+title.getHeight(), 0.8, 0.4).loadHeightFromImage()
+        let image = new SoopyImageElement().setImage(data.image).setLocation(0.1, 0.15+title.getHeight(), 0.8, 0.4)
         sidebar.addChild(image)
+        image.loadHeightFromImage()
 
         let button = new ButtonWithArrow().setText("§0Watch on Twitch").setLocation(0.1, 0.15+image.location.size.y.get()+title.getHeight(), 0.8, 0.1)
         sidebar.addChild(button)
@@ -133,7 +134,7 @@ class StreamElement extends SoopyBoxElement {
 
         this.channelElement = new SoopyTextElement().setLocation(0.1,0.025,0.8,0.1).setMaxTextScale(10)
 
-        this.channelImg = new SoopyImageElement().setLocation(0.1,0.125,0.8,0.2).loadHeightFromImage()
+        this.channelImg = new SoopyImageElement().setLocation(0.1,0.125,0.8,0.2)
 
         this.titleElement = new SoopyMarkdownElement().setLocation(0.1,0.45,0.8,0.1)
 
@@ -150,6 +151,7 @@ class StreamElement extends SoopyBoxElement {
         this.addChild(this.channelElement)
         this.addChild(this.titleElement)
         this.addChild(this.channelImg)
+        this.channelImg.loadHeightFromImage()
     }
 
     setStream(stream, twitch){
@@ -161,6 +163,7 @@ class StreamElement extends SoopyBoxElement {
         
         this.streamData.image = twitch ? `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.user_login}-640x360.jpg` : stream.thumbnails.high.url
         this.channelImg.setImage(this.streamData.image)
+        this.channelImg.loadHeightFromImage()
 
         return this
     }

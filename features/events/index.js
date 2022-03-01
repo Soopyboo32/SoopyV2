@@ -32,6 +32,7 @@ class Events extends Feature {
         this.hudElements = []
         this.lastPathCords = undefined
 
+
         this.burrialWaypointsEnabled = new ToggleSetting("Burrial waypoints", "Show waypoints for burrials during the diana event", true, "burrial_waypoints", this)
         this.burrialWaypointsPath = new ToggleSetting("Pathfind waypoints", "Calculate a path thru all the waypoints", true, "burrial_waypoints_path", this).requires(this.burrialWaypointsEnabled)
         this.burrialWaypointsNearest = new ToggleSetting("Show nearest using pathfinding", "Use pathfinding to highlight the next burrial instead of disance", true, "burrial_nearest_path", this).requires(this.burrialWaypointsEnabled)
@@ -43,12 +44,16 @@ class Events extends Feature {
                 .requires(this.burrialWaypointsEnabled)
                 .editTempText("&6Update&7> &f100s"))
         this.hudElements.push(this.updateTimer)
-        
+
+        this.shinyBlocks = []
+    
+        this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
         
         this.registerEvent("worldLoad", this.worldLoad)
         this.registerEvent("spawnParticle", this.spawnParticle)
         this.registerEvent("renderWorld", this.renderWorld)
         this.registerEvent("renderOverlay", this.renderOverlay)
+        this.registerEvent("blockBreak", this.blockBreak)
         this.registerStep(true, 2, this.step)
         this.registerStep(false, 5, this.step_5s)
         this.registerSoopy("apiLoad", this.apiLoad)
@@ -64,6 +69,9 @@ class Events extends Feature {
     }
 
     renderWorld(ticks){
+        this.shinyBlocks.forEach(([loc])=>{
+            drawBoxAtBlockNotVisThruWalls(loc[0], loc[1], loc[2], 0,255,0,0.1,0.1)
+        })
         if(this.showingWaypoints && this.lastPathCords && this.burrialWaypointsPath.getValue()){
             let startPoint = [Player.getPlayer()[f.lastTickPosX]+Player.getPlayer()[f.motionX.Entity]*ticks,
                 Player.getPlayer()[f.lastTickPosY]+Player.getPlayer()[f.motionY.Entity]*ticks,
@@ -159,7 +167,12 @@ class Events extends Feature {
             this.updateTimer.setText("")
         }
 
+        this.shinyBlocks = this.shinyBlocks.filter(([loc, time])=>{
+            return time > Date.now()-5000
+        })
+
     }
+
     step_5s(){
         if(this.showingWaypoints){
             if(this.burrialWaypointsPath.getValue() || this.burrialWaypointsNearest.getValue()){
@@ -251,6 +264,13 @@ class Events extends Feature {
 
     
     spawnParticle(particle, type, event){
+        if(this.shinyBlockOverlayEnabled.getValue()){
+            if(particle.toString().startsWith("EntitySpellParticleFX,")){
+                if(particle.getUnderlyingEntity().func_70534_d()===particle.getUnderlyingEntity().func_70535_g()){
+                    this.shinyBlocks.push([[particle.getX(), particle.getY(), particle.getZ()], Date.now()])
+                }
+            }
+        }
         if(this.showingWaypoints){
             let foundEnchant = false
             let foundCrit = false

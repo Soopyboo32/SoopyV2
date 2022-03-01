@@ -1,5 +1,6 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
+import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent";
 import Feature from "../../featureClass/class";
 import soopyV2Server from "../../socketConnection";
 import ToggleSetting from "../settings/settingThings/toggle";
@@ -20,8 +21,12 @@ class SpamHider extends Feature {
         this.hideMessagesSetting = new ToggleSetting("Hide some messages", "This will completely remove some spammy messages from chat", true, "completely_hide_spam", this)
         this.moveMessagesSetting = new ToggleSetting("Move some messages to spam hider", "This will move some (potentially) usefull messages into a 'second chat'", true, "move_spam", this)
         this.moveChatMessages = new ToggleSetting("Move spammed chat messages to spam hider", "This will move messages spammed in hubs to spam hider\n(eg the website advertisment bots)", true, "move_spam_chat", this)
+        this.textShadowSetting = new ToggleSetting("Spam Hider Text Shadow", "Whether to give the spam hider text shadow", true, "spam_text_shadow", this)
 
         this.SpamHiderMessagesRenderer = new SpamHiderMessagesRenderer()
+        this.textShadowSetting.toggleObject.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun)=>{
+            this.SpamHiderMessagesRenderer.textShadow = this.textShadowSetting.getValue()
+        }))
 
         this.loadSpamMessages()
 
@@ -121,6 +126,8 @@ class SpamHiderMessagesRenderer{
         this.corner = 2
 
         this.lastRender = 0
+
+        this.textShadow = true
     }
 
     addMessage(str){
@@ -192,7 +199,11 @@ class SpamHiderMessagesRenderer{
                 y = sheight - 30 - (height)
             }
 
-            Renderer.drawString(str, x + this.x, y + this.y);
+            if(this.textShadow){
+                Renderer.drawStringWithShadow(str, x + this.x, y + this.y);
+            }else{
+                Renderer.drawString(str, x + this.x, y + this.y);
+            }
 
             if (time > 4000) {
                 this.messages.shift()

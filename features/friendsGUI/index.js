@@ -125,9 +125,13 @@ class SettingPage extends GuiPage {
                 }
             })
             
+            this.loadingElement.location.location.y.set(this.heightPerFriend*Object.keys(this.loadedFriends).length, 500)
+            this.friendsArea.addChild(this.loadingElement)
+                
             if(this.maxLoadedPage !== this.pageCount){
-                this.loadingElement.location.location.y.set(this.heightPerFriend*Object.keys(this.loadedFriends).length, 500)
-                this.friendsArea.addChild(this.loadingElement)
+                this.loadingElement.visable = true
+            }else{
+                this.loadingElement.visable = false
             }
         }
     }
