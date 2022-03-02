@@ -53,7 +53,6 @@ class Events extends Feature {
         this.registerEvent("spawnParticle", this.spawnParticle)
         this.registerEvent("renderWorld", this.renderWorld)
         this.registerEvent("renderOverlay", this.renderOverlay)
-        this.registerEvent("blockBreak", this.blockBreak)
         this.registerStep(true, 2, this.step)
         this.registerStep(false, 5, this.step_5s)
         this.registerSoopy("apiLoad", this.apiLoad)

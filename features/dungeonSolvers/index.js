@@ -4,6 +4,7 @@ import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import { numberWithCommas } from "../../utils/numberUtils";
 import * as renderUtils from "../../utils/renderUtils";
+import { drawBoxAtBlock } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
@@ -331,14 +332,8 @@ class DungeonSolvers extends Feature {
 		this.blazes = this.blazes.filter(e=>!e.getEntity()[f.isDead])
 
 		this.blazes.sort((a, b)=>a.getEntity().func_110143_aJ()-b.getEntity().func_110143_aJ())
-		if(World.getBlockAt(0,0,0).getID){
-			if(World.getBlockAt(this.blazeX+17, 18, this.blazeY+16).getID() === 9){
-				this.blazes = this.blazes.reverse()
-			}
-		}else{
-			if(World.getBlockAt(this.blazeX+17, 18, this.blazeY+16).getType().getID() === 9){
-				this.blazes = this.blazes.reverse()
-			}
+		if(World.getBlockAt(this.blazeX+17-43, 18, this.blazeY+16-43).getType().getID() === 9){
+			this.blazes = this.blazes.reverse()
 		}
 	}
 
@@ -382,14 +377,14 @@ class DungeonSolvers extends Feature {
 
   addSkull(skull) {
     if (this.bloodX !== -1) {
-      let xA = skull.getX() - (skull.getX() % 32);
-      let yA = skull.getZ() - (skull.getZ() % 32);
+      let xA = (skull.getX()+8) - ((skull.getX()+8) % 32);
+      let yA = (skull.getZ()+8) - ((skull.getZ()+8) % 32);
 
       if (xA !== this.bloodX || yA !== this.bloodY) return;
     } else {
       if (skull.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().trim() === translate.func_74805_b("item.skull.player.name").replace("%s",Player.getName())) {
-        this.bloodX = skull.getX() - (skull.getX() % 32);
-        this.bloodY = skull.getZ() - (skull.getZ() % 32);
+        this.bloodX = (skull.getX()+8) - ((skull.getX()+8) % 32);
+        this.bloodY = (skull.getZ()+8) - ((skull.getZ()+8) % 32);
         this.skulls = [];
         World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((e) => {
           if (e.getEntity()[m.getEquipmentInSlot](4) && e.getEntity()[m.getEquipmentInSlot](4)[m.getDisplayName.ItemStack]().endsWith(translate.func_74805_b("item.skull.char.name"))) {
@@ -409,8 +404,8 @@ class DungeonSolvers extends Feature {
 			let locs = {}
 
 			this.blazes.forEach(b=>{
-				if(!locs[(b.getX()-b.getX()%32)+"_"+(b.getZ()-b.getZ()%32)])locs[(b.getX()-b.getX()%32)+"_"+(b.getZ()-b.getZ()%32)] = 0
-				locs[(b.getX()-b.getX()%32)+"_"+(b.getZ()-b.getZ()%32)]++
+				if(!locs[((b.getX()+8)-((b.getX()+8)%32))+"_"+((b.getZ()+8)-((b.getZ()+8)%32))])locs[((b.getX()+8)-((b.getX()+8)%32))+"_"+((b.getZ()+8)-((b.getZ()+8)%32))] = 0
+				locs[((b.getX()+8)-((b.getX()+8)%32))+"_"+((b.getZ()+8)-((b.getZ()+8)%32))]++
 			})
 
 			Object.keys(locs).forEach(k=>{
@@ -422,16 +417,16 @@ class DungeonSolvers extends Feature {
 			if(this.blazeX !== -1){
 				this.blazes = []
 				World.getAllEntitiesOfType(EntityBlaze).forEach((e)=>{
-					if(e.getX()-e.getX()%32 === this.blazeX && e.getZ()-e.getZ()%32 === this.blazeY){
+					if((e.getX()+8)-(e.getX()+8)%32 === this.blazeX && (e.getZ()+8)-(e.getZ()+8)%32 === this.blazeY){
 						this.blazes.push(e)
 					}
 				})
 			}
 		}else{
-			if(blaze.getX()-blaze.getX()%32 === this.blazeX && blaze.getZ()-blaze.getZ()%32 === this.blazeY){
+			if((blaze.getX()+8)-(blaze.getX()+8)%32 === this.blazeX && (blaze.getZ()+8)-(blaze.getZ()+8)%32 === this.blazeY){
 				this.blazes.push(blaze)
 				this.blazes.sort((a, b)=>a.getEntity().func_110143_aJ()-b.getEntity().func_110143_aJ())
-				if(World.getBlockAt(this.blazeX+17, 18, this.blazeY+16).getType().getID() === 9){
+				if(World.getBlockAt(this.blazeX+17-43, 18, this.blazeY+16-43).getType().getID() === 9){
 					this.blazes = this.blazes.reverse()
 				}
 
@@ -449,7 +444,7 @@ class DungeonSolvers extends Feature {
   step() {
     //2fps
     if (this.lividFindEnabled.getValue() && (this.FeatureManager.features["dataLoader"].class.dungeonFloor === "F5" || this.FeatureManager.features["dataLoader"].class.dungeonFloor === "M5")) {
-      let type = World.getBlockAt(208, 108, 245).getMetadata();
+      let type = World.getBlockAt(3, 108, 30).getMetadata();
 
       let typeReplace = {
         0: "Vendetta",

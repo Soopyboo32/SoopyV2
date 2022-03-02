@@ -371,8 +371,8 @@ class DungeonMap extends Feature {
                                 }
     
                                 brBoxTemp = [
-                                    (~~brBoxTemp[0])-0.5,
-                                    (~~brBoxTemp[1])-0.5
+                                    (~~brBoxTemp[0])-8.5,
+                                    (~~brBoxTemp[1])-8.5
                                 ]
                             }
                         })
