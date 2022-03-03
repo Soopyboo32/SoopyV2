@@ -563,7 +563,7 @@ class Hud extends Feature {
             string = "&6Deaths&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData.death_count)
         }
         if(type === "cata"){
-            let cataData = getLevelByXp(this.lastStatData.dungeons.dungeon_types.catacombs.experience, 2, 50)
+            let cataData = getLevelByXp(this.lastStatData.dungeons.dungeon_types.catacombs.experience, 2, Infinity)
             string = "&6Cata&7> &f" + (~~((cataData.level+cataData.progress)*100)/100).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(cataData.xpCurrent) + (cataData.level===50?"":"/" + this.numberUtils.numberWithCommas(cataData.xpForNext)) + ")"
         }
         

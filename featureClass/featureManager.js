@@ -371,7 +371,7 @@ class FeatureManager {
 
         let event = this.registerCustom("command", func, context)
 
-        event.trigger.setName(commandName)
+        event.trigger.setName(commandName, true)
 
         return event
     }

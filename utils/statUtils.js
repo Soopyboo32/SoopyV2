@@ -274,6 +274,20 @@ function getLevelByXp(xp, type, levelCap) {
 
     let progress = Math.max(0, Math.min(xpCurrent / xpForNext, 1));
 
+
+    if (type === 2 && level === 50) {
+        while (level < levelCap && xpCurrent > 200000000) {
+            level++
+            xpCurrent -= 200000000
+        }
+        if(level < levelCap){
+            progress = xpCurrent / 200000000
+            xpForNext = 200000000
+        }else{
+            progress = 0
+            xpForNext = NaN
+        }
+    }
     return {
         xp,
         level,
@@ -311,8 +325,8 @@ function getSlayerLevelClaimed(slayer) {
     return level;
 }
 
-function getDungeoneeringLevel(xp) {
-    let a = getLevelByXp(xp, 2, 50);
+function getDungeoneeringLevel(xp, isCata) {
+    let a = getLevelByXp(xp, 2, isCata ? Infinity : 50);
 
     return a.level + a.progress;
 }

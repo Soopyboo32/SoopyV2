@@ -49,6 +49,21 @@ class DungeonMap extends Feature {
         this.renderImage = new BufferedImage(this.IMAGE_SIZE,this.IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB)
         this.mapImage = new Image(this.renderImage)
 
+        this.barrier_block_item = new Item("minecraft:barrier")
+        this.puzzleItems = {
+            "Water Board": new Item("minecraft:water_bucket"),
+            "Higher Or Lower": new Item("minecraft:blaze_powder"),
+            "Quiz": new Item("minecraft:book"),
+            "Three Weirdos": new Item("minecraft:chest"),
+            "Tic Tac Toe": new Item("minecraft:shears"),
+            "Teleport Maze": new Item("minecraft:end_portal_frame"),
+            "Ice Fill": new Item("minecraft:ice"),
+            "Creeper Beams": new Item("minecraft:sea_lantern"),
+            "Bomb Defuse": new Item("minecraft:tnt"),
+            "Boulder": new Item("minecraft:planks"),
+            "Ice Path": new Item("minecraft:mob_spawner")
+        }
+
         this.mapLocation = [10,10]
         this.mapRenderScale = 128/this.IMAGE_SIZE
 
@@ -128,16 +143,18 @@ class DungeonMap extends Feature {
 
     drawOtherMisc(x2, y2, size2, scale){
         Object.keys(this.puzzles).forEach(loc=>{
-            if(!this.puzzles[loc])  return
-            let x = loc%128
-            let y = Math.floor(loc/128)
+            if(!this.puzzles[loc]) return
+            if(this.puzzles[loc][1]) return
+            let y = loc%128
+            let x = Math.floor(loc/128)
 
-            let lines = this.puzzles[loc].split(" ")
+            let item = this.puzzleItems[this.puzzles[loc][0]] || this.barrier_block_item
 
-            lines.forEach((l, i)=>{
-                renderLibs.drawStringCentered("&0&l" + l, x*scale*2+x2+this.roomWidth/2*scale*2-l.length/2*scale*2, y*scale*2+y2+this.roomWidth/3*scale*2+i*6*scale*2-((lines.length-1)*3+4)*scale*2, scale*2)
-            })
+            // lines.forEach((l, i)=>{
+            //     renderLibs.drawStringCentered("&0&l" + l, x*scale*2+x2-l.length/2*scale*2, y*scale*2+y2-this.roomWidth/3*scale*2+this.roomWidth/3*scale*2+i*6*scale*2-((lines.length-1)*3+4)*scale*2, scale*2)
+            // })
 
+            item.draw(x*scale*2+x2-this.roomWidth/4*scale*2, y*scale*2+y2-this.roomWidth/4*scale*2,1.5*scale)
         })
     }
     
@@ -189,7 +206,7 @@ class DungeonMap extends Feature {
             if(end !== "[✦]" && end !== "[✔]") return
             name = name.join(" ").trim().replace(":", "")
             if(name.length > 1 && !name.includes("?")){
-                this.puzzlesTab.push(name)
+                this.puzzlesTab.push([name, end === "[✔]"])
             }
             // console.log(name)
         })
@@ -337,12 +354,6 @@ class DungeonMap extends Feature {
 
                         break
                     }
-                    // mortLocationOnMap = mortLocationOnMap*16/this.roomWidth
-                    if(bytes[x+y*128] === 66 && bytes[(x-1)+(y)*128] === 0 && bytes[(x)+(y-1)*128] === 0){
-                        if(!this.puzzles[x+y*128]){
-                            this.puzzles[x+y*128] = "Loading"
-                        }
-                    }
 
                 }
 
@@ -376,6 +387,15 @@ class DungeonMap extends Feature {
                                 ]
                             }
                         })
+
+                        let [tx, ty] = [x+roomWidth/2, y+roomWidth/2]
+
+                        if(bytes[tx+ty*128] === 66){
+                            
+                            if(!this.puzzles[(tx)*128+ty]){
+                                this.puzzles[(tx)*128+ty] = ["Loading", false]
+                            }
+                        }
                     }
 
                 }
