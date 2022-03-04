@@ -12,7 +12,9 @@ import { SoopyGui, SoopyRenderEvent } from "../../../guimanager";
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
+import ImageLocationSetting from "../settings/settingThings/imageLocation";
 const BufferedImage = Java.type("java.awt.image.BufferedImage")
+const AlphaComposite = Java.type("java.awt.AlphaComposite")
 
 class DungeonMap extends Feature {
     constructor() {
@@ -27,6 +29,8 @@ class DungeonMap extends Feature {
         this.initVariables()
 
         this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud (scuffed)", false, "dmap_render", this)
+        this.mapLocation = new ImageLocationSetting("Map Location", "Sets the location of the map on the hud","dmap_location", this, [10,10, 1], new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/map.png"))),100,100)
+        this.mapBackground = new ToggleSetting("Map Background", "Puts a white background begind the map", false, "dmap_background", this)
         this.brBox = new ToggleSetting("Box around doors in br", "In map category because it uses map to find location (no esp)", true, "dmap_door", this)
         this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this)
         
@@ -63,9 +67,6 @@ class DungeonMap extends Feature {
             "Boulder": new Item("minecraft:planks"),
             "Ice Path": new Item("minecraft:mob_spawner")
         }
-
-        this.mapLocation = [10,10]
-        this.mapRenderScale = 128/this.IMAGE_SIZE
 
         this.spiritLeapOverlayGui = new SpiritLeapOverlay(this)
 
@@ -127,7 +128,7 @@ class DungeonMap extends Feature {
 
     renderOverlay(){
         if(this.isInDungeon() && this.renderMap.getValue()){
-            this.drawMap(...this.mapLocation, this.mapRenderScale*this.IMAGE_SIZE, this.mapRenderScale)
+            this.drawMap(this.mapLocation.getValue()[0], this.mapLocation.getValue()[1],100*this.mapLocation.getValue()[2], 0.5*this.mapLocation.getValue()[2])
         }
     }
 
@@ -145,8 +146,8 @@ class DungeonMap extends Feature {
         Object.keys(this.puzzles).forEach(loc=>{
             if(!this.puzzles[loc]) return
             if(this.puzzles[loc][1]) return
-            let y = loc%128
-            let x = Math.floor(loc/128)
+            let y = (loc%128)/128*100
+            let x = (Math.floor(loc/128))/128*100
 
             let item = this.puzzleItems[this.puzzles[loc][0]] || this.barrier_block_item
 
@@ -211,8 +212,23 @@ class DungeonMap extends Feature {
             // console.log(name)
         })
         let puzzlesTab2 = this.puzzlesTab.map(a=>a)
+        
         // console.log(this.puzzlesTab.length)
         Object.keys(this.puzzles).forEach(key=>{
+            let y = (key%128)
+            let x = (Math.floor(key/128))
+
+            if(x>100&&y>100){
+                this.puzzles[key] = puzzlesTab2.shift()
+            }
+        })
+        Object.keys(this.puzzles).forEach(key=>{
+            let y = (key%128)
+            let x = (Math.floor(key/128))
+
+            if(x>100&&y>100){
+                return
+            }
             this.puzzles[key] = puzzlesTab2.shift()
             // console.log(key, this.puzzles[key], this.puzzlesTab.length)
         })
@@ -247,8 +263,9 @@ class DungeonMap extends Feature {
 
         let graphics = this.renderImage.getGraphics()
 
-        // graphics.setColor(new Color(Renderer.color(255, 255, 255, 255)))
+        if(!this.mapBackground.getValue())graphics.setComposite(AlphaComposite.Clear);
         graphics.fillRect(0,0,this.IMAGE_SIZE,this.IMAGE_SIZE)
+        if(!this.mapBackground.getValue())graphics.setComposite(AlphaComposite.SrcOver);
 
         let mapData
         try {
