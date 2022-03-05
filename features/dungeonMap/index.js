@@ -68,6 +68,20 @@ class DungeonMap extends Feature {
             "Ice Path": new Item("minecraft:mob_spawner")
         }
 
+        this.dungeonBossImages = {
+            // "F1":[
+            //     {
+            //         image: new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/dungeonBossImages/f1.png"))),
+            //         bounds: [[-65,70,-3],[-19,90,45]],
+            //         widthInWorld: 46,
+            //         heightInWorld: 48,
+            //         topLeftLocation: [-64,-2]
+            //     }
+            // ]
+        }
+
+        this.currDungeonBossImage = undefined
+
         this.spiritLeapOverlayGui = new SpiritLeapOverlay(this)
 
         // this.registerEvent("tick", this.tick)
@@ -143,6 +157,7 @@ class DungeonMap extends Feature {
     }
 
     drawOtherMisc(x2, y2, size2, scale){
+        if(this.currDungeonBossImage) return
         Object.keys(this.puzzles).forEach(loc=>{
             if(!this.puzzles[loc]) return
             if(this.puzzles[loc][1]) return
@@ -176,15 +191,51 @@ class DungeonMap extends Feature {
         })
 
         Object.keys(this.mapDataPlayers).forEach((uuid)=>{
+            if(uuid===Player.getUUID().toString()) return
+            let renderX
+            let renderY
 
-            let renderX = this.mapDataPlayers[uuid].x/this.mapScale/128*size//*16/this.roomWidth
-            let renderY = this.mapDataPlayers[uuid].y/this.mapScale/128*size//*16/this.roomWidth
+            if(this.currDungeonBossImage){
+                renderX = (this.mapDataPlayers[uuid].x-this.currDungeonBossImage.topLeftLocation[0])/this.currDungeonBossImage.widthInWorld*size
+                renderY = (this.mapDataPlayers[uuid].y-this.currDungeonBossImage.topLeftLocation[1])/this.currDungeonBossImage.heightInWorld*size
+                console.log(
+                    (this.mapDataPlayers[uuid].x-this.currDungeonBossImage.topLeftLocation[0])/this.currDungeonBossImage.widthInWorld,
+                    (this.mapDataPlayers[uuid].y-this.currDungeonBossImage.topLeftLocation[1])/this.currDungeonBossImage.heightInWorld
+                )
+            }else{
+                renderX = this.mapDataPlayers[uuid].x/this.mapScale/128*size+this.offset[0]/128*size//*16/this.roomWidth
+                renderY = this.mapDataPlayers[uuid].y/this.mapScale/128*size+this.offset[1]/128*size//*16/this.roomWidth
+            }
 
-            Renderer.translate(renderX+x+this.offset[0]/128*size, renderY+y+this.offset[1]/128*size)
-            Renderer.scale(scale*2, scale*2)
+
+            Renderer.translate(renderX+x, renderY+y, 1000)
+            Renderer.scale(scale*1.5, scale*1.5)
             Renderer.rotate(this.mapDataPlayers[uuid].rot)
             this.getImageForPlayer(uuid).draw(-5,-5, 10, 10)
         })
+
+        let uuid = Player.getUUID().toString()
+        if(!this.mapDataPlayers[uuid]) return
+        let renderX
+        let renderY
+
+        if(this.currDungeonBossImage){
+            renderX = (this.mapDataPlayers[uuid].x-this.currDungeonBossImage.topLeftLocation[0])/this.currDungeonBossImage.widthInWorld*size
+            renderY = (this.mapDataPlayers[uuid].y-this.currDungeonBossImage.topLeftLocation[1])/this.currDungeonBossImage.heightInWorld*size
+            console.log(
+                (this.mapDataPlayers[uuid].x-this.currDungeonBossImage.topLeftLocation[0])/this.currDungeonBossImage.widthInWorld,
+                (this.mapDataPlayers[uuid].y-this.currDungeonBossImage.topLeftLocation[1])/this.currDungeonBossImage.heightInWorld
+            )
+        }else{
+            renderX = this.mapDataPlayers[uuid].x/this.mapScale/128*size+this.offset[0]/128*size//*16/this.roomWidth
+            renderY = this.mapDataPlayers[uuid].y/this.mapScale/128*size+this.offset[1]/128*size//*16/this.roomWidth
+        }
+
+
+        Renderer.translate(renderX+x, renderY+y, 1000)
+        Renderer.scale(scale*1.5, scale*1.5)
+        Renderer.rotate(this.mapDataPlayers[uuid].rot)
+        this.getImageForPlayer(uuid).draw(-5,-5, 10, 10)
     }
 
     step(){
@@ -214,21 +265,21 @@ class DungeonMap extends Feature {
         let puzzlesTab2 = this.puzzlesTab.map(a=>a)
         
         // console.log(this.puzzlesTab.length)
-        Object.keys(this.puzzles).forEach(key=>{
-            let y = (key%128)
-            let x = (Math.floor(key/128))
+        // Object.keys(this.puzzles).forEach(key=>{
+        //     let y = (key%128)
+        //     let x = (Math.floor(key/128))
 
-            if(x>100&&y>100){
-                this.puzzles[key] = puzzlesTab2.shift()
-            }
-        })
+        //     if(x>100&&y>100){
+        //         this.puzzles[key] = puzzlesTab2.shift()
+        //     }
+        // })
         Object.keys(this.puzzles).forEach(key=>{
-            let y = (key%128)
-            let x = (Math.floor(key/128))
+            // let y = (key%128)
+            // let x = (Math.floor(key/128))
 
-            if(x>100&&y>100){
-                return
-            }
+            // if(x>100&&y>100){
+            //     return
+            // }
             this.puzzles[key] = puzzlesTab2.shift()
             // console.log(key, this.puzzles[key], this.puzzlesTab.length)
         })
@@ -496,6 +547,16 @@ class DungeonMap extends Feature {
             }
             let newMapImageThing = new Image(this.renderImage)
             this.mapImage = newMapImageThing
+            this.currDungeonBossImage = undefined
+        }else{
+            //no map data, check to see if should render boss image
+
+            if(this.dungeonBossImages[this.FeatureManager.features["dataLoader"].class.dungeonFloor])this.dungeonBossImages[this.FeatureManager.features["dataLoader"].class.dungeonFloor].forEach(data=>{
+                if(data.bounds[0][0] <= Player.getX() && data.bounds[0][1] <= Player.getY() && data.bounds[0][2] <= Player.getZ() && data.bounds[1][0] >= Player.getX() && data.bounds[1][1] >= Player.getY() && data.bounds[1][2] >= Player.getZ()){
+                    this.currDungeonBossImage = data
+                    this.mapImage = data.image
+                }
+            })
         }
 
 
