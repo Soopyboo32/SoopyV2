@@ -456,7 +456,7 @@ class DungeonMap extends Feature {
                             }
                         })
 
-                        let [tx, ty] = [x+roomWidth/2, y+roomWidth/2]
+                        let [tx, ty] = [~~(x+roomWidth/2), ~~(y+roomWidth/2)]
 
                         if(bytes[tx+ty*128] === 66){
                             

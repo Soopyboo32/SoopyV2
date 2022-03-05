@@ -347,7 +347,10 @@ class DragonWings extends Cosmetic {
 
         this.testPlaySound()
 
-        if(!this.player.getPlayer().getEssentialCosmetics || !this.player.getPlayer().getEssentialCosmetics()) return
+    }
+
+    removeEssentialCosmetics(){
+        if(!this.player.getPlayer() || !this.player.getPlayer().getEssentialCosmetics || !this.player.getPlayer().getEssentialCosmetics()) return
 
         let wingCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.WINGS)
         if(wingCosmetic !== null){

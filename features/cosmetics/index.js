@@ -38,6 +38,8 @@ class Cosmetics extends Feature {
             })
         })
 
+        this.postRenderEntityTrigger = undefined
+
         this.loadCosmeticsData()
 
         this.worldLoad()
@@ -48,6 +50,12 @@ class Cosmetics extends Feature {
         this.registerEvent("playerLeft", this.playerLeft)
         this.registerEvent("worldLoad", this.worldLoad)
         this.registerStep(false, 2, this.step)
+        this.registerEvent('worldUnload', ()=>{
+            if(this.postRenderEntityTrigger){
+                this.postRenderEntityTrigger.unregister()
+                this.postRenderEntityTrigger = undefined
+            }
+        })
         // this.registerStep(false, 60*10, ()=>{
         //     new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
         // })
@@ -75,22 +83,22 @@ class Cosmetics extends Feature {
         }
     }
 
-    renderEntity(entity, pos, ticks, event){
-        if(ticks !== 1) return
-        if(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")]){
-            Object.values(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")]).forEach(cosmetic => {
-                cosmetic.onRenderEntity(ticks, true)
-            })
-        }
-    }
-
     loadCosmeticsData(){
         let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/cosmetics.json"))
 
         this.cosmeticsData = data
         this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g,"")]
         if(this.playerHasACosmeticA && !this.loadedRenderEntity){
-            this.registerEvent("postRenderEntity", this.renderEntity)
+            // this.registerEvent("postRenderEntity", this.renderEntity)
+            this.postRenderEntityTrigger = register("postRenderEntity", (entity, pos, ticks, event)=>{
+                if(ticks !== 1) return
+                if(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")]){
+                    let cosmetics = Object.values(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")])
+                    for(let cosmetic of cosmetics){
+                        cosmetic.onRenderEntity(ticks, true)
+                    }
+                }
+            })
             this.loadedRenderEntity = true
         }
 
@@ -124,6 +132,14 @@ class Cosmetics extends Feature {
 
     step(){
         this.scanForNewCosmetics()
+
+        this.filterUnloadedCosmetics(false)
+
+        this.restoreEssentialCosmetics()
+
+        this.loadedCosmetics.forEach(c=>{
+            c.removeEssentialCosmetics()
+        })
     }
     scanForNewCosmetics(){
         this.loadCosmeticsForPlayer(Player)
@@ -204,9 +220,9 @@ class Cosmetics extends Feature {
     }
 
     tick(){
-        this.restoreEssentialCosmetics()
-
-        this.filterUnloadedCosmetics(true)
+        for(let cosmetic of this.loadedCosmetics){
+            cosmetic.onTick()
+        }
     }
 
     restoreEssentialCosmetics(){
@@ -219,7 +235,7 @@ class Cosmetics extends Feature {
     initVariables(){
         this.loadedCosmetics = undefined
         this.uuidToCosmetic = undefined
-        this.uuidToCosmeticDirect = undefined
+        this.uuidToCosmeticDirect = {}
         this.playerHasACosmeticA = undefined
         this.cosmeticsData = undefined
         this.hiddenEssentialCosmetics = undefined
@@ -228,6 +244,12 @@ class Cosmetics extends Feature {
     }
 
     onDisable(){
+
+        if(this.postRenderEntityTrigger){
+            this.postRenderEntityTrigger.unregister()
+            this.postRenderEntityTrigger = undefined
+        }
+
         this.restoreEssentialCosmetics()
 
         this.initVariables()

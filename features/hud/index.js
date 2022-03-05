@@ -313,16 +313,14 @@ class Hud extends Feature {
             }
         }
 
-
-        
         if (this.witherImpactCooldownSetting.getValue() && Date.now()-this.lastWitherImpact < 10000) {
             Renderer.drawString(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s") / 2, Renderer.screen.getHeight() / 2 - 15)
         }
 
         
-        this.hudStat.forEach(stat=>{
+        for(let stat of this.hudStat){
             stat.textElement.render()
-        })
+        }
     }
     
     renderWorld(){
