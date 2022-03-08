@@ -13,6 +13,7 @@ import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import ImageLocationSetting from "../settings/settingThings/imageLocation";
+import socketConnection from "../../socketConnection";
 const BufferedImage = Java.type("java.awt.image.BufferedImage")
 const AlphaComposite = Java.type("java.awt.AlphaComposite")
 
@@ -86,12 +87,24 @@ class DungeonMap extends Feature {
 
         // this.registerEvent("tick", this.tick)
         this.registerStep(true, 3, this.step)
+        this.registerStep(false, 5, this.step5s)
         this.registerEvent("renderOverlay", this.renderOverlay)
         this.registerEvent("renderWorld", this.renderWorld)
         this.registerEvent("worldLoad", this.worldLoad)
         
         this.registerEvent("guiOpened", (event)=>{
             if(this.spiritLeapOverlay.getValue()) this.spiritLeapOverlayGui.guiOpened.call(this.spiritLeapOverlayGui, event)
+        })
+
+        this.boringMap = false
+        this.registerChat("&r&r&r           ${*}&r&cThe Catacombs &r&8- &r&eFloor ${*}&r", ()=>{
+            this.boringMap = true
+        })
+        this.registerChat("&r&r&r       ${*}&r&cMaster Mode Catacombs &r&8- &r&eFloor ${*}&r", ()=>{
+            this.boringMap = true
+        })
+        this.registerChat("&r&aDungeon starts in 1 second.&r", ()=>{
+            this.boringMap = false
         })
 
         this.running = true
@@ -148,11 +161,53 @@ class DungeonMap extends Feature {
 
     drawMap(x, y, size, scale){
         if(this.mapImage){
-            this.mapImage.draw(x, y, size, size)
+            if(this.boringMap){
+                this.mapImage.draw(x, y, size, size)
+                return
+            }
+            renderLibs.scizzor(x, y, size, size)
+
+            World.getAllPlayers().forEach(player=>{
+                if(player.getPing()===-1)return
+                if(!this.people.includes(player.getName())) return
+                this.mapDataPlayers[player.getUUID().toString()] = {
+                    x: player.getX(),
+                    y: player.getZ(),
+                    rot: player.getYaw()+180,
+                    username: player.getName(),
+                    uuid: player.getUUID().toString()
+                }
+            })
+
+            let uuid = Player.getUUID().toString()
+            let renderX
+            let renderY
+            let xOff = 0
+            let yOff = 0
+            if(this.mapDataPlayers[uuid]){
+    
+                if(this.currDungeonBossImage){
+                    renderX = (this.mapDataPlayers[uuid].x-this.currDungeonBossImage.topLeftLocation[0])/this.currDungeonBossImage.widthInWorld*size
+                    renderY = (this.mapDataPlayers[uuid].y-this.currDungeonBossImage.topLeftLocation[1])/this.currDungeonBossImage.heightInWorld*size
+                }else{
+                    renderX = this.mapDataPlayers[uuid].x/this.mapScale/128*size+this.offset[0]/128*size//*16/this.roomWidth
+                    renderY = this.mapDataPlayers[uuid].y/this.mapScale/128*size+this.offset[1]/128*size//*16/this.roomWidth
+                }
+        
+                if(renderX < 0 || renderX>size
+                    || renderY < 0 || renderY > size){
+                    xOff = size/2-renderX
+                    yOff = size/2-renderY
+                }
+            }
+
+            this.mapImage.draw(x+xOff, y+yOff, size, size)
             
-            this.drawOtherMisc(x, y, size, scale)
+            this.drawOtherMisc(x+xOff, y+yOff, size, scale)
             
-            this.drawPlayersLocations(x, y, size, scale)
+            this.drawPlayersLocations(x+xOff, y+yOff, size, scale)
+
+            renderLibs.stopScizzor()
         }
     }
 
@@ -181,13 +236,6 @@ class DungeonMap extends Feature {
             if(player.getPing()===-1)return
             if(!this.people.includes(player.getName())) return
             uuidToPlayer[player.getUUID().toString()] = player
-            this.mapDataPlayers[player.getUUID().toString()] = {
-                x: player.getX(),
-                y: player.getZ(),
-                rot: player.getYaw()+180,
-                username: player.getName(),
-                uuid: player.getUUID().toString()
-            }
         })
 
         Object.keys(this.mapDataPlayers).forEach((uuid)=>{
@@ -198,10 +246,6 @@ class DungeonMap extends Feature {
             if(this.currDungeonBossImage){
                 renderX = (this.mapDataPlayers[uuid].x-this.currDungeonBossImage.topLeftLocation[0])/this.currDungeonBossImage.widthInWorld*size
                 renderY = (this.mapDataPlayers[uuid].y-this.currDungeonBossImage.topLeftLocation[1])/this.currDungeonBossImage.heightInWorld*size
-                console.log(
-                    (this.mapDataPlayers[uuid].x-this.currDungeonBossImage.topLeftLocation[0])/this.currDungeonBossImage.widthInWorld,
-                    (this.mapDataPlayers[uuid].y-this.currDungeonBossImage.topLeftLocation[1])/this.currDungeonBossImage.heightInWorld
-                )
             }else{
                 renderX = this.mapDataPlayers[uuid].x/this.mapScale/128*size+this.offset[0]/128*size//*16/this.roomWidth
                 renderY = this.mapDataPlayers[uuid].y/this.mapScale/128*size+this.offset[1]/128*size//*16/this.roomWidth
@@ -222,10 +266,6 @@ class DungeonMap extends Feature {
         if(this.currDungeonBossImage){
             renderX = (this.mapDataPlayers[uuid].x-this.currDungeonBossImage.topLeftLocation[0])/this.currDungeonBossImage.widthInWorld*size
             renderY = (this.mapDataPlayers[uuid].y-this.currDungeonBossImage.topLeftLocation[1])/this.currDungeonBossImage.heightInWorld*size
-            console.log(
-                (this.mapDataPlayers[uuid].x-this.currDungeonBossImage.topLeftLocation[0])/this.currDungeonBossImage.widthInWorld,
-                (this.mapDataPlayers[uuid].y-this.currDungeonBossImage.topLeftLocation[1])/this.currDungeonBossImage.heightInWorld
-            )
         }else{
             renderX = this.mapDataPlayers[uuid].x/this.mapScale/128*size+this.offset[0]/128*size//*16/this.roomWidth
             renderY = this.mapDataPlayers[uuid].y/this.mapScale/128*size+this.offset[1]/128*size//*16/this.roomWidth
@@ -561,6 +601,33 @@ class DungeonMap extends Feature {
 
 
         // this.mapImage.setImage(this.renderImage)
+    }
+
+    step5s(){
+        if(!this.FeatureManager.features["dataLoader"].class.isInDungeon) return
+        if(this.people.length < 1) return
+
+        let data = []
+        
+        World.getAllPlayers().forEach(player=>{
+            if(player.getPing()===-1)return
+            if(!this.people.includes(player.getName())) return
+            data.push({
+                x: player.getX(),
+                y: player.getZ(),
+                rot: player.getYaw()+180,
+                username: player.getName(),
+                uuid: player.getUUID().toString()
+            })
+        })
+        // console.log("Sending: " + JSON.stringify(this.people, undefined, 2)+JSON.stringify(data, undefined, 2))
+        socketConnection.sendDungeonData(this.people, data)
+    }
+    updateDungeonMapData(data){
+        // console.log("Recieved: " + JSON.stringify(data, undefined, 2))
+        data.forEach(p=>{
+            this.mapDataPlayers[p.uuid] = p
+        })
     }
     
     getImageForPlayer(uuid){

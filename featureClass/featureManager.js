@@ -63,6 +63,8 @@ class FeatureManager {
         this.recordingPerformanceUsage = false
         this.performanceUsage = {} //{<moduleName>: {<event>: {time: 0, count: 0}}}
 
+        this.longEventTime = 20
+
 
         this.featureMetas = {}
 
@@ -157,6 +159,9 @@ class FeatureManager {
                 this.loadFeature(args)
             }).start()
         }, this)
+        this.registerCommand("soopysetlongeventtime", (args)=>{
+            this.longEventTime = parseInt(args)
+        }, this)
         this.registerCommand("soopylaginformation", (args)=>{ //TODO: make this a dedicated GUI
             new Thread(()=>{
                 this.recordingPerformanceUsage = true
@@ -192,7 +197,7 @@ class FeatureManager {
                     ChatLib.chat("&eModule: &7" + moduleName)
                     ChatLib.chat("&eTotal: &7" + totalMs.toFixed(2) + "ms (" + totalCalls + " calls)")
                     Object.keys(this.performanceUsage[moduleName]).sort((a, b)=>{return this.performanceUsage[moduleName][a].time-this.performanceUsage[moduleName][b].time}).forEach((event)=>{
-                        ChatLib.chat("  &eEvent:&7 " + event + " - " + this.performanceUsage[moduleName][event].time.toFixed(2) + "ms (" + this.performanceUsage[moduleName][event].count + " calls)")
+                        ChatLib.chat("  &eEvent:&7 " + event + " - " + this.performanceUsage[moduleName][event].time.toFixed(2) + "ms (" + this.performanceUsage[moduleName][event].count + " calls) [" + ((this.performanceUsage[moduleName][event].time/this.performanceUsage[moduleName][event].count).toFixed(2)) + "ms avg]")
                     })
                 })
 
@@ -284,7 +289,12 @@ class FeatureManager {
             for(Event of Object.values(this.events[event])){
                 if(Event.context.enabled){
                     this.startRecordingPerformance(Event.context.constructor.name, event)
+                    let start = Date.now()
                     Event.func.call(Event.context, ...args)
+                    let time = Date.now()-start
+                    if(time > this.longEventTime){
+                        logger.logMessage("Long event triggered [" + time + "ms] (" + Event.context.constructor.name + "/" + event + ")", 3)
+                    }
                     this.stopRecordingPerformance(Event.context.constructor.name, event)
                 }
             }
@@ -300,7 +310,12 @@ class FeatureManager {
             for(Event of Object.values(this.soopyEventHandlers[event])){
                 if(Event.context.enabled){
                     this.startRecordingPerformance(Event.context.constructor.name, event)
+                    let start = Date.now()
                     Event.func.call(Event.context, ...args)
+                    let time = Date.now()-start
+                    if(time > this.longEventTime){
+                        logger.logMessage("Long event triggered [" + time + "ms] (" + context.constructor.name + "/" + event + ")", 3)
+                    }
                     this.stopRecordingPerformance(Event.context.constructor.name, event)
                 }
             }
@@ -393,7 +408,12 @@ class FeatureManager {
                 try{
                     if(context.enabled){
                         this.startRecordingPerformance(context.constructor.name, type)
+                        let start = Date.now()
                         func.call(context, ...(args || []))
+                        let time = Date.now()-start
+                        if(time > this.longEventTime){
+                            logger.logMessage("Long event triggered [" + time + "ms] (" + context.constructor.name + "/" + type + ")", 3)
+                        }
                         this.stopRecordingPerformance(context.constructor.name, type)
                     }
                 }catch(e){
@@ -418,7 +438,12 @@ class FeatureManager {
                 try{
                     if(context.enabled){
                         this.startRecordingPerformance(context.constructor.name, event.class.name)
+                        let start = Date.now()
                         func.call(context, ...(args || []))
+                        let time = Date.now()-start
+                        if(time > this.longEventTime){
+                            console.log(this.messagePrefix + "Long (forge) event triggered (" + context.constructor.name + "/" + event.class.toString() + ")")
+                        }
                         this.stopRecordingPerformance(context.constructor.name, event.class.name)
                     }
                 }catch(e){
@@ -521,7 +546,7 @@ class FeatureManager {
         return this
     }
 
-    unloadFeature(feature){ //run in seperate thread so ondisable can do network requests
+    unloadFeature(feature){
         if(!this.features[feature]) return
 
         this.features[feature].class._onDisable()

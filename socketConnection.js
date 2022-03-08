@@ -39,6 +39,9 @@ class SoopyV2Server extends WebsiteCommunicator {
             this.lbdatathing = data.data
             this.lbdatathingupdated = data.lastUpdated
         }
+        if(data.type === "dungeonMapData"){
+            if(global.soopyv2featuremanagerthing.features.dungeonMap)global.soopyv2featuremanagerthing.features.dungeonMap.class.updateDungeonMapData(data.data)
+        }
     }
 
     onConnect(){
@@ -111,6 +114,14 @@ class SoopyV2Server extends WebsiteCommunicator {
             type: "loadStatsQuickCache",
             uuid: uuid,
             username: username
+        })
+    }
+    
+    sendDungeonData(names, data){
+        this.sendData({
+            type: "dungeonMapData",
+            names: names,
+            data: data
         })
     }
 }
