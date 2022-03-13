@@ -39,12 +39,14 @@ class DataLoader extends Feature {
     }
 
     loadApi(){
-        let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/player_skyblock/" + Player.getUUID().replace(/-/g, "")))
+        try{
+            let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/player_skyblock/" + Player.getUUID().replace(/-/g, "")))
 
-        if(!data.success) return
+            if(!data.success) return
 
-        this.api_loaded_event.trigger(data, "skyblock", true, true)
-        this.lastApiData.skyblock = data
+            this.api_loaded_event.trigger(data, "skyblock", true, true)
+            this.lastApiData.skyblock = data
+        }catch(e){}
     }
 
     loadApiData(type, soopyServer){
@@ -64,12 +66,14 @@ class DataLoader extends Feature {
 
         }else{
             if(type === "skyblock"){
-                let data = JSON.parse(FileLib.getUrlContent("https://api.hypixel.net/skyblock/profiles?key=" + key + "&uuid=" + Player.getUUID().replace(/-/g, "")))
-        
-                if(!data.success) return
-        
-                this.api_loaded_event.trigger(data, "skyblock", false, true)
-                this.lastApiData.skyblock_raw = data
+                try{
+                    let data = JSON.parse(FileLib.getUrlContent("https://api.hypixel.net/skyblock/profiles?key=" + key + "&uuid=" + Player.getUUID().replace(/-/g, "")))
+            
+                    if(!data.success) return
+            
+                    this.api_loaded_event.trigger(data, "skyblock", false, true)
+                    this.lastApiData.skyblock_raw = data
+                }catch(e){}
             }
         }
     }

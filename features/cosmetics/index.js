@@ -83,24 +83,26 @@ class Cosmetics extends Feature {
     }
 
     loadCosmeticsData(){
-        let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/cosmetics.json"))
+        try{
+            let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/cosmetics.json"))
 
-        this.cosmeticsData = data
-        this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g,"")]
-        if(this.playerHasACosmeticA && !this.postRenderEntityTrigger){
-            // this.registerEvent("postRenderEntity", this.renderEntity)
-            this.postRenderEntityTrigger = register("postRenderEntity", (entity, pos, ticks, event)=>{
-                if(ticks !== 1) return
-                if(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")]){
-                    let cosmetics = Object.values(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")])
-                    for(let cosmetic of cosmetics){
-                        cosmetic.onRenderEntity(ticks, true)
+            this.cosmeticsData = data
+            this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g,"")]
+            if(this.playerHasACosmeticA && !this.postRenderEntityTrigger){
+                // this.registerEvent("postRenderEntity", this.renderEntity)
+                this.postRenderEntityTrigger = register("postRenderEntity", (entity, pos, ticks, event)=>{
+                    if(ticks !== 1) return
+                    if(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")]){
+                        let cosmetics = Object.values(this.uuidToCosmeticDirect[entity.getUUID().toString().replace(/-/g,"")])
+                        for(let cosmetic of cosmetics){
+                            cosmetic.onRenderEntity(ticks, true)
+                        }
                     }
-                }
-            })
-        }
+                })
+            }
 
-        this.scanForNewCosmetics()
+            this.scanForNewCosmetics()
+        }catch(e){}
     }
 
     setUserCosmeticsInformation(uuid, cosmetics){

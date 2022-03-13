@@ -8,7 +8,6 @@ class SoopyAddons {
         this.FeatureManager.parent = this
     }
 }
-
 if(FileLib.read("soopyAddonsData", "deletesoopyv1please.txt") === "true"){
     new Thread(()=>{
         Thread.sleep(2000)
