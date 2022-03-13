@@ -18,6 +18,13 @@ class SpamHider extends Feature {
         this.moveMessages = []
         this.moveMessagesRexex = []
 
+        this.moveMessagesDict = {
+            all: []
+        }
+        this.hideMessagesDict = {
+            all: []
+        }
+
         this.hideMessagesSetting = new ToggleSetting("Hide some messages", "This will completely remove some spammy messages from chat", true, "completely_hide_spam", this)
         this.moveMessagesSetting = new ToggleSetting("Move some messages to spam hider", "This will move some (potentially) usefull messages into a 'second chat'", true, "move_spam", this)
         this.moveChatMessages = new ToggleSetting("Move spammed chat messages to spam hider", "This will move messages spammed in hubs to spam hider\n(eg the website advertisment bots)", true, "move_spam_chat", this)
@@ -34,34 +41,42 @@ class SpamHider extends Feature {
 
         this.registerEvent("renderOverlay", this.renderOverlay)
 
-        this.registerChat("&r${userandrank}&r&f: ${message}&r", this.chatPlayerMessage)
+        // this.registerChat("&r${userandrank}&r&f: ${message}&r", this.chatPlayerMessage)
     }
 
-    chatPlayerMessage(userandrank, message, e){
-        if(!this.FeatureManager.features["generalSettings"]) return
-        if(userandrank.includes(">")) return
-        if(message.length < 10) return //Short messages like 'LOL' are bound to get repeated
+    // chatPlayerMessage(userandrank, message, e){
+    //     if(!this.FeatureManager.features["generalSettings"]) return
+    //     if(userandrank.includes(">")) return
+    //     if(message.length < 10) return //Short messages like 'LOL' are bound to get repeated
 
-        let msg = sha256(message + "This is a salt PogU")
+    //     let msg = sha256(message + "This is a salt PogU")
 
-        if(soopyV2Server.spammedMessages.includes(msg)){
-            if(this.moveChatMessages.getValue()){
-                this.SpamHiderMessagesRenderer.addMessage(ChatLib.getChatMessage(e, true))
-                cancel(e)
-            }
-            return
-        }
+    //     if(soopyV2Server.spammedMessages.includes(msg)){
+    //         if(this.moveChatMessages.getValue()){
+    //             this.SpamHiderMessagesRenderer.addMessage(ChatLib.getChatMessage(e, true))
+    //             cancel(e)
+    //         }
+    //         return
+    //     }
 
-        if(this.FeatureManager.features["generalSettings"].class.sendChatSetting && this.FeatureManager.features["generalSettings"].class.sendChatSetting.getValue()){
-            soopyV2Server.sendMessageToServer(msg, sha256(this.FeatureManager.features["dataLoader"].class.stats["Server"] + "This is a salt PogU"))
-        }
-    }
+    //     if(this.FeatureManager.features["generalSettings"].class.sendChatSetting && this.FeatureManager.features["generalSettings"].class.sendChatSetting.getValue()){
+    //         soopyV2Server.sendMessageToServer(msg, sha256(this.FeatureManager.features["dataLoader"].class.stats["Server"] + "This is a salt PogU"))
+    //     }
+    // }
 
     onChat(e){
         let msg = ChatLib.getChatMessage(e, true).replace(/§/g, "&").replace(/(?:^&r)|(?:&r$)/g, "")
+        if(msg.length > 1000) return //performance
 
         if(this.hideMessagesSetting.getValue()){
-            this.hideMessagesRexex.forEach(regex => {
+            // console.log("testing " + (this.hideMessagesDict[msg.substring(0,5)]?.length || 0) + this.hideMessagesDict.all.length + " hide messages")
+            this.hideMessagesDict[msg.substring(0,5)]?.forEach(regex => {
+                if(regex.test(msg)){
+                    cancel(e)
+                    return
+                }
+            })
+            this.hideMessagesDict.all.forEach(regex => {
                 if(regex.test(msg)){
                     cancel(e)
                     return
@@ -70,7 +85,15 @@ class SpamHider extends Feature {
         }
 
         if(this.moveMessagesSetting.getValue()){
-            this.moveMessagesRexex.forEach(regex => {
+            // console.log("testing " + (this.moveMessagesDict[msg.substring(0,5)]?.length || 0) + this.moveMessagesDict.all.length + " spam messages")
+            this.moveMessagesDict[msg.substring(0,5)]?.forEach(regex => {
+                if(regex.test(msg)){
+                    this.SpamHiderMessagesRenderer.addMessage(msg)
+                    cancel(e)
+                    return
+                }
+            })
+            this.moveMessagesDict.all.forEach(regex => {
                 if(regex.test(msg)){
                     this.SpamHiderMessagesRenderer.addMessage(msg)
                     cancel(e)
@@ -88,18 +111,38 @@ class SpamHider extends Feature {
         this.hideMessages = messages.hideMessages
         this.moveMessages = messages.moveMessages
 
+        this.hideMessagesDict = {
+            all: []
+        }
+
         this.hideMessagesRexex = []
         this.hideMessages.forEach(message=>{
             let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
                         .replace(/\$\{\*\}/g, "(?:.+)"))
+            if(!message.substring(0,5).includes("$")){
+                if(!this.hideMessagesDict[message.substring(0,5)]) this.hideMessagesDict[message.substring(0,5)] = []
+                this.hideMessagesDict[message.substring(0,5)].push(regex)
+            }else{
+                this.hideMessagesDict.all.push(regex)
+            }
             this.hideMessagesRexex.push(regex)
         })
+
+        this.moveMessagesDict = {
+            all: []
+        }
 
         this.moveMessagesRexex = []
         this.moveMessages.forEach(message=>{
             let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
                         .replace(/\$\{\*\}/g, "(?:.+)"))
                         
+            if(!message.substring(0,5).includes("$")){
+                if(!this.moveMessagesDict[message.substring(0,5)]) this.moveMessagesDict[message.substring(0,5)] = []
+                this.moveMessagesDict[message.substring(0,5)].push(regex)
+            }else{
+                this.moveMessagesDict.all.push(regex)
+            }
             this.moveMessagesRexex.push(regex)
         })
     }

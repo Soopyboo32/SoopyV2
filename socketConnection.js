@@ -7,7 +7,7 @@ class SoopyV2Server extends WebsiteCommunicator {
     constructor(){
         super(socketData.serverNameToId.soopyv2)
 
-        this.spammedMessages = []
+        // this.spammedMessages = []
 
         this.errorsToReport = []
 
@@ -29,9 +29,9 @@ class SoopyV2Server extends WebsiteCommunicator {
         if(data.type === "updateCosmetics"){
             if(global.soopyv2featuremanagerthing.features.cosmetics)global.soopyv2featuremanagerthing.features.cosmetics.class.setUserCosmeticsInformation(data.uuid, data.cosmetics)
         }
-        if(data.type === "spammedmessage"){
-            this.spammedMessages.push(...data.messages)
-        }
+        // if(data.type === "spammedmessage"){
+        //     this.spammedMessages.push(...data.messages)
+        // }
         if(data.type === "playerStatsQuick"){
             if(this.onPlayerStatsLoaded) this.onPlayerStatsLoaded(data.data)
         }
@@ -70,13 +70,13 @@ class SoopyV2Server extends WebsiteCommunicator {
         })
     }
 
-    sendMessageToServer(message, lobbyId){
-        this.sendData({
-            type: "chatMessage",
-            message: message,
-            lobbyId: lobbyId
-        })
-    }
+    // sendMessageToServer(message, lobbyId){
+    //     this.sendData({
+    //         type: "chatMessage",
+    //         message: message,
+    //         lobbyId: lobbyId
+    //     })
+    // }
 
     reportError(error, description){
         // ChatLib.chat(JSON.stringify(error))

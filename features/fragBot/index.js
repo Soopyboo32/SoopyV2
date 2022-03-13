@@ -26,9 +26,9 @@ class FragBot extends Feature {
         this.registerStep(false, 5, this.step)
         this.registerStep(true, 2, this.step2)
 
-        this.registerChat("&9&m-----------------------------&r&9\n&r${player} &r&ehas invited you to join their party!\n&r&eYou have &r&c60 &r&eseconds to accept. &r&6Click here to join!&r&9\n&r&9&m-----------------------------&r", this.recievedPartyInvite)
+        this.registerChat("&9&m---------------------------${*}&r&9\n&r${player} &r&ehas invited you to join their party!\n&r&eYou have &r&c60 &r&eseconds to accept. &r&6Click here to join!&r&9\n&r&9&m----------------------------${*}&r", this.recievedPartyInvite)
     }
-
+    
     step(){
         if(!this.hostingFragBot) return
 
@@ -52,8 +52,7 @@ class FragBot extends Feature {
         }
     }
     recievedPartyInvite(player){
-        if(!this.hostingFragBot) return
-        
+        if(!this.hostingFragBot) return 
         player = ChatLib.removeFormatting(player).split(" ").pop()
 
         this.fragBotQueue.push(player)

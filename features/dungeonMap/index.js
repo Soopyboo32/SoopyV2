@@ -29,7 +29,7 @@ class DungeonMap extends Feature {
     onEnable(){
         this.initVariables()
 
-        this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud (scuffed)", false, "dmap_render", this)
+        this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud", false, "dmap_render", this)
         this.mapLocation = new ImageLocationSetting("Map Location", "Sets the location of the map on the hud","dmap_location", this, [10,10, 1], new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/map.png"))),100,100)
         this.mapBackground = new ToggleSetting("Map Background", "Puts a white background begind the map", false, "dmap_background", this)
         this.brBox = new ToggleSetting("Box around doors in br", "In map category because it uses map to find location (no esp)", true, "dmap_door", this)
@@ -328,6 +328,7 @@ class DungeonMap extends Feature {
     }
 
     updateMapImage(){
+        try{
         World.getAllPlayers().forEach(player=>{
             if(player.getPing()===-1)return
             if(!this.people.includes(player.getName())) return
@@ -339,6 +340,7 @@ class DungeonMap extends Feature {
                 uuid: player.getUUID().toString()
             }
         })
+    }catch(_){}//cocurrent modification
         if(!this.mortLocation){
             try{
             World.getAllEntities().forEach(entity=>{

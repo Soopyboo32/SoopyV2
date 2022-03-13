@@ -53,6 +53,10 @@ class DungeonSolvers extends Feature {
     this.spiritBowDestroyTimer = new ToggleSetting("Timer for when the spirit bow will self destruct", "", true, "spirit_bow_destroy_timer", this);
     this.spiritBowDestroyElement = new HudTextElement().setToggleSetting(this.spiritBowDestroyTimer).setLocationSetting(new LocationSetting("Spirit bow destroy timer location", "Allows you to edit the location of the timer", "spirit_destroy_location", this, [10, 70, 3, 1]).requires(this.spiritBowDestroyTimer).editTempText("&dBow Destroyed in: &c15s"));
 
+    this.spiritBearSpawnTimer = new ToggleSetting("Timer for when the spirit bear will spawn", "", true, "spirit_bear_spawn_timer", this);
+    this.spiritBearSpawnElement = new HudTextElement().setToggleSetting(this.spiritBearSpawnTimer).setLocationSetting(new LocationSetting("Spirit bear spawn timer location", "Allows you to edit the location of the timer", "spirit_bear_spawn_location", this, [10, 70, 3, 1]).requires(this.spiritBearSpawnTimer).editTempText("&dBear spawned in: &c1.57s"));
+
+    this.hudElements.push(this.spiritBearSpawnElement);
     this.hudElements.push(this.spiritBowDestroyElement);
 
     this.bloodCampAssist = new ToggleSetting("Assist blood camp", "Helps guess where and when blood mobs will spawn", true, "blood_camp_assist", this);
@@ -100,6 +104,12 @@ class DungeonSolvers extends Feature {
     this.registerChat("&r&aYou picked up the &r&5Spirit Bow&r&a! Use it to attack &r&cThorn&r&a!&r", () => {
       this.spiritBowPickUps.push(Date.now());
     });
+
+	
+	this.bearSpawning = 0
+	this.registerChat("&r&a&lThe &r&5&lSpirit Bow &r&a&lhas dropped!&r", ()=>{
+		this.bearSpawning = -Date.now()
+	})
 
     this.todoE = [];
     this.eMovingThing = {};
@@ -227,6 +237,12 @@ class DungeonSolvers extends Feature {
   }
 
   renderHud() {
+	if(this.bearSpawning && this.bearSpawning > 0){
+		this.spiritBearSpawnElement.setText("&dBear spawned in: &c" + (Math.max(0,this.bearSpawning-Date.now())/1000).toFixed(2) + "s")
+	}else{
+		this.spiritBearSpawnElement.setText("")
+	}
+
     for (let element of this.hudElements) {
       element.render();
     }
@@ -378,6 +394,14 @@ class DungeonSolvers extends Feature {
 
 	// 	return !e.getEntity()[f.isDead]
 	// })
+
+	if(this.spiritBearSpawnTimer.getValue() && (this.FeatureManager.features["dataLoader"].class.dungeonFloor === "F4" || this.FeatureManager.features["dataLoader"].class.dungeonFloor === "M4")){
+		let id = World.getBlockAt(7, 77, 34).type.getID()
+
+		if((!this.bearSpawning || (this.bearSpawning<0  && this.bearSpawning>-Date.now()+500)) && id === 169){
+			this.bearSpawning = Date.now()+3500
+		}
+	}
   }
 
   addSkull(skull) {
