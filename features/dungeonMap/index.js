@@ -14,6 +14,7 @@ import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseCl
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import ImageLocationSetting from "../settings/settingThings/imageLocation";
 import socketConnection from "../../socketConnection";
+import SoopyKeyPressEvent from "../../../guimanager/EventListener/SoopyKeyPressEvent";
 const BufferedImage = Java.type("java.awt.image.BufferedImage")
 const AlphaComposite = Java.type("java.awt.AlphaComposite")
 
@@ -33,7 +34,9 @@ class DungeonMap extends Feature {
         this.mapLocation = new ImageLocationSetting("Map Location", "Sets the location of the map on the hud","dmap_location", this, [10,10, 1], new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/map.png"))),100,100)
         this.mapBackground = new ToggleSetting("Map Background", "Puts a white background begind the map", false, "dmap_background", this)
         this.brBox = new ToggleSetting("Box around doors in br", "In map category because it uses map to find location (no esp)", true, "dmap_door", this)
+        this.brBoxDisableWhenBloodOpened = new ToggleSetting("Disable blood rush box when blood open", "", true, "dmap_door_disable", this).requires(this.brBox)
         this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this)
+        // this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this).requires(this.spiritLeapOverlay)
         
         this.MAP_QUALITY_SCALE = 2
         this.IMAGE_SIZE = 128*this.MAP_QUALITY_SCALE
@@ -47,6 +50,7 @@ class DungeonMap extends Feature {
         this.puzzles = {}
         this.puzzlesTab = []
         this.roomWidth = 1
+        this.nameToUUID = {}
         this.newPuzzlesTab = []
         this.mortLocationOnMap = undefined
         this.brBoxLoc = undefined
@@ -83,10 +87,23 @@ class DungeonMap extends Feature {
 
         this.currDungeonBossImage = undefined
 
+        this.bloodOpened = false
+        this.registerChat("&r&cThe &r&c&lBLOOD DOOR&r&c has been opened!&r", ()=>{
+            this.bloodOpened = true
+        })
+
+        this.lastDoorOpener = undefined
+        this.registerChat("&r&a${player}&r&a opened a &r&8&lWITHER &r&adoor!&r", (player)=>{
+            this.lastDoorOpener = ChatLib.removeFormatting(player)
+        })
+
         this.spiritLeapOverlayGui = new SpiritLeapOverlay(this)
 
         // this.registerEvent("tick", this.tick)
         this.registerStep(true, 3, this.step)
+        this.registerStep(true, 10, ()=>{
+            this.spiritLeapOverlayGui.tick()
+        })
         this.registerStep(false, 5, this.step5s)
         this.registerEvent("renderOverlay", this.renderOverlay)
         this.registerEvent("renderWorld", this.renderWorld)
@@ -143,18 +160,19 @@ class DungeonMap extends Feature {
         this.puzzlesTab = []
         this.brBoxLoc = undefined
         this.mortLocationOnMap = undefined
+        this.bloodOpened = false
     }
 
     renderWorld(){
         if(this.isInDungeon() && this.brBox.getValue()){
-            if(this.brBoxLoc){
+            if(this.brBoxLoc && (!this.bloodOpened || this.brBoxDisableWhenBloodOpened.getValue())){
                 drawBoxAtBlock(this.brBoxLoc[0]-1.5, 69, this.brBoxLoc[1]-1.5, 255,0,0, 3, 4)
             }
         }
     }
 
     renderOverlay(){
-        if(this.isInDungeon() && this.renderMap.getValue()){
+        if(this.isInDungeon() && this.renderMap.getValue() && !this.spiritLeapOverlayGui.soopyGui.ctGui.isOpen()){
             this.drawMap(this.mapLocation.getValue()[0], this.mapLocation.getValue()[1],100*this.mapLocation.getValue()[2], 0.5*this.mapLocation.getValue()[2])
         }
     }
@@ -323,8 +341,6 @@ class DungeonMap extends Feature {
             this.puzzles[key] = puzzlesTab2.shift()
             // console.log(key, this.puzzles[key], this.puzzlesTab.length)
         })
-
-        this.spiritLeapOverlayGui.tick()
     }
 
     updateMapImage(){
@@ -339,6 +355,8 @@ class DungeonMap extends Feature {
                 username: player.getName(),
                 uuid: player.getUUID().toString()
             }
+
+            this.nameToUUID[player.getName().toLowerCase()] = player.getUUID().toString()
         })
     }catch(_){}//cocurrent modification
         if(!this.mortLocation){
@@ -587,6 +605,8 @@ class DungeonMap extends Feature {
                 });
             }catch(e){}
             }
+            if(!this.renderImage) return
+
             let newMapImageThing = new Image(this.renderImage)
             this.mapImage = newMapImageThing
             this.currDungeonBossImage = undefined
@@ -675,13 +695,21 @@ class SpiritLeapOverlay {
 
         this.soopyGui = new SoopyGui()
 
+        this.buttonsContainer = new SoopyGuiElement().setLocation(0.2,0.2, 0.6, 0.3)
+        this.soopyGui.element.addChild(this.buttonsContainer)
+
         let renderThing = new soopyGuiMapRendererThing(this).setLocation(0,0,1,1)
         this.soopyGui.element.addChild(renderThing)
 
-        this.buttonsContainer = new SoopyGuiElement().setLocation(0.25,0.6, 0.5, 0.4)
-        this.soopyGui.element.addChild(this.buttonsContainer)
+        this.soopyGui.element.addEvent(new SoopyKeyPressEvent().setHandler((key, keyId)=>{
+            if(keyId === 18){
+                this.soopyGui.close()
+            }
+        }))
 
         this.items = {}
+        
+        this.players = {}
     }
     
     guiOpened(event){
@@ -697,24 +725,50 @@ class SpiritLeapOverlay {
         let itemsNew = {}
 
         if(Player.getOpenedInventory()?.getName() === "Spirit Leap"){
+
+            this.players = {}
+            Scoreboard.getLines().forEach(line=>{
+                let name = ChatLib.removeFormatting(line.getName()).replace(/[^A-z0-9 \:\(\)\.\[\]]/g, "")
+                if(name.startsWith("[M] ")) this.players[name.split(" ")[1]] = "M"
+                if(name.startsWith("[A] ")) this.players[name.split(" ")[1]] = "A"
+                if(name.startsWith("[B] ")) this.players[name.split(" ")[1]] = "B"
+                if(name.startsWith("[H] ")) this.players[name.split(" ")[1]] = "H"
+                if(name.startsWith("[T] ")) this.players[name.split(" ")[1]] = "T"
+            })
+
             for(let i = 1;i<9*3;i++){
                 let item = Player.getOpenedInventory().getStackInSlot(i)
                 if(item && item.getID()!==160){
                     itemsNew[item.getName()] = i
                 }
             }
-        }
 
-        if(JSON.stringify(this.items) !== JSON.stringify(itemsNew)){
-            this.items = itemsNew
-            this.buttonsContainer.clearChildren()
-            Object.keys(this.items).forEach((name, i)=>{ //TODO: make the button to leap to the last person to open a door a diff color AND MAKE IT UPDATE LIVE
-                let button = new ButtonWithArrow().setText(name).addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                    Player.getOpenedInventory().click(itemsNew[name])
-                    ChatLib.chat("Leaping to " + name)
-                })).setLocation(0,i/5,1,1/5)
-                this.buttonsContainer.addChild(button)
-            })
+            if(JSON.stringify(this.items) !== JSON.stringify(itemsNew)){
+                this.items = itemsNew
+                this.buttonsContainer.clearChildren()
+                
+                Object.keys(this.items).forEach((name, i)=>{ //TODO: make the button to leap to the last person to open a door a diff color AND MAKE IT UPDATE LIVE
+                    let button = new ButtonWithArrow().setText((ChatLib.removeFormatting(name)===this.parent.lastDoorOpener?"&4":"&2")+"["+this.players[ChatLib.removeFormatting(name)]+"] "+ChatLib.removeFormatting(name)).addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+                        Player.getOpenedInventory().click(itemsNew[name])
+                        ChatLib.chat("Leaping to " + name)
+                    })).setLocation((i%2)*0.5,Math.floor(i/2)*0.5,0.5,0.5)
+                    button.text.setLocation(0.5, 0, 0.4, 1)
+                    button.addEvent(new SoopyRenderEvent().setHandler(()=>{
+                        if(!this.parent.nameToUUID[ChatLib.removeFormatting(name).toLowerCase()]) return
+                        let img = this.parent.getImageForPlayer(this.parent.nameToUUID[ChatLib.removeFormatting(name).toLowerCase()])
+
+                        if(!img) return
+
+                        let x = button.location.getXExact()
+                        let y = button.location.getYExact()
+                        let h = button.location.getHeightExact()
+
+                        img.draw(x+h/5,y+h/10,8*h/10,8*h/10)
+
+                    }))
+                    this.buttonsContainer.addChild(button)
+                })
+            }
         }
     }
 }
@@ -728,31 +782,57 @@ class soopyGuiMapRendererThing extends SoopyGuiElement {
         this.addEvent(new SoopyRenderEvent().setHandler((mouseX, mouseY)=>{
             let size2 = Math.min(Renderer.screen.getWidth()/2, Renderer.screen.getHeight()/2)
 
-            let [x, y, size, scale] = [Renderer.screen.getWidth()/2-size2/2,Renderer.screen.getHeight()/3-size2/2, size2, size2/this.parentE.parent.IMAGE_SIZE]
+            let [x, y, size, scale] = [Renderer.screen.getWidth()/2-size2/2,2*Renderer.screen.getHeight()/3-size2/3, size2, size2/this.parentE.parent.IMAGE_SIZE]
 
             this.parentE.parent.drawMap(x, y, size, scale)
 
-            if(mouseY>y+size2) return
-            let closestPlayer = this.getClosestPlayerTo(x, y, size, scale, mouseX, mouseY)
+            let closestPlayer
+            if(mouseY>y){
+                closestPlayer = this.getClosestPlayerTo(x, y, size, scale, mouseX, mouseY)
 
+                if(closestPlayer){
+                    let renderX = closestPlayer.x/this.parentE.parent.mapScale/128*size//*16/this.roomWidth
+                    let renderY = closestPlayer.y/this.parentE.parent.mapScale/128*size//*16/this.roomWidth
+        
+                    Renderer.translate(renderX+x+this.parentE.parent.offset[0]/128*size, renderY+y+this.parentE.parent.offset[1]/128*size, 1000)
+                    Renderer.scale(scale*3, scale*3)
+                    Renderer.rotate(closestPlayer.rot)
+                    this.parentE.parent.getImageForPlayer(closestPlayer.uuid).draw(-5,-5, 10, 10)
+                }
+            }
+            Object.keys(this.parentE.parent.mapDataPlayers).forEach(uuid=>{
+                let player = this.parentE.parent.mapDataPlayers[uuid]
+
+                let renderX = player.x/this.parentE.parent.mapScale/128*size//*16/this.roomWidth
+                let renderY = player.y/this.parentE.parent.mapScale/128*size//*16/this.roomWidth
+    
+                Renderer.translate(renderX+x+this.parentE.parent.offset[0]/128*size, renderY+y+this.parentE.parent.offset[1]/128*size,1000)
+                renderLibs.drawStringCenteredShadow((player.uuid===closestPlayer?.uuid?"&c":"&a") + "["+this.parentE.players[player.username]+"] "+player.username, 0,-7*scale*3, 2)
+                /*
+                {
+                    x: player.getX(),
+                    y: player.getZ(),
+                    rot: player.getYaw()+180,
+                    username: player.getName(),
+                    uuid: player.getUUID().toString()
+                }
+                */
+            })
+            
             if(closestPlayer){
                 let renderX = closestPlayer.x/this.parentE.parent.mapScale/128*size//*16/this.roomWidth
                 let renderY = closestPlayer.y/this.parentE.parent.mapScale/128*size//*16/this.roomWidth
     
                 Renderer.translate(renderX+x+this.parentE.parent.offset[0]/128*size, renderY+y+this.parentE.parent.offset[1]/128*size)
-                renderLibs.drawStringCentered("&a" + closestPlayer.username, 0,-10*scale*3, 2)
-                Renderer.translate(renderX+x+this.parentE.parent.offset[0]/128*size, renderY+y+this.parentE.parent.offset[1]/128*size)
-                Renderer.scale(scale*3, scale*3)
-                Renderer.rotate(closestPlayer.rot)
-                this.parentE.parent.getImageForPlayer(closestPlayer.uuid).draw(-5,-5, 10, 10)
+                renderLibs.drawStringCenteredShadow("&c" + "["+this.parentE.players[closestPlayer.username]+"] "+closestPlayer.username, 0,-7*scale*3, 2)
             }
         }))
         this.addEvent(new SoopyMouseClickEvent().setHandler((mouseX, mouseY)=>{
             let size2 = Math.min(Renderer.screen.getWidth()/2, Renderer.screen.getHeight()/2)
 
-            let [x, y, size, scale] = [Renderer.screen.getWidth()/2-size2/2,Renderer.screen.getHeight()/3-size2/2, size2, size2/this.parentE.parent.IMAGE_SIZE]
+            let [x, y, size, scale] = [Renderer.screen.getWidth()/2-size2/2,2*Renderer.screen.getHeight()/3-size2/3, size2, size2/this.parentE.parent.IMAGE_SIZE]
 
-            if(mouseY>y+size2) return
+            if(mouseY<y) return
 
             let closestPlayer = this.getClosestPlayerTo(x, y, size, scale, mouseX, mouseY)
 
