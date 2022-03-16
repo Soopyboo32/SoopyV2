@@ -1,17 +1,11 @@
 {
-    "$schema": "../CTAutocomplete/schema.json",
-    "creator": "Soopyboo32",
-    "author": "Soopyboo32",
-    "entry": "index.js",
-    "description": "Soopy addons v2",
-    "name": "SoopyV2",
-    "version": "2.1.37",
-    "versionId": 164,
-    "requires": [
-        "soopyApis",
-        "soopyAddonsData",
-        "CustomTabCompletions",
-        "guimanager",
-        "mappings"
-    ]
+  "$schema": "../CTAutocomplete/schema.json",
+  "creator": "Soopyboo32",
+  "author": "Soopyboo32",
+  "entry": "index.js",
+  "description": "Soopy addons v2",
+  "name": "SoopyV2",
+  "version": "2.1.38",
+  "versionId": 165,
+  "requires": ["soopyApis", "soopyAddonsData", "CustomTabCompletions", "guimanager", "mappings"]
 }
