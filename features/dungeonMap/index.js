@@ -660,7 +660,7 @@ class DungeonMap extends Feature {
 
         this.playerImages[uuid]= "Loading"
         new Thread(()=>{
-            this.playerImages[uuid] = new Image("skull-" + uuid,"https://cravatar.eu/helmavatar/" + uuid)
+            this.playerImages[uuid] = new Image("skull-" + uuid+"-v2","https://crafatar.com/avatars/" + uuid+"?size=8")
         }).start()
         return this.defaultPlayerImage
     }
