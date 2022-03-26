@@ -314,7 +314,7 @@ class FeatureManager {
                     Event.func.call(Event.context, ...args)
                     let time = Date.now()-start
                     if(time > this.longEventTime){
-                        logger.logMessage("Long event triggered [" + time + "ms] (" + context.constructor.name + "/" + event + ")", 3)
+                        logger.logMessage("Long event triggered [" + time + "ms] (" + Event.context.constructor.name + "/" + event + ")", 3)
                     }
                     this.stopRecordingPerformance(Event.context.constructor.name, event)
                 }

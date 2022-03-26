@@ -31,7 +31,6 @@ class StatNextToName extends Feature {
             "networth": "small"
         }
 
-        this.oldUserStats = {}
         this.userStats = {}
 
         this.loadingStats = []
@@ -51,7 +50,7 @@ class StatNextToName extends Feature {
 
         if(this.lastWorldLoad && Date.now() - this.lastWorldLoad > 1000){
             World.getAllPlayers().forEach(player => {
-                if(this.userStats[player.getUUID().toString().replace(/-/g, "")] || this.oldUserStats[player.getUUID().toString().replace(/-/g, "")]) return
+                if(this.userStats[player.getUUID().toString().replace(/-/g, "")]) return
                 if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
                 this.loadPlayerStatsCache(player.getUUID().toString().replace(/-/g, ""), player.getName())
             })
@@ -63,7 +62,7 @@ class StatNextToName extends Feature {
         let nearestDistance = Infinity
 
         World.getAllPlayers().forEach(player => {
-            if(this.userStats[player.getUUID().toString().replace(/-/g, "")] || this.oldUserStats[player.getUUID().toString().replace(/-/g, "")]){
+            if(this.userStats[player.getUUID().toString().replace(/-/g, "")]){
                 this.updatePlayerNametag(player)
                 return
             }
@@ -85,7 +84,6 @@ class StatNextToName extends Feature {
 
     worldLoad(){
         let playerStats = this.userStats[Player.getUUID().toString().replace(/-/g, "")]
-        this.oldUserStats = this.userStats
         this.userStats = {}
         this.loadingStats = []
         if(playerStats){
@@ -97,14 +95,14 @@ class StatNextToName extends Feature {
     
     playerJoined(player){
         if(player.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return
-        if(this.userStats[player.getUUID().toString().replace(/-/g, "")] || this.oldUserStats[player.getUUID().toString().replace(/-/g, "")]) return
+        if(this.userStats[player.getUUID().toString().replace(/-/g, "")]) return
         if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
     
         this.loadPlayerStatsCache(player.getUUID().toString().replace(/-/g, ""), player.getName())
     }
 
     updatePlayerNametag(player){
-        let stats = this.userStats[player.getUUID().toString().replace(/-/g, "")] || this.oldUserStats[player.getUUID().toString().replace(/-/g, "")]
+        let stats = this.userStats[player.getUUID().toString().replace(/-/g, "")]
 
         let nameTagString = player.getName()
 

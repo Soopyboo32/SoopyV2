@@ -67,13 +67,17 @@ class DataLoader extends Feature {
         }else{
             if(type === "skyblock"){
                 try{
+                    // console.log("loading")
                     let data = JSON.parse(FileLib.getUrlContent("https://api.hypixel.net/skyblock/profiles?key=" + key + "&uuid=" + Player.getUUID().replace(/-/g, "")))
             
                     if(!data.success) return
             
                     this.api_loaded_event.trigger(data, "skyblock", false, true)
                     this.lastApiData.skyblock_raw = data
-                }catch(e){}
+                }catch(e){
+                    console.log("Hypixel api request failed:")
+                    console.log(JSON.stringify(e, undefined, 2))
+                }
             }
         }
     }

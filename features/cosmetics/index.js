@@ -61,7 +61,7 @@ class Cosmetics extends Feature {
         // })
         // this.registerEvent("renderEntity", this.renderEntity)
 
-        if(global.soopyV2Server.userCosmeticPermissions){
+        if(global.soopyV2Server && global.soopyV2Server.userCosmeticPermissions){
             this.updateUserCosmeticPermissionSettings()
         }
     }

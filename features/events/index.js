@@ -195,7 +195,11 @@ class Events extends Feature {
 
     loadApi(){
         new Thread(()=>{ 
-            this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
+            while(this.nextUpdateApprox === -2){
+                this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
+
+                Thread.sleep(5000)
+            }
         }).start()
     }
 
