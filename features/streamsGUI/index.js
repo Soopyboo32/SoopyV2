@@ -11,6 +11,7 @@ import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseCl
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import BoxWithText from "../../../guimanager/GuiElement/BoxWithText";
 import { drawBoxAtBlock } from "../../utils/renderUtils";
+import { fetch } from "../../utils/networkUtils";
 
 class StreamsGui extends Feature {
     constructor() {
@@ -64,22 +65,22 @@ class StreamPage extends GuiPage {
     }
 
     updateStreams(){
-        let streams = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/skyblockstreams"))
-
-        this.streamsBox.clearChildren()
-
-        let y = 0
-
-        Object.keys(streams.twitch).forEach((channel, i)=>{
-            let stream = streams.twitch[channel]
-
-            if(i%2===0){
-                this.streamsBox.addChild(new StreamElement().setStream(stream, true).setLocation(0, y, 0.45, 0.55).setStreamPage(this))
-            }
-            if(i%2===1){
-                this.streamsBox.addChild(new StreamElement().setStream(stream, true).setLocation(0.55, y, 0.45, 0.55).setStreamPage(this))
-                y+= 0.6
-            }
+        fetch("http://soopymc.my.to/api/skyblockstreams").json(streams=>{
+            this.streamsBox.clearChildren()
+    
+            let y = 0
+    
+            Object.keys(streams.twitch).forEach((channel, i)=>{
+                let stream = streams.twitch[channel]
+    
+                if(i%2===0){
+                    this.streamsBox.addChild(new StreamElement().setStream(stream, true).setLocation(0, y, 0.45, 0.55).setStreamPage(this))
+                }
+                if(i%2===1){
+                    this.streamsBox.addChild(new StreamElement().setStream(stream, true).setLocation(0.55, y, 0.45, 0.55).setStreamPage(this))
+                    y+= 0.6
+                }
+            })
         })
     }
 
@@ -120,9 +121,7 @@ class StreamPage extends GuiPage {
     }
 
     onOpen(){
-        new Thread(()=>{
-            this.updateStreams()
-        }).start()
+        this.updateStreams()
     }
 }
 

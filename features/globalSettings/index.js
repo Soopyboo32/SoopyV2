@@ -12,6 +12,7 @@ import logger from "../../logger";
 import soopyV2Server from "../../socketConnection";
 import { numberWithCommas } from "../../utils/numberUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
+import { fetch } from "../../utils/networkUtils";
 const Files = Java.type("java.nio.file.Files")
 const Paths = Java.type("java.nio.file.Paths")
 const JavaString = Java.type("java.lang.String")
@@ -65,14 +66,10 @@ class Hud extends Feature {
         
 
         this.registerCommand("soopyweight", (user=Player.getName())=>{
-            new Thread(()=>{
-                this.soopyWeight(user)
-            }).start()
+            this.soopyWeight(user)
         })
         this.registerCommand("sweight", (user=Player.getName())=>{
-            new Thread(()=>{
-                this.soopyWeight(user)
-            }).start()
+            this.soopyWeight(user)
         })
     }
 
@@ -80,70 +77,72 @@ class Hud extends Feature {
 
         ChatLib.chat(this.FeatureManager.messagePrefix + "Finding senither weight for " + user)
 
-        let userData = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/player/"+user))
-
-        if(!userData.success){
-            ChatLib.chat(this.FeatureManager.messagePrefix + "&cError loading data: " + userData.error.description)
-            return
-        }
-
-        let sbData = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/player_skyblock/"+userData.data.uuid))
-
-        if(!sbData.success){
-            ChatLib.chat(this.FeatureManager.messagePrefix + "&cError loading data: " + sbData.error.description)
-            return
-        }
-
-        ChatLib.chat("&c" + ChatLib.getChatBreak("-"))
-        ChatLib.chat(userData.data.stats.nameWithPrefix + "'s senither weight (best profile):")
-        ChatLib.chat("&aTotal: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.total)))
-        new Message(new TextComponent("&aSkills: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill.total)))
-        .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill).map(skill=>{
-            if(skill === "total"){
-                return null
+        fetch("http://soopymc.my.to/api/v2/player/"+user).json(userData=>{
+            if(!userData.success){
+                ChatLib.chat(this.FeatureManager.messagePrefix + "&cError loading data: " + userData.error.description)
+                return
             }
-            return "&a"+firstLetterCapital(skill)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill[skill].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill[skill].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill[skill].overflow)) + ")"
-        }).filter(a=>a).join("\n"))).chat()
-        new Message(new TextComponent("&aSlayer: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer.total)))
-        .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer).map(slayer=>{
-            if(slayer === "total"){
-                return null
-            }
-            return "&a"+firstLetterCapital(slayer)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer[slayer].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer[slayer].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer[slayer].overflow)) + ")"
-        }).filter(a=>a).join("\n"))).chat()
-        new Message(new TextComponent("&aDungeon: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons.total)))
-        .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons).map(dungeons=>{
-            if(dungeons === "total"){
-                return null
-            }
-            return "&a"+firstLetterCapital(dungeons)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons[dungeons].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons[dungeons].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons[dungeons].overflow)) + ")"
-        }).filter(a=>a).join("\n"))).chat()
-        if(sbData.data.stats.bestProfileId !== sbData.data.stats.currentProfileId){
-            ChatLib.chat(userData.data.stats.nameWithPrefix + "'s senither weight (current profile):")
-            ChatLib.chat("&aTotal: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.total)))
-            new Message(new TextComponent("&aSkills: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill.total)))
-            .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill).map(skill=>{
-                if(skill === "total"){
-                    return null
+
+            fetch("http://soopymc.my.to/api/v2/player_skyblock/"+userData.data.uuid).json(sbData=>{
+            
+                if(!sbData.success){
+                    ChatLib.chat(this.FeatureManager.messagePrefix + "&cError loading data: " + sbData.error.description)
+                    return
                 }
-                return "&a"+firstLetterCapital(skill)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill[skill].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill[skill].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill[skill].overflow)) + ")"
-            }).filter(a=>a).join("\n"))).chat()
-            new Message(new TextComponent("&aSlayer: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer.total)))
-            .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer).map(slayer=>{
-                if(slayer === "total"){
-                    return null
+
+                ChatLib.chat("&c" + ChatLib.getChatBreak("-"))
+                ChatLib.chat(userData.data.stats.nameWithPrefix + "'s senither weight (best profile):")
+                ChatLib.chat("&aTotal: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.total)))
+                new Message(new TextComponent("&aSkills: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill.total)))
+                .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill).map(skill=>{
+                    if(skill === "total"){
+                        return null
+                    }
+                    return "&a"+firstLetterCapital(skill)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill[skill].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill[skill].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.skill[skill].overflow)) + ")"
+                }).filter(a=>a).join("\n"))).chat()
+                new Message(new TextComponent("&aSlayer: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer.total)))
+                .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer).map(slayer=>{
+                    if(slayer === "total"){
+                        return null
+                    }
+                    return "&a"+firstLetterCapital(slayer)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer[slayer].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer[slayer].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.slayer[slayer].overflow)) + ")"
+                }).filter(a=>a).join("\n"))).chat()
+                new Message(new TextComponent("&aDungeon: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons.total)))
+                .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons).map(dungeons=>{
+                    if(dungeons === "total"){
+                        return null
+                    }
+                    return "&a"+firstLetterCapital(dungeons)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons[dungeons].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons[dungeons].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.bestProfileId].members[userData.data.uuid].weight.dungeons[dungeons].overflow)) + ")"
+                }).filter(a=>a).join("\n"))).chat()
+                if(sbData.data.stats.bestProfileId !== sbData.data.stats.currentProfileId){
+                    ChatLib.chat(userData.data.stats.nameWithPrefix + "'s senither weight (current profile):")
+                    ChatLib.chat("&aTotal: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.total)))
+                    new Message(new TextComponent("&aSkills: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill.total)))
+                    .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill).map(skill=>{
+                        if(skill === "total"){
+                            return null
+                        }
+                        return "&a"+firstLetterCapital(skill)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill[skill].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill[skill].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.skill[skill].overflow)) + ")"
+                    }).filter(a=>a).join("\n"))).chat()
+                    new Message(new TextComponent("&aSlayer: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer.total)))
+                    .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer).map(slayer=>{
+                        if(slayer === "total"){
+                            return null
+                        }
+                        return "&a"+firstLetterCapital(slayer)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer[slayer].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer[slayer].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer[slayer].overflow)) + ")"
+                    }).filter(a=>a).join("\n"))).chat()
+                    new Message(new TextComponent("&aDungeon: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons.total)))
+                    .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons).map(dungeons=>{
+                        if(dungeons === "total"){
+                            return null
+                        }
+                        return "&a"+firstLetterCapital(dungeons)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons[dungeons].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons[dungeons].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons[dungeons].overflow)) + ")"
+                    }).filter(a=>a).join("\n"))).chat()
                 }
-                return "&a"+firstLetterCapital(slayer)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer[slayer].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer[slayer].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.slayer[slayer].overflow)) + ")"
-            }).filter(a=>a).join("\n"))).chat()
-            new Message(new TextComponent("&aDungeon: &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons.total)))
-            .setHover("show_text", Object.keys(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons).map(dungeons=>{
-                if(dungeons === "total"){
-                    return null
-                }
-                return "&a"+firstLetterCapital(dungeons)+": &b" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons[dungeons].total)) + " &7(" + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons[dungeons].weight)) + " | " + numberWithCommas(Math.round(sbData.data.profiles[sbData.data.stats.currentProfileId].members[userData.data.uuid].weight.dungeons[dungeons].overflow)) + ")"
-            }).filter(a=>a).join("\n"))).chat()
-        }
-        ChatLib.chat("&c" + ChatLib.getChatBreak("-"))
+                ChatLib.chat("&c" + ChatLib.getChatBreak("-"))
+
+            })
+        })
     }
 
     showFirstLoadPage(){
@@ -161,7 +160,7 @@ class Hud extends Feature {
         if(key){
             try{
                 var url = "https://api.hypixel.net/key?key=" + key
-                let data = JSON.parse(FileLib.getUrlContent(url))
+                let data = fetch(url).json()
 
                 // console.log(data)
 
@@ -269,7 +268,7 @@ class Hud extends Feature {
         if(key){
             try{
                 var url = "https://api.hypixel.net/key?key=" + key
-                let data = JSON.parse(FileLib.getUrlContent(url))
+                let data = fetch(url).json()
 
                 if(data.success){
                     return true
@@ -289,7 +288,7 @@ class Hud extends Feature {
         new Thread(()=>{
             try{
                 var url = "https://api.hypixel.net/key?key=" + this.module.apiKeySetting.getValue()
-                let data = JSON.parse(FileLib.getUrlContent(url))
+                let data = fetch(url).json()
 
                 if(data.success){
                     new Notification("§aSuccess!", ["Your api key is valid!"])

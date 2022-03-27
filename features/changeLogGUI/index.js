@@ -10,6 +10,7 @@ import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ProgressBar from "../../../guimanager/GuiElement/ProgressBar"
 import SoopyRenderEvent from "../../../guimanager/EventListener/SoopyRenderEvent"
+import { fetch } from "../../utils/networkUtils";
 const File = Java.type("java.io.File")
 const URL = Java.type("java.net.URL");
 const PrintStream = Java.type("java.io.PrintStream");
@@ -125,19 +126,19 @@ class ChangelogPage extends GuiPage {
     }
 
     loadChangeLog(){
-        let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/changelog.json"))
+        fetch("http://soopymc.my.to/api/soopyv2/changelog.json").json(data=>{
 
-        this.changelogData = data.changelog.reverse()
+            this.changelogData = data.changelog.reverse()
 
-        this.downloadableVersion = data.downloadableVersion
+            this.downloadableVersion = data.downloadableVersion
+        
+            this.updateText()
+        })
+
     }
 
     onOpen(){
-        new Thread(()=>{
-            this.loadChangeLog()
-
-            this.updateText()
-        }).start()
+        this.loadChangeLog()
     }
 
     // showConfirmUpdatePage(){

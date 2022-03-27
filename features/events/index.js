@@ -175,12 +175,16 @@ class Events extends Feature {
     step_5s(){
         if(this.showingWaypoints){
             if(this.burrialWaypointsPath.getValue() || this.burrialWaypointsNearest.getValue()){
-                new Thread(()=>{
+                new Thread(()=>{ //TODO: make 5head thing to re-use threads
                     this.updateBurrialPath()
                 }).start()
             }
         }
         this.sortBurrialLocations()
+
+        if(this.nextUpdateApprox === -2){
+            this.loadApi()
+        }
     }
 
     worldLoad(){
@@ -194,13 +198,7 @@ class Events extends Feature {
     }
 
     loadApi(){
-        new Thread(()=>{ 
-            while(this.nextUpdateApprox === -2){
-                this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
-
-                Thread.sleep(5000)
-            }
-        }).start()
+        this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
     }
 
     apiLoad(data, dataType, isSoopyServer, isLatest){ 

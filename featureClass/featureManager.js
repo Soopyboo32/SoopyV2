@@ -5,6 +5,7 @@ import logger from "../logger";
 const File = Java.type("java.io.File")
 import metadata from "../metadata.js"
 import soopyV2Server from "../socketConnection";
+import { fetch } from "../utils/networkUtils";
 import { registerForge as registerForgeBase, unregisterForge as unregisterForgeBase} from "./forgeEvents.js"
 
 const JSLoader = Java.type("com.chattriggers.ctjs.engine.langs.js.JSLoader")
@@ -73,7 +74,9 @@ class FeatureManager {
         new Thread(()=>{
 
             try{
-                FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/ping")
+                if(fetch("http://soopymc.my.to/api/soopyv2/ping").responseCode() >= 400){
+                    ChatLib.chat(this.messagePrefix + "&cError: Could not connect to Soopy's server. This may cause issues with features breaking but will (hopefully) be back soon.")
+                }
             }catch(e){
                 ChatLib.chat(this.messagePrefix + "&cError: Could not connect to Soopy's server. This may cause issues with features breaking but will (hopefully) be back soon.")
             }

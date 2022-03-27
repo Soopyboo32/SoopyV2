@@ -16,6 +16,7 @@ import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseCl
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import Dropdown from "../../../guimanager/GuiElement/Dropdown";
 import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent";
+import { fetch } from "../../utils/networkUtils";
 
 class SuggestionGui extends Feature {
     constructor() {
@@ -55,11 +56,9 @@ class SuggestionPage extends GuiPage {
 
             elm.addEvent(new SoopyKeyPressEvent().setHandler((key, keyId)=>{
                 if(elm.text.selected && keyId === 28){
-                    new Thread(()=>{
-                        this.password = elm.text.text
-                        elm.setText("")
-                        elm.text.selected = false
-                    }).start()
+                    this.password = elm.text.text
+                    elm.setText("")
+                    elm.text.selected = false
                 }
             }))
         }else{
@@ -81,141 +80,135 @@ class SuggestionPage extends GuiPage {
         this.pages[0].addChild(this.suggestionsArea)
 
 
-        this.tags = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/suggestionTags.json"))
+        fetch("http://soopymc.my.to/api/soopyv2/suggestionTags.json").json(data=>{
+            this.tags = data
+        })
 
         this.finaliseLoading()
     }
 
     loadSuggestionPage(){
 
-        let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/suggestion/new"))
-
-        this.suggestionElements = {}
-        this.suggestionsArea.clearChildren()
-
-        let i = 0
-
-        data.suggestions.forEach((suggestion) => {
-
-            if(suggestion.status === "pending_review" || suggestion.status === "closed"){
-                if(suggestion.uuid !== Player.getUUID().toString().replace(/-/g, "") && Player.getUUID().toString().replace(/-/g, "") !== "dc8c39647b294e03ae9ed13ebd65dd29")return
-            }
-
-            let box = new SoopyBoxElement().setLocation(0, 0.225 * i, 1, 0.2).setLore(["Click for more information + vote buttons"])
-            this.suggestionsArea.addChild(box)
-
-            let title = new SoopyTextElement().setText("§0" + suggestion.title + " §7(" + this.tags.suggestionTags[suggestion.tag] + ")").setMaxTextScale(2).setLocation(0, 0, 0.8,1)
-            box.addChild(title)
-
-            let popularity = new SoopyTextElement().setText("§0Opinion: " + numberWithCommas(suggestion.likes-suggestion.dislikes)).setMaxTextScale(2).setLocation(0.85,0,0.1,1)
-            box.addChild(popularity)
-
-            this.suggestionElements[suggestion._id] = {
-                title: title,
-                popularity: popularity
-            }
-
-            box.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                new Thread(()=>{
+        fetch("http://soopymc.my.to/api/soopyv2/suggestion/new").json(data=>{
+            this.suggestionElements = {}
+            this.suggestionsArea.clearChildren()
+    
+            let i = 0
+    
+            data.suggestions.forEach((suggestion) => {
+    
+                if(suggestion.status === "pending_review" || suggestion.status === "closed"){
+                    if(suggestion.uuid !== Player.getUUID().toString().replace(/-/g, "") && Player.getUUID().toString().replace(/-/g, "") !== "dc8c39647b294e03ae9ed13ebd65dd29")return
+                }
+    
+                let box = new SoopyBoxElement().setLocation(0, 0.225 * i, 1, 0.2).setLore(["Click for more information + vote buttons"])
+                this.suggestionsArea.addChild(box)
+    
+                let title = new SoopyTextElement().setText("§0" + suggestion.title + " §7(" + this.tags.suggestionTags[suggestion.tag] + ")").setMaxTextScale(2).setLocation(0, 0, 0.8,1)
+                box.addChild(title)
+    
+                let popularity = new SoopyTextElement().setText("§0Opinion: " + numberWithCommas(suggestion.likes-suggestion.dislikes)).setMaxTextScale(2).setLocation(0.85,0,0.1,1)
+                box.addChild(popularity)
+    
+                this.suggestionElements[suggestion._id] = {
+                    title: title,
+                    popularity: popularity
+                }
+    
+                box.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
                     this.loadSuggestion(suggestion._id)
-                }).start()
-            }))
-
-            i++
-        });
+                }))
+    
+                i++
+            });
+        })
     }
 
     loadSuggestion(id){
-        let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/user/" + Player.getUUID().toString().replace(/-/g,"")))
-
-        let sideBarElm = new SoopyGuiElement().setLocation(0,0,1,1).setScrollable(true)
-        if(!data.success){
-            sideBarElm.addChild(new SoopyTextElement().setText("§cError loading suggestion").setMaxTextScale(3).setLocation(0.5,0.5,0.5,0.5))
-            this.openSidebarPage(sideBarElm)
-            return
-        }
-
-        this.suggestionElements[id].title.setText("§0" + data.suggestion.title + " §7(" + this.tags.suggestionTags[data.suggestion.tag] + ")")
-        this.suggestionElements[id].popularity.setText("§0Opinion: " + numberWithCommas(data.suggestion.likes-data.suggestion.dislikes))
-
-
-        let title = new SoopyTextElement().setText("§0" + data.suggestion.title + " §7(" + this.tags.suggestionTags[data.suggestion.tag] + ")").setMaxTextScale(2).setLocation(0.05, 0.05, 0.9,0.1)
-        sideBarElm.addChild(title)
-
-        if(Player.getUUID().toString().replace(/-/g, "") !== "dc8c39647b294e03ae9ed13ebd65dd29"){
-            let suggestor = new SoopyTextElement().setText("§7Suggested by " + data.suggestion.username + " | Status: " + this.tags.statusTags[data.suggestion.status]).setMaxTextScale(1).setLocation(0.05, 0.15, 0.9,0.05)
-            sideBarElm.addChild(suggestor)
-        }else{
-            let suggestor = new SoopyTextElement().setText("§7Suggested by " + data.suggestion.username + " | Status: ").setMaxTextScale(1).setLocation(0.05, 0.15, 0.6,0.05)
-            sideBarElm.addChild(suggestor)
-
-            let drop = new Dropdown().setLocation(0.65, 0.13, 0.3, 0.09).setOptions({...this.tags.statusTags,"delete": "Delete"}).setSelectedOption(data.suggestion.status)
-            sideBarElm.addChild(drop)
-
-            drop.addEvent(new SoopyContentChangeEvent().setHandler((newVal)=>{
-                new Thread(()=>{
+        fetch("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/user/" + Player.getUUID().toString().replace(/-/g,"")).json(data=>{
+            let sideBarElm = new SoopyGuiElement().setLocation(0,0,1,1).setScrollable(true)
+            if(!data.success){
+                sideBarElm.addChild(new SoopyTextElement().setText("§cError loading suggestion").setMaxTextScale(3).setLocation(0.5,0.5,0.5,0.5))
+                this.openSidebarPage(sideBarElm)
+                return
+            }
+    
+            this.suggestionElements[id].title.setText("§0" + data.suggestion.title + " §7(" + this.tags.suggestionTags[data.suggestion.tag] + ")")
+            this.suggestionElements[id].popularity.setText("§0Opinion: " + numberWithCommas(data.suggestion.likes-data.suggestion.dislikes))
+    
+    
+            let title = new SoopyTextElement().setText("§0" + data.suggestion.title + " §7(" + this.tags.suggestionTags[data.suggestion.tag] + ")").setMaxTextScale(2).setLocation(0.05, 0.05, 0.9,0.1)
+            sideBarElm.addChild(title)
+    
+            if(Player.getUUID().toString().replace(/-/g, "") !== "dc8c39647b294e03ae9ed13ebd65dd29"){
+                let suggestor = new SoopyTextElement().setText("§7Suggested by " + data.suggestion.username + " | Status: " + this.tags.statusTags[data.suggestion.status]).setMaxTextScale(1).setLocation(0.05, 0.15, 0.9,0.05)
+                sideBarElm.addChild(suggestor)
+            }else{
+                let suggestor = new SoopyTextElement().setText("§7Suggested by " + data.suggestion.username + " | Status: ").setMaxTextScale(1).setLocation(0.05, 0.15, 0.6,0.05)
+                sideBarElm.addChild(suggestor)
+    
+                let drop = new Dropdown().setLocation(0.65, 0.13, 0.3, 0.09).setOptions({...this.tags.statusTags,"delete": "Delete"}).setSelectedOption(data.suggestion.status)
+                sideBarElm.addChild(drop)
+    
+                drop.addEvent(new SoopyContentChangeEvent().setHandler((newVal)=>{
                     if(newVal === "delete"){
-                        FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/delete/" + this.password)
+                        fetch("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/delete/" + this.password).async()
                     
                         this.loadSuggestionPage()
                         this.closeSidebarPage()
                         return
                     }
-                    FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/status/" + newVal+ "/" + this.password)
+                    fetch("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/status/" + newVal+ "/" + this.password).async()
                     
                     this.loadSuggestion(id)
-                }).start()
-            }))
-        }
-
-        let likesText = new SoopyTextElement().setText("§0Dislikes: " + numberWithCommas(data.suggestion.dislikes) + " Likes: " + numberWithCommas(data.suggestion.likes)).setMaxTextScale(1).setLocation(0.35, 0.225, 0.3,0.1)
-        sideBarElm.addChild(likesText)
-        if(!data.suggestion.hasDisliked){
-            let dislikeButton = new ButtonWithArrow().setDirectionRight(false).setText("§cDislike").setLocation(0.05, 0.225, 0.275,0.1)
-            sideBarElm.addChild(dislikeButton)
-            dislikeButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                this.voteSuggestion(id, "dislike")
-            }))
-        }else{
-            let dislikeButton = new ButtonWithArrow().setDirectionRight(false).setText("§cUndislike").setLocation(0.05, 0.225, 0.275,0.1)
-            sideBarElm.addChild(dislikeButton)
-            dislikeButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                this.voteSuggestion(id, "clear")
-            }))
-        }
-        if(!data.suggestion.hasLiked){
-            let likeButton = new ButtonWithArrow().setText("§aLike").setLocation(0.675, 0.225, 0.275,0.1)
-            sideBarElm.addChild(likeButton)
-            likeButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                this.voteSuggestion(id, "like")
-            }))
-        }else{
-            let likeButton = new ButtonWithArrow().setText("§aUnlike").setLocation(0.675, 0.225, 0.275,0.1)
-            sideBarElm.addChild(likeButton)
-            likeButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                this.voteSuggestion(id, "clear")
-            }))
-        }
-
-
-        let description = new SoopyMarkdownElement().setText(data.suggestion.description).setLocation(0.05, 0.325, 0.9,0.6)
-        sideBarElm.addChild(description)
-
-        this.openSidebarPage(sideBarElm)
+                }))
+            }
+    
+            let likesText = new SoopyTextElement().setText("§0Dislikes: " + numberWithCommas(data.suggestion.dislikes) + " Likes: " + numberWithCommas(data.suggestion.likes)).setMaxTextScale(1).setLocation(0.35, 0.225, 0.3,0.1)
+            sideBarElm.addChild(likesText)
+            if(!data.suggestion.hasDisliked){
+                let dislikeButton = new ButtonWithArrow().setDirectionRight(false).setText("§cDislike").setLocation(0.05, 0.225, 0.275,0.1)
+                sideBarElm.addChild(dislikeButton)
+                dislikeButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+                    this.voteSuggestion(id, "dislike")
+                }))
+            }else{
+                let dislikeButton = new ButtonWithArrow().setDirectionRight(false).setText("§cUndislike").setLocation(0.05, 0.225, 0.275,0.1)
+                sideBarElm.addChild(dislikeButton)
+                dislikeButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+                    this.voteSuggestion(id, "clear")
+                }))
+            }
+            if(!data.suggestion.hasLiked){
+                let likeButton = new ButtonWithArrow().setText("§aLike").setLocation(0.675, 0.225, 0.275,0.1)
+                sideBarElm.addChild(likeButton)
+                likeButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+                    this.voteSuggestion(id, "like")
+                }))
+            }else{
+                let likeButton = new ButtonWithArrow().setText("§aUnlike").setLocation(0.675, 0.225, 0.275,0.1)
+                sideBarElm.addChild(likeButton)
+                likeButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+                    this.voteSuggestion(id, "clear")
+                }))
+            }
+    
+    
+            let description = new SoopyMarkdownElement().setText(data.suggestion.description).setLocation(0.05, 0.325, 0.9,0.6)
+            sideBarElm.addChild(description)
+    
+            this.openSidebarPage(sideBarElm)
+        })
     }
 
     voteSuggestion(id, type){
-        new Thread(()=>{
-            FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/vote/" + (type) + "/" + Player.getUUID().toString().replace(/-/g,""))
-    
-            this.loadSuggestion(id)
-        }).start()
+        fetch("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/vote/" + (type) + "/" + Player.getUUID().toString().replace(/-/g,"")).async()
+
+        this.loadSuggestion(id)
     } 
 
     onOpen(){
-        new Thread(()=>{
-            this.loadSuggestionPage()
-        }).start()
+        this.loadSuggestionPage()
     }
 }
 

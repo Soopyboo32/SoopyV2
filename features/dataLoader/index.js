@@ -1,6 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
+import { fetch } from "../../utils/networkUtils";
 
 class DataLoader extends Feature {
     constructor() {
@@ -39,19 +40,18 @@ class DataLoader extends Feature {
     }
 
     loadApi(){
-        try{
-            let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/player_skyblock/" + Player.getUUID().replace(/-/g, "")))
+        fetch("http://soopymc.my.to/api/v2/player_skyblock/" + Player.getUUID().replace(/-/g, "")).json(data=>{
 
             if(!data.success) return
 
             this.api_loaded_event.trigger(data, "skyblock", true, true)
             this.lastApiData.skyblock = data
-        }catch(e){}
+        })
     }
 
     loadApiData(type, soopyServer){
-        while(this.FeatureManager.features["globalSettings"] === undefined || this.FeatureManager.features["globalSettings"].class.apiKeySetting === undefined){
-            Thread.sleep(100)
+        if(this.FeatureManager.features["globalSettings"] === undefined || this.FeatureManager.features["globalSettings"].class.apiKeySetting === undefined){
+            return
         }
         let key = this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()
         if(!key) return
@@ -66,18 +66,12 @@ class DataLoader extends Feature {
 
         }else{
             if(type === "skyblock"){
-                try{
-                    // console.log("loading")
-                    let data = JSON.parse(FileLib.getUrlContent("https://api.hypixel.net/skyblock/profiles?key=" + key + "&uuid=" + Player.getUUID().replace(/-/g, "")))
-            
+                fetch("https://api.hypixel.net/skyblock/profiles?key=" + key + "&uuid=" + Player.getUUID().replace(/-/g, "")).json(data=>{
                     if(!data.success) return
             
                     this.api_loaded_event.trigger(data, "skyblock", false, true)
                     this.lastApiData.skyblock_raw = data
-                }catch(e){
-                    console.log("Hypixel api request failed:")
-                    console.log(JSON.stringify(e, undefined, 2))
-                }
+                })
             }
         }
     }

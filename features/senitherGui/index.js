@@ -17,6 +17,7 @@ import Dropdown from "../../../guimanager/GuiElement/Dropdown";
 import SoopyMarkdownElement from "../../../guimanager/GuiElement/SoopyMarkdownElement"
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import SoopyRenderUpdateEvent from "../../../guimanager/EventListener/SoopyRenderUpdateEvent";
+import { fetch } from "../../utils/networkUtils";
 
 class SenitherGui extends Feature {
     constructor() {
@@ -254,9 +255,7 @@ class SettingPage extends GuiPage {
 
     step(){
         if(!this.playerInformationUpdated && !this.updatingPlayerInfo){
-            new Thread(()=>{
-                this.loadPlayerInformation()
-            }).start()
+            this.loadPlayerInformation()
         }
 
         let pbHeight = this.playersBox.location.getHeightExact()
@@ -302,17 +301,15 @@ class SettingPage extends GuiPage {
 
         this.goToPage(2)
 
-        new Thread(()=>{
-            this.loadGuildInformation()
-        }).start()
+        this.loadGuildInformation()
     }
 
     loadGuildInformation(){
-        let data = JSON.parse(FileLib.getUrlContent("https://hypixel-app-api.senither.com/leaderboard/"))
-
-        this.guildData = data.data
-
-        this.regenGuildElements()
+        fetch("https://hypixel-app-api.senither.com/leaderboard/").json(data=>{
+            this.guildData = data.data
+    
+            this.regenGuildElements()
+        })
     }
 
     regenGuildElements(){
@@ -381,58 +378,56 @@ class SettingPage extends GuiPage {
         if(this.updatingPlayerInfo) return
         this.updatingPlayerInfo = true
         this.playerInformationUpdated = true
-        let players = JSON.parse(FileLib.getUrlContent("https://hypixel-app-api.senither.com/leaderboard/players?perPage=100&page=1&sort=" + this.playerSortThing + (this.playerSearch?"&username="+this.playerSearch:"")))
-
-        this.playersBox.clearChildren()
-        players.data.forEach((p, i)=>{
-            let element = new SoopyBoxElement().setLocation(0,i*0.175, 1, 0.15)
-
-            element.addEvent(new SoopyHoverChangeEvent().setHandler(()=>{
-                if(element.hovered){
-                    if(element.color[0]+element.color[1]+element.color[2]<0.5*(255+255+255)){
-                        element.setColorOffset(10, 10, 10, 100)
+        fetch("https://hypixel-app-api.senither.com/leaderboard/players?perPage=100&page=1&sort=" + this.playerSortThing + (this.playerSearch?"&username="+this.playerSearch:"")).json(players=>{
+            this.playersBox.clearChildren()
+            players.data.forEach((p, i)=>{
+                let element = new SoopyBoxElement().setLocation(0,i*0.175, 1, 0.15)
+    
+                element.addEvent(new SoopyHoverChangeEvent().setHandler(()=>{
+                    if(element.hovered){
+                        if(element.color[0]+element.color[1]+element.color[2]<0.5*(255+255+255)){
+                            element.setColorOffset(10, 10, 10, 100)
+                        }else{
+                            element.setColorOffset(-10, -10, -10, 100)
+                        }
                     }else{
-                        element.setColorOffset(-10, -10, -10, 100)
+                        element.setColorOffset(0, 0, 0, 100)
                     }
-                }else{
-                    element.setColorOffset(0, 0, 0, 100)
-                }
-            }))
-
-            element.addChild(new SoopyTextElement().setText("§0#"+(i+1)).setLocation(0,0,0.075,1))
-            element.addChild(new SoopyTextElement().setText("§0"+p.username).setLocation(0.1,0,0.2,1))
-            element.addChild(new SoopyTextElement().setText("§0"+p.guild_name).setLocation(0.325,0,0.2,1))
-            element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(p.weight)).setLocation(0.55,0,0.2,1))
-            element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(p[this.selectedPlayerVal])).setLocation(0.75,0,0.2,1))
-
-            this.playersBox.addChild(element)
+                }))
+    
+                element.addChild(new SoopyTextElement().setText("§0#"+(i+1)).setLocation(0,0,0.075,1))
+                element.addChild(new SoopyTextElement().setText("§0"+p.username).setLocation(0.1,0,0.2,1))
+                element.addChild(new SoopyTextElement().setText("§0"+p.guild_name).setLocation(0.325,0,0.2,1))
+                element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(p.weight)).setLocation(0.55,0,0.2,1))
+                element.addChild(new SoopyTextElement().setText("§0"+numberWithCommas(p[this.selectedPlayerVal])).setLocation(0.75,0,0.2,1))
+    
+                this.playersBox.addChild(element)
+            })
+            this.updatingPlayerInfo = false
         })
-        this.updatingPlayerInfo = false
     }
 
     loadFirstPageInformation(){
-        let stats = JSON.parse(FileLib.getUrlContent("https://hypixel-app-api.senither.com/leaderboard/stats"))
+        fetch("https://hypixel-app-api.senither.com/leaderboard/stats").json(stats=>{
+            this.guildButton.setDesc("§0Guilds tracked: " + numberWithCommas(stats.data.guilds))
+            this.playerButton.setDesc("§0Players tracked: " + numberWithCommas(stats.data.players))
+        })
 
-        this.guildButton.setDesc("§0Guilds tracked: " + numberWithCommas(stats.data.guilds))
-        this.playerButton.setDesc("§0Players tracked: " + numberWithCommas(stats.data.players))
-
-        let leaveAndJoins = JSON.parse(FileLib.getUrlContent("https://hypixel-app-api.senither.com/leaderboard/history?perPage=10&page=1"))
-
-        this.leaveAndJoinsBox.clearChildren()
-        let y = 0
-        leaveAndJoins.data.forEach(elm=>{
-            this.leaveAndJoinsBox.addChild(new SoopyTextElement().setText(`§1${elm.username} §7${elm.type===0?"joined":"left"} §1${elm.guild_name}`).setLocation(0.05, y, 0.8, 0.1))
-            this.leaveAndJoinsBox.addChild(new SoopyTextElement().setText(`§7${timeSince(elm.created_at)} ago`).setLocation(0.8125, y, 0.175, 0.1))
-            y += 0.1
+        fetch("https://hypixel-app-api.senither.com/leaderboard/history?perPage=10&page=1").json(leaveAndJoins=>{
+            this.leaveAndJoinsBox.clearChildren()
+            let y = 0
+            leaveAndJoins.data.forEach(elm=>{
+                this.leaveAndJoinsBox.addChild(new SoopyTextElement().setText(`§1${elm.username} §7${elm.type===0?"joined":"left"} §1${elm.guild_name}`).setLocation(0.05, y, 0.8, 0.1))
+                this.leaveAndJoinsBox.addChild(new SoopyTextElement().setText(`§7${timeSince(elm.created_at)} ago`).setLocation(0.8125, y, 0.175, 0.1))
+                y += 0.1
+            })
         })
     }
 
 
     onOpen(){
-        new Thread(()=>{
-            this.loadFirstPageInformation()
-        }).start()
-
+        this.loadFirstPageInformation()
+        
         let sidebar = new SoopyGuiElement().setLocation(0.1,0.1,0.8,0.8).setScrollable(true).enableFrameBuffer()
         this.openSidebarPage(sidebar)
         let markdown = new SoopyMarkdownElement().setText("# NOTE: \nAll credit for the idea, design of this gui, and loading of data goes to Senither who made the original leaderboard (https://hypixel-leaderboard.senither.com/)\n\nThis is just a recode of that to allow for checking the leaderboard from in-game")

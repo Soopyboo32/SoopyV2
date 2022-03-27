@@ -3,6 +3,7 @@
 import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent";
 import Feature from "../../featureClass/class";
 import soopyV2Server from "../../socketConnection";
+import { fetch } from "../../utils/networkUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 
 class SpamHider extends Feature {
@@ -107,43 +108,44 @@ class SpamHider extends Feature {
     }
 
     loadSpamMessages(){
-        let messages = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/spamHiderMessages.json"))
-        this.hideMessages = messages.hideMessages
-        this.moveMessages = messages.moveMessages
-
-        this.hideMessagesDict = {
-            all: []
-        }
-
-        this.hideMessagesRexex = []
-        this.hideMessages.forEach(message=>{
-            let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
-                        .replace(/\$\{\*\}/g, "(?:.+)"))
-            if(!message.substring(0,5).includes("$")){
-                if(!this.hideMessagesDict[message.substring(0,5)]) this.hideMessagesDict[message.substring(0,5)] = []
-                this.hideMessagesDict[message.substring(0,5)].push(regex)
-            }else{
-                this.hideMessagesDict.all.push(regex)
+        fetch("http://soopymc.my.to/api/soopyv2/spamHiderMessages.json").json(messages=>{
+            this.hideMessages = messages.hideMessages
+            this.moveMessages = messages.moveMessages
+    
+            this.hideMessagesDict = {
+                all: []
             }
-            this.hideMessagesRexex.push(regex)
-        })
-
-        this.moveMessagesDict = {
-            all: []
-        }
-
-        this.moveMessagesRexex = []
-        this.moveMessages.forEach(message=>{
-            let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
-                        .replace(/\$\{\*\}/g, "(?:.+)"))
-                        
-            if(!message.substring(0,5).includes("$")){
-                if(!this.moveMessagesDict[message.substring(0,5)]) this.moveMessagesDict[message.substring(0,5)] = []
-                this.moveMessagesDict[message.substring(0,5)].push(regex)
-            }else{
-                this.moveMessagesDict.all.push(regex)
+    
+            this.hideMessagesRexex = []
+            this.hideMessages.forEach(message=>{
+                let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
+                            .replace(/\$\{\*\}/g, "(?:.+)"))
+                if(!message.substring(0,5).includes("$")){
+                    if(!this.hideMessagesDict[message.substring(0,5)]) this.hideMessagesDict[message.substring(0,5)] = []
+                    this.hideMessagesDict[message.substring(0,5)].push(regex)
+                }else{
+                    this.hideMessagesDict.all.push(regex)
+                }
+                this.hideMessagesRexex.push(regex)
+            })
+    
+            this.moveMessagesDict = {
+                all: []
             }
-            this.moveMessagesRexex.push(regex)
+    
+            this.moveMessagesRexex = []
+            this.moveMessages.forEach(message=>{
+                let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
+                            .replace(/\$\{\*\}/g, "(?:.+)"))
+                            
+                if(!message.substring(0,5).includes("$")){
+                    if(!this.moveMessagesDict[message.substring(0,5)]) this.moveMessagesDict[message.substring(0,5)] = []
+                    this.moveMessagesDict[message.substring(0,5)].push(regex)
+                }else{
+                    this.moveMessagesDict.all.push(regex)
+                }
+                this.moveMessagesRexex.push(regex)
+            })
         })
     }
 

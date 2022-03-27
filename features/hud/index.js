@@ -150,7 +150,7 @@ class Hud extends Feature {
         for(let i = 1;i<8;i++){
             hudStatTypes["completions_floor_"+i] = "Floor " + i + " completions"
         }
-        for(let i = 1;i<7;i++){
+        for(let i = 1;i<8;i++){
             hudStatTypes["completions_master_"+i] = "Master " + i + " completions"
         }
         for(let i = 1;i<8;i++){
@@ -252,7 +252,7 @@ class Hud extends Feature {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw, "skyblock", false, true)
         }
 
-        new Thread(()=>{
+        new Thread(()=>{ //TODO: dont create this thread if you have the feature disabled
             while(this.enabled){
                 this.updateSpotify()
                 Thread.sleep(5000)
@@ -532,9 +532,9 @@ class Hud extends Feature {
     updateHudThingos(){
         let insb = this.FeatureManager.features["dataLoader"].class.isInSkyblock
         if(Date.now()-this.lastUpdatedStatData > 5*60000 && this.hudStat[0].enabled.getValue() && (insb || this.hudStat.map(a=>a.onlySb.getValue()).includes(false))){
-            new Thread(()=>{
-                this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
-            }).start()
+
+            this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
+
             this.lastUpdatedStatData = Date.now()
             return
         }

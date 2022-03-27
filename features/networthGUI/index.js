@@ -14,6 +14,7 @@ import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";
 import SoopyMarkdownElement from "../../../guimanager/GuiElement/SoopyMarkdownElement";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
+import { fetch } from "../../utils/networkUtils";
 
 class NetworthGui extends Feature {
     constructor() {
@@ -61,11 +62,9 @@ class NetworthPage extends GuiPage {
 
         this.nameInput.addEvent(new SoopyKeyPressEvent().setHandler((key, keyId)=>{
             if(this.nameInput.text.selected && keyId === 28){
-                new Thread(()=>{
-                    this.playerLoad = this.nameInput.text.text
-                    this.nameInput.setText("")
-                    this.updateData(this.playerLoad)
-                }).start()
+                this.playerLoad = this.nameInput.text.text
+                this.nameInput.setText("")
+                this.updateData(this.playerLoad)
             }
         }))
 
@@ -85,11 +84,9 @@ class NetworthPage extends GuiPage {
         
         this.sidebarUsernameSearch.addEvent(new SoopyKeyPressEvent().setHandler((key, keyId)=>{
             if(this.sidebarUsernameSearch.text.selected && keyId === 28){
-                new Thread(()=>{
-                    let search = this.sidebarUsernameSearch.text.text
-                    this.sidebarUsernameSearch.setText("")
-                    this.sidebarSearch(search)
-                }).start()
+                let search = this.sidebarUsernameSearch.text.text
+                this.sidebarUsernameSearch.setText("")
+                this.sidebarSearch(search)
             }
         }))
 
@@ -98,10 +95,10 @@ class NetworthPage extends GuiPage {
         this.sidebarElement.addChild(this.lbBackButton)
         this.sidebarElement.addChild(this.lbNextButton)
         this.lbBackButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-            if(this.currentLbPage > 0)new Thread(()=>{this.goToLeaderboardPage(this.currentLbPage-1)}).start()
+            if(this.currentLbPage > 0)this.goToLeaderboardPage(this.currentLbPage-1)
         }))
         this.lbNextButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-            new Thread(()=>{this.goToLeaderboardPage(this.currentLbPage+1)}).start()
+            this.goToLeaderboardPage(this.currentLbPage+1)
         }))
         
         this.leaderboardArea = new SoopyGuiElement().setLocation(0.05, 0.15, 0.9, 0.85).setScrollable(true)
@@ -121,91 +118,91 @@ class NetworthPage extends GuiPage {
         this.statArea.clearChildren()
         this.statArea.addChild(this.loadingElm)
 
-        let playerData = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/player/" + player))
+        fetch("http://soopymc.my.to/api/v2/player/" + player).json(playerData=>{
 
-        if(player !== this.playerLoad) return
+            if(player !== this.playerLoad) return
 
-        if(!playerData.success){
-            this.statArea.clearChildren()
-            this.statArea.addChild(this.errorElm)
-            this.errorElm.setText("§0" + playerData.error.name)
-            this.errorElm.setDesc("§0" + playerData.error.description)
-            return
-        }
-
-        let skyblockData = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/player_skyblock/" + playerData.data.uuid + "?items"))
-
-        if(player !== this.playerLoad) return
-
-        this.statArea.clearChildren()
-
-        if(!skyblockData.success){
-            this.statArea.addChild(this.errorElm)
-            this.errorElm.setText("§0" + skyblockData.error.name)
-            this.errorElm.setDesc("§0" + skyblockData.error.description)
-            return
-        }
-
-        let highestProf = undefined
-        Object.keys(skyblockData.data.profiles).forEach(prof=>{
-            if(highestProf === undefined || skyblockData.data.profiles[prof].members[playerData.data.uuid].soopyNetworth.networth > skyblockData.data.profiles[highestProf].members[playerData.data.uuid].soopyNetworth.networth) highestProf = prof
-        })
-
-        let nwData = skyblockData.data.profiles[highestProf].members[playerData.data.uuid].soopyNetworth
-        let nameElm = new SoopyTextElement().setText(playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7")).setMaxTextScale(2).setLocation(0.1, 0.05, 0.8, 0.1)
-        this.statArea.addChild(nameElm)
-        this.statArea.addChild(new SoopyTextElement().setText("§0Networth (" + skyblockData.data.profiles[highestProf].stats.cute_name + "): §2$" + numberWithCommas(Math.round(nwData.networth)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.1, 0.15, 0.8, 0.1))
-        this.statArea.addChild(new SoopyTextElement().setText("§0Purse: §2$" + numberWithCommas(Math.round(nwData.purse)).replace(/,/g, "§7,§2") + "§0 | Bank: §2$" + numberWithCommas(Math.round(nwData.bank)).replace(/,/g, "§7,§2") + "§0 | Sack: §2$" + numberWithCommas(Math.round(nwData.sack)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.1, 0.25, 0.8, 0.1))
+            if(!playerData.success){
+                this.statArea.clearChildren()
+                this.statArea.addChild(this.errorElm)
+                this.errorElm.setText("§0" + playerData.error.name)
+                this.errorElm.setDesc("§0" + playerData.error.description)
+                return
+            }
     
-        Object.keys(nwData.categories).sort((a, b)=>nwData.categories[b].total-nwData.categories[a].total).forEach((name, i)=>{
-            let renderName = firstLetterWordCapital(name.replace(/_/g, " "))
+            fetch("http://soopymc.my.to/api/v2/player_skyblock/" + playerData.data.uuid + "?items").json(skyblockData=>{
 
-            let data = nwData.categories[name]
-
-            let box = new SoopyBoxElement().setLocation(i%2===0?0:0.525, 0.45 + Math.floor(i/2)*0.35, 0.475, 0.25)
-
-            box.addChild(new SoopyMarkdownElement().setLocation(0,0,1,1).setText(data.items.filter(i=>i.name).splice(0,5).map(a=>{
-                let name = (a.name.startsWith("§f") || a.name.startsWith("§7[Lvl "))?a.name.replace("§f","§7"):a.name
-                return "§0" + name + "§0: §2$" + numberWithCommas(Math.round(a.p)).replace(/,/g, "§7,§2")
-            }).join("\n")))
+                if(player !== this.playerLoad) return
+    
+                this.statArea.clearChildren()
         
-            let boxName = new SoopyTextElement().setLocation(i%2===0?0:0.525, 0.4+Math.floor(i/2)*0.35, 0.475, 0.05).setText("§0" + renderName + "§0: §2$" + numberWithCommas(Math.round(data.total)).replace(/,/g, "§7,§2"))
-
-            this.statArea.addChild(box)
-            this.statArea.addChild(boxName)
+                if(!skyblockData.success){
+                    this.statArea.addChild(this.errorElm)
+                    this.errorElm.setText("§0" + skyblockData.error.name)
+                    this.errorElm.setDesc("§0" + skyblockData.error.description)
+                    return
+                }
+        
+                let highestProf = undefined
+                Object.keys(skyblockData.data.profiles).forEach(prof=>{
+                    if(highestProf === undefined || skyblockData.data.profiles[prof].members[playerData.data.uuid].soopyNetworth.networth > skyblockData.data.profiles[highestProf].members[playerData.data.uuid].soopyNetworth.networth) highestProf = prof
+                })
+        
+                let nwData = skyblockData.data.profiles[highestProf].members[playerData.data.uuid].soopyNetworth
+                let nameElm = new SoopyTextElement().setText(playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7")).setMaxTextScale(2).setLocation(0.1, 0.05, 0.8, 0.1)
+                this.statArea.addChild(nameElm)
+                this.statArea.addChild(new SoopyTextElement().setText("§0Networth (" + skyblockData.data.profiles[highestProf].stats.cute_name + "): §2$" + numberWithCommas(Math.round(nwData.networth)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.1, 0.15, 0.8, 0.1))
+                this.statArea.addChild(new SoopyTextElement().setText("§0Purse: §2$" + numberWithCommas(Math.round(nwData.purse)).replace(/,/g, "§7,§2") + "§0 | Bank: §2$" + numberWithCommas(Math.round(nwData.bank)).replace(/,/g, "§7,§2") + "§0 | Sack: §2$" + numberWithCommas(Math.round(nwData.sack)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.1, 0.25, 0.8, 0.1))
+            
+                Object.keys(nwData.categories).sort((a, b)=>nwData.categories[b].total-nwData.categories[a].total).forEach((name, i)=>{
+                    let renderName = firstLetterWordCapital(name.replace(/_/g, " "))
+        
+                    let data = nwData.categories[name]
+        
+                    let box = new SoopyBoxElement().setLocation(i%2===0?0:0.525, 0.45 + Math.floor(i/2)*0.35, 0.475, 0.25)
+        
+                    box.addChild(new SoopyMarkdownElement().setLocation(0,0,1,1).setText(data.items.filter(i=>i.name).splice(0,5).map(a=>{
+                        let name = (a.name.startsWith("§f") || a.name.startsWith("§7[Lvl "))?a.name.replace("§f","§7"):a.name
+                        return "§0" + name + "§0: §2$" + numberWithCommas(Math.round(a.p)).replace(/,/g, "§7,§2")
+                    }).join("\n")))
+                
+                    let boxName = new SoopyTextElement().setLocation(i%2===0?0:0.525, 0.4+Math.floor(i/2)*0.35, 0.475, 0.05).setText("§0" + renderName + "§0: §2$" + numberWithCommas(Math.round(data.total)).replace(/,/g, "§7,§2"))
+        
+                    this.statArea.addChild(box)
+                    this.statArea.addChild(boxName)
+                })
+        
+                fetch("http://soopymc.my.to/api/v2/leaderboard/networth/user/" + playerData.data.uuid).json(leaderboardData=>{
+                    if(player !== this.playerLoad) return
+        
+                    if(leaderboardData.success)nameElm.setText("§0#" + numberWithCommas(leaderboardData.data.data.position+1) + " " + playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7"))
+                })
+            })
         })
-
-        let leaderboardData = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/leaderboard/networth/user/" + playerData.data.uuid))
-        
-        if(player !== this.playerLoad) return
-
-        if(leaderboardData.success)nameElm.setText("§0#" + numberWithCommas(leaderboardData.data.data.position+1) + " " + playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7"))
     }
 
     onOpen(){
-        new Thread(()=>{
-            this.playerLoad = Player.getName()
-            this.updateData(Player.getName())
+        this.playerLoad = Player.getName()
+        this.updateData(Player.getName())
 
-            this.goToLeaderboardPage(0)
-        }).start()
+        this.goToLeaderboardPage(0)
 
         this.openSidebarPage(this.sidebarElement)
     }
 
     sidebarSearch(user){
-        let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/leaderboard/networth/user/" + user))
+        fetch("http://soopymc.my.to/api/v2/leaderboard/networth/user/" + user).json(data=>{
+            if(!data.success){
+                return
+            }
     
-        if(!data.success){
-            return
-        }
-
-        let position = data.data.data.position
-
-        this.goToLeaderboardPage(Math.floor(position/100), false)
-
-        this.leaderboardArea._scrollAmount = -((position%100)*0.1-0.45)*this.leaderboardArea.location.getHeightExact()
-        this.leaderboardArea.location.scroll.y.set(-((position%100)*0.1-0.45)*this.leaderboardArea.location.getHeightExact(),100)
+            let position = data.data.data.position
+    
+            this.goToLeaderboardPage(Math.floor(position/100), false)
+    
+            this.leaderboardArea._scrollAmount = -((position%100)*0.1-0.45)*this.leaderboardArea.location.getHeightExact()
+            this.leaderboardArea.location.scroll.y.set(-((position%100)*0.1-0.45)*this.leaderboardArea.location.getHeightExact(),100)
+        })
     }
 
     goToLeaderboardPage(page, scroll=true){
@@ -214,20 +211,18 @@ class NetworthPage extends GuiPage {
         if(scroll)this.leaderboardArea._scrollAmount = 0
         if(scroll)this.leaderboardArea.location.scroll.y.set(0,100)
 
-        let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/v2/leaderboard/networth/" + page))
-
-        this.leaderboardArea.clearChildren()
-        data.data.data.forEach((user, i)=>{
-            this.leaderboardArea.addChild(
-                new SoopyTextElement().setText("§0#" + numberWithCommas(i+1+page*100) + ": " + user.username).setMaxTextScale(1.5).setLocation(0.05, i*0.1, 0.5, 0.1).setLore(["Click to show detailed stats"]).addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                    new Thread(()=>{
+        fetch("http://soopymc.my.to/api/v2/leaderboard/networth/" + page).json(data=>{
+            this.leaderboardArea.clearChildren()
+            data.data.data.forEach((user, i)=>{
+                this.leaderboardArea.addChild(
+                    new SoopyTextElement().setText("§0#" + numberWithCommas(i+1+page*100) + ": " + user.username).setMaxTextScale(1.5).setLocation(0.05, i*0.1, 0.5, 0.1).setLore(["Click to show detailed stats"]).addEvent(new SoopyMouseClickEvent().setHandler(()=>{
                         this.updateData(user.uuid)
-                    }).start()
-                }))
-            )
-            this.leaderboardArea.addChild(
-                new SoopyTextElement().setText("§2$" + numberWithCommas(Math.round(user.networth)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.6, i*0.1, 0.35, 0.1)
-            )
+                    }))
+                )
+                this.leaderboardArea.addChild(
+                    new SoopyTextElement().setText("§2$" + numberWithCommas(Math.round(user.networth)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.6, i*0.1, 0.35, 0.1)
+                )
+            })
         })
     }
 }

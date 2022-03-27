@@ -5,6 +5,7 @@ import DragonWings from "./cosmetic/dragon/dragonWings"
 import Toggle from "../settings/settingThings/toggle"
 import { f } from "../../../mappings/mappings";
 import FakeRequireToggle from "../settings/settingThings/FakeRequireToggle";
+import { fetch } from "../../utils/networkUtils";
 
 class Cosmetics extends Feature {
     constructor() {
@@ -83,9 +84,7 @@ class Cosmetics extends Feature {
     }
 
     loadCosmeticsData(){
-        try{
-            let data = JSON.parse(FileLib.getUrlContent("http://soopymc.my.to/api/soopyv2/cosmetics.json"))
-
+        fetch("http://soopymc.my.to/api/soopyv2/cosmetics.json").json(data=>{
             this.cosmeticsData = data
             this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g,"")]
             if(this.playerHasACosmeticA && !this.postRenderEntityTrigger){
@@ -102,7 +101,7 @@ class Cosmetics extends Feature {
             }
 
             this.scanForNewCosmetics()
-        }catch(e){}
+        })
     }
 
     setUserCosmeticsInformation(uuid, cosmetics){

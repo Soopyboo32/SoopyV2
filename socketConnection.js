@@ -24,10 +24,10 @@ class SoopyV2Server extends WebsiteCommunicator {
     onData(data){
         if(data.type === "updateCosmeticPermissions"){
             this.userCosmeticPermissions = data.permissions
-            if(global.soopyv2featuremanagerthing.features.cosmetics)global.soopyv2featuremanagerthing.features.cosmetics.class.updateUserCosmeticPermissionSettings()
+            if(global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.cosmetics)global.soopyv2featuremanagerthing.features.cosmetics.class.updateUserCosmeticPermissionSettings()
         }
         if(data.type === "updateCosmetics"){
-            if(global.soopyv2featuremanagerthing.features.cosmetics)global.soopyv2featuremanagerthing.features.cosmetics.class.setUserCosmeticsInformation(data.uuid, data.cosmetics)
+            if(global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.cosmetics)global.soopyv2featuremanagerthing.features.cosmetics.class.setUserCosmeticsInformation(data.uuid, data.cosmetics)
         }
         // if(data.type === "spammedmessage"){
         //     this.spammedMessages.push(...data.messages)
@@ -40,27 +40,20 @@ class SoopyV2Server extends WebsiteCommunicator {
             this.lbdatathingupdated = data.lastUpdated
         }
         if(data.type === "dungeonMapData"){
-            if(global.soopyv2featuremanagerthing.features.dungeonMap)global.soopyv2featuremanagerthing.features.dungeonMap.class.updateDungeonMapData(data.data)
+            if(global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.dungeonMap)global.soopyv2featuremanagerthing.features.dungeonMap.class.updateDungeonMapData(data.data)
         }
     }
 
     onConnect(){
         if(this.reportErrorsSetting && !this.reportErrorsSetting.getValue()) return
-        new Thread(() => {
-            while(!this.reportErrorsSetting){
-                Thread.sleep(1000)
-            }
-
-            if(!this.reportErrorsSetting.getValue()) return
             
-            this.errorsToReport.forEach(data => {
-                this.sendData({
-                    type: "error",
-                    data: data
-                })
+        this.errorsToReport.forEach(data => {
+            this.sendData({
+                type: "error",
+                data: data
             })
-            this.errorsToReport = []
-        }).start()
+        })
+        this.errorsToReport = []
     }
 
     updateCosmeticsData(data){
