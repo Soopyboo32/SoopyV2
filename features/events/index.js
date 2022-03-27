@@ -175,7 +175,9 @@ class Events extends Feature {
     step_5s(){
         if(this.showingWaypoints){
             if(this.burrialWaypointsPath.getValue() || this.burrialWaypointsNearest.getValue()){
-                this.updateBurrialPath()
+                new Thread(()=>{
+                    this.updateBurrialPath()
+                }).start()
             }
         }
         this.sortBurrialLocations()
@@ -379,7 +381,9 @@ class Events extends Feature {
                     "chain": -1,
                     "fromApi": false
                 })
-                this.updateBurrialPath()
+                new Thread(()=>{
+                    this.updateBurrialPath()
+                }).start()
             }
         }
     }
@@ -411,7 +415,9 @@ class Events extends Feature {
         })
         if(this.burrialData.historicalLocations.length > 10) this.burrialData.historicalLocations.pop()
         if(this.lastPathCords) this.lastPathCords.shift()
-        this.updateBurrialPath()
+        new Thread(()=>{
+            this.updateBurrialPath()
+        }).start()
     }
     updateBurrialPath(){
         if(this.burrialWaypointsPath.getValue() || this.burrialWaypointsNearest.getValue()){
