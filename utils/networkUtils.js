@@ -92,14 +92,18 @@ if(!global.networkUtilsThingSoopy){
             json: (callback)=>{
                 if(!callback){
                     if(loadedJSON === undefined){
-                        loadedJSON = JSON.parse(ret.text())
+                        try{
+                            loadedJSON = JSON.parse(ret.text())
+                        }catch(e){}
                     }
     
                     return loadedJSON
                 }
                 
                 ret.text(data=>{
+                    try{
                     callback(JSON.parse(data))
+                    }catch(e){}
                 })
             },
             responseCode: (callback)=>{
@@ -126,11 +130,15 @@ if(!global.networkUtilsThingSoopy){
     new Thread(()=>{
         while(running){
             while(pendingRequests.length > 0){
-                let req = pendingRequests.shift()
+                try{
+                    let req = pendingRequests.shift()
 
-                let data = getUrlContent(req.url, req.options)
+                    let data = getUrlContent(req.url, req.options)
 
-                pendingResolves.push([req.callback, data])
+                    pendingResolves.push([req.callback, data])
+                }catch(e){
+                    console.log(e, undefined, true)
+                }
             }
             Thread.sleep(100)
         }
@@ -141,10 +149,14 @@ if(!global.networkUtilsThingSoopy){
     })
 
     register("tick", ()=>{
-        while(pendingResolves.length > 0){
-            let [callback, data] = pendingResolves.shift()
+        try{
+            while(pendingResolves.length > 0){
+                let [callback, data] = pendingResolves.shift()
 
-            callback(data)
+                callback(data)
+            }
+        }catch(e){
+            console.log(e, undefined, true)
         }
     })
 
