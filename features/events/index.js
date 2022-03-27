@@ -175,9 +175,7 @@ class Events extends Feature {
     step_5s(){
         if(this.showingWaypoints){
             if(this.burrialWaypointsPath.getValue() || this.burrialWaypointsNearest.getValue()){
-                new Thread(()=>{ //TODO: make 5head thing to re-use threads
-                    this.updateBurrialPath()
-                }).start()
+                this.updateBurrialPath()
             }
         }
         this.sortBurrialLocations()
@@ -191,6 +189,7 @@ class Events extends Feature {
         this.burrialData.points = []
         this.burrialData.locations = []
         this.burrialData.historicalLocations = []
+        this.lastRequestTime = 0
 
         this.nextUpdateApprox = Date.now()
 
@@ -202,9 +201,9 @@ class Events extends Feature {
     }
 
     apiLoad(data, dataType, isSoopyServer, isLatest){ 
-        if(!this.showingWaypoints) return;
         if(isSoopyServer || dataType !== "skyblock" || !isLatest) return
 		this.lastRequest = Date.now()
+        ChatLib.chat("loading api ")
 
         let profileData = data.profiles[0].members[Player.getUUID().toString().replace(/-/g,"")]
 
@@ -257,6 +256,7 @@ class Events extends Feature {
                 }
             }
         })
+        ChatLib.chat("Loaeded " +newLocs.length)
 
         this.burrialData.locations = newLocs
         this.sortBurrialLocations()
@@ -369,7 +369,7 @@ class Events extends Feature {
 
             this.potentialParticleLocs[locstr].timestamp = Date.now()
 
-            if(this.potentialParticleLocs[locstr].enchant > 2 && this.potentialParticleLocs[locstr].step > 5){
+            if(this.potentialParticleLocs[locstr].enchant > 4 && this.potentialParticleLocs[locstr].step > 10){
                 this.burrialData.locations.push({
                     "x": locarr[0],
                     "y": locarr[1],
@@ -379,9 +379,7 @@ class Events extends Feature {
                     "chain": -1,
                     "fromApi": false
                 })
-                new Thread(()=>{
-                    this.updateBurrialPath()
-                }).start()
+                this.updateBurrialPath()
             }
         }
     }
@@ -413,9 +411,7 @@ class Events extends Feature {
         })
         if(this.burrialData.historicalLocations.length > 10) this.burrialData.historicalLocations.pop()
         if(this.lastPathCords) this.lastPathCords.shift()
-        new Thread(()=>{
-            this.updateBurrialPath()
-        }).start()
+        this.updateBurrialPath()
     }
     updateBurrialPath(){
         if(this.burrialWaypointsPath.getValue() || this.burrialWaypointsNearest.getValue()){
