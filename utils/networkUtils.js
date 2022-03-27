@@ -82,7 +82,7 @@ if(!global.networkUtilsThingSoopy){
                 if(!callback){
                     ret.sync()
 
-                    return this.loadedString
+                    return loadedString
                 }
 
                 ret.async(()=>{
@@ -108,14 +108,12 @@ if(!global.networkUtilsThingSoopy){
             },
             responseCode: (callback)=>{
                 if(!callback){
-                    if(loadedConnection === undefined){
-                        ret.text()
-                    }
+                    ret.sync()
     
                     return loadedConnection.getResponseCode()
                 }
     
-                ret.text(data=>{
+                ret.async(data=>{
                     callback(loadedConnection.getResponseCode())
                 })
             }

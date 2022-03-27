@@ -130,7 +130,7 @@ class NetworthPage extends GuiPage {
                 return
             }
     
-            fetch("http://soopymc.my.to/api/v2/player_skyblock/" + playerData.data.uuid + "?items").json(skyblockData=>{
+            fetch("http://soopymc.my.to/api/v2/player_skyblock/" + playerData.data.uuid).json(skyblockData=>{
 
                 if(player !== this.playerLoad) return
     
