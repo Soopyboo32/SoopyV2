@@ -35,6 +35,7 @@ class Events extends Feature {
 
         this.burrialWaypointsEnabled = new ToggleSetting("Burrial waypoints", "Show waypoints for burrials during the diana event", true, "burrial_waypoints", this)
         this.burrialWaypointsPath = new ToggleSetting("Pathfind waypoints", "Calculate a path thru all the waypoints", true, "burrial_waypoints_path", this).requires(this.burrialWaypointsEnabled)
+        this.onlyShowPath = new ToggleSetting("Only show waypoint path", "For if u want to use other mod waypoints + soopy path", false, "burrial_waypoints_only_path", this).requires(this.burrialWaypointsPath)
         this.burrialWaypointsNearest = new ToggleSetting("Show nearest using pathfinding", "Use pathfinding to highlight the next burrial instead of disance", true, "burrial_nearest_path", this).requires(this.burrialWaypointsEnabled)
 
         this.updateTimerEnabled = new ToggleSetting("Show API update timer", "Shows a countdown till the burrial waypoints will be next updated", true, "burrial_timer", this).requires(this.burrialWaypointsEnabled)
@@ -84,7 +85,7 @@ class Events extends Feature {
                 lastPoint = point
             })
         }	
-        if(this.showingWaypoints){
+        if(this.showingWaypoints && !this.onlyShowPath.getValue()){
             this.burrialData.locations.forEach((loc,i)=>{
 
                 let typeReplace = [
@@ -205,7 +206,6 @@ class Events extends Feature {
     apiLoad(data, dataType, isSoopyServer, isLatest){ 
         if(isSoopyServer || dataType !== "skyblock" || !isLatest) return
 		this.lastRequest = Date.now()
-        ChatLib.chat("loading api ")
 
         let profileData = data.profiles[0].members[Player.getUUID().toString().replace(/-/g,"")]
 
@@ -258,7 +258,6 @@ class Events extends Feature {
                 }
             }
         })
-        ChatLib.chat("Loaeded " +newLocs.length)
 
         this.burrialData.locations = newLocs
         this.sortBurrialLocations()
