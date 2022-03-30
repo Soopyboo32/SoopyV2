@@ -193,6 +193,9 @@ class Events extends Feature {
         this.burrialData.locations = []
         this.burrialData.historicalLocations = []
         this.lastRequestTime = 0
+        
+        this.lastPath = undefined
+        this.lastPathCords = undefined
 
         this.nextUpdateApprox = Date.now()
 
