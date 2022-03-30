@@ -5,7 +5,7 @@
   "entry": "index.js",
   "description": "Soopy addons v2",
   "name": "SoopyV2",
-  "version": "2.1.43",
-  "versionId": 170,
+  "version": "2.1.44",
+  "versionId": 171,
   "requires": ["soopyApis", "soopyAddonsData", "CustomTabCompletions", "guimanager", "mappings"]
 }

@@ -147,7 +147,7 @@ class Events extends Feature {
             }
         })
 
-        let showingWaypointsNew = (this.lastWorldChange+5000<Date.now()?hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.burrialWaypointsEnabled.getValue():this.showingWaypoints)
+        let showingWaypointsNew = (this.lastWorldChange+5000<Date.now()?hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.burrialWaypointsEnabled.getValue():this.showingWaypoints || (hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.burrialWaypointsEnabled.getValue()))
 
         if(!this.showingWaypoints && showingWaypointsNew){
             this.loadApi()
