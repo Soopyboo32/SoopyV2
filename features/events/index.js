@@ -37,6 +37,7 @@ class Events extends Feature {
         this.burrialWaypointsPath = new ToggleSetting("Pathfind waypoints", "Calculate a path thru all the waypoints", true, "burrial_waypoints_path", this).requires(this.burrialWaypointsEnabled)
         this.onlyShowPath = new ToggleSetting("Only show waypoint path", "For if u want to use other mod waypoints + soopy path", false, "burrial_waypoints_only_path", this).requires(this.burrialWaypointsPath)
         this.burrialWaypointsNearest = new ToggleSetting("Show nearest using pathfinding", "Use pathfinding to highlight the next burrial instead of disance", true, "burrial_nearest_path", this).requires(this.burrialWaypointsEnabled)
+        this.loadFromParticles = new ToggleSetting("Load burrials from particles", "Will load particles from burrows in the world", true, "burrial_from_partles", this).requires(this.burrialWaypointsEnabled)
 
         this.updateTimerEnabled = new ToggleSetting("Show API update timer", "Shows a countdown till the burrial waypoints will be next updated", true, "burrial_timer", this).requires(this.burrialWaypointsEnabled)
         this.updateTimer = new HudTextElement()
@@ -279,7 +280,7 @@ class Events extends Feature {
                 }
             }
         }
-        if(this.showingWaypoints){
+        if(this.showingWaypoints && this.loadFromParticles.getValue()){
             let foundEnchant = false
             let foundCrit = false
             let foundStep = false
