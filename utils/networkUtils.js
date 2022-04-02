@@ -11,6 +11,10 @@ if(!global.networkUtilsThingSoopy){
         if(global.soopyv2loggerthing){
             global.soopyv2loggerthing.logMessage("Loading API: " + theUrl, 4)
         }
+
+        // if(theUrl.includes("soopymc.my.to")){
+        //     throw new Error("Testing to ensure the module works when my server is down")
+        // }
         
         let conn = new jURL(theUrl).openConnection()
         conn.setRequestProperty("User-Agent", userAgent)
@@ -44,20 +48,26 @@ if(!global.networkUtilsThingSoopy){
         let loadedConnection = undefined
         let loadedString = undefined
         let loadedJSON = undefined
+        let errorData = undefined
     
         let ret = {
             sync(){
                 if(loadedString === undefined){
                     options.includeConnection = true
 
-                    let data = getUrlContent(url, options)
-                    loadedString = data.stringData
-                    loadedConnection = data.connection
+                    try{
+                        let data = getUrlContent(url, options)
+                        loadedString = data.stringData
+                        loadedConnection = data.connection
+                    }catch(e){
+                        errorData = e
+                        loadedString = null
+                    }
                 }
 
-                return
+                return ret
             },
-            async(callback){
+            async(callback, _ifError=false){
                 if(!callback){
                     callback = ()=>{}
                 }
@@ -71,12 +81,21 @@ if(!global.networkUtilsThingSoopy){
                             loadedConnection = data.connection
                             callback()
                         },
+                        errcallback: (e)=>{
+                            loadedString = null
+                            errorData = e
+                            if(_ifError){
+                                callback()
+                            }
+                        },
                         url: url,
                         options: options
                     })
                 }else{
                     callback()
                 }
+                
+                return ret
             },
             text: (callback)=>{
                 if(!callback){
@@ -88,6 +107,8 @@ if(!global.networkUtilsThingSoopy){
                 ret.async(()=>{
                     callback(loadedString)
                 })
+                
+                return ret
             },
             json: (callback)=>{
                 if(!callback){
@@ -105,17 +126,36 @@ if(!global.networkUtilsThingSoopy){
                     callback(JSON.parse(data))
                     }catch(e){}
                 })
+                
+                return ret
             },
             responseCode: (callback)=>{
                 if(!callback){
                     ret.sync()
     
-                    return loadedConnection.getResponseCode()
+                    return loadedConnection?.getResponseCode() || -1
                 }
     
                 ret.async(data=>{
-                    callback(loadedConnection.getResponseCode())
+                    callback(loadedConnection?.getResponseCode() || -1)
                 })
+                
+                return ret
+            },
+            error: (callback)=>{
+                if(!callback){
+                    ret.sync()
+    
+                    return errorData
+                }
+    
+                ret.async(data=>{
+                    if(errorData){
+                        callback(errorData)
+                    }
+                }, true)
+
+                return ret
             }
         }
         return ret
@@ -128,14 +168,14 @@ if(!global.networkUtilsThingSoopy){
     new Thread(()=>{
         while(running){
             while(pendingRequests.length > 0){
-                try{
-                    let req = pendingRequests.shift()
+                let req = pendingRequests.shift()
 
+                try{
                     let data = getUrlContent(req.url, req.options)
 
                     pendingResolves.push([req.callback, data])
                 }catch(e){
-                    console.log(e, undefined, true)
+                    pendingResolves.push([req.errcallback, e])
                 }
             }
             Thread.sleep(100)
@@ -154,7 +194,7 @@ if(!global.networkUtilsThingSoopy){
                 callback(data)
             }
         }catch(e){
-            console.log(e, undefined, true)
+            console.log(JSON.stringify(e, undefined, 2))
         }
     })
 

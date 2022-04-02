@@ -216,7 +216,8 @@ class Hud extends Feature {
         this.registerEvent("worldLoad", this.worldLoad)
 
         this.petLevels = {}
-        this.petText = ""
+        this.petText = "&6Pet&7> &fLoading..."
+        this.petElement.setText(this.petText)
         this.registerChat("&cAutopet &eequipped your ${pet}&e! &a&lVIEW RULE&r", (pet)=>{
             this.petElement.setText("&6Pet&7> "+pet)
             this.petText = "&6Pet&7> "+pet
@@ -515,7 +516,7 @@ class Hud extends Feature {
                 let song = parts[parts.length-1].substr(0,parts[parts.length-1].length-1)
                 if(song === "N/A") continue
                 
-                if(song === "Spotify Free"||song === "AngleHiddenWindow"){
+                if(song === "Spotify Free"||song === "Spotify Premium"||song === "AngleHiddenWindow"){
                     currentSong = "&cPaused"
                 }else{
                     if(song === "Spotify") song = "Advertisement"
@@ -531,7 +532,7 @@ class Hud extends Feature {
 
     updateHudThingos(){
         let insb = this.FeatureManager.features["dataLoader"].class.isInSkyblock
-        if(Date.now()-this.lastUpdatedStatData > 5*60000 && this.hudStat[0].enabled.getValue() && (insb || this.hudStat.map(a=>a.onlySb.getValue()).includes(false))){
+        if(Date.now()-this.lastUpdatedStatData > 5*60000 && this.hudStat[0].enabled.getValue() && (!this.lastStatData || insb || this.hudStat.map(a=>(!a.enabled.getValue() || a.onlySb.getValue())).includes(false))){
 
             this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
 

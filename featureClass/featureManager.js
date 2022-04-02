@@ -71,28 +71,25 @@ class FeatureManager {
 
         this.featureSettingsData = {}
 
-        new Thread(()=>{
-
-            try{
-                if(fetch("http://soopymc.my.to/api/soopyv2/ping").responseCode() >= 400){
-                    ChatLib.chat(this.messagePrefix + "&cError: Could not connect to Soopy's server. This may cause issues with features breaking but will (hopefully) be back soon.")
-                }
-            }catch(e){
+        let fetchD = fetch("http://soopymc.my.to/api/soopyv2/ping").async(d=>{
+            if(fetchD.responseCode() >= 400 || fetchD.responseCode() === -1){
                 ChatLib.chat(this.messagePrefix + "&cError: Could not connect to Soopy's server. This may cause issues with features breaking but will (hopefully) be back soon.")
             }
-
-            this.loadFeatureMetas()
             
-            this.loadFeatureSettings()
-            
-            Object.keys(this.featureMetas).forEach((feature)=>{
-                if(this.featureSettingsData[feature] && this.featureSettingsData[feature].enabled){
-                    this.loadFeature(feature)
-                }
-            })
-
-            this.finishedLoading = true
-        }).start()
+            new Thread(()=>{
+                this.loadFeatureMetas()
+                
+                this.loadFeatureSettings()
+                
+                Object.keys(this.featureMetas).forEach((feature)=>{
+                    if(this.featureSettingsData[feature] && this.featureSettingsData[feature].enabled){
+                        this.loadFeature(feature)
+                    }
+                })
+    
+                this.finishedLoading = true
+            }).start()
+        }, true)
 
         this.registerStep(false, 30, ()=>{
             if(this.featureSettingsDataLastUpdated){

@@ -152,7 +152,7 @@ class Events extends Feature {
 
         if(!this.showingWaypoints && showingWaypointsNew){
             this.loadApi()
-        }else{
+        }else if(showingWaypointsNew){
             if(Date.now()-this.nextUpdateApprox > 0 && this.nextUpdateApprox > 0 && Date.now()-this.lastRequest>5000){
                 this.nextUpdateApprox = -2
                 this.loadApi()
@@ -264,8 +264,10 @@ class Events extends Feature {
         })
 
         this.burrialData.locations = newLocs
-        this.sortBurrialLocations()
-        this.updateBurrialPath()
+        if(this.showingWaypoints){
+            this.sortBurrialLocations()
+            this.updateBurrialPath()
+        }
     }
 
     
