@@ -227,6 +227,8 @@ class Events extends Feature {
         
         let locsAccessed = []
         let newLocs = []
+        if(!profileData.griffin) return
+        
         profileData.griffin.burrows.forEach((burrow)=>{
             let pushed = false
             this.burrialData.locations.forEach((loc, i)=>{

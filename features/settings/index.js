@@ -204,6 +204,8 @@ class SettingPage extends GuiPage {
                         this.settingsCategoryArea.addChild(setting.getGuiObject())
             
                         height += 0.025+setting.getGuiObject().location.size.y.get()
+
+                        setting.update()
                     }
                 })
             }
@@ -274,6 +276,8 @@ class SettingPage extends GuiPage {
             this.settingsArea.addChild(setting.getGuiObject())
 
             height += 0.045+setting.getGuiObject().location.size.y.get()
+            
+            setting.update()
         })
     }
 

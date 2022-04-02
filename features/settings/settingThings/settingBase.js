@@ -1,8 +1,12 @@
 import SoopyContentChangeEvent from "../../../../guimanager/EventListener/SoopyContentChangeEvent";
+import SoopyMouseClickEvent from "../../../../guimanager/EventListener/SoopyMouseClickEvent";
+import BoxWithText from "../../../../guimanager/GuiElement/BoxWithText";
 import BoxWithTextAndDescription from "../../../../guimanager/GuiElement/BoxWithTextAndDescription"
 import SoopyGuiElement from "../../../../guimanager/GuiElement/SoopyGuiElement";
 import renderLibs from "../../../../guimanager/renderLibs";
+import helpDataLoader from "../helpDataLoader";
 import settingsCommunicator from "../settingsCommunicator";
+import SoopyMarkdownElement from "../../../../guimanager/GuiElement/SoopyMarkdownElement";
 
 class SettingBase {
     constructor(name, description, defaultVal, settingId, module){
@@ -20,6 +24,17 @@ class SettingBase {
         this.settingObject = new SoopyGuiElement().setLocation(0.8, 0, 0.2, 1)
 
         this.guiObject.addChild(this.settingObject)
+
+        this.helpButton = new BoxWithText().setText("§0?").setLocation(3, 3, 0.05, 0.5)
+        this.helpButton.location.location.setRelative(false, false)
+        
+        this.helpButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+            module.FeatureManager.features.soopyGui.class.openSidebarPage(new SoopyGuiElement().setLocation(0.05,0.05,0.9,0.9).setScrollable(true).addChild(new SoopyMarkdownElement().setLocation(0,0,1,1).setText("Loading...")))
+            
+            this.getHelp(helpText=>{
+                module.FeatureManager.features.soopyGui.class.openSidebarPage(new SoopyGuiElement().setLocation(0.05,0.05,0.9,0.9).setScrollable(true).addChild(new SoopyMarkdownElement().setLocation(0,0,1,1).setText(helpText)))
+            })
+        }))
 
         settingsCommunicator.addSetting(this.moduleId, settingId, this)
 
@@ -44,6 +59,20 @@ class SettingBase {
         this.onchangethings = []
 
         this.initTime = Date.now()
+    }
+
+    update(){
+        if(this.hasHelp()){
+            this.guiObject.addChild(this.helpButton)
+        }
+    }
+
+    hasHelp(){
+        return helpDataLoader.hasData(this.moduleId, this.settingId)
+    }
+
+    getHelp(callback){
+        helpDataLoader.getData(this.moduleId, this.settingId, callback)
     }
 
     getValue(){
