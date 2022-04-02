@@ -128,9 +128,9 @@ class SoopyGui extends Feature {
             this.mainWindowElement.addChild(p)
         })
 
-        this.goToPageNum(1, anim)
-
         category.onOpen()
+
+        this.goToPageNum(1, anim)
     }
 
     onDisable(){
@@ -185,6 +185,8 @@ class SoopyGui extends Feature {
         this.categoryPage.location.location.x.set(-pageNum, animate?500:0)
 
         this.backButton.location.location.y.set((pageNum === 0 || !this.currCategory.showBackButton)?-0.2:0, animate?500:0)
+
+        this.currCategory.onOpenPage(pageNum)
     }
     openSidebarPage(child){
         this.sidebarPage.location.location.x.set(0.625, 500)

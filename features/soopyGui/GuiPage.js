@@ -52,6 +52,11 @@ class GuiPage{
     onOpen(){
 
     }
+
+    //Override me :D
+    onOpenPage(page){
+
+    }
 }
 
 export default GuiPage;

@@ -143,6 +143,13 @@ class SettingPage extends GuiPage {
         this.settingsCategoryArea.location.scroll.x.set(0, 0)
         this.settingsCategoryArea.location.scroll.y.set(0, 0)
         this.settingsCategoryArea._scrollAmount = 0
+
+        this.settingsCategorySearch.setText("")
+        this.updateSettingCategories()
+    }
+
+    onOpenPage(p){
+        if(p===1) this.updateSettingCategories()
     }
 
     updateSettingCategories(){
@@ -196,7 +203,7 @@ class SettingPage extends GuiPage {
                         setting.getGuiObject().location.location.y.set(height, 0)
                         this.settingsCategoryArea.addChild(setting.getGuiObject())
             
-                        height += 0.045+setting.getGuiObject().location.size.y.get()
+                        height += 0.025+setting.getGuiObject().location.size.y.get()
                     }
                 })
             }
@@ -277,6 +284,14 @@ class SettingPage extends GuiPage {
             e.location.location.y.set(totalHeight, 0)
 
             totalHeight += e.location.size.y.get()+Math.min(0.045,e.location.size.y.get())
+        })
+
+        totalHeight = 0
+
+        this.settingsCategoryArea.children.forEach(e=>{
+            e.location.location.y.set(totalHeight, 0)
+
+            totalHeight += e.location.size.y.get()+Math.min(0.025,e.location.size.y.get())
         })
     }
 

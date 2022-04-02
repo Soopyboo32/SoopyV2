@@ -31,7 +31,7 @@ if(FileLib.read("soopyAddonsData", "deletesoopyv1please.txt") === "true"){
     }else{
         let a = register("worldLoad", ()=>{
             new SoopyAddons()
-            ChatLib.chat("Loading soopyv2")
+            
             a.unregister()
         })
     }
