@@ -21,7 +21,7 @@ class SettingBase {
 
         this.guiObject.addChild(this.settingObject)
 
-        settingsCommunicator.addSetting(this.moduleId, settingId, this.getGuiObject())
+        settingsCommunicator.addSetting(this.moduleId, settingId, this)
 
         if(!module.FeatureManager.featureSettingsData[this.moduleId]){
             module.FeatureManager.featureSettingsData[this.moduleId] = {}

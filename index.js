@@ -29,6 +29,10 @@ if(FileLib.read("soopyAddonsData", "deletesoopyv1please.txt") === "true"){
             ChatLib.command("ct reload", true)
         }).start()
     }else{
-        new SoopyAddons()
+        let a = register("worldLoad", ()=>{
+            new SoopyAddons()
+            ChatLib.chat("Loading soopyv2")
+            a.unregister()
+        })
     }
 }

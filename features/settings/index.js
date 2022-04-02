@@ -14,6 +14,7 @@ import SoopyOpenGuiEvent from "../../../guimanager/EventListener/SoopyOpenGuiEve
 import settingsCommunicator from "./settingsCommunicator";
 import GuiPage from "../soopyGui/GuiPage"
 import { SoopyRenderEvent } from "../../../guimanager";
+import TextBox from "../../../guimanager/GuiElement/TextBox";
 
 
 class SettingsRenderer extends Feature {
@@ -109,9 +110,15 @@ class SettingPage extends GuiPage {
         //###############################################################################################
 
         
-        
-        let settingsCategoryTitle = new SoopyTextElement().setText("§0Settings").setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1)
+        let settingsCategoryTitle = new SoopyTextElement().setText("§0Settings").setMaxTextScale(3).setLocation(0.1, 0.05, 0.5, 0.1)
         this.pages[0].addChild(settingsCategoryTitle)
+
+        this.settingsCategorySearch = new TextBox().setPlaceholder("Search...").setLocation(0.6, 0.05, 0.3, 0.1)
+        this.pages[0].addChild(this.settingsCategorySearch)
+
+        this.settingsCategorySearch.text.addEvent(new SoopyContentChangeEvent().setHandler(()=>{
+            this.updateSettingCategories()
+        }))
 
         this.settingsCategoryArea = new SoopyGuiElement().setLocation(0.1, 0.2, 0.8, 0.8).setScrollable(true)
         this.pages[0].addChild(this.settingsCategoryArea)
@@ -139,12 +146,33 @@ class SettingPage extends GuiPage {
     }
 
     updateSettingCategories(){
+
+        let search = this.settingsCategorySearch.text.text
+
         this.settingsCategoryArea.children = []
 
-        let i = 0
+        let height = 0
 
         Object.keys(this.FeatureManager.featureMetas).sort((a, b)=>{return a.sortA-b.sortA}).forEach((f)=>{
+
             let meta = this.FeatureManager.featureMetas[f]
+
+            let showing = search.length === 0
+
+            if(!showing){
+                showing = meta.name.toLowerCase().includes(search.toLowerCase()) || meta.description.toLowerCase().includes(search.toLowerCase())
+            }
+
+            if(!showing){
+                settingsCommunicator.getModuleSettings(f).forEach(setting=>{
+
+                    if(setting && (setting.name.toLowerCase().includes(search.toLowerCase()) || setting.description.toLowerCase().includes(search.toLowerCase()))){
+                        showing = true
+                    }
+                })
+            }
+
+            if(!showing) return
 
             let isHidden = meta.isHidden
             if(typeof isHidden === "string"){
@@ -152,13 +180,29 @@ class SettingPage extends GuiPage {
             }
             if(isHidden) return
 
-            let category = new ButtonWithArrowAndDescription().setText("&0" + meta.name).setDesc("&0" +meta.description).setLocation(0, 0.225*i, 1, 0.2)
+            let category = new ButtonWithArrowAndDescription().setText("&0" + meta.name).setDesc("&0" +meta.description).setLocation(0, height, 1, 0.2)
             category.addEvent(new SoopyMouseClickEvent().setHandler(()=>{this.clickedOpenCategory(f)}))
 
             this.settingsCategoryArea.addChild(category)
 
-            i++
+            height+=0.225
+
+            
+            if(search.length > 0){
+                settingsCommunicator.getModuleSettings(f).forEach(setting=>{
+
+                    if(setting && (setting.name.toLowerCase().includes(search.toLowerCase()) || setting.description.toLowerCase().includes(search.toLowerCase()))){
+
+                        setting.getGuiObject().location.location.y.set(height, 0)
+                        this.settingsCategoryArea.addChild(setting.getGuiObject())
+            
+                        height += 0.045+setting.getGuiObject().location.size.y.get()
+                    }
+                })
+            }
         })
+
+
         // this.FeatureManager.features = {}; enabled features
     }
 
@@ -219,10 +263,10 @@ class SettingPage extends GuiPage {
         }
 
         settingsCommunicator.getModuleSettings(category).forEach(setting=>{
-            setting.location.location.y.set(height, 0)
-            this.settingsArea.addChild(setting)
+            setting.getGuiObject().location.location.y.set(height, 0)
+            this.settingsArea.addChild(setting.getGuiObject())
 
-            height += 0.045+setting.location.size.y.get()
+            height += 0.045+setting.getGuiObject().location.size.y.get()
         })
     }
 
