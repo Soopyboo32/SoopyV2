@@ -64,6 +64,10 @@ class SettingBase {
     update(){
         if(this.hasHelp()){
             this.guiObject.addChild(this.helpButton)
+
+            this.guiObject.text.setLocation(0.075, 0, 0.8-0.075, 0.6)
+        }else{
+            this.guiObject.text.setLocation(0, 0, 0.8, 0.6)
         }
     }
 

@@ -1,10 +1,14 @@
 const { f, m } = require("../../mappings/mappings");
 
+const {default:renderBeaconBeam2} = require("../../BeaconBeam/index");
+const numberUtils = require("./numberUtils");
+const { default: RenderLib2D } = require("./renderLib2d");
+
 if(!GlStateManager){
     var GL11 = Java.type("org.lwjgl.opengl.GL11"); //using var so it goes to global scope
     var GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
 }
-module.exports = {
+let ret = {
 
     /* accepts parameters
      * h  Object = {h:x, s:y, v:z}
@@ -126,7 +130,7 @@ module.exports = {
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawBoxAtBlockNotVisThruWalls:function (x, y, z, colorR, colorG, colorB, w=1, h=1){
+    drawBoxAtBlockNotVisThruWalls:function (x, y, z, colorR, colorG, colorB, w=1, h=1, a=1){
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(3);
@@ -139,7 +143,7 @@ module.exports = {
         w += 0.01
         h += 0.01
         
-        Tessellator.begin(3).colorize(colorR, colorG, colorB);
+        Tessellator.begin(3).colorize(colorR, colorG, colorB, a);
             
         Tessellator.pos(x+w,y+h,z+w);
         Tessellator.pos(x+w,y+h,z);
@@ -167,7 +171,7 @@ module.exports = {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawBoxAtBlock:function (x, y, z, colorR, colorG, colorB, w=1, h=1){
+    drawBoxAtBlock:function (x, y, z, colorR, colorG, colorB, w=1, h=1, a=1){
     
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
@@ -178,7 +182,7 @@ module.exports = {
         GlStateManager[m.pushMatrix]()
     
         
-        Tessellator.begin(3).colorize(colorR, colorG, colorB);
+        Tessellator.begin(3).colorize(colorR, colorG, colorB, a);
             
         Tessellator.pos(x+w,y+h,z+w);
         Tessellator.pos(x+w,y+h,z);
@@ -327,5 +331,37 @@ module.exports = {
             GL11.glDepthMask(true);
             GL11.glDisable(GL11.GL_BLEND);
         }
+    },
+    renderBeaconBeam(x, y, z, r, g, b, alpha, phase){
+        renderBeaconBeam2(x, y, z, r, g, b, alpha, !phase)
+    },
+    drawCoolWaypoint(x, y, z, r, g, b, {name="", showDist=!!name ,phase=false}){
+        let distToPlayerSq = (x-Player.getRenderX())**2 + (y-(Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]()))**2 + (z-Player.getRenderZ())**2
+
+        let alpha = Math.min(1,Math.max(0,1-(distToPlayerSq-10000)/12500))
+
+        ret[phase?"drawBoxAtBlock":"drawBoxAtBlockNotVisThruWalls"](x-0.005, y-0.005, z-0.005, r, g, b, 1.01, 1.01, alpha)
+        ret.drawFilledBox(x+0.5, y, z+0.5, 1.02, 1.02, r, g, b, 0.25*alpha, phase)
+        ret.renderBeaconBeam(x, y+1, z, r, g, b, Math.min(1,Math.max(0,(distToPlayerSq-25)/100))*alpha, false)
+
+        if(name || showDist){
+            let distToPlayer = Math.sqrt(distToPlayerSq)
+
+            let distRender = Math.min(distToPlayer,50)
+
+            let loc1 = [x+0.5, y+2+20*distToPlayer/300, z+0.5]
+            let loc2 = [x+0.5, y+2+20*distToPlayer/300-10*distToPlayer/300, z+0.5]
+
+            let loc3 = [loc1[0]-Player.getRenderX(), loc1[1]-(Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]()), loc1[2]-Player.getRenderZ()]
+            let loc4 = [loc2[0]-Player.getRenderX(), loc2[1]-(Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]()), loc2[2]-Player.getRenderZ()]
+
+            let loc5 = [Player.getRenderX()+loc3[0]/(distToPlayer/distRender), (Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]())+loc3[1]/(distToPlayer/distRender), Player.getRenderZ()+loc3[2]/(distToPlayer/distRender)]
+            let loc6 = [Player.getRenderX()+loc4[0]/(distToPlayer/distRender), (Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]())+loc4[1]/(distToPlayer/distRender), Player.getRenderZ()+loc4[2]/(distToPlayer/distRender)]
+
+            if(name) Tessellator.drawString("§a" + name, loc5[0], loc5[1], loc5[2], 0, true, distRender/300, false)
+            if(showDist) Tessellator.drawString("§b(" + numberUtils.numberWithCommas(Math.round(distToPlayer)) + "m)", (name?loc6[0]:loc5[0]), (name?loc6[1]:loc5[1]), (name?loc6[2]:loc5[2]), 0, false, distRender/300, false)
+        }
     }
 }
+
+module.exports = ret

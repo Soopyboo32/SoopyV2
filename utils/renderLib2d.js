@@ -7,7 +7,7 @@
 //  Edit: iv added some features to this so might keep as is
 //--------------------------------------------------------------------------
 
-import { f, m } from "../mappings/mappings";
+import { f, m } from "../../mappings/mappings";
 
 
 const BufferUtils = org.lwjgl.BufferUtils;

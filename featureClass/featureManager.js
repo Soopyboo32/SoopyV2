@@ -442,7 +442,7 @@ class FeatureManager {
                         func.call(context, ...(args || []))
                         let time = Date.now()-start
                         if(time > this.longEventTime){
-                            console.log(this.messagePrefix + "Long (forge) event triggered (" + context.constructor.name + "/" + event.class.toString() + ")")
+                            logger.logMessage("Long (forge) event triggered (" + context.constructor.name + "/" + event.class.toString() + ")", 3)
                         }
                         this.stopRecordingPerformance(context.constructor.name, event.class.name)
                     }

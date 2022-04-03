@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import { f } from "../../../mappings/mappings";
-import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawLine } from "../../utils/renderUtils";
+import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
 import { calculateDistance, calculateDistanceQuick, fastestPathThrough } from "../../utils/utils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
@@ -101,24 +101,16 @@ class Events extends Feature {
                     if(loc.lastPing && Date.now()-loc.lastPing < 500){
                         blue = true
                     }
-                    drawBoxAtBlock(loc.x, loc.y,loc.z,0,blue?100:255,blue?255:0)
-                }
-                if(loc.fromApi){
-                    Tessellator.drawString(
-                        "(" + (loc.chain+1) + "/4) " + typeReplace[loc.type] + " BURRIAL (" + Math.round(calculateDistance([Player.getX(),Player.getY(),Player.getZ()],[loc.x+0.5,loc.y+2.5,loc.z+0.5])) + "m)",
-                        loc.x+0.5,
-                        loc.y+1.5,
-                        loc.z+0.5,
-                        loc.clicked? 65280:(loc.nearest?16711680:6579300), true, loc.clicked? 0.04:(loc.nearest?1:0.5), !loc.clicked
-                    );
-                }else{
-                    Tessellator.drawString(
-                        typeReplace[loc.type] + " BURRIAL (" + Math.round(calculateDistance([Player.getX(),Player.getY(),Player.getZ()],[loc.x+0.5,loc.y+2.5,loc.z+0.5])) + "m)",
-                        loc.x+0.5,
-                        loc.y+1.5,
-                        loc.z+0.5,
-                        loc.clicked? 65280:(loc.nearest?16711680:6579300), true, loc.clicked? 0.04:(loc.nearest?1:0.5), !loc.clicked
-                    );
+
+                    let name = ""
+
+                    if(loc.fromApi){
+                        name = (loc.nearest?"§c":"§a")+"(" + (loc.chain+1) + "/4) " + typeReplace[loc.type] + " burrial"
+                    }else{
+                        name = (loc.nearest?"§c":"§a")+typeReplace[loc.type] + " burrial"
+                    }
+
+                    drawCoolWaypoint(loc.x, loc.y,loc.z,0,blue?100:255,blue?255:0, {name: name})
                 }
             })
         }

@@ -1,0 +1,8 @@
+{
+    "name": "Waypoints",
+    "description": "Allows rendering + creation of custom waypoints",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 0
+}
