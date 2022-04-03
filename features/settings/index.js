@@ -150,6 +150,8 @@ class SettingPage extends GuiPage {
 
     onOpenPage(p){
         if(p===1) this.updateSettingCategories()
+
+        this.closeSidebarPage()
     }
 
     updateSettingCategories(){
