@@ -225,8 +225,8 @@ class Hud extends Feature {
             this.lastSwappedPet = Date.now()
         })
         this.registerChat("&r&aYou summoned your &r${pet}&r&a!&r", (pet)=>{
-            this.petElement.setText("&6Pet&7> &7[Lvl " + this.petLevels[pet.replace("&", "§")] +"] "+pet)
-            this.petText = "&6Pet&7> &7[Lvl " + this.petLevels[pet.replace("&", "§")] +"] "+pet
+            this.petElement.setText("&6Pet&7> &7[Lvl " + (this.petLevels[pet.replace("&", "§")]||"??") +"] "+pet)
+            this.petText = "&6Pet&7> &7[Lvl " + (this.petLevels[pet.replace("&", "§")]||"??") +"] "+pet
 
             this.lastSwappedPet = Date.now()
         })
@@ -237,8 +237,8 @@ class Hud extends Feature {
             this.lastSwappedPet = Date.now()
         })
         this.registerChat("&r&aYour &r${pet} &r&alevelled up to level &r&9${level}&r&a!&r", (pet, level)=>{
-            this.petElement.setText("&6Pet&7> &7[Lvl " + level +"] "+pet)
-            this.petText = "&6Pet&7> &7[Lvl " + level +"] "+pet
+            this.petElement.setText("&6Pet&7> &7[Lvl " + (level||"??") +"] "+pet)
+            this.petText = "&6Pet&7> &7[Lvl " + (level||"??") +"] "+pet
 
             this.lastSwappedPet = Date.now()
         })
@@ -616,8 +616,8 @@ class Hud extends Feature {
 			"MYTHIC": "&d"
 		}
 
-        this.petElement.setText("&6Pet&7> &7[Lvl " + pet.level.level + "] " + petTierColor[pet.tier] + pet.name)
-        this.petText = "&6Pet&7> &7[Lvl " + pet.level.level + "] " + petTierColor[pet.tier] + pet.name
+        this.petElement.setText("&6Pet&7> &7[Lvl " + (pet.level.level||"??") + "] " + petTierColor[pet.tier] + pet.name)
+        this.petText = "&6Pet&7> &7[Lvl " + (pet.level.level||"??") + "] " + petTierColor[pet.tier] + pet.name
     }
 
     worldLoad(){
