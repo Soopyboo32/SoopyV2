@@ -48,6 +48,11 @@ class HudTextElement{
         return this
     }
 
+    isEnabled(){
+        if(!this.toggleSetting) return true
+        return this.locationSetting && this.toggleSetting.getValue()
+    }
+
     render(){
         if(this.toggleSetting && !this.toggleSetting.getValue() || !this.locationSetting) return
         if(Date.now()-this.tempDisableTime < 100) return

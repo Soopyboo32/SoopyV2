@@ -4,86 +4,101 @@ import Feature from "../../featureClass/class";
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
 import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement";
 import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";
-import TextWithArrow from "../../../guimanager/GuiElement/TextWithArrow";
-import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import BoxWithToggleAndDescription from "../../../guimanager/GuiElement/BoxWithToggleAndDescription";
 import ButtonWithArrowAndDescription from "../../../guimanager/GuiElement/ButtonWithArrowAndDescription";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent";
-import SoopyOpenGuiEvent from "../../../guimanager/EventListener/SoopyOpenGuiEvent";
 import settingsCommunicator from "./settingsCommunicator";
 import GuiPage from "../soopyGui/GuiPage"
-import { SoopyRenderEvent } from "../../../guimanager";
+import { SoopyGui, SoopyRenderEvent } from "../../../guimanager";
 import TextBox from "../../../guimanager/GuiElement/TextBox";
+import locationSettingHolder from "./locationSettingHolder";
 
 
 class SettingsRenderer extends Feature {
     constructor() {
         super()
-
-        this.gui = undefined
-
-        this.pages = []
-        this.currentPage = 0
-        this.backButton = undefined
-        this.settingsCategoryArea = undefined
-        this.settingsTitle = undefined
-        this.settingsArea = undefined
-        this.modifyingFeature = false
-        this.featureLoadedTextBox = undefined
-
-        this.SettingPage = undefined
     }
 
     onEnable(){
-
         this.SettingPage = new SettingPage()
+        this.EditLocationsPage = new EditLocationsPage()
         this.SettingPage.FeatureManager = this.FeatureManager
 
-        return;
+        this.registerStep(true, 1, ()=>{ 
+            if(!this.EditLocationsPage) return
+            
+            if(this.EditLocationsPage.needsExitPage){
+                this.EditLocationsPage.goToPage(0, 500)
+                this.EditLocationsPage.needsExitPage = false
+            }
+        })
+
     }
 
     onDisable(){
+        this.EditLocationsPage = undefined
         this.SettingPage = undefined
-        return;
-        this.gui.delete()
-
-        this.pages = []
-        this.currentPage = 0
-        this.backButton = undefined
-        this.settingsArea = undefined
-        this.settingsTitle = undefined
-        this.settingsCategoryArea = undefined
-        this.modifyingFeature = false
-        this.featureLoadedTextBox = undefined
     }
+}
 
-    clickedOpenSettings(){
-
-
-        this.goToPage(1)
-    }
-
-    clickedBackButton(){
-        this.goToPage(this.currentPage-1)
-    }
-
-    goToPage(pageNum, animate=true){
-        pageNum = Math.max(0, Math.min(pageNum, this.pages.length-1))
+class EditLocationsPage extends GuiPage {
+    
+    constructor(){
+        super(9)
         
-        if(pageNum == this.currentPage){
-            return
-        }
+        this.name = "Edit GUI Locations"
 
-        this.currentPage = pageNum
+        this.needsExitPage = false
 
-        this.pages.forEach((p, i)=>{
-            p.forEach(e=>{
-                e.location.location.x.set(i-pageNum, animate?1000:0)
-            })
+        this.soopyGui = new SoopyGui()
+        this.soopyGui._renderBackground = ()=>{} //remove background darkening
+
+
+        
+        this.soopyGui.ctGui.registerDraw((mouseX, mouseY, partialTicks)=>{
+            this.renderGui(mouseX, mouseY)
+            this.soopyGui._render(mouseX, mouseY, partialTicks)
+        })
+        this.soopyGui.ctGui.registerClicked((mouseX, mouseY, button)=>{
+            this.clicked(mouseX, mouseY)
+            this.soopyGui._onClick(mouseX, mouseY, button)
+        })
+        this.soopyGui.ctGui.registerMouseReleased((mouseX, mouseY)=>{
+            this.released(mouseX, mouseY)
         })
 
-        this.backButton.location.location.y.set(pageNum === 0?-0.2:0, animate?1000:0)
+        this.finaliseLoading()
+    }
+    
+    renderGui(mouseX, mouseY){
+        for(let setting of locationSettingHolder.getData()){
+            if(setting.parent){
+                if(setting.parent.isEnabled()){
+                    setting.renderGui(mouseX, mouseY)
+                }
+            }else{
+                setting.renderGui(mouseX, mouseY)
+            }
+        }
+    }
+
+    clicked(mouseX, mouseY){
+        for(let setting of locationSettingHolder.getData()){
+            if(setting.clicked(mouseX, mouseY)) return //dont allow the user to drag 2 locations at once
+        }
+    }
+
+    released(mouseX, mouseY){
+        for(let setting of locationSettingHolder.getData()){
+            setting.released(mouseX, mouseY)
+        }
+    }
+
+    onOpen(){
+        this.needsExitPage = true
+
+        this.soopyGui.open()
     }
 }
 

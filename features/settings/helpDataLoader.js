@@ -41,6 +41,10 @@ class HelpDataLoader {
 
 if(!global.helpDataLoader){
     global.helpDataLoader = new HelpDataLoader();
+    
+    register("gameUnload", ()=>{
+        global.helpDataLoader = undefined
+    })
 }
 
 export default global.helpDataLoader;

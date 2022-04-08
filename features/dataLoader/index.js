@@ -14,6 +14,7 @@ class DataLoader extends Feature {
         this.stats = {}
 
         this.area = undefined
+        this.areaFine = undefined
 
         this.isInSkyblock = false
 
@@ -39,6 +40,7 @@ class DataLoader extends Feature {
 
     worldLoad(){
         this.area = undefined
+        this.areaFine = undefined
 
         this.worldLoaded = true
     }

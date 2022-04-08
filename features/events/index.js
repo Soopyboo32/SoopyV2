@@ -266,7 +266,7 @@ class Events extends Feature {
 
     
     spawnParticle(particle, type, event){
-        if(this.shinyBlockOverlayEnabled.getValue()){
+        if(this.shinyBlockOverlayEnabled.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "The End"){
             if(particle.toString().startsWith("EntitySpellParticleFX,")){
                 if(particle.getUnderlyingEntity().func_70534_d()===particle.getUnderlyingEntity().func_70535_g()){
                     let arr = [particle.getX(), particle.getY(), particle.getZ()]

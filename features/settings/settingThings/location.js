@@ -7,8 +7,7 @@ import ButtonWithArrow from "../../../../guimanager/GuiElement/ButtonWithArrow"
 import SoopyMouseClickEvent from "../../../../guimanager/EventListener/SoopyMouseClickEvent"
 import NumberTextBox from "../../../../guimanager/GuiElement/NumberTextBox"
 import SoopyContentChangeEvent from "../../../../guimanager/EventListener/SoopyContentChangeEvent"
-
-let allLocations = []
+import locationSettingHolder from "../locationSettingHolder"
 
 class LocationSetting extends ButtonSetting {
     constructor(name, description, settingId, module, defaultLocation){
@@ -124,7 +123,7 @@ class LocationSetting extends ButtonSetting {
             this.released(mouseX, mouseY)
         })
 
-        allLocations.push(this)
+        locationSettingHolder.addLocationSetting(this)
     }
 
     requires(toggleSetting){
@@ -184,7 +183,9 @@ class LocationSetting extends ButtonSetting {
             && mouseY>this.y && mouseY<this.y+height*this.scale){
             this.dragging = true;
             this.dragOffset = [this.x-mouseX, this.y-mouseY]
+            return true
         }
+        return false
     }
     released(mouseX, mouseY){
         this.updateLocation(mouseX, mouseY)
@@ -207,7 +208,7 @@ class LocationSetting extends ButtonSetting {
             this.y = mouseY+this.dragOffset[1]
 
             let snapPoints = []
-            allLocations.forEach(loc=>{
+            locationSettingHolder.getData().forEach(loc=>{
                 if(loc === this) return;
                 snapPoints.push([loc.x, loc.y])
                 snapPoints.push([loc.x+loc.getWidth()*loc.scale, loc.y])
