@@ -13,12 +13,13 @@ class AgentThings extends Feature {
     }
 
     onEnable(){
+        return;
         this.initVariables()
 
         this.nearPlayerData = []
         while(this.nearPlayerData.length < 100){this.nearPlayerData.push({})}
 
-        this.recordNearestPlayers = new ToggleSetting("Record nearby players", "You can then view this data with /nearplayers", true, "record_near_players", this)
+        this.recordNearestPlayers = new ToggleSetting("Record nearby players", "You can then view this data with /nearplayers", false, "record_near_players", this)
 
         this.registerStep(false, 1, this.step)
 

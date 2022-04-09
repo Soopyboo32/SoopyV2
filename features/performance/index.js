@@ -10,6 +10,7 @@ class Performance extends Feature {
     }
 
     onEnable(){
+        return;
         new SettingBase("NOTE: If you dont use any of the features, disable this", "Having performance enabled will decrease performance if no features are used\n(this is due to it using the render entity event)", true, "hide_performance_description", this)
 
         this.armourStandCapSetting = new ToggleSetting("Armorstand render cap", "Limits the max number of armor stands rendered to 50\n(50 closest to player)", true, "armorstand_render_cap", this)
