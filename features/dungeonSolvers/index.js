@@ -172,45 +172,45 @@ class DungeonSolvers extends Feature {
 
   renderWorld(ticks) {
     if (this.lividFindBox.getValue()) {
-      if (this.lividData.correctLividEntity) {
-        renderUtils.drawBoxAtEntity(this.lividData.correctLividEntity, 255, 0, 0, 0.75, -2, ticks);
-      }
+		if (this.lividData.correctLividEntity) {
+			renderUtils.drawBoxAtEntity(this.lividData.correctLividEntity, 255, 0, 0, 0.75, -2, ticks);
+		}
     }
 
     if (this.bloodCampAssist.getValue()) {
-      this.skulls.forEach((skull) => {
-        let skullE = skull.getEntity();
-        // renderUtils.drawBoxAtEntity(skull, 255, 0, 0, 0.5, 0.5, ticks)
+		this.skulls.forEach((skull) => {
+			let skullE = skull.getEntity();
+			// renderUtils.drawBoxAtEntity(skull, 255, 0, 0, 0.5, 0.5, ticks)
 
-        if (this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook) {
-          let startPoint = [skullE[f.posX.Entity], skullE[f.posY.Entity], skullE[f.posZ.Entity]];
+			if (this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook) {
+				let startPoint = [skullE[f.posX.Entity], skullE[f.posY.Entity], skullE[f.posZ.Entity]];
 
-          let xSpeed2 = (startPoint[0] - this.eMovingThing[skull.getUUID().toString()].startX) / this.eMovingThing[skull.getUUID().toString()].timeTook;
-          let ySpeed2 = (startPoint[1] - this.eMovingThing[skull.getUUID().toString()].startY) / this.eMovingThing[skull.getUUID().toString()].timeTook;
-          let zSpeed2 = (startPoint[2] - this.eMovingThing[skull.getUUID().toString()].startZ) / this.eMovingThing[skull.getUUID().toString()].timeTook;
+				let xSpeed2 = (startPoint[0] - this.eMovingThing[skull.getUUID().toString()].startX) / this.eMovingThing[skull.getUUID().toString()].timeTook;
+				let ySpeed2 = (startPoint[1] - this.eMovingThing[skull.getUUID().toString()].startY) / this.eMovingThing[skull.getUUID().toString()].timeTook;
+				let zSpeed2 = (startPoint[2] - this.eMovingThing[skull.getUUID().toString()].startZ) / this.eMovingThing[skull.getUUID().toString()].timeTook;
 
-          let time = (this.spawnIdThing >= 4 ? 2900 : 4850) - this.eMovingThing[skull.getUUID().toString()].timeTook;
-          let endPoint1 = this.eMovingThing[skull.getUUID().toString()].endPoint;
-          let endPoint2 = this.eMovingThing[skull.getUUID().toString()].endPointLast;
-          let endPointUpdated = Math.min(Date.now() - this.eMovingThing[skull.getUUID().toString()].endPointUpdated, 100);
-		  if(!endPoint2) return
-          let endPoint = [endPoint2[0] + ((endPoint1[0] - endPoint2[0]) * endPointUpdated) / 100, endPoint2[1] + ((endPoint1[1] - endPoint2[1]) * endPointUpdated) / 100, endPoint2[2] + ((endPoint1[2] - endPoint2[2]) * endPointUpdated) / 100];
-          let pingPoint = [startPoint[0] + xSpeed2 * this.ping, startPoint[1] + ySpeed2 * this.ping, startPoint[2] + zSpeed2 * this.ping];
+				let time = (this.spawnIdThing >= 4 ? 2900 : 4850) - this.eMovingThing[skull.getUUID().toString()].timeTook;
+				let endPoint1 = this.eMovingThing[skull.getUUID().toString()].endPoint;
+				let endPoint2 = this.eMovingThing[skull.getUUID().toString()].endPointLast;
+				let endPointUpdated = Math.min(Date.now() - this.eMovingThing[skull.getUUID().toString()].endPointUpdated, 100);
+				if(!endPoint2) return
+				let endPoint = [endPoint2[0] + ((endPoint1[0] - endPoint2[0]) * endPointUpdated) / 100, endPoint2[1] + ((endPoint1[1] - endPoint2[1]) * endPointUpdated) / 100, endPoint2[2] + ((endPoint1[2] - endPoint2[2]) * endPointUpdated) / 100];
+				let pingPoint = [startPoint[0] + xSpeed2 * this.ping, startPoint[1] + ySpeed2 * this.ping, startPoint[2] + zSpeed2 * this.ping];
 
-          renderUtils.drawLineWithDepth(startPoint[0], startPoint[1] + 2, startPoint[2], endPoint[0], endPoint[1] + 2, endPoint[2], 255, 0, 0, 2);
+				renderUtils.drawLineWithDepth(startPoint[0], startPoint[1] + 2, startPoint[2], endPoint[0], endPoint[1] + 2, endPoint[2], 255, 0, 0, 2);
 
-          if (this.ping < time) {
-            renderUtils.drawBoxAtBlockNotVisThruWalls(pingPoint[0] - 0.5, pingPoint[1] + 1.5, pingPoint[2] - 0.5, 0, 255, 0);
-            renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0] - 0.5, endPoint[1] + 1.5, endPoint[2] - 0.5, 255, 0, 0);
-          } else {
-            renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0] - 0.5, endPoint[1] + 1.5, endPoint[2] - 0.5, 0, 0, 255);
-          }
+				if (this.ping < time) {
+					renderUtils.drawBoxAtBlockNotVisThruWalls(pingPoint[0] - 0.5, pingPoint[1] + 1.5, pingPoint[2] - 0.5, 0, 255, 0);
+					renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0] - 0.5, endPoint[1] + 1.5, endPoint[2] - 0.5, 255, 0, 0);
+				} else {
+					renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0] - 0.5, endPoint[1] + 1.5, endPoint[2] - 0.5, 0, 0, 255);
+				}
 
-          // if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
-          //     Tessellator.drawString((time/1000).toFixed(3)+"s", endPoint[0], endPoint[1]+2, endPoint[2])
-          // }
-        }
-      });
+				// if(this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook){
+				//     Tessellator.drawString((time/1000).toFixed(3)+"s", endPoint[0], endPoint[1]+2, endPoint[2])
+				// }
+			}
+		});
     }
 
 	if(this.blazeX !== -1 && this.blazes.length > 0 && this.blazeSolver.getValue()){
@@ -227,13 +227,13 @@ class DungeonSolvers extends Feature {
   }
 
   renderEntity(entity, position, ticks, event) {
-    if (this.lividFindNametags.getValue()) {
-      if (this.lividData.correctLividEntity) {
-        if (entity.getName().includes("Livid") && entity.getName().includes("❤") && entity.getUUID() !== this.lividData.correctLividEntity.getUUID()) {
-          cancel(event);
-        }
-      }
-    }
+		if (this.lividFindNametags.getValue()) {
+			if (this.lividData.correctLividEntity) {
+				if (entity.getName().includes("Livid") && entity.getName().includes("❤") && entity.getUUID() !== this.lividData.correctLividEntity.getUUID()) {
+					cancel(event);
+				}
+			}
+		}
   }
 
   renderHud() {
@@ -244,7 +244,7 @@ class DungeonSolvers extends Feature {
 	}
 
     for (let element of this.hudElements) {
-      element.render();
+      	element.render();
     }
   }
 
