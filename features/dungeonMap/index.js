@@ -41,8 +41,7 @@ class DungeonMap extends Feature {
         this.MAP_QUALITY_SCALE = 2
         this.IMAGE_SIZE = 128*this.MAP_QUALITY_SCALE
 
-        this.defaultPlayerImage = new Image("skull-steve","https://cravatar.eu/avatar/dc8c39647b294e03ae9ed13ebd65dd29")
-        this.playerImages = {}
+        this.defaultPlayerImage = renderLibs.getImage("https://crafatar.com/avatars/dc8c39647b294e03ae9ed13ebd65dd29?size=8", true)
         this.mapDataPlayers = {}
         this.offset = []
         this.people = []
@@ -152,7 +151,6 @@ class DungeonMap extends Feature {
 
     worldLoad(){
         this.mortLocation = undefined
-        // this.playerImages = {}
         this.mapDataPlayers = {}
         this.offset = []
         this.mapScale = 1
@@ -653,23 +651,13 @@ class DungeonMap extends Feature {
     }
     
     getImageForPlayer(uuid){
-        if(!this.playerImages) return this.defaultPlayerImage
-        uuid = uuid.replace(/-/g, "")
-        if(this.playerImages[uuid] === "Loading") return this.defaultPlayerImage
-        if(this.playerImages[uuid]) return this.playerImages[uuid]
-
-        this.playerImages[uuid]= "Loading"
-        new Thread(()=>{
-            this.playerImages[uuid] = new Image("skull-" + uuid+"-v2","https://crafatar.com/avatars/" + uuid+"?size=8")
-        }).start()
-        return this.defaultPlayerImage
+        return renderLibs.getImage("https://crafatar.com/avatars/" + uuid.replace(/-/g, "")+"?size=8") || this.defaultPlayerImage
     }
  
     initVariables(){
         this.mapImage = undefined
         this.defaultPlayerImage = undefined
         this.mortLocation = undefined
-        this.playerImages = undefined
         this.offset = undefined
         this.puzzles = undefined
         this.puzzlesTab = undefined
@@ -747,7 +735,7 @@ class SpiritLeapOverlay {
                 this.items = itemsNew
                 this.buttonsContainer.clearChildren()
                 
-                Object.keys(this.items).forEach((name, i)=>{ //TODO: make the button to leap to the last person to open a door a diff color AND MAKE IT UPDATE LIVE
+                Object.keys(this.items).forEach((name, i)=>{
                     let button = new ButtonWithArrow().setText((ChatLib.removeFormatting(name)===this.parent.lastDoorOpener?"&4":"&2")+"["+this.players[ChatLib.removeFormatting(name)]+"] "+ChatLib.removeFormatting(name)).addEvent(new SoopyMouseClickEvent().setHandler(()=>{
                         Player.getOpenedInventory().click(itemsNew[name])
                         ChatLib.chat("Leaping to " + name)

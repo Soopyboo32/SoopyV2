@@ -458,14 +458,6 @@ class DungeonSolvers extends Feature {
 				if(World.getBlockAt(this.blazeX+17-43, 18, this.blazeY+16-43).getType().getID() === 9){
 					this.blazes = this.blazes.reverse()
 				}
-
-				// let lastHp = -1 TODO: fix this
-				// this.blazes.forEach(b=>{
-				// 	if(b.getEntity().func_110143_aJ() === lastHp){
-				// 		// if(this.blazeSolver.getValue())ChatLib.chat(this.FeatureManager.messagePrefix + "&cWARNING: Detected 2 blazes with the same hp. (" + lastHp + "," + b.getEntity().func_110143_aJ() + ")")
-				// 	}
-				// 	lastHp = b.getEntity().func_110143_aJ()
-				// })
 			}
 		}
 	}

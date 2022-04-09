@@ -105,7 +105,7 @@ class Waypoints extends Feature {
         for(let waypoint of this.waypoints){
             drawCoolWaypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, waypoint.options)
         }
-        for(let waypoint of this.userWaypointsArr){ //TODO: Make hash from waypoint.area -> waypoints[]
+        for(let waypoint of this.userWaypointsArr){ //TODO: Performance optimisation: Make hash from waypoint.area -> waypoints[]
             if(!waypoint.area || this.FeatureManager.features["dataLoader"].class.area === waypoint.area){
                 drawCoolWaypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, {...waypoint.options})
             }
