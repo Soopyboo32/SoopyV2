@@ -32,7 +32,7 @@ class DungeonMap extends Feature {
 
         this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud", false, "dmap_render", this)
         this.mapLocation = new ImageLocationSetting("Map Location", "Sets the location of the map on the hud","dmap_location", this, [10,10, 1], new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/map.png"))),100,100)
-        this.mapBackground = new ToggleSetting("Map Background", "Puts a white background begind the map", false, "dmap_background", this)
+        this.mapBackground = new ToggleSetting("Map Background And Border", "Puts a grey background behind the map + Black border", false, "dmap_background", this)
         this.brBox = new ToggleSetting("Box around doors in br", "In map category because it uses map to find location (no esp)", true, "dmap_door", this)
         this.brBoxDisableWhenBloodOpened = new ToggleSetting("Disable blood rush box when blood open", "", true, "dmap_door_disable", this).requires(this.brBox)
         this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this)
@@ -177,6 +177,8 @@ class DungeonMap extends Feature {
 
     drawMap(x, y, size, scale){
         if(this.mapImage){
+            if(this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0,0,0,100), x, y, size, size)
+
             if(this.boringMap){
                 this.mapImage.draw(x, y, size, size)
                 return
@@ -224,6 +226,12 @@ class DungeonMap extends Feature {
             this.drawPlayersLocations(x+xOff, y+yOff, size, scale)
 
             renderLibs.stopScizzor()
+
+            
+            if(this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0,0,0), x, y, size, 2)
+            if(this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0,0,0), x, y, 2, size)
+            if(this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0,0,0), x+size-2, y, 2, size)
+            if(this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0,0,0), x, y+size-2, size, 2)
         }
     }
 
@@ -372,9 +380,9 @@ class DungeonMap extends Feature {
 
         let graphics = this.renderImage.getGraphics()
 
-        if(!this.mapBackground.getValue())graphics.setComposite(AlphaComposite.Clear);
+        graphics.setComposite(AlphaComposite.Clear);
         graphics.fillRect(0,0,this.IMAGE_SIZE,this.IMAGE_SIZE)
-        if(!this.mapBackground.getValue())graphics.setComposite(AlphaComposite.SrcOver);
+        graphics.setComposite(AlphaComposite.SrcOver);
 
         let mapData
         try {

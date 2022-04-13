@@ -26,6 +26,8 @@ class LockedFeatures extends Feature {
                 .requires(this.guildEventLb))
         this.hudElements.push(this.guildLbElement)
 
+        this.eventCommand = undefined
+
         this.registerStep(true, 1, this.step)
         this.registerEvent("renderOverlay", this.renderOverlay)
     }
@@ -33,10 +35,28 @@ class LockedFeatures extends Feature {
     step(){
         if(!SoopyV2Server.lbdatathing){
             this.guildEventLbPossible.set(false)
+            if(this.eventCommand){
+                this.unregisterCommand("eventlb")
+                this.eventCommand = undefined
+            }
             return;
         }
         
         this.guildEventLbPossible.set(true)
+
+        if(!this.eventCommand){
+            this.eventCommand = this.registerCommand("eventlb", ()=>{
+                SoopyV2Server.lbdatathing.forEach((u, i)=>{
+                    let text = ""
+                    text += "§6#" + (i+1)
+                    text += "§7 - "
+                    text += "§e"+u.username
+                    text += "&7: §r"+numberWithCommas(Math.round(parseFloat(u.startingAmount)))
+                    if(u.progress) text += " §7("+ (u.progress>0?"+":"-")+Math.abs(Math.round(u.progress)) + "/h)"
+                    ChatLib.chat(text)
+                })
+            })
+        }
 
         if(!this.guildEventLb.getValue()) return
 
@@ -81,7 +101,7 @@ class LockedFeatures extends Feature {
             text = "&d  ^ in " + timeNumber2(timeTillIncrease) + "\n"+text
         }
         if((timeTillIncrease > timeTillDecrease || (timeTillDecrease>0))&&timeTillIncrease<0 && timeTillDecrease < 10000000000){
-            text = "&d  V in " + timeNumber2(timeTillDecrease) + "\n"+text
+            text = "&d  v in " + timeNumber2(timeTillDecrease) + "\n"+text
         }
 
         this.guildLbElement.setText(text)

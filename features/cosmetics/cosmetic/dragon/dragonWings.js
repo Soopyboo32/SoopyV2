@@ -35,7 +35,7 @@ class DragonWings extends Cosmetic {
 
     onRenderEntity(ticks, isInGui){
         
-        if(this.player.getPlayer()[m.isInvisibleToPlayer](Player.getPlayer())){
+        if(this.player.getPlayer()[m.isInvisibleToPlayer](Player.getPlayer()) || this.player.getPlayer()[m.isInvisible]()){
             return
         }
 
@@ -71,13 +71,16 @@ class DragonWings extends Cosmetic {
 
         let wingBackAmount = 0
 
-        if(this.player.getPlayer()[f.hurtResistantTime] > 15){ //damage tick
-            this.animOffset += 15*timeSince
+        let shouldStandStillWingCurve = true
+
+        if(this.player.getPlayer()[f.hurtResistantTime] > 17){ //damage tick
+            this.animOffset += 25*timeSince
         }
 
 
         // if((this.player === Player &&this.player.getPlayer().field_71075_bZ.field_75100_b) || (this.player !== Player && Math.abs(verticleSpeed)<0.2 && !this.player.getPlayer().field_70122_E)){//playerCapabilities.isFlying
         if(this.flying){ //flying
+            shouldStandStillWingCurve = false
             this.animOffset += 5*timeSince //flap in mid air
 
             flapAmountMultiplyer *= 1.75 //flap harder
@@ -174,6 +177,7 @@ class DragonWings extends Cosmetic {
             if(this.player.getPlayer()[m.isSneaking.Entity]()){ //isSneaking
                 if(this.player.getPlayer()[f.rotationPitch] > 20){
                     shouldStandingStillWingThing = true
+                    shouldStandStillWingCurve = false
                     changeStandingStillWingThing =  Math.max(0,this.player.getPlayer()[f.rotationPitch]/600)
                 }
             }
@@ -182,7 +186,6 @@ class DragonWings extends Cosmetic {
         if(shouldStandingStillWingThing){
             wing[f.rotateAngleY] = 0.25+(changeStandingStillWingThing)*3
         }
-
         if(this.player.getPlayer()[m.isPlayerSleeping]()){ //player in bed
 
             try{ //try catch incase no bed at that location
@@ -209,26 +212,18 @@ class DragonWings extends Cosmetic {
                 }
                 // console.log(rotation)
                 // console.log(World.getBlockAt(this.player.getX(), this.player.getY(), this.player.getZ()).getState().func_177229_b(FACING))
-                Tessellator.translate(0, 0.75-this.settings.scale*100,0)
                 Tessellator.rotate(rotation, 0, 1, 0)
-
-                wing[f.rotateAngleX] = 0; //rotateAngleX
-
-                wing[f.rotateAngleZ] = (-0.5+Math.sin(this.animOffset/5)*0.1)*this.settings.scale*100; //rotateAngleZ
-
-                
-                wingTip[f.rotateAngleZ] = -2.20+Math.sin(this.animOffset/5)*0.1
             }catch(e){}
-        }else if(wingBackAmount === 0){
-            //tilt
-            let wing_tilt_offset = -Math.min(0.8, horisontalSpeed*3) //When go faster tilt wing back so its in direction of wind
+            Tessellator.translate(0, -this.settings.scale*25,0)
+
+            wing[f.rotateAngleX] = 0; //rotateAngleX
+
+            wing[f.rotateAngleZ] = (-0.45+Math.sin(this.animOffset/5)*0.03); //rotateAngleZ
 
             
-            if(shouldStandingStillWingThing){
-                wing_tilt_offset += (changeStandingStillWingThing)*4
-            }
-
-            wing[f.rotateAngleX] = 0.75 - Math.cos(this.animOffset) * 0.2+wing_tilt_offset; //rotateAngleX
+            wingTip[f.rotateAngleZ] = -2.5+Math.sin(this.animOffset/5)*0.03
+        }else if(wingBackAmount === 0){
+            //tilt
 
 
             let wing_goback_amount = 0.15/(Math.min(1, horisontalSpeed)*3+0.25)
@@ -241,6 +236,15 @@ class DragonWings extends Cosmetic {
                 temp_wing_thing += changeStandingStillWingThing*50
             }
 
+            let wing_tilt_offset = -Math.min(0.8, horisontalSpeed*3)+0.3 //When go faster tilt wing back so its in direction of wind
+
+            
+            if(shouldStandingStillWingThing){
+                wing_tilt_offset += (changeStandingStillWingThing)*4
+            }
+
+            wing[f.rotateAngleX] = 0.85 - Math.cos(this.animOffset) * 0.2+wing_tilt_offset-(flapAmountMultiplyer-1)/3; //rotateAngleX
+
             let temp_horis_wingthing = 0
             if(shouldStandingStillWingThing){
                 temp_horis_wingthing = -(changeStandingStillWingThing)*0.75
@@ -248,8 +252,9 @@ class DragonWings extends Cosmetic {
 
             wing[f.rotateAngleZ] = (Math.sin(this.animOffset)/temp_wing_thing + 0.125) * wing_goback_amount*(1+(flapAmountMultiplyer-1)*1)*flapAmountMultiplyerNoEnd -0.4-wing_tilt_offset/3+temp_horis_wingthing+flapMainOffsetThing; //rotateAngleZ
 
-            
-            wingTip[f.rotateAngleZ] = -((Math.sin((this.animOffset+1.5+(1-temp_wing_thing)/8.5))/(1+(temp_wing_thing-1)/3) + 0.5)) * 0.75*(1+(flapAmountMultiplyer-1)*1)/(1+temp_horis_wingthing) -  (1-flapAmountMultiplyer)*2-(1-temp_wing_thing)/10+wingEndOffsetThing; //rotateAngleZ
+            let standStillCurveThing = shouldStandStillWingCurve?(2-flapAmountMultiplyer)*0.5:0
+
+            wingTip[f.rotateAngleZ] = standStillCurveThing-((Math.sin((this.animOffset+1.5+(1-temp_wing_thing)/8.5))/(1+(temp_wing_thing-1)/3) + 0.5)) * 0.75*(1+(flapAmountMultiplyer-1)*1)/(1+temp_horis_wingthing) -  (1-flapAmountMultiplyer)*2-(1-temp_wing_thing)/10+wingEndOffsetThing; //rotateAngleZ
         }else{
             //tilt
             let wing_tilt_offset = -Math.min(0.8, horisontalSpeed*3) //When go faster tilt wing back so its in direction of wind
@@ -309,6 +314,8 @@ class DragonWings extends Cosmetic {
         if(!this.parent.ownCosmeticAudio.getValue()){
             return
         }
+
+        if(this.player.getPlayer()[m.isPlayerSleeping]()) return
 
         let horisontalSpeed = Math.hypot((this.player.getPlayer()[f.posX.Entity]-this.player.getPlayer()[f.lastTickPosX]),(this.player.getPlayer()[f.posZ.Entity]-this.player.getPlayer()[f.lastTickPosZ]))
         
@@ -435,3 +442,10 @@ function getField(e, field){
 
     return field2.get(e)
 }
+
+let a = 0
+
+register("command", (val)=>{
+    a = parseFloat(val)
+    ChatLib.chat("Set a to " + a)
+}).setName("seta", true)

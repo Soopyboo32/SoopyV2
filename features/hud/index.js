@@ -520,7 +520,7 @@ class Hud extends Feature {
                     currentSong = "&cPaused"
                 }else{
                     if(song === "Spotify") song = "Advertisement"
-                    currentSong = "&a" + song.replace(" - "," &7-&b ")
+                    currentSong = "&a" + song.replace(/&/g, "&⭍").replace(" - "," &7-&b ")
                 }
 
             }
