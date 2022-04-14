@@ -5,6 +5,7 @@ import logger from "../../logger";
 import { f } from "../../../mappings/mappings";
 import ToggleSetting from "../settings/settingThings/toggle";
 import MuseumGui from "./museumGui.js";
+// import DungeonReadyGui from "./dungeonReadyGui";
 
 class BetterGuis extends Feature {
     constructor() {
@@ -15,11 +16,13 @@ class BetterGuis extends Feature {
         this.initVariables()
 
         this.museumGui = new MuseumGui()
+        // this.dungeonReady = new DungeonReadyGui()
 
         this.replaceSbMenuClicks = new ToggleSetting("Improve Clicks on SBMENU", "This will change clicks to middle clicks, AND use commands where possible (eg /pets)", true, "sbmenu_clicks", this)
         this.reliableSbMenuClicks = {getValue: ()=>false}//removed because hypixel fixed, code kept incase hypixel adds back bug later //new ToggleSetting("Make SBMENU clicks reliable", "This will delay clicks on sbmenu to time them so they dont get canceled", true, "sbmenu_time", this)
         
         this.museumGuiEnabled = new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this)
+        // this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI", "Custom gui for the dungeon ready up menu", true, "custom_dungeon_ready_enabled", this)
     
         this.lastWindowId = 0
         this.shouldHold = 10
@@ -98,6 +101,7 @@ class BetterGuis extends Feature {
         this.registerEvent("guiMouseClick", this.guiClicked)
         this.registerEvent("guiOpened", (event)=>{
             if(this.museumGuiEnabled.getValue()) this.museumGui.guiOpened.call(this.museumGui, event)
+            // if(this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.guiOpened.call(this.dungeonReady, event)
         })
         this.registerStep(true, 10, this.step)
         this.registerEvent("worldUnload", ()=>{this.museumGui.saveMuseumCache.call(this.museumGui)})
@@ -122,6 +126,7 @@ class BetterGuis extends Feature {
 
     step(){
         if(this.museumGuiEnabled.getValue()) this.museumGui.tick.call(this.museumGui)
+        // if(this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.tick.call(this.dungeonReady)
         
         if(this.replaceSbMenuClicks.getValue()){
             if(Player.getOpenedInventory() && Player.getOpenedInventory().getName()==="SkyBlock Menu"){

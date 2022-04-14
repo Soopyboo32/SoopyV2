@@ -90,10 +90,10 @@ class LockedFeatures extends Feature {
 
         let timeTillIncrease = Infinity
         let timeTillDecrease = Infinity
-        if(nextProgress[1]-playerProgress[1] < 0){
+        if(nextProgress && nextProgress[1]-playerProgress[1] < 0){
             timeTillIncrease = ((nextProgress[0]-playerProgress[0])/(playerProgress[1]-nextProgress[1])*60*60*1000)
         }
-        if(prevProgress[1]-playerProgress[1] < 0){
+        if(prevProgress && prevProgress[1]-playerProgress[1] < 0){
             timeTillDecrease = ((playerProgress[0]-prevProgress[0])/(prevProgress[1]-playerProgress[1])*60*60*1000)
         }
 
