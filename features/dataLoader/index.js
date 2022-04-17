@@ -18,6 +18,8 @@ class DataLoader extends Feature {
 
         this.isInSkyblock = false
 
+        this.dungeonPercentCleared = 0
+
         this.registerStep(true, 2, this.step)
 
         this.registerEvent("worldLoad", this.worldLoad)
@@ -91,7 +93,15 @@ class DataLoader extends Feature {
             TabList.getNames().forEach(n=>{
                 n = ChatLib.removeFormatting(n)
                 if(n.includes(": ")){
-                    this.stats[n.split(": ")[0].trim()] = n.split(": ")[1].trim()
+                    if(n.includes('Secrets Found')){
+                        if(n.includes('%')){
+                            this.stats["Secrets Found%"] = n.split(": ")[1]
+                        }else{
+                            this.stats["Secrets Found"] = n.split(": ")[1]
+                        }
+                    }else{
+                        this.stats[n.split(": ")[0].trim()] = n.split(": ")[1].trim()
+                    }
                 }
             })
         }
@@ -120,6 +130,9 @@ class DataLoader extends Feature {
             }
             if(name.startsWith("Bits: ")){
                 this.bits = parseInt(name.split("Bits: ")[1].split(" ")[0])
+            }
+            if(name.startsWith("Cleared: ")){
+                this.dungeonPercentCleared = parseInt(name.split(" ")[1])/100
             }
 
             if(name.endsWith("Combat XP")){

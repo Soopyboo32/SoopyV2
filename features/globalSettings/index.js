@@ -40,9 +40,8 @@ class Hud extends Feature {
 
 
         this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
-        this.sendChatSetting = new ToggleSetting("Send (hashed) chat messages to soopy server", "This will allow the hide spam feature to detect messages that are spam", false, "privacy_send_chat", this)
-
-        this.privacySettings = [this.reportErrorsSetting, this.sendChatSetting]
+        
+        this.privacySettings = [this.reportErrorsSetting]
 
         this.firstLoadPageData = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2firstloaddata.json") || "{}") || {}
 

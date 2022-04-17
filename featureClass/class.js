@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 
 class Feature {
-    constructor(){
+    constructor() {
         this.FeatureManager = undefined
         this.events = {}
         this.customEvents = {}
@@ -14,27 +14,27 @@ class Feature {
         this.enabled = false
     }
 
-    setId(id){
+    setId(id) {
         this.id = id
     }
-    getId(){
+    getId() {
         return this.id
     }
 
-    _onDisable(){
-        Object.values(this.events).forEach(e=>this.FeatureManager.unregisterEvent(e)) //calling parent unregister to avoid the set in unregister event
-        Object.values(this.customEvents).forEach(e=>this.FeatureManager.unregisterCustom(e)) //calling parent unregister to avoid the set in unregister event
-        Object.values(this.forgeEvents).forEach(e=>this.FeatureManager.unregisterForge(e)) //calling parent unregister to avoid the set in unregister event
-        Object.values(this.soopyEvents).forEach(e=>this.FeatureManager.unregisterSoopy(e)) //calling parent unregister to avoid the set in unregister event
+    _onDisable() {
+        Object.values(this.events).forEach(e => this.FeatureManager.unregisterEvent(e)) //calling parent unregister to avoid the set in unregister event
+        Object.values(this.customEvents).forEach(e => this.FeatureManager.unregisterCustom(e)) //calling parent unregister to avoid the set in unregister event
+        Object.values(this.forgeEvents).forEach(e => this.FeatureManager.unregisterForge(e)) //calling parent unregister to avoid the set in unregister event
+        Object.values(this.soopyEvents).forEach(e => this.FeatureManager.unregisterSoopy(e)) //calling parent unregister to avoid the set in unregister event
 
         this.onDisable()
-        
+
         this.events = {}
         this.customEvents = {}
         this.enabled = false
     }
 
-    _onEnable(parent){
+    _onEnable(parent) {
         this.FeatureManager = parent
 
         this.enabled = true
@@ -42,10 +42,10 @@ class Feature {
         this.onEnable()
     }
 
-    onDisable(){}
-    onEnable(){}
+    onDisable() { }
+    onEnable() { }
 
-    registerEvent(event, func){
+    registerEvent(event, func) {
         let theEvent = this.FeatureManager.registerEvent(event, func, this)
 
         this.events[theEvent.id] = theEvent
@@ -53,12 +53,12 @@ class Feature {
         return theEvent
     }
 
-    unregisterEvent(event){
+    unregisterEvent(event) {
         this.FeatureManager.unregisterEvent(event)
 
         delete this.events[event.id]
     }
-    registerSoopy(event, func){
+    registerSoopy(event, func) {
         let theEvent = this.FeatureManager.registerSoopy(event, func, this)
 
         this.soopyEvents[theEvent.id] = theEvent
@@ -66,48 +66,48 @@ class Feature {
         return theEvent
     }
 
-    unregisterSoopy(event){
+    unregisterSoopy(event) {
         this.FeatureManager.unregisterSoopy(event)
 
         delete this.soopyEvents[event.id]
     }
 
-    registerForge(event, func, messageIfError){
+    registerForge(event, func, messageIfError) {
         let theEvent
-        try{
-        theEvent = this.FeatureManager.registerForge(event, func, this)
-        }catch(e){
-            if(!messageIfError) messageIfError = "An error occured while registering the event " + event.class.toString().split(".").pop() + ", this may cause " + this.constructor.name + " to not work properly."
+        try {
+            theEvent = this.FeatureManager.registerForge(event, func, this)
+        } catch (e) { //TODO: option to disable this chat message + fallback register for some that support (eg fallback of RenderWorldLastEvent to ct 'renderWorld')
+            if (!messageIfError) messageIfError = "An error occured while registering the event " + event.class.toString().split(".").pop() + ", this may cause " + this.constructor.name + " to not work properly."
             ChatLib.chat(this.FeatureManager.messagePrefix + messageIfError)
         }
-        if(theEvent)this.forgeEvents[theEvent.id] = theEvent
+        if (theEvent) this.forgeEvents[theEvent.id] = theEvent
 
         return theEvent
     }
 
-    unregisterForge(event){
-        if(!event) return
-        
+    unregisterForge(event) {
+        if (!event) return
+
         this.FeatureManager.unregisterForge(event)
 
         delete this.forgeEvents[event.id]
     }
 
-    registerChat(criteria, func){
+    registerChat(criteria, func) {
         let theEvent = this.FeatureManager.registerChat(criteria, func, this)
 
         this.customEvents[theEvent.id] = theEvent
 
         return theEvent
     }
-    registerActionBar(criteria, func){
+    registerActionBar(criteria, func) {
         let theEvent = this.FeatureManager.registerActionBar(criteria, func, this)
 
         this.customEvents[theEvent.id] = theEvent
 
         return theEvent
     }
-    registerStep(isFps, interval, func){
+    registerStep(isFps, interval, func) {
         let theEvent = this.FeatureManager.registerStep(isFps, interval, func, this)
 
         this.customEvents[theEvent.id] = theEvent
@@ -115,7 +115,7 @@ class Feature {
         return theEvent
     }
 
-    registerCustom(event, func){
+    registerCustom(event, func) {
         let theEvent = this.FeatureManager.registerCustom(event, func, this)
 
         this.customEvents[theEvent.id] = theEvent
@@ -123,28 +123,28 @@ class Feature {
         return theEvent
     }
 
-    registerCommand(name, func){
+    registerCommand(name, func) {
         this.FeatureManager.commandFuncs[name] = func
 
-        this.FeatureManager.registerCommand(name, (...args)=>{
-            if(this.FeatureManager.commandFuncs[name]){
+        this.FeatureManager.registerCommand(name, (...args) => {
+            if (this.FeatureManager.commandFuncs[name]) {
                 this.FeatureManager.commandFuncs[name].call(this, ...(args || []))
-            }else{
+            } else {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "This command is not available atm")
             }
         }, this)
     }
-    unregisterCommand(name){
+    unregisterCommand(name) {
         delete this.FeatureManager.commandFuncs[name]
     }
 
-    unregisterCustom(event){
+    unregisterCustom(event) {
         this.FeatureManager.unregisterCustom(event)
 
         delete this.customEvents[event.id]
     }
 
-    createCustomEvent(eventId){
+    createCustomEvent(eventId) {
         return this.FeatureManager.createCustomEvent(eventId)
     }
 }

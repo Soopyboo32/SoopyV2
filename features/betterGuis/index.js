@@ -118,7 +118,7 @@ class BetterGuis extends Feature {
 
             // logger.logMessage(hoveredSlotId, 4)
 
-            if(this.guiSlotClicked(ChatLib.removeFormatting(Player.getOpenedInventory().getName()), hoveredSlotId)){
+            if(this.guiSlotClicked(ChatLib.removeFormatting(Player.getContainer().getName()), hoveredSlotId)){
                 cancel(event)
             }
         }
@@ -129,19 +129,19 @@ class BetterGuis extends Feature {
         // if(this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.tick.call(this.dungeonReady)
         
         if(this.replaceSbMenuClicks.getValue()){
-            if(Player.getOpenedInventory() && Player.getOpenedInventory().getName()==="SkyBlock Menu"){
+            if(Player.getContainer() && Player.getContainer().getName()==="SkyBlock Menu"){
                 if(this.lastWindowId === 0){
-                    this.lastWindowId = Player.getOpenedInventory().getWindowId()
+                    this.lastWindowId = Player.getContainer().getWindowId()
                     return;
                 }
-                if(Player.getOpenedInventory().getWindowId()!==this.lastWindowId){
-                    this.lastWindowId = Player.getOpenedInventory().getWindowId()
+                if(Player.getContainer().getWindowId()!==this.lastWindowId){
+                    this.lastWindowId = Player.getContainer().getWindowId()
                     this.shouldHold+= 10
                     if(Date.now()-this.clickSlotTime >1000){
                         this.clickSlot = -1
                     }
                     if(this.clickSlot && this.clickSlot != -1){
-                        Player.getOpenedInventory().click(this.clickSlot, false, "MIDDLE")
+                        Player.getContainer().click(this.clickSlot, false, "MIDDLE")
                         this.clickSlot = -1
                     }
                 }else{
@@ -169,7 +169,7 @@ class BetterGuis extends Feature {
                             this.clickSlot = slotId
                             this.clickSlotTime = Date.now()
                         }else{
-                            Player.getOpenedInventory().click(slotId, false, "MIDDLE")
+                            Player.getContainer().click(slotId, false, "MIDDLE")
                         }
                     break;
                 }
@@ -177,18 +177,18 @@ class BetterGuis extends Feature {
             break
             default:
                 if(this.middleClickGuis.includes(inventoryName)){
-                    Player.getOpenedInventory().click(slotId, false, "MIDDLE")
+                    Player.getContainer().click(slotId, false, "MIDDLE")
                     return true
                 }
                 for(let thing of this.middleClickStartsWith){
                     if(inventoryName.startsWith(thing)){
-                        Player.getOpenedInventory().click(slotId, false, "MIDDLE")
+                        Player.getContainer().click(slotId, false, "MIDDLE")
                         return true
                     }
                 }
                 for(let thing of this.middleClickEndsWith){
                     if(inventoryName.endsWith(thing)){
-                        Player.getOpenedInventory().click(slotId, false, "MIDDLE")
+                        Player.getContainer().click(slotId, false, "MIDDLE")
                         return true
                     }
                 }

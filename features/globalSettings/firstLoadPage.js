@@ -17,6 +17,7 @@ class FirstLoadPage extends SoopyGuiElement {
 
             backButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
                 this.guiPage.prevPage()
+                this.guiPage.closeSidebarPage()
             }))
 
             this.addChild(backButton)
@@ -26,6 +27,7 @@ class FirstLoadPage extends SoopyGuiElement {
 
             nextButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
                 this.guiPage.nextPage()
+                this.guiPage.closeSidebarPage()
             }))
 
             this.addChild(nextButton)

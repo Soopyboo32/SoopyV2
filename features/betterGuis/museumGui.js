@@ -46,7 +46,7 @@ class MuseumGui {
 
         this.weaponsIndicator = new SoopyBoxElement().setLocation(leftOffset, 0.05, widthPer*4/5, 0.15)
         this.weaponsIndicator.addEvent(new SoopyRenderEvent().setHandler(()=>{
-            if(this.weaponsIndicator.hovered && ChatLib.removeFormatting(Player.getOpenedInventory().getStackInSlot(4).getName()) !== "Weapons"){
+            if(this.weaponsIndicator.hovered && ChatLib.removeFormatting(Player.getContainer().getStackInSlot(4).getName()) !== "Weapons"){
                 this.weaponText.location.location.x.set(0.05, 500)
                 this.weaponText.location.size.x.set(0.9, 500)
                 this.weaponText.location.location.y.set(0.025, 500)
@@ -56,7 +56,7 @@ class MuseumGui {
 
                 Renderer.translate(0,0,100)
                 Renderer.drawRect(Renderer.color(0,0,0,100), this.weaponsIndicator.location.getXExact(), this.weaponsIndicator.location.getYExact(), this.weaponsIndicator.location.getWidthExact(), this.weaponsIndicator.location.getHeightExact())
-                let clicks = Player.getOpenedInventory().getName() === "Your Museum"?"1":"2"
+                let clicks = Player.getContainer().getName() === "Your Museum"?"1":"2"
                 Renderer.translate(0,0,100)
                 renderLibs.drawStringCenteredFull(clicks, this.weaponsIndicator.location.getXExact()+this.weaponsIndicator.location.getWidthExact()/2, this.weaponsIndicator.location.getYExact()+this.weaponsIndicator.location.getHeightExact()/2, Math.min(this.weaponsIndicator.location.getWidthExact()/Renderer.getStringWidth(clicks)/4, this.weaponsIndicator.location.getHeightExact()/4/2))
             }else{
@@ -81,7 +81,7 @@ class MuseumGui {
 
         this.armourIndicator = new SoopyBoxElement().setLocation(leftOffset+widthPer, 0.05, widthPer*4/5, 0.15)
         this.armourIndicator.addEvent(new SoopyRenderEvent().setHandler(()=>{
-            if(this.armourIndicator.hovered && ChatLib.removeFormatting(Player.getOpenedInventory().getStackInSlot(4).getName()) !== "Armor Sets"){
+            if(this.armourIndicator.hovered && ChatLib.removeFormatting(Player.getContainer().getStackInSlot(4).getName()) !== "Armor Sets"){
                 this.armourText.location.location.x.set(0.05, 500)
                 this.armourText.location.size.x.set(0.9, 500)
                 this.armourText.location.location.y.set(0.025, 500)
@@ -91,7 +91,7 @@ class MuseumGui {
 
                 Renderer.translate(0,0,100)
                 Renderer.drawRect(Renderer.color(0,0,0,100), this.armourIndicator.location.getXExact(), this.armourIndicator.location.getYExact(), this.armourIndicator.location.getWidthExact(), this.armourIndicator.location.getHeightExact())
-                let clicks = Player.getOpenedInventory().getName() === "Your Museum"?"1":"2"
+                let clicks = Player.getContainer().getName() === "Your Museum"?"1":"2"
                 Renderer.translate(0,0,100)
                 renderLibs.drawStringCenteredFull(clicks, this.armourIndicator.location.getXExact()+this.armourIndicator.location.getWidthExact()/2, this.armourIndicator.location.getYExact()+this.armourIndicator.location.getHeightExact()/2, Math.min(this.armourIndicator.location.getWidthExact()/Renderer.getStringWidth(clicks)/4, this.armourIndicator.location.getHeightExact()/4/2))
             }else{
@@ -115,7 +115,7 @@ class MuseumGui {
 
         this.raritiesIndicator = new SoopyBoxElement().setLocation(leftOffset+widthPer*2, 0.05, widthPer*4/5, 0.15)
         this.raritiesIndicator.addEvent(new SoopyRenderEvent().setHandler(()=>{
-            if(this.raritiesIndicator.hovered && ChatLib.removeFormatting(Player.getOpenedInventory().getStackInSlot(4).getName()) !== "Rarities"){
+            if(this.raritiesIndicator.hovered && ChatLib.removeFormatting(Player.getContainer().getStackInSlot(4).getName()) !== "Rarities"){
                 this.raritiesText.location.location.x.set(0.05, 500)
                 this.raritiesText.location.size.x.set(0.9, 500)
                 this.raritiesText.location.location.y.set(0.025, 500)
@@ -125,7 +125,7 @@ class MuseumGui {
 
                 Renderer.translate(0,0,100)
                 Renderer.drawRect(Renderer.color(0,0,0,100), this.raritiesIndicator.location.getXExact(), this.raritiesIndicator.location.getYExact(), this.raritiesIndicator.location.getWidthExact(), this.raritiesIndicator.location.getHeightExact())
-                let clicks = Player.getOpenedInventory().getName() === "Your Museum"?"1":"2"
+                let clicks = Player.getContainer().getName() === "Your Museum"?"1":"2"
                 Renderer.translate(0,0,100)
                 renderLibs.drawStringCenteredFull(clicks, this.raritiesIndicator.location.getXExact()+this.raritiesIndicator.location.getWidthExact()/2, this.raritiesIndicator.location.getYExact()+this.raritiesIndicator.location.getHeightExact()/2, Math.min(this.raritiesIndicator.location.getWidthExact()/Renderer.getStringWidth(clicks)/4, this.raritiesIndicator.location.getHeightExact()/4/2))
             }else{
@@ -150,7 +150,7 @@ class MuseumGui {
 
         this.specialIndicator = new SoopyBoxElement().setLocation(leftOffset+widthPer*3, 0.05, widthPer*4/5, 0.15)
         this.specialIndicator.addEvent(new SoopyRenderEvent().setHandler(()=>{
-            if(this.specialIndicator.hovered && ChatLib.removeFormatting(Player.getOpenedInventory().getStackInSlot(4).getName()) !== "Special Items"){
+            if(this.specialIndicator.hovered && ChatLib.removeFormatting(Player.getContainer().getStackInSlot(4).getName()) !== "Special Items"){
                 this.specialText.location.location.x.set(0.05, 500)
                 this.specialText.location.size.x.set(0.9, 500)
                 this.specialText.location.location.y.set(0.025, 500)
@@ -160,7 +160,7 @@ class MuseumGui {
 
                 Renderer.translate(0,0,100)
                 Renderer.drawRect(Renderer.color(0,0,0,100), this.specialIndicator.location.getXExact(), this.specialIndicator.location.getYExact(), this.specialIndicator.location.getWidthExact(), this.specialIndicator.location.getHeightExact())
-                let clicks = Player.getOpenedInventory().getName() === "Your Museum"?"1":"2"
+                let clicks = Player.getContainer().getName() === "Your Museum"?"1":"2"
                 Renderer.translate(0,0,100)
                 renderLibs.drawStringCenteredFull(clicks, this.specialIndicator.location.getXExact()+this.specialIndicator.location.getWidthExact()/2, this.specialIndicator.location.getYExact()+this.specialIndicator.location.getHeightExact()/2, Math.min(this.specialIndicator.location.getWidthExact()/Renderer.getStringWidth(clicks)/4, this.specialIndicator.location.getHeightExact()/4/2))
             
@@ -302,61 +302,61 @@ class MuseumGui {
     }
 
     clickedTopButton(type){
-        if(ChatLib.removeFormatting(Player.getOpenedInventory().getStackInSlot(4).getName())===type) return
+        if(ChatLib.removeFormatting(Player.getContainer().getStackInSlot(4).getName())===type) return
 
-        if(Player.getOpenedInventory().getName() === "Your Museum"){
+        if(Player.getContainer().getName() === "Your Museum"){
             //if on main page can just directly click on it
             switch(type){
                 case "Weapons":
-                    Player.getOpenedInventory().click(19, false, "MIDDLE")
+                    Player.getContainer().click(19, false, "MIDDLE")
                     break
                 case "Armor Sets":
-                    Player.getOpenedInventory().click(21, false, "MIDDLE")
+                    Player.getContainer().click(21, false, "MIDDLE")
                     break
                 case "Rarities":
-                    Player.getOpenedInventory().click(23, false, "MIDDLE")
+                    Player.getContainer().click(23, false, "MIDDLE")
                     break
                 case "Special Items":
-                    Player.getOpenedInventory().click(25, false, "MIDDLE")
+                    Player.getContainer().click(25, false, "MIDDLE")
                     break
             }
         }else{
-            Player.getOpenedInventory().click(48, false, "MIDDLE")
+            Player.getContainer().click(48, false, "MIDDLE")
         }
     }
 
     nextPage(){
         let itempages = ["Weapons", "Armor Sets", "Rarities", "Special Items"]
-        if(itempages.includes(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()])){
-            Player.getOpenedInventory().click(53, false, "MIDDLE")
+        if(itempages.includes(this.replacePage[Player.getContainer().getName().split("➜").pop()])){
+            Player.getContainer().click(53, false, "MIDDLE")
             
-            let [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
+            let [currPage, pageNum] = Player.getContainer().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
             this.regenItems(currPage+1)
         }
     }
 
     previousPage(){
         let itempages = ["Weapons", "Armor Sets", "Rarities", "Special Items"]
-        if(itempages.includes(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()])){
-            Player.getOpenedInventory().click(45, false, "MIDDLE")
+        if(itempages.includes(this.replacePage[Player.getContainer().getName().split("➜").pop()])){
+            Player.getContainer().click(45, false, "MIDDLE")
             
-            let [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
+            let [currPage, pageNum] = Player.getContainer().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
             this.regenItems(currPage-1)
         }
     }
 
     tickMenu(first=false){
         if(!first && (this.tickI++)%5!==0){
-            if(this.lastGuiTitle === Player.getOpenedInventory().getName()){
+            if(this.lastGuiTitle === Player.getContainer().getName()){
             return
             }
         }
-        this.lastGuiTitle = Player.getOpenedInventory().getName()
+        this.lastGuiTitle = Player.getContainer().getName()
         
-        if(Player.getOpenedInventory().getName() === "Your Museum"){//main page
-            if(!Player.getOpenedInventory().getStackInSlot(19)) return
+        if(Player.getContainer().getName() === "Your Museum"){//main page
+            if(!Player.getContainer().getStackInSlot(19)) return
 
-            let lore = Player.getOpenedInventory().getStackInSlot(19).getLore()
+            let lore = Player.getContainer().getStackInSlot(19).getLore()
             lore.forEach((line, i)=>{
                 if(i===0) return
                 
@@ -369,7 +369,7 @@ class MuseumGui {
             })
             this.weaponsIndicator.setLore(lore)
             
-            lore = Player.getOpenedInventory().getStackInSlot(21).getLore()
+            lore = Player.getContainer().getStackInSlot(21).getLore()
             lore.forEach((line, i)=>{
                 if(i===0) return
                 
@@ -382,7 +382,7 @@ class MuseumGui {
             })
             this.armourIndicator.setLore(lore)
             
-            lore = Player.getOpenedInventory().getStackInSlot(23).getLore()
+            lore = Player.getContainer().getStackInSlot(23).getLore()
             lore.forEach((line, i)=>{
                 if(i===0) return
 
@@ -395,7 +395,7 @@ class MuseumGui {
             })
             this.raritiesIndicator.setLore(lore)
             
-            lore = Player.getOpenedInventory().getStackInSlot(25).getLore()
+            lore = Player.getContainer().getStackInSlot(25).getLore()
             lore.forEach((line, i)=>{
                 if(i===0) return
                 
@@ -405,16 +405,16 @@ class MuseumGui {
             })
             this.specialIndicator.setLore(lore)
 
-            if((this.pageTitle.text !== ("§5"+Player.getOpenedInventory().getName()) || first) && !this.searchText){
+            if((this.pageTitle.text !== ("§5"+Player.getContainer().getName()) || first) && !this.searchText){
                 this.itemsBox.clearChildren()
                 let rewardsButton = new ButtonWithArrow().setText("§5Rewards").setLocation(0.1,0.05,0.8,0.2)
                 rewardsButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                    Player.getOpenedInventory().click(40, false, "MIDDLE")
+                    Player.getContainer().click(40, false, "MIDDLE")
                 }))
                 this.itemsBox.addChild(rewardsButton)
                 let browserButton = new ButtonWithArrow().setText("§5Museum Browser").setLocation(0.1,0.3,0.8,0.2)
                 browserButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                    Player.getOpenedInventory().click(50, false, "MIDDLE")
+                    Player.getContainer().click(50, false, "MIDDLE")
                 }))
                 this.itemsBox.addChild(browserButton)
                 
@@ -429,18 +429,18 @@ class MuseumGui {
         this.donateBox.visable = false
 
         let itempages = ["Weapons", "Armor Sets", "Rarities", "Special Items"]
-        if(itempages.includes(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()])){
-            let page = this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()]
-            let [currPage, pageNum] = Player.getOpenedInventory().getName().includes("/")?Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a)):[1,1]
+        if(itempages.includes(this.replacePage[Player.getContainer().getName().split("➜").pop()])){
+            let page = this.replacePage[Player.getContainer().getName().split("➜").pop()]
+            let [currPage, pageNum] = Player.getContainer().getName().includes("/")?Player.getContainer().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a)):[1,1]
 
             if(!this.searchText){
                 if(currPage > 1){
                     this.previousButton.visable = true
-                    if(Player.getOpenedInventory().getStackInSlot(45)) this.previousButton.setLore(Player.getOpenedInventory().getStackInSlot(45).getLore())
+                    if(Player.getContainer().getStackInSlot(45)) this.previousButton.setLore(Player.getContainer().getStackInSlot(45).getLore())
                 }
                 if(currPage < pageNum){
                     this.nextButton.visable = true
-                    if(Player.getOpenedInventory().getStackInSlot(53))this.nextButton.setLore(Player.getOpenedInventory().getStackInSlot(53).getLore())
+                    if(Player.getContainer().getStackInSlot(53))this.nextButton.setLore(Player.getContainer().getStackInSlot(53).getLore())
                 }
             }
             
@@ -449,7 +449,7 @@ class MuseumGui {
             let oldDonateItems = JSON.stringify(this.donateItems)
             this.donateItems = []
             let donateArmorSets = {}
-            Player.getOpenedInventory().getItems().forEach((item, slot)=>{
+            Player.getContainer().getItems().forEach((item, slot)=>{
                 if(!item) return
                 if(item.getID() === -1) return
                 item.getLore().forEach(line=>{
@@ -495,7 +495,7 @@ class MuseumGui {
             for(let i = 0;i<4;i++){
                 for(let j = 10;j<17;j++){
                     let slot = i*9+j
-                    let item = Player.getOpenedInventory().getStackInSlot(slot)
+                    let item = Player.getContainer().getStackInSlot(slot)
                     let sb_id = utils.getSBID(item)
                     if(!this.itemsInPages[page][currPage]) this.itemsInPages[page][currPage] = []
 
@@ -529,37 +529,37 @@ class MuseumGui {
             if(changed || this.guiUpdated || first) this.regenItems(currPage)
         }
 
-        if(Player.getOpenedInventory().getName() === "Confirm Donation"){
-            let this_confirm_temp_str = (Player.getOpenedInventory().getStackInSlot(4)?.getName() || "") +(Player.getOpenedInventory().getStackInSlot(2)?.getName() || "") + (Player.getOpenedInventory().getStackInSlot(20)?.getName() || "") + (Player.getOpenedInventory().getStackInSlot(24)?.getName() || "")//4, 24, 20
+        if(Player.getContainer().getName() === "Confirm Donation"){
+            let this_confirm_temp_str = (Player.getContainer().getStackInSlot(4)?.getName() || "") +(Player.getContainer().getStackInSlot(2)?.getName() || "") + (Player.getContainer().getStackInSlot(20)?.getName() || "") + (Player.getContainer().getStackInSlot(24)?.getName() || "")//4, 24, 20
             if(this.confirm_temp !== this_confirm_temp_str || first){
                 this.confirm_temp = this_confirm_temp_str
 
                 this.itemsBox.clearChildren()
 
-                let isArmour = utils.getSBID(Player.getOpenedInventory().getStackInSlot(4))===null
+                let isArmour = utils.getSBID(Player.getContainer().getStackInSlot(4))===null
                 if(isArmour){
-                    let name = Player.getOpenedInventory().getStackInSlot(2).getName()
-                    let itemBox = new BoxWithText().setText(name.startsWith("§f")?"&7"+name.substr(2):name).setLocation(0.1,0.05,0.8,0.2).setLore(Player.getOpenedInventory().getStackInSlot(2).getLore())
+                    let name = Player.getContainer().getStackInSlot(2).getName()
+                    let itemBox = new BoxWithText().setText(name.startsWith("§f")?"&7"+name.substr(2):name).setLocation(0.1,0.05,0.8,0.2).setLore(Player.getContainer().getStackInSlot(2).getLore())
                 
                     this.itemsBox.addChild(itemBox)
                 }else{
-                    let name = Player.getOpenedInventory().getStackInSlot(4).getName()
-                    let itemBox = new BoxWithText().setText(name.startsWith("§f")?"&7"+name.substr(2):name).setLocation(0.1,0.05,0.8,0.2).setLore(Player.getOpenedInventory().getStackInSlot(4).getLore())
+                    let name = Player.getContainer().getStackInSlot(4).getName()
+                    let itemBox = new BoxWithText().setText(name.startsWith("§f")?"&7"+name.substr(2):name).setLocation(0.1,0.05,0.8,0.2).setLore(Player.getContainer().getStackInSlot(4).getLore())
                 
                     this.itemsBox.addChild(itemBox)
                 }
 
-                if(Player.getOpenedInventory().getStackInSlot(24) && Player.getOpenedInventory().getStackInSlot(20)){
+                if(Player.getContainer().getStackInSlot(24) && Player.getContainer().getStackInSlot(20)){
 
-                    let cancelButton = new ButtonWithArrow().setText("§cCancel").setLocation(0.1,0.4,0.35,0.2).setDirectionRight(false).setLore(Player.getOpenedInventory().getStackInSlot(24).getLore())
+                    let cancelButton = new ButtonWithArrow().setText("§cCancel").setLocation(0.1,0.4,0.35,0.2).setDirectionRight(false).setLore(Player.getContainer().getStackInSlot(24).getLore())
                     cancelButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                        Player.getOpenedInventory().click(24, false, "LEFT")
+                        Player.getContainer().click(24, false, "LEFT")
                     }))
                     this.itemsBox.addChild(cancelButton)
 
-                    let confirmButton = new ButtonWithArrow().setText("§aConfirm Donation").setLocation(0.55,0.4,0.35,0.2).setLore(Player.getOpenedInventory().getStackInSlot(20).getLore())
+                    let confirmButton = new ButtonWithArrow().setText("§aConfirm Donation").setLocation(0.55,0.4,0.35,0.2).setLore(Player.getContainer().getStackInSlot(20).getLore())
                     confirmButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                        Player.getOpenedInventory().click(20, false, "LEFT")
+                        Player.getContainer().click(20, false, "LEFT")
                     }))
                     this.itemsBox.addChild(confirmButton)
                 }
@@ -579,7 +579,7 @@ class MuseumGui {
             this.favoriteTitleBox.visable = true
         }
 
-        this.pageTitle.setText("§5"+Player.getOpenedInventory().getName())
+        this.pageTitle.setText("§5"+Player.getContainer().getName())
         this.guiUpdated = false
     }
 
@@ -588,7 +588,7 @@ class MuseumGui {
         this.donateItems.forEach((item, i)=>{
             let itemButton = new ButtonWithArrow().setText(item.name.startsWith("§f")?"&7"+item.name.substr(2):item.name).setLocation(0.05,0.025+0.125*i,0.9,0.1).setLore(item.lore)
             itemButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                Player.getOpenedInventory().click(item.slot, false, "LEFT")
+                Player.getContainer().click(item.slot, false, "LEFT")
             }))
             this.donateBox.addChild(itemButton)
         })
@@ -597,7 +597,7 @@ class MuseumGui {
     }
 
     showSearchItems(){
-        if(Player.getOpenedInventory().getName() === "Confirm Donation") return
+        if(Player.getContainer().getName() === "Confirm Donation") return
 
         if(!this.searchText){
             this.tickMenu(true)
@@ -663,21 +663,21 @@ class MuseumGui {
                         this.addItemToFavorites(fItem, fItem.page, fItem.page2, fItem.slotNum)
                         return
                     }
-                    // Player.getOpenedInventory().click(item.slotNum, false,button===1?"RIGHT":"LEFT")
+                    // Player.getContainer().click(item.slotNum, false,button===1?"RIGHT":"LEFT")
                     
                     let currPage, pageNum
-                    if(Player.getOpenedInventory().getName().includes("/")){
-                        [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
+                    if(Player.getContainer().getName().includes("/")){
+                        [currPage, pageNum] = Player.getContainer().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
                     }
                     
-                    if(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()]===fItem.page){
+                    if(this.replacePage[Player.getContainer().getName().split("➜").pop()]===fItem.page){
                         if(currPage === fItem.page2){
-                            Player.getOpenedInventory().click(fItem.slotNum, false,"LEFT")
+                            Player.getContainer().click(fItem.slotNum, false,"LEFT")
                         }else{
                             if(currPage < fItem.page2){
-                                Player.getOpenedInventory().click(53, false,"MIDDLE")
+                                Player.getContainer().click(53, false,"MIDDLE")
                             }else{
-                                Player.getOpenedInventory().click(45, false,"MIDDLE")
+                                Player.getContainer().click(45, false,"MIDDLE")
                             }
                         }
                     }else{
@@ -693,14 +693,14 @@ class MuseumGui {
                         
                         let clicks = "?"
                         let currPage, pageNum
-                        if(Player.getOpenedInventory().getName().includes("/")){
-                            [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
+                        if(Player.getContainer().getName().includes("/")){
+                            [currPage, pageNum] = Player.getContainer().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
                         }
                         let pageClicks = Math.abs(currPage-fItem.page2)
-                        if(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()]===fItem.page){
+                        if(this.replacePage[Player.getContainer().getName().split("➜").pop()]===fItem.page){
                             clicks = (pageClicks+1) + ""
                         }else{
-                            if(Player.getOpenedInventory().getName() === "Your Museum"){
+                            if(Player.getContainer().getName() === "Your Museum"){
                                 clicks = (1+fItem.page2) + ""
                             }else{
                                 clicks = (2+fItem.page2) + ""
@@ -734,7 +734,7 @@ class MuseumGui {
 
         this.itemsBox.clearChildren()
 
-        let page = this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()] 
+        let page = this.replacePage[Player.getContainer().getName().split("➜").pop()] 
 
         let y = 0.0325
         let itemNum = 0
@@ -766,8 +766,8 @@ class MuseumGui {
                         this.addItemToFavorites(slot, page, page2, slotNum)
                         return
                     }
-                    // Player.getOpenedInventory().click(slotNum, false,button===1?"RIGHT":"LEFT")
-                    Player.getOpenedInventory().click(slotNum, false,"LEFT") //TODO: add right click support for viewing armour sets
+                    // Player.getContainer().click(slotNum, false,button===1?"RIGHT":"LEFT")
+                    Player.getContainer().click(slotNum, false,"LEFT") //TODO: add right click support for viewing armour sets
                 }))
                 if(this.favoriteIds.includes(slot.sb_id)){
                     child.setColor(200, 255, 200)
@@ -830,21 +830,21 @@ class MuseumGui {
                     this.addItemToFavorites(fItem, fItem.page, fItem.page2, fItem.slotNum)
                     return
                 }
-                // Player.getOpenedInventory().click(item.slotNum, false,button===1?"RIGHT":"LEFT")
+                // Player.getContainer().click(item.slotNum, false,button===1?"RIGHT":"LEFT")
                 
                 let currPage, pageNum
-                if(Player.getOpenedInventory().getName().includes("/")){
-                    [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
+                if(Player.getContainer().getName().includes("/")){
+                    [currPage, pageNum] = Player.getContainer().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
                 }
                 
-                if(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()]===fItem.page){
+                if(this.replacePage[Player.getContainer().getName().split("➜").pop()]===fItem.page){
                     if(currPage === fItem.page2){
-                        Player.getOpenedInventory().click(fItem.slotNum, false,"LEFT")
+                        Player.getContainer().click(fItem.slotNum, false,"LEFT")
                     }else{
                         if(currPage < fItem.page2){
-                            Player.getOpenedInventory().click(53, false,"MIDDLE")
+                            Player.getContainer().click(53, false,"MIDDLE")
                         }else{
-                            Player.getOpenedInventory().click(45, false,"MIDDLE")
+                            Player.getContainer().click(45, false,"MIDDLE")
                         }
                     }
                 }else{
@@ -860,14 +860,14 @@ class MuseumGui {
                     
                     let clicks = "?"
                     let currPage, pageNum
-                    if(Player.getOpenedInventory().getName().includes("/")){
-                        [currPage, pageNum] = Player.getOpenedInventory().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
+                    if(Player.getContainer().getName().includes("/")){
+                        [currPage, pageNum] = Player.getContainer().getName().split(")")[0].split("(")[1].split("/").map(a=>parseInt(a))
                     }
                     let pageClicks = Math.abs(currPage-fItem.page2)
-                    if(this.replacePage[Player.getOpenedInventory().getName().split("➜").pop()]===fItem.page){
+                    if(this.replacePage[Player.getContainer().getName().split("➜").pop()]===fItem.page){
                         clicks = (pageClicks+1) + ""
                     }else{
-                        if(Player.getOpenedInventory().getName() === "Your Museum"){
+                        if(Player.getContainer().getName() === "Your Museum"){
                             clicks = (1+fItem.page2) + ""
                         }else{
                             clicks = (2+fItem.page2) + ""
@@ -904,10 +904,10 @@ class MuseumGui {
             if(event.gui && event.gui.field_147002_h){
                 Player.getPlayer().field_71070_bA = event.gui.field_147002_h
                 
-                if(Player.getOpenedInventory().getName() === "Museum Rewards"){
+                if(Player.getContainer().getName() === "Museum Rewards"){
                     return   
                 }
-                if(Player.getOpenedInventory().getName().startsWith("Museum Browser")){
+                if(Player.getContainer().getName().startsWith("Museum Browser")){
                     return   
                 }
 
@@ -937,12 +937,12 @@ class MuseumGui {
                 this.itemsBox.clearChildren()
                 let rewardsButton = new ButtonWithArrow().setText("§5Rewards").setLocation(0.1,0.05,0.8,0.2)
                 rewardsButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                    Player.getOpenedInventory().click(40, false, "MIDDLE")
+                    Player.getContainer().click(40, false, "MIDDLE")
                 }))
                 this.itemsBox.addChild(rewardsButton)
                 let browserButton = new ButtonWithArrow().setText("§5Museum Browser").setLocation(0.1,0.3,0.8,0.2)
                 browserButton.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                    Player.getOpenedInventory().click(50, false, "MIDDLE")
+                    Player.getContainer().click(50, false, "MIDDLE")
                 }))
                 this.itemsBox.addChild(browserButton)
                 

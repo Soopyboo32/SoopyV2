@@ -76,7 +76,7 @@ class LockedFeatures extends Feature {
             if(i === playerPos-1) nextProgress = [parseFloat(u.startingAmount), u.progress]
             if(i === playerPos) playerProgress = [parseFloat(u.startingAmount), u.progress]
             if(i === playerPos+1) prevProgress = [parseFloat(u.startingAmount), u.progress]
-            if(i === playerPos-1 || i === playerPos || i === playerPos+1){
+            if(i === playerPos-1 || i === playerPos || i === playerPos+1 || (playerPos === 0 && i===playerPos+2)){
                 text += "§6#" + (i+1)
                 text += "§7 - "
                 text += "§e"+u.username

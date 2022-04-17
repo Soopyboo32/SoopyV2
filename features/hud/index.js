@@ -19,8 +19,8 @@ class Hud extends Feature {
         super()
     }
 
-    initVariables(){
-    
+    initVariables() {
+
         this.hudElements = []
 
         this.fpsElement = undefined
@@ -30,21 +30,21 @@ class Hud extends Feature {
         this.fpsEnabledSetting = undefined
         this.cpsEnabledSetting = undefined
         this.soulflowEnabledSetting = undefined
-        this.soulflowShowWarningSetting=undefined
-        this.soulflowShowWhen0Setting=undefined
-        this.petEnabledSetting=undefined
+        this.soulflowShowWarningSetting = undefined
+        this.soulflowShowWhen0Setting = undefined
+        this.petEnabledSetting = undefined
         this.fpsFastSetting = undefined
         this.fpsLowSetting = undefined
-        this.cpsSeperate =undefined
-        this.cpsIncludeRight =undefined
-    
+        this.cpsSeperate = undefined
+        this.cpsIncludeRight = undefined
+
         this.petLevels = undefined
 
         this.lastTickTime = undefined
         this.framesSince = undefined
         this.lastframe = undefined
         this.Instant = undefined
-        
+
         this.lastFrameRates = undefined
 
         this.fps = undefined
@@ -63,7 +63,7 @@ class Hud extends Feature {
         this.impactTest = undefined
     }
 
-    onEnable(){
+    onEnable() {
         this.initVariables()
 
         this.numberUtils = require("../../utils/numberUtils.js")
@@ -95,7 +95,7 @@ class Hud extends Feature {
                 .requires(this.petEnabledSetting)
                 .editTempText("&6Pet&7> &7[Lvl 100] &aEnderman"))
         this.hudElements.push(this.petElement)
-        
+
         this.soulflowEnabledSetting = new ToggleSetting("Show Soulflow", "Whether the soulflow count is rendered onto the screen", true, "soulflow_enabled", this)
         this.soulflowShowWarningSetting = new ToggleSetting("Show no Talisman Warning", "Shows a warning if you dont have a soulflow talis in ur inv", true, "soulflow_notalis_warning", this).requires(this.soulflowEnabledSetting)
         this.soulflowShowWhen0Setting = new ToggleSetting("Show When 0 Soulflow", "If this is off it wont render when you have 0 soulflow", true, "soulflow_showwhen_0", this).requires(this.soulflowEnabledSetting)
@@ -109,18 +109,18 @@ class Hud extends Feature {
         this.witherImpactCooldownSetting = new ToggleSetting("Show Wither Impact Cooldown", "This will render a small cooldown above your crosshair", true, "wither_impact_cooldown_enabled", this)
 
         this.guidedSheepCooldownSetting = new ToggleSetting("Show Guided Sheep / Explosive Shot Cooldown", "This will render a small cooldown below your crosshair", true, "guided_sheep_cooldown_enabled", this)
-        
+
         this.showSpotifyPlaying = new ToggleSetting("Show Current Playing Spotify Song", "(WINDOWS + Spotify Desktop only)", false, "spotify_now_playing", this)
         this.spotifyElement = new HudTextElement()
             .setText("&6Spotify&7> ")
-            .setBaseEditWidth(Renderer.getStringWidth("Spotify> ")+150)
+            .setBaseEditWidth(Renderer.getStringWidth("Spotify> ") + 150)
             .setToggleSetting(this.showSpotifyPlaying)
             .setLocationSetting(new LocationSetting("Spotify Location", "Allows you to edit the location of the spotify text", "spotify_now_playing_location", this, [10, 80, 1, 1])
                 .requires(this.showSpotifyPlaying)
                 .editTempText("&6Spotify&7> &cNot open"))
         this.spotifyElement2 = new HudTextElement().setToggleSetting(this.showSpotifyPlaying).setLocationSetting({
-            setParent: ()=>{},
-            x: this.spotifyElement.locationSetting.x+this.spotifyElement.getWidth(),
+            setParent: () => { },
+            x: this.spotifyElement.locationSetting.x + this.spotifyElement.getWidth(),
             y: this.spotifyElement.locationSetting.y,
             scale: this.spotifyElement.locationSetting.scale,
             shadowType: this.spotifyElement.locationSetting.shadowType
@@ -147,29 +147,29 @@ class Hud extends Feature {
         })
 
         hudStatTypes.completions_enterance = "Enterance completions"
-        for(let i = 1;i<8;i++){
-            hudStatTypes["completions_floor_"+i] = "Floor " + i + " completions"
+        for (let i = 1; i < 8; i++) {
+            hudStatTypes["completions_floor_" + i] = "Floor " + i + " completions"
         }
-        for(let i = 1;i<8;i++){
-            hudStatTypes["completions_master_"+i] = "Master " + i + " completions"
+        for (let i = 1; i < 8; i++) {
+            hudStatTypes["completions_master_" + i] = "Master " + i + " completions"
         }
-        for(let i = 1;i<8;i++){
-            hudStatTypes["completions_dungeon_"+i] = "Dungeon " + i + " completions"
+        for (let i = 1; i < 8; i++) {
+            hudStatTypes["completions_dungeon_" + i] = "Dungeon " + i + " completions"
         }
 
         this.hudStat = []
-        for(let i = 0;i<5;i++){
+        for (let i = 0; i < 5; i++) {
             this.hudStat[i] = {}
-            this.hudStat[i].enabled = new ToggleSetting("Hud Stat Slot #"+(i+1), "Allows you to render a custom stat on your hud", false, "hud_stat_"+i, this)
-            this.hudStat[i].type = new DropdownSetting("Hud Stat Slot #" + (i + 1) + " Type", "The type of stat to render", "weight" , "hud_stat_" + i + "_type", this, hudStatTypes)
-            this.hudStat[i].location = new LocationSetting("Hud Stat Slot #"+(i+1)+" Location", "Allows you to edit the location of the hud stat", "hud_stat_"+i+"_location", this, [10, 50+i*10, 1, 1]).editTempText("&6Hud Stat&7> &f12,345")
+            this.hudStat[i].enabled = new ToggleSetting("Hud Stat Slot #" + (i + 1), "Allows you to render a custom stat on your hud", false, "hud_stat_" + i, this)
+            this.hudStat[i].type = new DropdownSetting("Hud Stat Slot #" + (i + 1) + " Type", "The type of stat to render", "weight", "hud_stat_" + i + "_type", this, hudStatTypes)
+            this.hudStat[i].location = new LocationSetting("Hud Stat Slot #" + (i + 1) + " Location", "Allows you to edit the location of the hud stat", "hud_stat_" + i + "_location", this, [10, 50 + i * 10, 1, 1]).editTempText("&6Hud Stat&7> &f12,345")
             this.hudStat[i].textElement = new HudTextElement().setToggleSetting(this.hudStat[i].enabled).setLocationSetting(this.hudStat[i].location).setText("&6Hud Stat&7> &fLoading...")
-            this.hudStat[i].onlySb = new ToggleSetting("Hud Stat Slot #"+(i+1)+" Only SB", "Only render this stat when you are in skyblock", true, "hud_stat_"+i+"_only_sb", this).requires(this.hudStat[i].enabled)
+            this.hudStat[i].onlySb = new ToggleSetting("Hud Stat Slot #" + (i + 1) + " Only SB", "Only render this stat when you are in skyblock", true, "hud_stat_" + i + "_only_sb", this).requires(this.hudStat[i].enabled)
 
             this.hudStat[i].location.requires(this.hudStat[i].enabled)
             this.hudStat[i].type.requires(this.hudStat[i].enabled)
-            if(this.hudStat[i-1]){
-                this.hudStat[i].enabled.requires(this.hudStat[i-1].enabled)
+            if (this.hudStat[i - 1]) {
+                this.hudStat[i].enabled.requires(this.hudStat[i - 1].enabled)
             }
         }
 
@@ -201,8 +201,8 @@ class Hud extends Feature {
 
         this.lastStatData = undefined
 
-        this.lastFrameRates = [0,0,0,0,0,0,0,0,0,0]
-        this.lastFrameRatesS = [0,0,0,0,0,0,0,0,0,0]
+        this.lastFrameRates = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        this.lastFrameRatesS = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         this.Instant = Java.type("java.time.Instant");
 
@@ -218,43 +218,43 @@ class Hud extends Feature {
         this.petLevels = {}
         this.petText = "&6Pet&7> &fLoading..."
         this.petElement.setText(this.petText)
-        this.registerChat("&cAutopet &eequipped your ${pet}&e! &a&lVIEW RULE&r", (pet)=>{
-            this.petElement.setText("&6Pet&7> "+pet)
-            this.petText = "&6Pet&7> "+pet
+        this.registerChat("&cAutopet &eequipped your ${pet}&e! &a&lVIEW RULE&r", (pet) => {
+            this.petElement.setText("&6Pet&7> " + pet)
+            this.petText = "&6Pet&7> " + pet
 
             this.lastSwappedPet = Date.now()
         })
-        this.registerChat("&r&aYou summoned your &r${pet}&r&a!&r", (pet)=>{
-            this.petElement.setText("&6Pet&7> &7[Lvl " + (this.petLevels[pet.replace("&", "§")]||"??") +"] "+pet)
-            this.petText = "&6Pet&7> &7[Lvl " + (this.petLevels[pet.replace("&", "§")]||"??") +"] "+pet
+        this.registerChat("&r&aYou summoned your &r${pet}&r&a!&r", (pet) => {
+            this.petElement.setText("&6Pet&7> &7[Lvl " + (this.petLevels[pet.replace("&", "§")] || "??") + "] " + pet)
+            this.petText = "&6Pet&7> &7[Lvl " + (this.petLevels[pet.replace("&", "§")] || "??") + "] " + pet
 
             this.lastSwappedPet = Date.now()
         })
-        this.registerChat("&r&aYou despawned your &r${*}&r&a!&r", ()=>{
+        this.registerChat("&r&aYou despawned your &r${*}&r&a!&r", () => {
             this.petElement.setText("&6Pet&7> &cNone")
             this.petText = "&6Pet&7> &cNone"
 
             this.lastSwappedPet = Date.now()
         })
-        this.registerChat("&r&aYour &r${pet} &r&alevelled up to level &r&9${level}&r&a!&r", (pet, level)=>{
-            this.petElement.setText("&6Pet&7> &7[Lvl " + (level||"??") +"] "+pet)
-            this.petText = "&6Pet&7> &7[Lvl " + (level||"??") +"] "+pet
+        this.registerChat("&r&aYour &r${pet} &r&alevelled up to level &r&9${level}&r&a!&r", (pet, level) => {
+            this.petElement.setText("&6Pet&7> &7[Lvl " + (level || "??") + "] " + pet)
+            this.petText = "&6Pet&7> &7[Lvl " + (level || "??") + "] " + pet
 
             this.lastSwappedPet = Date.now()
         })
 
         this.registerSoopy("apiLoad", this.apiLoad)
-        if(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock){
+        if (this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock) {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock, "skyblock", true, true)
 
             this.lastSwappedPet = Date.now()
         }
-        if(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw){
+        if (this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw) {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw, "skyblock", false, true)
         }
 
-        new Thread(()=>{ //TODO: dont create this thread if you have the feature disabled
-            while(this.enabled){
+        new Thread(() => { //TODO: dont create this thread if you have the feature disabled
+            while (this.enabled) {
                 this.updateSpotify()
                 Thread.sleep(5000)
             }
@@ -263,7 +263,7 @@ class Hud extends Feature {
         this.registerActionBar("${m}", this.actionbarMessage)
     }
 
-    onDisable(){
+    onDisable() {
         this.fpsEnabledSetting.delete()
         this.fpsFastSetting.delete()
         this.cpsEnabledSetting.delete()
@@ -271,140 +271,138 @@ class Hud extends Feature {
         this.initVariables()
     }
 
-    renderHud(){
-
-        if(this.fpsFastSetting.getValue()){
-            if(this.fpsLowSetting.getValue()){
+    renderHud() {
+        if (this.fpsFastSetting.getValue()) {
+            if (this.fpsLowSetting.getValue()) {
                 this.fpsElement.setText("&6Fps&7> &f" + Math.round(this.fps.get()) + "&7/" + Math.round(this.lowFps.get()))
-            }else{
+            } else {
                 this.fpsElement.setText("&6Fps&7> &f" + Math.round(this.fps.get()))
             }
         }
 
-        for(let element of this.hudElements){
+        for (let element of this.hudElements) {
             element.render()
         }
 
-        if(this.showSpotifyPlaying.getValue() && Date.now()-this.spotifyElement.tempDisableTime > 100){
+        if (this.showSpotifyPlaying.getValue() && Date.now() - this.spotifyElement.tempDisableTime > 100) {
             let scale = this.spotifyElement.locationSetting.scale
-            let spotifyWidth1 = this.spotifyElement.getWidth()*scale
+            let spotifyWidth1 = this.spotifyElement.getWidth() * scale
             this.spotifyElement.render()
-            this.spotifyElement2.locationSetting.x = this.spotifyElement.locationSetting.x+spotifyWidth1
+            this.spotifyElement2.locationSetting.x = this.spotifyElement.locationSetting.x + spotifyWidth1
             this.spotifyElement2.locationSetting.y = this.spotifyElement.locationSetting.y
             this.spotifyElement2.locationSetting.scale = scale
-            this.spotifyElement2.locationSetting.shadowType = this.spotifyElement.locationSetting.shadowType        
+            this.spotifyElement2.locationSetting.shadowType = this.spotifyElement.locationSetting.shadowType
 
-            let spotifyWidth2 = this.spotifyElement2.getWidth()*scale
-            if(spotifyWidth2>150*scale){
-                let w2 = spotifyWidth2/scale-150
-                let offX = (Date.now()/50)%(w2*2+100)
-                offX=Math.max(0,offX-50)
-                if(offX>w2+50){
-                    offX = w2-(offX-w2-50)
-                }else if(offX>w2){
+            let spotifyWidth2 = this.spotifyElement2.getWidth() * scale
+            if (spotifyWidth2 > 150 * scale) {
+                let w2 = spotifyWidth2 / scale - 150
+                let offX = (Date.now() / 50) % (w2 * 2 + 100)
+                offX = Math.max(0, offX - 50)
+                if (offX > w2 + 50) {
+                    offX = w2 - (offX - w2 - 50)
+                } else if (offX > w2) {
                     offX = w2
                 }
-                this.spotifyElement2.locationSetting.x = this.spotifyElement.locationSetting.x+spotifyWidth1-offX*scale
-                
-                renderLibs.scizzorFast(this.spotifyElement.locationSetting.x+spotifyWidth1, this.spotifyElement2.locationSetting.y, 150*scale, this.spotifyElement2.getHeight()*scale)
+                this.spotifyElement2.locationSetting.x = this.spotifyElement.locationSetting.x + spotifyWidth1 - offX * scale
+
+                renderLibs.scizzorFast(this.spotifyElement.locationSetting.x + spotifyWidth1, this.spotifyElement2.locationSetting.y, 150 * scale, this.spotifyElement2.getHeight() * scale)
                 this.spotifyElement2.render()
                 renderLibs.stopScizzor()
-            }else{
+            } else {
                 this.spotifyElement2.render()
             }
         }
 
-        if (this.witherImpactCooldownSetting.getValue() && Date.now()-this.lastWitherImpact < 10000) {
-            Renderer.drawString(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth(Math.max(0,Math.ceil((5000-(Date.now()-this.lastWitherImpact))/1000)) + "s") / 2, Renderer.screen.getHeight() / 2 - 15)
+        if (this.witherImpactCooldownSetting.getValue() && Date.now() - this.lastWitherImpact < 10000) {
+            Renderer.drawString(Math.max(0, Math.ceil((5000 - (Date.now() - this.lastWitherImpact)) / 1000)) + "s", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth(Math.max(0, Math.ceil((5000 - (Date.now() - this.lastWitherImpact)) / 1000)) + "s") / 2, Renderer.screen.getHeight() / 2 - 15)
         }
 
-        
-        for(let stat of this.hudStat){
+        for (let stat of this.hudStat) {
             stat.textElement.render()
         }
     }
-    
-    renderWorld(){
-        if(!this.fpsEnabledSetting.getValue() ||!this.fpsFastSetting.getValue()) return
+
+    renderWorld() {
+        if (!this.fpsEnabledSetting.getValue() || !this.fpsFastSetting.getValue()) return
         this.framesSince++
-        
+
         let instant = this.Instant.now()
-	    let time = instant.getEpochSecond() + (instant.getNano() / 1000000000);
+        let time = instant.getEpochSecond() + (instant.getNano() / 1000000000);
 
         let thisframeTime = time - this.lastFrame
 
-        if(thisframeTime > this.slowestFrameTime){
+        if (thisframeTime > this.slowestFrameTime) {
             this.slowestFrameTime = thisframeTime
         }
 
         this.lastFrame = time
     }
 
-    actionbarMessage(m){
-        if(ChatLib.removeFormatting(m).includes("(Wither Impact)")){
-            if(Date.now()-this.aup < 750){
+    actionbarMessage(m) {
+        if (ChatLib.removeFormatting(m).includes("(Wither Impact)")) {
+            if (Date.now() - this.aup < 750) {
                 this.lastWitherImpact = Date.now()
                 this.aup = 0
-            }else{
+            } else {
                 this.impactTest = Date.now()
             }
         }
     }
-    
-    step(){
-        if(!Player.getPlayer()) return
+
+    step() {
+        if (!Player.getPlayer()) return
         this.updateHudThingos()
         let fps = 0
 
-        if(this.fpsEnabledSetting.getValue() && this.fpsFastSetting.getValue()){
+        if (this.fpsEnabledSetting.getValue() && this.fpsFastSetting.getValue()) {
             //set fps to fast fps
             // console.log(`${this.framesSince} ${this.lastFrame-this.lastTickTime}`)
-            fps = this.framesSince/(this.lastFrame-this.lastTickTime)
-            if(this.lastFrame===this.lastTickTime) fps = 0
+            fps = this.framesSince / (this.lastFrame - this.lastTickTime)
+            if (this.lastFrame === this.lastTickTime) fps = 0
             this.lastTickTime = this.lastFrame
             this.framesSince = 0
 
             this.lastFrameRates.push(fps)
             this.lastFrameRates.shift()
 
-            if(this.slowestFrameTime > 0){
-                this.lastFrameRatesS.push(1/this.slowestFrameTime)
-            }else{
+            if (this.slowestFrameTime > 0) {
+                this.lastFrameRatesS.push(1 / this.slowestFrameTime)
+            } else {
                 this.lastFrameRatesS.push(0)
             }
             this.lastFrameRatesS.shift()
             this.slowestFrameTime = 0
-            
-            fps = this.lastFrameRates.reduce((a,b) => a+b, 0) / this.lastFrameRates.length
+
+            fps = this.lastFrameRates.reduce((a, b) => a + b, 0) / this.lastFrameRates.length
             this.fps.set(fps, 200)
-            if(this.fpsLowSetting.getValue()) this.lowFps.set(this.lastFrameRatesS.reduce((a,b) => a+b, 0) / this.lastFrameRatesS.length, 200)
-        }else{
+            if (this.fpsLowSetting.getValue()) this.lowFps.set(this.lastFrameRatesS.reduce((a, b) => a + b, 0) / this.lastFrameRatesS.length, 200)
+        } else {
             fps = Client.getFPS()
             this.fpsElement.setText("&6Fps&7> &f" + fps)
         }
 
         let cpsText = CPS.getLeftClicksAverage()
 
-        if(this.cpsIncludeRight.getValue()){
-            if(this.cpsSeperate.getValue()){
+        if (this.cpsIncludeRight.getValue()) {
+            if (this.cpsSeperate.getValue()) {
                 cpsText += "&7 | &f" + CPS.getRightClicksAverage()
-            }else{
+            } else {
                 cpsText += CPS.getRightClicksAverage()
             }
         }
         this.cpsElement.setText("&6Cps&7> &f" + cpsText)
 
         //Scan opened inventory for all pet levels
-        if(Player && Player.getOpenedInventory() && Player.getOpenedInventory().getName().includes(") Pets")){
-            let inv = Player.getOpenedInventory().getItems()
-            for(let i = 0; i < inv.length; i++){
-                if(inv[i]!=null && inv[i].getName().includes("[Lvl ")){
+        if (Player && Player.getContainer() && Player.getContainer().getName().includes(") Pets")) {
+            let inv = Player.getContainer().getItems()
+            for (let i = 0; i < inv.length; i++) {
+                if (inv[i] != null && inv[i].getName().includes("[Lvl ")) {
                     let level = inv[i].getName().split(" ")[1].replace("]", "")
-                    if(!this.petLevels[inv[i].getName().split("] ")[1]] || this.petLevels[inv[i].getName().split("] ")[1]] < level)this.petLevels[inv[i].getName().split("] ")[1]] = level
+                    if (!this.petLevels[inv[i].getName().split("] ")[1]] || this.petLevels[inv[i].getName().split("] ")[1]] < level) this.petLevels[inv[i].getName().split("] ")[1]] = level
 
-                    if(Date.now()-this.lastSwappedPet > 1000){
+                    if (Date.now() - this.lastSwappedPet > 1000) {
                         inv[i].getLore().forEach(line => {
-                            if(line.includes("Click to despawn.")){
+                            if (line.includes("Click to despawn.")) {
                                 this.petElement.setText("&6Pet&7> &7" + inv[i].getName().split("(")[0])
                                 this.petText = "&6Pet&7> &7" + inv[i].getName().split("(")[0]
                             }
@@ -414,59 +412,58 @@ class Hud extends Feature {
             }
         }
 
-        if(Player.getPlayer()[m.getAbsorptionAmount]() > this.lastAbsorbtion){
-            if(Date.now()-this.impactTest < 750){
+        if (Player.getPlayer()[m.getAbsorptionAmount]() > this.lastAbsorbtion) {
+            if (Date.now() - this.impactTest < 750) {
                 this.lastWitherImpact = Date.now()
                 this.impactTest = 0
-            }else{
+            } else {
                 this.aup = Date.now()
             }
         }
         this.lastAbsorbtion = Player.getPlayer()[m.getAbsorptionAmount]()
     }
 
-    step_5second(){
+    step_5second() {
+        if (!this.soulflowEnabledSetting.getValue()) return
+        if (!Player.getPlayer()) return
+        if (!Player.getInventory()) return
 
-        if(!this.soulflowEnabledSetting.getValue()) return
-        if(!Player.getPlayer()) return
-        if(!Player.getInventory()) return
-
-        if(!this.FeatureManager.features["dataLoader"].class.isInSkyblock){
+        if (!this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
             this.soulflowElement.setText("")
             this.petElement.setText("")
             return
-        }else{
+        } else {
             this.petElement.setText(this.petText)
         }
 
         let soulflowCount = 0
         let hasSoulflowItem = false
-        Player.getInventory().getItems().forEach(i=>{
-            
-            let id;
-            try{
-                id = i.getNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getString("id")
-            }catch(e){}
+        Player.getInventory().getItems().forEach(i => {
 
-            if(id === "SOULFLOW_PILE" || id=== "SOULFLOW_BATTERY" || id === "SOULFLOW_SUPERCELL"){
+            let id;
+            try {
+                id = i.getNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getString("id")
+            } catch (e) { }
+
+            if (id === "SOULFLOW_PILE" || id === "SOULFLOW_BATTERY" || id === "SOULFLOW_SUPERCELL") {
                 //soulflowCount
-                i.getLore().forEach(line=>{
-                    if(line.startsWith("§5§o§7Internalized:")){
+                i.getLore().forEach(line => {
+                    if (line.startsWith("§5§o§7Internalized:")) {
                         hasSoulflowItem = true
-                        soulflowCount = parseInt(ChatLib.removeFormatting(line).substr("Internalized: ".length).split("⸎")[0].replace(/,/g,""))
+                        soulflowCount = parseInt(ChatLib.removeFormatting(line).substr("Internalized: ".length).split("⸎")[0].replace(/,/g, ""))
                     }
                 })
             }
         })
-        if(!hasSoulflowItem){
-            if(this.soulflowShowWarningSetting.getValue()){
+        if (!hasSoulflowItem) {
+            if (this.soulflowShowWarningSetting.getValue()) {
                 this.soulflowElement.setText("&6Soulflow&7> &cNO TALISMAN")
-            }else{
+            } else {
                 this.soulflowElement.setText("")
             }
             return;
         }
-        if(soulflowCount > 0 && !this.soulflowShowWhen0Setting.getValue()){
+        if (soulflowCount > 0 && !this.soulflowShowWhen0Setting.getValue()) {
             this.soulflowElement.setText("")
             return;
         }
@@ -474,19 +471,19 @@ class Hud extends Feature {
         this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(soulflowCount))
     }
 
-    statApiLoadThingo(data){
-        data.profiles.forEach(p=>{
-            if(!this.lastStatData || (p.members[Player.getUUID().toString().replace(/-/g,"")] && p.members[Player.getUUID().toString().replace(/-/g,"")].last_save > this.lastStatData.last_save)){
-                this.lastStatData = p.members[Player.getUUID().toString().replace(/-/g,"")]
+    statApiLoadThingo(data) {
+        data.profiles.forEach(p => {
+            if (!this.lastStatData || (p.members[Player.getUUID().toString().replace(/-/g, "")] && p.members[Player.getUUID().toString().replace(/-/g, "")].last_save > this.lastStatData.last_save)) {
+                this.lastStatData = p.members[Player.getUUID().toString().replace(/-/g, "")]
             }
         })
 
         this.updateHudThingos()
     }
 
-    updateSpotify(){
-        if(!this.showSpotifyPlaying.getValue()) return
-        
+    updateSpotify() {
+        if (!this.showSpotifyPlaying.getValue()) return
+
         let currentSong = "&cNot open"
         let spotifyProcesses = []
         let process = new ProcessBuilder("tasklist.exe", "/fo", "csv", "/nh").start();
@@ -494,17 +491,17 @@ class Hud extends Feature {
         if (sc.hasNextLine()) sc.nextLine();
         while (sc.hasNextLine()) {
             let line = sc.nextLine();
-            let parts = line.replace("\"","").split("\",\"");
+            let parts = line.replace("\"", "").split("\",\"");
             let unq = parts[0]
             let pid = parts[1]
-            if(unq==="Spotify.exe"){
+            if (unq === "Spotify.exe") {
                 spotifyProcesses.push(pid)
                 // console.log(parts.join(" "));
             }
         }
         process.waitFor();
 
-        while(spotifyProcesses.length > 0){
+        while (spotifyProcesses.length > 0) {
             let pid = spotifyProcesses.pop()
             // console.log("Loading pid " + pid)
             let process = new ProcessBuilder("tasklist.exe", "/FO", "csv", "/V", "/FI", "\"PID eq " + pid + "\"").start();
@@ -512,15 +509,15 @@ class Hud extends Feature {
             if (sc.hasNextLine()) sc.nextLine();
             while (sc.hasNextLine()) {
                 let line = sc.nextLine();
-                let parts = line.replace("\"","").split("\",\"");
-                let song = parts[parts.length-1].substr(0,parts[parts.length-1].length-1)
-                if(song === "N/A") continue
-                
-                if(song === "Spotify Free"||song === "Spotify Premium"||song === "AngleHiddenWindow"){
+                let parts = line.replace("\"", "").split("\",\"");
+                let song = parts[parts.length - 1].substr(0, parts[parts.length - 1].length - 1)
+                if (song === "N/A") continue
+
+                if (song === "Spotify Free" || song === "Spotify Premium" || song === "AngleHiddenWindow") {
                     currentSong = "&cPaused"
-                }else{
-                    if(song === "Spotify") song = "Advertisement"
-                    currentSong = "&a" + song.replace(/&/g, "&⭍").replace(" - "," &7-&b ")
+                } else {
+                    if (song === "Spotify") song = "Advertisement"
+                    currentSong = "&a" + song.replace(/&/g, "&⭍").replace(" - ", " &7-&b ")
                 }
 
             }
@@ -530,9 +527,9 @@ class Hud extends Feature {
         this.spotifyElement2.setText(currentSong.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
     }
 
-    updateHudThingos(){
+    updateHudThingos() {
         let insb = this.FeatureManager.features["dataLoader"].class.isInSkyblock
-        if(Date.now()-this.lastUpdatedStatData > 5*60000 && this.hudStat[0].enabled.getValue() && (!this.lastStatData || insb || this.hudStat.map(a=>(!a.enabled.getValue() || a.onlySb.getValue())).includes(false))){
+        if (Date.now() - this.lastUpdatedStatData > 5 * 60000 && this.hudStat[0].enabled.getValue() && (!this.lastStatData || insb || this.hudStat.map(a => (!a.enabled.getValue() || a.onlySb.getValue())).includes(false))) {
 
             this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
 
@@ -540,87 +537,87 @@ class Hud extends Feature {
             return
         }
 
-        this.hudStat.forEach(stat=>{
-            if(stat.enabled.getValue()){
+        this.hudStat.forEach(stat => {
+            if (stat.enabled.getValue()) {
                 this.updateHudThing(stat, insb)
             }
         })
     }
 
-    updateHudThing(thing, insb){
-        if(!this.lastStatData) return
+    updateHudThing(thing, insb) {
+        if (!this.lastStatData) return
 
-        if(!insb && thing.onlySb.getValue()){
+        if (!insb && thing.onlySb.getValue()) {
             thing.textElement.setText("")
             return
         }
 
         let type = thing.type.getValue()
-        
+
         let string = "Unknown stat"
-        if(type === "totaldeaths"){
+        if (type === "totaldeaths") {
             string = "&6Deaths&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData.death_count)
         }
-        if(type === "cata"){
+        if (type === "cata") {
             let cataData = getLevelByXp(this.lastStatData.dungeons.dungeon_types.catacombs.experience, 2, Infinity)
-            string = "&6Cata&7> &f" + (~~((cataData.level+cataData.progress)*100)/100).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(cataData.xpCurrent) + (cataData.level===50?"":"/" + this.numberUtils.numberWithCommas(cataData.xpForNext)) + ")"
+            string = "&6Cata&7> &f" + (~~((cataData.level + cataData.progress) * 100) / 100).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(cataData.xpCurrent) + (cataData.level === 50 ? "" : "/" + this.numberUtils.numberWithCommas(cataData.xpForNext)) + ")"
         }
-        
+
         Object.keys(this.skillLevelCaps).forEach(skill => {
-            if(type === skill){
+            if (type === skill) {
                 let skillData = getLevelByXp(this.lastStatData[skill], 0, this.skillLevelCaps[skill])
-                string = "&6" + firstLetterCapital(skill.split("_").pop()) + "&7> &f" + (skillData.level+skillData.progress).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(skillData.xpCurrent) + (skillData.level===this.skillLevelCaps[skill]?"":"/" + this.numberUtils.numberWithCommas(skillData.xpForNext)) + ")"
+                string = "&6" + firstLetterCapital(skill.split("_").pop()) + "&7> &f" + (skillData.level + skillData.progress).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(skillData.xpCurrent) + (skillData.level === this.skillLevelCaps[skill] ? "" : "/" + this.numberUtils.numberWithCommas(skillData.xpForNext)) + ")"
             }
         })
 
-        if(type === "completions_enterance"){
-            string = "&6E Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.catacombs?.tier_completions?.[0]||0))
+        if (type === "completions_enterance") {
+            string = "&6E Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.catacombs?.tier_completions?.[0] || 0))
         }
-        if(type.startsWith("completions_floor_")){
+        if (type.startsWith("completions_floor_")) {
             let floor = parseInt(type.split("_").pop())
-            string = "&6F" + floor +" Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.catacombs?.tier_completions?.[floor]||0))
+            string = "&6F" + floor + " Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.catacombs?.tier_completions?.[floor] || 0))
         }
-        if(type.startsWith("completions_master_")){
+        if (type.startsWith("completions_master_")) {
             let floor = parseInt(type.split("_").pop())
-            string = "&6M" + floor +" Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.master_catacombs?.tier_completions?.[floor]||0))
+            string = "&6M" + floor + " Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.master_catacombs?.tier_completions?.[floor] || 0))
         }
-        if(type.startsWith("completions_dungeon_")){
+        if (type.startsWith("completions_dungeon_")) {
             let floor = parseInt(type.split("_").pop())
-            string = "&6Dungeon " + floor +" Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.catacombs?.tier_completions?.[floor]||0)+(this.lastStatData.dungeons?.dungeon_types?.master_catacombs?.tier_completions?.[floor]||0))
+            string = "&6Dungeon " + floor + " Comps&7> &f" + this.numberUtils.numberWithCommas((this.lastStatData.dungeons?.dungeon_types?.catacombs?.tier_completions?.[floor] || 0) + (this.lastStatData.dungeons?.dungeon_types?.master_catacombs?.tier_completions?.[floor] || 0))
         }
-        
+
         thing.textElement.setText(string)
     }
 
-    apiLoad(data, dataType, isSoopyServer, isLatest){
-        if(dataType === "skyblock" && !isSoopyServer){
+    apiLoad(data, dataType, isSoopyServer, isLatest) {
+        if (dataType === "skyblock" && !isSoopyServer) {
             this.statApiLoadThingo(data)
         }
-        if(!isSoopyServer || !isLatest) return
-        if(dataType !== "skyblock") return
+        if (!isSoopyServer || !isLatest) return
+        if (dataType !== "skyblock") return
 
         let pet = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].selectedPet
 
-        if(!pet){
+        if (!pet) {
             this.petElement.setText("&6Pet&7> &cNone")
             this.petText = "&6Pet&7> &cNone"
             return;
         }
 
-		let petTierColor = {
-			"COMMON": "&f",
-			"UNCOMMON": "&a",
-			"RARE": "&9",
-			"EPIC": "&5",
-			"LEGENDARY": "&6",
-			"MYTHIC": "&d"
-		}
+        let petTierColor = {
+            "COMMON": "&f",
+            "UNCOMMON": "&a",
+            "RARE": "&9",
+            "EPIC": "&5",
+            "LEGENDARY": "&6",
+            "MYTHIC": "&d"
+        }
 
-        this.petElement.setText("&6Pet&7> &7[Lvl " + (pet.level.level||"??") + "] " + petTierColor[pet.tier] + pet.name)
-        this.petText = "&6Pet&7> &7[Lvl " + (pet.level.level||"??") + "] " + petTierColor[pet.tier] + pet.name
+        this.petElement.setText("&6Pet&7> &7[Lvl " + (pet.level.level || "??") + "] " + petTierColor[pet.tier] + pet.name)
+        this.petText = "&6Pet&7> &7[Lvl " + (pet.level.level || "??") + "] " + petTierColor[pet.tier] + pet.name
     }
 
-    worldLoad(){
+    worldLoad() {
         this.lastUpdatedStatData = 0
     }
 }

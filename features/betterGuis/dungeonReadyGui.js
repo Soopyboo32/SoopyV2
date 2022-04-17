@@ -25,7 +25,7 @@ class DungeonReadyGui {
             if(event.gui && event.gui.field_147002_h){
                 Player.getPlayer().field_71070_bA = event.gui.field_147002_h
 
-                if(!Player.getOpenedInventory().getName().startsWith("Catacombs - Floor ")){
+                if(!Player.getContainer().getName().startsWith("Catacombs - Floor ")){
                     return   
                 }
 
@@ -34,7 +34,7 @@ class DungeonReadyGui {
             }
             return
         }
-        if(name === "Start Dungeon"){
+        if(name === "Start Dungeon?" || name.startsWith("Catacombs - Floor ")){
             if(event.gui && event.gui.field_147002_h) Player.getPlayer().field_71070_bA = event.gui.field_147002_h
 
             this.soopyGui.open()

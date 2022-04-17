@@ -720,7 +720,7 @@ class SpiritLeapOverlay {
     tick(){
         let itemsNew = {}
 
-        if(Player.getOpenedInventory()?.getName() === "Spirit Leap"){
+        if(Player.getContainer()?.getName() === "Spirit Leap"){
 
             this.players = {}
             Scoreboard.getLines().forEach(line=>{
@@ -733,7 +733,7 @@ class SpiritLeapOverlay {
             })
 
             for(let i = 1;i<9*3;i++){
-                let item = Player.getOpenedInventory().getStackInSlot(i)
+                let item = Player.getContainer().getStackInSlot(i)
                 if(item && item.getID()!==160){
                     itemsNew[item.getName()] = i
                 }
@@ -745,7 +745,7 @@ class SpiritLeapOverlay {
                 
                 Object.keys(this.items).forEach((name, i)=>{
                     let button = new ButtonWithArrow().setText((ChatLib.removeFormatting(name)===this.parent.lastDoorOpener?"&4":"&2")+"["+this.players[ChatLib.removeFormatting(name)]+"] "+ChatLib.removeFormatting(name)).addEvent(new SoopyMouseClickEvent().setHandler(()=>{
-                        Player.getOpenedInventory().click(itemsNew[name])
+                        Player.getContainer().click(itemsNew[name])
                         ChatLib.chat("Leaping to " + name)
                     })).setLocation((i%2)*0.5,Math.floor(i/2)*0.5,0.5,0.5)
                     button.text.setLocation(0.5, 0, 0.4, 1)
@@ -833,12 +833,12 @@ class soopyGuiMapRendererThing extends SoopyGuiElement {
             let closestPlayer = this.getClosestPlayerTo(x, y, size, scale, mouseX, mouseY)
 
             if(closestPlayer){
-                if(Player.getOpenedInventory()?.getName() === "Spirit Leap"){
+                if(Player.getContainer()?.getName() === "Spirit Leap"){
                     for(let i = 1;i<9*3;i++){
-                        let item = Player.getOpenedInventory().getStackInSlot(i)
+                        let item = Player.getContainer().getStackInSlot(i)
                         if(item && item.getID()!==160){
                             if(ChatLib.removeFormatting(item.getName()) === closestPlayer.username){
-                                Player.getOpenedInventory().click(i)
+                                Player.getContainer().click(i)
                                 ChatLib.chat("Leaping to " + closestPlayer.username)
                             }
                         }
