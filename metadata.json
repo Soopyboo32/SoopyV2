@@ -5,7 +5,14 @@
   "entry": "index.js",
   "description": "SoopyV2",
   "name": "SoopyV2",
-  "version": "2.1.49",
-  "versionId": 176,
-  "requires": ["soopyApis", "soopyAddonsData", "CustomTabCompletions", "guimanager", "mappings","BeaconBeam"]
+  "version": "2.1.50",
+  "versionId": 177,
+  "requires": [
+    "soopyApis",
+    "soopyAddonsData",
+    "CustomTabCompletions",
+    "guimanager",
+    "mappings",
+    "BeaconBeam"
+  ]
 }
