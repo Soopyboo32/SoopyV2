@@ -1,8 +1,8 @@
 import SoopyGuiElement from '../../../guimanager/GuiElement/SoopyGuiElement.js';
 import categoryManager from './categoryManager.js';
 
-class GuiPage{
-    constructor(priority){
+class GuiPage {
+    constructor(priority) {
         this.currentPageId = 0;
         this.priority = priority
 
@@ -14,17 +14,17 @@ class GuiPage{
         this.finalisedLoading = false
     }
 
-    finaliseLoading(){
+    finaliseLoading() {
         categoryManager.addCategory(this);
     }
 
-    getSoopyGui(){
+    getSoopyGui() {
         return global.soopyv2featuremanagerthing.features["soopyGui"].class
     }
 
-    newPage(){
+    newPage() {
         this.currentPageId++
-        let page = new SoopyGuiElement().setLocation(1*this.currentPageId,0,1,1)
+        let page = new SoopyGuiElement().setLocation(1 * this.currentPageId, 0, 1, 1)
 
         page._soopyAddonsPageId = this.currentPageId
 
@@ -33,28 +33,28 @@ class GuiPage{
         return page
     }
 
-    goToPage(page, anim){
+    goToPage(page, anim) {
         this.getSoopyGui().goToPageNum(page, anim)
     }
 
-    openSidebarPage(child){
+    openSidebarPage(child) {
         this.getSoopyGui().openSidebarPage(child)
     }
-    closeSidebarPage(){
+    closeSidebarPage() {
         this.getSoopyGui().closeSidebarPage()
     }
 
-    delete(){
+    delete() {
         categoryManager.deleteCategory(this)
     }
 
     //Override me :D
-    onOpen(){
+    onOpen() {
 
     }
 
     //Override me :D
-    onOpenPage(page){
+    onOpenPage(page) {
 
     }
 }

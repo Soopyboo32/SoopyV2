@@ -15,7 +15,8 @@ class HudTextElement {
 
         this.tempDisableTime = 0
 
-        this.renderTextCache = [[""], [""]]
+        this.renderTextCache = [""]
+        this.renderBlackTextCache = [""]
         this.textChanged = false
     }
 
@@ -36,7 +37,8 @@ class HudTextElement {
             this.blackText = "&0" + ChatLib.removeFormatting(text)
         }
 
-        this.renderTextCache = [this.text.split("\n"), this.blackText.split("\n")]
+        this.renderTextCache = this.text.split("\n")
+        this.renderBlackTextCache = this.blackText.split("\n")
         return this
     }
     setToggleSetting(setting) {
@@ -67,11 +69,11 @@ class HudTextElement {
 
     getWidth(locationBox = false) {
         if (locationBox && this.editBaseWidth) return this.editBaseWidth
-        return Math.max(...(this.getText()[0].map(a => Renderer.getStringWidth(ChatLib.removeFormatting(a)))))
+        return Math.max(...(this.getText().map(a => Renderer.getStringWidth(ChatLib.removeFormatting(a)))))
     }
     getHeight(locationBox = false) {
         if (locationBox && this.editBaseHeight) return this.editBaseHeight
-        return 9 * this.getText()[0].length
+        return 9 * this.getText().length
     }
 
     getText() {
@@ -109,28 +111,30 @@ class HudTextElement {
     }
 
     renderRaw() {
-        let text = this.getText()
+        try {
+            let text = this.getText()
 
-        text.forEach((line, i) => {
-            Renderer.scale(this.locationSetting.scale, this.locationSetting.scale)
-            switch (this.locationSetting.shadowType) {
-                case 0:
-                    Renderer.drawString(line, this.locationSetting.x / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
-                    break;
-                case 1:
-                    Renderer.drawStringWithShadow(line, this.locationSetting.x / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
-                    break;
-                case 2:
-                    let blackText = this.getBlackText()
-                    Renderer.drawString(blackText[i], (this.locationSetting.x + 1) / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
-                    Renderer.drawString(blackText[i], (this.locationSetting.x - 1) / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
-                    Renderer.drawString(blackText[i], this.locationSetting.x / this.locationSetting.scale, (this.locationSetting.y + 1) / this.locationSetting.scale + 9 * i)
-                    Renderer.drawString(blackText[i], this.locationSetting.x / this.locationSetting.scale, (this.locationSetting.y - 1) / this.locationSetting.scale + 9 * i)
+            text.forEach((line, i) => {
+                Renderer.scale(this.locationSetting.scale, this.locationSetting.scale)
+                switch (this.locationSetting.shadowType) {
+                    case 0:
+                        Renderer.drawString(line, this.locationSetting.x / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
+                        break;
+                    case 1:
+                        Renderer.drawStringWithShadow(line, this.locationSetting.x / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
+                        break;
+                    case 2:
+                        let blackText = this.getBlackText()
+                        Renderer.drawString(blackText[i], (this.locationSetting.x + 1) / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
+                        Renderer.drawString(blackText[i], (this.locationSetting.x - 1) / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
+                        Renderer.drawString(blackText[i], this.locationSetting.x / this.locationSetting.scale, (this.locationSetting.y + 1) / this.locationSetting.scale + 9 * i)
+                        Renderer.drawString(blackText[i], this.locationSetting.x / this.locationSetting.scale, (this.locationSetting.y - 1) / this.locationSetting.scale + 9 * i)
 
-                    Renderer.drawString(line, this.locationSetting.x / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
-                    break;
-            }
-        })
+                        Renderer.drawString(line, this.locationSetting.x / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
+                        break;
+                }
+            })
+        } catch (e) { }//incase of wrong opengl context
     }
 }
 

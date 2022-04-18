@@ -9,9 +9,7 @@ import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 
-const EntityArrow = Java.type("net.minecraft.entity.projectile.EntityArrow");
 const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze");
-const AxisAlignedBB = Java.type("net.minecraft.util.AxisAlignedBB");
 let translate;
 try {
 	translate = net.minecraft.util.StringTranslate.func_74808_a();
@@ -180,6 +178,9 @@ class DungeonSolvers extends Feature {
 			});
 		})
 
+		this.firstDeath = false
+		this.firstDeathHadSpirit = false
+
 		this.registerChat("&b&bYou are currently connected to server &6${*}&r", (e) => {
 			if (this.checkingPing) {
 				this.lastPings[this.pingI % 3] = Date.now() - this.lastPingCheck;
@@ -210,7 +211,6 @@ class DungeonSolvers extends Feature {
 
 		// Information about the dungeon
 		let deaths = parseInt(this.FeatureManager.features["dataLoader"].class.stats.Deaths.replace("(", "").replace(")", ""));
-		let firstDeathHadSpirit = false; //TODO: this
 
 		let seconds = 0;
 		if (this.FeatureManager.features["dataLoader"].class.stats.Time !== "Soon!") {
@@ -243,7 +243,7 @@ class DungeonSolvers extends Feature {
 		let maxSecrets = currentSecretsFound / currentSecretPercent || 50;
 
 		//Actual Score Calculation
-		let skillScore = Math.floor(Math.max(20, (20 - (this.totalPuzzleCount - this.completedPuzzleCount) * 10 + (((80 * (clearedRooms + this.bloodOpenedBonus + this.goneInBonus)) / totalRooms) - deaths * 2 + firstDeathHadSpirit))));
+		let skillScore = Math.floor(Math.max(20, (20 - (this.totalPuzzleCount - this.completedPuzzleCount) * 10 + (((80 * (clearedRooms + this.bloodOpenedBonus + this.goneInBonus)) / totalRooms) - deaths * 2 + this.firstDeathHadSpirit))));
 		let exploreScore = (Math.floor((60 * (clearedRooms + this.bloodOpenedBonus + this.goneInBonus)) / totalRooms) + Math.floor(Math.min(40, (40 * currentSecretsFound) / secretPercentRequired / maxSecrets)));
 		let speedScore;
 		if (inDungeonSeconds < 480) {
@@ -263,7 +263,7 @@ class DungeonSolvers extends Feature {
 
 		//Calculating secrets for s/s+
 
-		let hypotheticalSkillScore = Math.floor(Math.max(20, (20 - (this.failedPuzzleCount) * 10 + 80 - deaths * 2 + firstDeathHadSpirit)));
+		let hypotheticalSkillScore = Math.floor(Math.max(20, (20 - (this.failedPuzzleCount) * 10 + 80 - deaths * 2 + this.firstDeathHadSpirit)));
 		let hypotheticalSpeedScore = speedScore
 
 		//Calculating for S
@@ -297,10 +297,41 @@ class DungeonSolvers extends Feature {
 		hypotheticalScoreGottenSPlus += hypotheticalBonusScoreSplus
 
 		//Setting hud element
-		let sPlusText = currentSecretsFound === 0 ? "??" : (skillScore + exploreScore + speedScore + bonus) >= 300 ? ": ✔" : splusPossible ? `(${hypotheticalScoreGottenSPlus}): ${currentSecretsFound}/${splusNeededSecrets} +${crypts}c/${splusCryptsNeeded}` : "✖"
-		let sText = currentSecretsFound === 0 ? "  ??" : (skillScore + exploreScore + speedScore + bonus) >= 270 ? "  : ✔" : sPossible ? `(${hypotheticalScoreGottenS}): ${currentSecretsFound}/${sNeededSecrets} +${crypts}c/${sCryptsNeeded}` : "✖"
+		let sPlusText = currentSecretsFound === 0 ? "??" : (skillScore + exploreScore + speedScore + bonus) >= 300 ? "✔" : splusPossible ? `(${hypotheticalScoreGottenSPlus}): ${currentSecretsFound}/${splusNeededSecrets} +${crypts}c/${splusCryptsNeeded}` : "✖"
+		let sText = currentSecretsFound === 0 ? "  ??" : (skillScore + exploreScore + speedScore + bonus) >= 270 ? "  ✔" : sPossible ? `  (${hypotheticalScoreGottenS}): ${currentSecretsFound}/${sNeededSecrets} +${crypts}c/${sCryptsNeeded}` : "✖"
 
 		this.scoreElement.setText(`&dScore: ${skillScore + exploreScore + speedScore + bonus}\n&aS+ ${sPlusText}\n&aS ${sText}`);
+	}
+
+	scanFirstDeathForSpiritPet(username) {
+		if (this.firstDeath) return
+		this.firstDeath = true
+
+		username = username.split(" ")[0]
+
+		if (this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()) {
+			fetch(`https://api.hypixel.net/player?key=${this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()}&name=${username}`).json(data => {
+				if (!data.success) return
+				fetch(`https://api.hypixel.net/skyblock/profiles?key=${this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()}&uuid=${data.player.uuid}`).json(data2 => {
+					if (!data2.success) return
+
+					let latestProfile = [0, undefined]
+
+					data2.profiles.forEach(p => {
+						if (p.members[data.player.uuid].last_save > latestProfile[0]) {
+							latestProfile = [p.members[data.player.uuid].last_save, p.members[data.player.uuid].pets.find(pet => pet.type === "SPIRIT" && pet.tier === "LEGENDARY")]
+						}
+					})
+
+					if (latestProfile[1]) {
+						this.firstDeathHadSpirit = true
+						ChatLib.chat(this.FeatureManager.messagePrefix + "First death has spirit pet!")
+					} else {
+						ChatLib.chat(this.FeatureManager.messagePrefix + "First death does not have spirit pet!")
+					}
+				})
+			})
+		}
 	}
 
 	entityJoinWorldEvent(event) {

@@ -291,14 +291,14 @@ class FeatureManager {
             try {
                 for (Event of Object.values(this.events[event])) {
                     if (Event.context.enabled) {
-                        this.startRecordingPerformance(Event.context.constructor.name, event)
+                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(Event.context.constructor.name, event)
                         let start = Date.now()
                         Event.func.call(Event.context, ...args)
                         let time = Date.now() - start
                         if (time > this.longEventTime) {
                             logger.logMessage("Long event triggered [" + time + "ms] (" + Event.context.constructor.name + "/" + event + ")", 3)
                         }
-                        this.stopRecordingPerformance(Event.context.constructor.name, event)
+                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(Event.context.constructor.name, event)
                     }
                 }
             } catch (e) {
@@ -313,14 +313,14 @@ class FeatureManager {
             try {
                 for (Event of Object.values(this.soopyEventHandlers[event])) {
                     if (Event.context.enabled) {
-                        this.startRecordingPerformance(Event.context.constructor.name, event)
+                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(Event.context.constructor.name, event)
                         let start = Date.now()
                         Event.func.call(Event.context, ...args)
                         let time = Date.now() - start
                         if (time > this.longEventTime) {
                             logger.logMessage("Long event triggered [" + time + "ms] (" + Event.context.constructor.name + "/" + event + ")", 3)
                         }
-                        this.stopRecordingPerformance(Event.context.constructor.name, event)
+                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(Event.context.constructor.name, event)
                     }
                 }
             } catch (e) {
@@ -412,14 +412,14 @@ class FeatureManager {
             trigger: register(type, (...args) => {
                 try {
                     if (context.enabled) {
-                        this.startRecordingPerformance(context.constructor.name, type)
+                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(context.constructor.name, type)
                         let start = Date.now()
                         func.call(context, ...(args || []))
                         let time = Date.now() - start
                         if (time > this.longEventTime) {
                             logger.logMessage("Long event triggered [" + time + "ms] (" + context.constructor.name + "/" + type + ")", 3)
                         }
-                        this.stopRecordingPerformance(context.constructor.name, type)
+                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(context.constructor.name, type)
                     }
                 } catch (e) {
                     logger.logMessage("Error in " + type + " event: " + JSON.stringify(e, undefined, 2), 2)
@@ -442,14 +442,14 @@ class FeatureManager {
             trigger: registerForgeBase(event, (...args) => {
                 try {
                     if (context.enabled) {
-                        this.startRecordingPerformance(context.constructor.name, event.class.name)
+                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(context.constructor.name, event.class.name)
                         let start = Date.now()
                         func.call(context, ...(args || []))
                         let time = Date.now() - start
                         if (time > this.longEventTime) {
                             logger.logMessage("Long (forge) event triggered (" + context.constructor.name + "/" + event.class.toString() + ")", 3)
                         }
-                        this.stopRecordingPerformance(context.constructor.name, event.class.name)
+                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(context.constructor.name, event.class.name)
                     }
                 } catch (e) {
                     logger.logMessage("Error in " + event.class.toString() + " (forge) event: " + JSON.stringify(e, undefined, 2), 2)
