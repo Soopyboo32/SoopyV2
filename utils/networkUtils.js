@@ -1,4 +1,4 @@
-if(!global.networkUtilsThingSoopy){
+if (!global.networkUtilsThingSoopy) {
 
     let jURL = Java.type("java.net.URL")
     let jStandardCharsets = Java.type("java.nio.charset.StandardCharsets")
@@ -6,60 +6,60 @@ if(!global.networkUtilsThingSoopy){
     let jBufferedReader = Java.type("java.io.BufferedReader")
     let jInputStreamReader = Java.type("java.io.InputStreamReader")
 
-    function getUrlContent(theUrl, {userAgent="Mozilla/5.0", includeConnection=false}={}){
-        
-        if(global.soopyv2loggerthing){
+    function getUrlContent(theUrl, { userAgent = "Mozilla/5.0", includeConnection = false } = {}) {
+
+        if (global.soopyv2loggerthing) {
             global.soopyv2loggerthing.logMessage("Loading API: " + theUrl, 4)
         }
 
         // if(theUrl.includes("soopymc.my.to")){
         //     throw new Error("Testing to ensure the module works when my server is down")
         // }
-        
+
         let conn = new jURL(theUrl).openConnection()
         conn.setRequestProperty("User-Agent", userAgent)
-    
-        let stringData 
-    
-        if(conn.getResponseCode() < 400){
+
+        let stringData
+
+        if (conn.getResponseCode() < 400) {
             stringData = new jBufferedReader(
                 new jInputStreamReader(conn.getInputStream(), jStandardCharsets.UTF_8))
-                    .lines()
-                    .collect(jCollectors.joining("\n"));
-        
+                .lines()
+                .collect(jCollectors.joining("\n"));
+
             conn.getInputStream().close()
-        }else{
+        } else {
             stringData = new jBufferedReader(
                 new jInputStreamReader(conn.getErrorStream(), jStandardCharsets.UTF_8))
-                    .lines()
-                    .collect(jCollectors.joining("\n"));
-        
+                .lines()
+                .collect(jCollectors.joining("\n"));
+
             conn.getErrorStream().close()
         }
-    
-        if(includeConnection){
-            return {stringData, connection: conn}
+
+        if (includeConnection) {
+            return { stringData, connection: conn }
         }
-    
+
         return stringData
     }
-    
-    function fetch(url, options={userAgent: "Mozilla/5.0"}){
+
+    function fetch(url, options = { userAgent: "Mozilla/5.0" }) {
         let loadedConnection = undefined
         let loadedString = undefined
         let loadedJSON = undefined
         let errorData = undefined
-    
+
         let ret = {
-            sync(){
-                if(loadedString === undefined){
+            sync() {
+                if (loadedString === undefined) {
                     options.includeConnection = true
 
-                    try{
+                    try {
                         let data = getUrlContent(url, options)
                         loadedString = data.stringData
                         loadedConnection = data.connection
-                    }catch(e){
+                    } catch (e) {
                         errorData = e
                         loadedString = null
                     }
@@ -67,90 +67,90 @@ if(!global.networkUtilsThingSoopy){
 
                 return ret
             },
-            async(callback, _ifError=false){
-                if(!callback){
-                    callback = ()=>{}
+            async(callback, _ifError = false) {
+                if (!callback) {
+                    callback = () => { }
                 }
-    
-                if(loadedString === undefined){
+
+                if (loadedString === undefined) {
                     options.includeConnection = true
-    
+
                     pendingRequests.push({
-                        callback: (data)=>{
+                        callback: (data) => {
                             loadedString = data.stringData
                             loadedConnection = data.connection
                             callback()
                         },
-                        errcallback: (e)=>{
+                        errcallback: (e) => {
                             loadedString = null
                             errorData = e
-                            if(_ifError){
+                            if (_ifError) {
                                 callback()
                             }
                         },
                         url: url,
                         options: options
                     })
-                }else{
+                } else {
                     callback()
                 }
-                
+
                 return ret
             },
-            text: (callback)=>{
-                if(!callback){
+            text: (callback) => {
+                if (!callback) {
                     ret.sync()
 
                     return loadedString
                 }
 
-                ret.async(()=>{
+                ret.async(() => {
                     callback(loadedString)
                 })
-                
+
                 return ret
             },
-            json: (callback)=>{
-                if(!callback){
-                    if(loadedJSON === undefined){
-                        try{
+            json: (callback) => {
+                if (!callback) {
+                    if (loadedJSON === undefined) {
+                        try {
                             loadedJSON = JSON.parse(ret.text())
-                        }catch(e){}
+                        } catch (e) { }
                     }
-    
+
                     return loadedJSON
                 }
-                
-                ret.text(data=>{
-                    try{
-                    callback(JSON.parse(data))
-                    }catch(e){}
+
+                ret.text(data => {
+                    try {
+                        callback(JSON.parse(data))
+                    } catch (e) { }
                 })
-                
+
                 return ret
             },
-            responseCode: (callback)=>{
-                if(!callback){
+            responseCode: (callback) => {
+                if (!callback) {
                     ret.sync()
-    
+
                     return loadedConnection?.getResponseCode() || -1
                 }
-    
-                ret.async(data=>{
+
+                ret.async(data => {
                     callback(loadedConnection?.getResponseCode() || -1)
                 })
-                
+
                 return ret
             },
-            error: (callback)=>{
-                if(!callback){
+            error: (callback) => {
+                if (!callback) {
                     ret.sync()
-    
+
                     return errorData
                 }
-    
-                ret.async(data=>{
-                    if(errorData){
+
+                ret.async(data => {
+                    if (errorData) {
                         callback(errorData)
                     }
                 }, true)
@@ -163,37 +163,31 @@ if(!global.networkUtilsThingSoopy){
 
     let pendingRequests = []
     let pendingResolves = []
-    let running = true
 
-    new Thread(()=>{
-        while(running){
-            while(pendingRequests.length > 0){
-                let req = pendingRequests.shift()
+    register("tick", () => {
+        if (pendingRequests.length > 0) {
+            new Thread(() => {
+                while (pendingRequests.length > 0) {
+                    let req = pendingRequests.shift()
 
-                try{
-                    let data = getUrlContent(req.url, req.options)
+                    try {
+                        let data = getUrlContent(req.url, req.options)
 
-                    pendingResolves.push([req.callback, data])
-                }catch(e){
-                    pendingResolves.push([req.errcallback, e])
+                        pendingResolves.push([req.callback, data])
+                    } catch (e) {
+                        pendingResolves.push([req.errcallback, e])
+                    }
                 }
-            }
-            Thread.sleep(100)
+            }).start()
         }
-    }).start()
 
-    register("gameUnload", ()=>{
-        running = false
-    })
-
-    register("tick", ()=>{
-        try{
-            while(pendingResolves.length > 0){
+        try {
+            while (pendingResolves.length > 0) {
                 let [callback, data] = pendingResolves.shift()
 
                 callback(data)
             }
-        }catch(e){
+        } catch (e) {
             console.log(JSON.stringify(e, undefined, 2))
         }
     })

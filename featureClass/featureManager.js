@@ -110,6 +110,18 @@ class FeatureManager {
 
         if (this.isDev) {
             this.registerStep(true, 2, () => {
+
+                key = this.watchService.take();
+                let moduleToReload = this.watches[key]
+                if (this.features[moduleToReload] && !this.reloadingModules.includes(moduleToReload)) { //if enabled && not alr in queue
+                    this.reloadingModules.push(moduleToReload)
+                    this.reloadModuleTime = Date.now() + 5000
+                }
+                key.pollEvents()/*.forEach(event=>{
+                console.log(event.context().toString())
+            })*/
+                key.reset();
+
                 if (this.reloadModuleTime !== 0 && Date.now() - this.reloadModuleTime > 0) {
                     new Thread(() => {
                         this.reloadModuleTime = 0
@@ -129,20 +141,6 @@ class FeatureManager {
             this.watchService = Java.type("java.nio.file.FileSystems").getDefault().newWatchService();
             this.reloadingModules = []
             this.reloadModuleTime = 0
-            new Thread(() => {
-                while (this.enabled) {
-                    key = this.watchService.take();
-                    let moduleToReload = this.watches[key]
-                    if (this.features[moduleToReload] && !this.reloadingModules.includes(moduleToReload)) { //if enabled && not alr in queue
-                        this.reloadingModules.push(moduleToReload)
-                        this.reloadModuleTime = Date.now() + 5000
-                    }
-                    key.pollEvents()/*.forEach(event=>{
-                    console.log(event.context().toString())
-                })*/
-                    key.reset();
-                }
-            }).start()
         }
 
         this.registerCommand("soopyunloadfeature", (args) => {

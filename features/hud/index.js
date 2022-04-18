@@ -253,12 +253,13 @@ class Hud extends Feature {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw, "skyblock", false, true)
         }
 
-        new Thread(() => { //TODO: dont create this thread if you have the feature disabled
-            while (this.enabled) {
+        this.registerStep(false, 5, () => {
+            if (!this.showSpotifyPlaying.getValue()) return
+
+            new Thread(() => {
                 this.updateSpotify()
-                Thread.sleep(5000)
-            }
-        }).start()
+            }).start()
+        })
 
         this.registerActionBar("${m}", this.actionbarMessage)
     }
