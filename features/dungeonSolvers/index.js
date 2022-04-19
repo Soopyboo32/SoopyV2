@@ -8,6 +8,7 @@ import { drawBoxAtBlock } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
+import { fetch } from "../../utils/networkUtils";
 
 const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze");
 let translate;
@@ -102,6 +103,12 @@ class DungeonSolvers extends Feature {
 			}
 		});
 
+		this.registerChat("&r&c ☠ ${info} and became a ghost&r&7.&r", (info, e) => {
+			let player = ChatLib.removeFormatting(info.split(" ")[0])
+
+			this.scanFirstDeathForSpiritPet(player)
+		});
+
 		this.spiritBowPickUps = [];
 		this.registerChat("&r&aYou picked up the &r&5Spirit Bow&r&a! Use it to attack &r&cThorn&r&a!&r", () => {
 			this.spiritBowPickUps.push(Date.now());
@@ -114,6 +121,9 @@ class DungeonSolvers extends Feature {
 
 		this.todoE = [];
 		this.eMovingThing = {};
+		this.nameToUuid = {
+			"you": Player.getUUID().toString()
+		}
 		this.bloodX = -1;
 		this.bloodY = -1;
 		this.startSpawningTime = 0;
@@ -167,7 +177,7 @@ class DungeonSolvers extends Feature {
 			this.goneInBonus = true;
 		});
 		this.registerChat("&r&c[BOSS] The Watcher&r&f: You have proven yourself. You may pass.&r", () => {
-			this.bloodOpenedBonus = false;
+			this.bloodOpenedBonus = false; //TODO: add 5second delay
 			this.goneInBonus = true;
 		});
 		let enteredBossMessages = ["&r&4[BOSS] Maxor&r&c: &r&cWELL WELL WELL LOOK WHO’S HERE!&r", "&r&c[BOSS] Livid&r&f: Welcome, you arrive right on time. I am Livid, the Master of Shadows.&r", "&r&c[BOSS] Thorn&r&f: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!&r", "&r&c[BOSS] The Professor&r&f: I was burdened with terrible news recently...&r", "&r&c[BOSS] Scarf&r&f: This is where the journey ends for you, Adventurers.&r", "&r&c[BOSS] Bonzo&r&f: Gratz for making it this far, but I’m basically unbeatable.&r", "&r&c[BOSS] Sadan&r&f: So you made it all the way &r&fhere...and&r&f you wish to defy me? Sadan?!&r"]
@@ -176,6 +186,14 @@ class DungeonSolvers extends Feature {
 				this.goneInBonus = false;
 				this.bloodOpenedBonus = false;
 			});
+		})
+
+		this.registerChat("&r&aDungeon starts in 1 second.&r", () => {
+			this.goneInBonus = false;
+			this.bloodOpenedBonus = false;
+
+			this.firstDeath = false
+			this.firstDeathHadSpirit = false
 		})
 
 		this.firstDeath = false
@@ -307,29 +325,37 @@ class DungeonSolvers extends Feature {
 		if (this.firstDeath) return
 		this.firstDeath = true
 
-		username = username.split(" ")[0]
+		let uuid = this.nameToUuid[username.toLowerCase()].replace(/-/g, "")
 
-		if (this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()) {
-			fetch(`https://api.hypixel.net/player?key=${this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()}&name=${username}`).json(data => {
+		if (this.FeatureManager.features["globalSettings"] && this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()) {
+			fetch(`https://api.hypixel.net/skyblock/profiles?key=${this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()}&uuid=${uuid}`).json(data => {
 				if (!data.success) return
-				fetch(`https://api.hypixel.net/skyblock/profiles?key=${this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()}&uuid=${data.player.uuid}`).json(data2 => {
-					if (!data2.success) return
 
-					let latestProfile = [0, undefined]
+				let latestProfile = [0, undefined]
 
-					data2.profiles.forEach(p => {
-						if (p.members[data.player.uuid].last_save > latestProfile[0]) {
-							latestProfile = [p.members[data.player.uuid].last_save, p.members[data.player.uuid].pets.find(pet => pet.type === "SPIRIT" && pet.tier === "LEGENDARY")]
-						}
-					})
-
-					if (latestProfile[1]) {
-						this.firstDeathHadSpirit = true
-						ChatLib.chat(this.FeatureManager.messagePrefix + "First death has spirit pet!")
-					} else {
-						ChatLib.chat(this.FeatureManager.messagePrefix + "First death does not have spirit pet!")
+				data.profiles.forEach(p => {
+					if (p.members[uuid].last_save > latestProfile[0]) {
+						latestProfile = [p.members[uuid].last_save, p.members[uuid].pets.some(pet => pet.type === "SPIRIT" && pet.tier === "LEGENDARY")]
 					}
 				})
+
+				if (latestProfile[1]) {
+					this.firstDeathHadSpirit = true
+					ChatLib.chat(this.FeatureManager.messagePrefix + username + " has spirit pet!")
+				} else {
+					ChatLib.chat(this.FeatureManager.messagePrefix + username + " does not have spirit pet!")
+				}
+			})
+		} else {
+			fetch(`http://soopymc.my.to/api/v2/player_skyblock/${uuid}`).json(data => {
+				if (!data.success) return
+
+				if (data.data.profiles[data2.data.stats.currentProfileId].members[uuid].pets.some(pet => pet.type === "SPIRIT" && pet.tier === "LEGENDARY")) {
+					this.firstDeathHadSpirit = true
+					ChatLib.chat(this.FeatureManager.messagePrefix + username + " has spirit pet!")
+				} else {
+					ChatLib.chat(this.FeatureManager.messagePrefix + username + " does not have spirit pet!")
+				}
 			})
 		}
 	}
@@ -433,6 +459,9 @@ class DungeonSolvers extends Feature {
 		this.lividData.sayLividColors2 = [];
 		this.lividData.correctLividEntity = undefined;
 		this.lividHpElement && this.lividHpElement.setText("");
+		this.nameToUuid = {
+			"you": Player.getUUID().toString()
+		}
 
 		this.startSpawningTime = 0;
 		this.spawnIdThing = 0;
@@ -650,6 +679,9 @@ class DungeonSolvers extends Feature {
 	}
 
 	step() {
+		World.getAllPlayers().forEach((p) => {
+			this.nameToUuid[p.getName().toLowerCase()] = p.getUUID().toString()
+		})
 		this.failedPuzzleCount = 0;
 		this.totalPuzzleCount = 0;
 		this.completedPuzzleCount = 0;

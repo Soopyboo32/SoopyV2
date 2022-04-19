@@ -6,6 +6,7 @@ const File = Java.type("java.io.File")
 import metadata from "../metadata.js"
 import soopyV2Server from "../socketConnection";
 import { fetch } from "../utils/networkUtils";
+import NonPooledThread from "../utils/nonPooledThread";
 import { registerForge as registerForgeBase, unregisterForge as unregisterForgeBase } from "./forgeEvents.js"
 
 const JSLoader = Java.type("com.chattriggers.ctjs.engine.langs.js.JSLoader")
@@ -110,18 +111,6 @@ class FeatureManager {
 
         if (this.isDev) {
             this.registerStep(true, 2, () => {
-
-                key = this.watchService.take();
-                let moduleToReload = this.watches[key]
-                if (this.features[moduleToReload] && !this.reloadingModules.includes(moduleToReload)) { //if enabled && not alr in queue
-                    this.reloadingModules.push(moduleToReload)
-                    this.reloadModuleTime = Date.now() + 5000
-                }
-                key.pollEvents()/*.forEach(event=>{
-                console.log(event.context().toString())
-            })*/
-                key.reset();
-
                 if (this.reloadModuleTime !== 0 && Date.now() - this.reloadModuleTime > 0) {
                     new Thread(() => {
                         this.reloadModuleTime = 0
@@ -131,16 +120,30 @@ class FeatureManager {
                         this.reloadingModules.forEach(m => {
                             this.loadFeature(m)
                         })
-                        this.reloadingModules = []
+                        this.reloadingModules.clear()
                     }).start()
                 }
             }, this)
 
             this.watches = {}
-            this.addedWatches = []
+            this.addedWatches = new Set()
             this.watchService = Java.type("java.nio.file.FileSystems").getDefault().newWatchService();
-            this.reloadingModules = []
+            this.reloadingModules = new Set()
             this.reloadModuleTime = 0
+            new NonPooledThread(() => {
+                while (this.enabled) {
+                    key = this.watchService.take();
+                    let moduleToReload = this.watches[key]
+                    if (this.features[moduleToReload] && !this.reloadingModules.has(moduleToReload)) { //if enabled && not alr in queue
+                        this.reloadingModules.add(moduleToReload)
+                        this.reloadModuleTime = Date.now() + 5000
+                    }
+                    key.pollEvents()/*.forEach(event=>{
+                    console.log(event.context().toString())
+                })*/
+                    key.reset();
+                }
+            }).start()
         }
 
         this.registerCommand("soopyunloadfeature", (args) => {
@@ -533,8 +536,8 @@ class FeatureManager {
 
             logger.logMessage("Loaded feature " + feature, 3)
 
-            if (this.isDev && !this.addedWatches.includes(feature)) {
-                this.addedWatches.push(feature)
+            if (this.isDev && !this.addedWatches.has(feature)) {
+                this.addedWatches.add(feature)
                 let path = Java.type("java.nio.file.Paths").get("./config/ChatTriggers/modules/SoopyV2/features/" + feature + "/");
                 this.watches[path.register(this.watchService, Java.type("java.nio.file.StandardWatchEventKinds").ENTRY_MODIFY)] = feature
             }

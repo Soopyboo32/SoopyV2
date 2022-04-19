@@ -163,9 +163,21 @@ if (!global.networkUtilsThingSoopy) {
 
     let pendingRequests = []
     let pendingResolves = []
+    let runningThread = false
 
     register("tick", () => {
-        if (pendingRequests.length > 0) {
+        try {
+            while (pendingResolves.length > 0) {
+                let [callback, data] = pendingResolves.shift()
+
+                callback(data)
+            }
+        } catch (e) {
+            console.log(JSON.stringify(e, undefined, 2))
+        }
+
+        if (pendingRequests.length > 0 && !runningThread) {
+            runningThread = true
             new Thread(() => {
                 while (pendingRequests.length > 0) {
                     let req = pendingRequests.shift()
@@ -178,17 +190,9 @@ if (!global.networkUtilsThingSoopy) {
                         pendingResolves.push([req.errcallback, e])
                     }
                 }
+
+                runningThread = false
             }).start()
-        }
-
-        try {
-            while (pendingResolves.length > 0) {
-                let [callback, data] = pendingResolves.shift()
-
-                callback(data)
-            }
-        } catch (e) {
-            console.log(JSON.stringify(e, undefined, 2))
         }
     })
 
