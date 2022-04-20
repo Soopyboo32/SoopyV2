@@ -160,7 +160,7 @@ class DungeonMap extends Feature {
 
     renderWorld() {
         if (this.isInDungeon() && this.brBox.getValue()) {
-            if (this.brBoxLoc && (!this.bloodOpened || this.brBoxDisableWhenBloodOpened.getValue())) {
+            if (this.brBoxLoc && (!this.bloodOpened || !this.brBoxDisableWhenBloodOpened.getValue())) {
                 drawBoxAtBlock(this.brBoxLoc[0] - 1.5, 69, this.brBoxLoc[1] - 1.5, 255, 0, 0, 3, 4)
             }
         }

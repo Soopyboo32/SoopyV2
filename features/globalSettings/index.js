@@ -16,6 +16,7 @@ import { fetch } from "../../utils/networkUtils";
 const Files = Java.type("java.nio.file.Files")
 const Paths = Java.type("java.nio.file.Paths")
 const JavaString = Java.type("java.lang.String")
+const JavaLong = Java.type("java.lang.Long")
 
 class Hud extends Feature {
     constructor() {
@@ -35,6 +36,7 @@ class Hud extends Feature {
         this.newApiKey = new ButtonSetting("Run /api new", "This is here so u dont need to exit and re-enter", "api_new_command", this, "Click!", this.apiNewCommand, undefined)
         this.findApiKey = new ButtonSetting("Attempt to load api key from other mods", "This will scan other mods configs to attempt to find your key", "find_key", this, "Click!", () => { this.findKey() }, undefined)
 
+        this.fixNeuNetworth = new ToggleSetting("Change networth in NEU pv to soopynw", "This should make it a lot more accurate", true, "neu_nw_override", this)
 
         // this.notifyNewVersion = new ToggleSetting("Notify when there is a new update", "Will notify you when there is a new version of soopyv2 avalible for download", false, "notify_update", this)
 
@@ -63,6 +65,12 @@ class Hud extends Feature {
             }).start()
         }
 
+        if (net.minecraftforge.fml.common.Loader.isModLoaded("notenoughupdates")) {
+            this.GuiProfileViewer = Java.type("io.github.moulberry.notenoughupdates.profileviewer.GuiProfileViewer")
+            this.currentPlayerOpen = undefined
+            this.currentPlayerNetworth = {}
+            this.registerEvent("tick", this.fixNEU)
+        }
 
         this.registerCommand("soopyweight", (user = Player.getName()) => {
             this.soopyWeight(user)
@@ -70,6 +78,43 @@ class Hud extends Feature {
         this.registerCommand("sweight", (user = Player.getName()) => {
             this.soopyWeight(user)
         })
+    }
+
+    fixNEU() {
+        if (Client.currentGui.get() instanceof (this.GuiProfileViewer) && this.fixNeuNetworth.getValue()) {
+            let guiProfileViewer = Client.currentGui.get()
+            if (!guiProfileViewer.profile || !guiProfileViewer.profile.getHypixelProfile()) return
+            let uuid = guiProfileViewer.profile.getHypixelProfile().get("uuid").getAsString().replace(/-/g, "")
+
+            if (this.currentPlayerOpen != uuid) {
+                this.currentPlayerOpen = uuid
+                this.currentPlayerNetworth = {}
+
+                fetch("http://soopymc.my.to/api/v2/player_skyblock/" + uuid).json(data => {
+                    if (!data.success) return
+
+                    if (this.currentPlayerOpen === data.data.uuid) {
+                        Object.keys(data.data.profiles).forEach(profileId => {
+                            if (!data.data.profiles[profileId].members[uuid].soopyNetworth.networth) return
+                            this.currentPlayerNetworth[data.data.profiles[profileId].stats.cute_name] = JavaLong.valueOf(data.data.profiles[profileId].members[uuid].soopyNetworth.networth)
+                        })
+                    }
+                })
+            }
+
+            let map = this.getField(guiProfileViewer.profile, "networth")
+            Object.keys(this.currentPlayerNetworth).forEach(key => {
+                map.put(new JavaString(key), new JavaLong(this.currentPlayerNetworth[key]))
+            })
+        }
+    }
+
+    getField(e, field) {
+        let field2 = e.class.getDeclaredField(field);
+
+        field2.setAccessible(true)
+
+        return field2.get(e)
     }
 
     soopyWeight(user) {
