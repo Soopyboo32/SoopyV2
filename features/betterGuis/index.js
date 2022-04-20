@@ -5,25 +5,25 @@ import logger from "../../logger";
 import { f } from "../../../mappings/mappings";
 import ToggleSetting from "../settings/settingThings/toggle";
 import MuseumGui from "./museumGui.js";
-// import DungeonReadyGui from "./dungeonReadyGui";
+import DungeonReadyGui from "./dungeonReadyGui";
 
 class BetterGuis extends Feature {
     constructor() {
         super()
     }
 
-    onEnable(){
+    onEnable() {
         this.initVariables()
 
         this.museumGui = new MuseumGui()
-        // this.dungeonReady = new DungeonReadyGui()
+        this.dungeonReady = new DungeonReadyGui()
 
         this.replaceSbMenuClicks = new ToggleSetting("Improve Clicks on SBMENU", "This will change clicks to middle clicks, AND use commands where possible (eg /pets)", true, "sbmenu_clicks", this)
-        this.reliableSbMenuClicks = {getValue: ()=>false}//removed because hypixel fixed, code kept incase hypixel adds back bug later //new ToggleSetting("Make SBMENU clicks reliable", "This will delay clicks on sbmenu to time them so they dont get canceled", true, "sbmenu_time", this)
-        
+        this.reliableSbMenuClicks = { getValue: () => false }//removed because hypixel fixed, code kept incase hypixel adds back bug later //new ToggleSetting("Make SBMENU clicks reliable", "This will delay clicks on sbmenu to time them so they dont get canceled", true, "sbmenu_time", this)
+
         this.museumGuiEnabled = new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this)
-        // this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI", "Custom gui for the dungeon ready up menu", true, "custom_dungeon_ready_enabled", this)
-    
+        this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI (UNFINISHED)", "Custom gui for the dungeon ready up menu", false, "custom_dungeon_ready_enabled", this)
+
         this.lastWindowId = 0
         this.shouldHold = 10
         this.clickSlot = -1
@@ -98,106 +98,115 @@ class BetterGuis extends Feature {
             "Active Effects"
         ]
 
+        this.registerChat("&r&aDungeon starts in 1 second.&r", () => {
+            this.dungeonReady.readyInOneSecond.call(this.dungeonReady)
+        })
+        this.registerChat("&r&aDungeon starts in 1 second. Get ready!&r", () => {
+            this.dungeonReady.readyInOneSecond.call(this.dungeonReady)
+        })
         this.registerEvent("guiMouseClick", this.guiClicked)
-        this.registerEvent("guiOpened", (event)=>{
-            if(this.museumGuiEnabled.getValue()) this.museumGui.guiOpened.call(this.museumGui, event)
-            // if(this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.guiOpened.call(this.dungeonReady, event)
+        this.registerEvent("guiOpened", (event) => {
+            if (this.museumGuiEnabled.getValue()) this.museumGui.guiOpened.call(this.museumGui, event)
+            if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.guiOpened.call(this.dungeonReady, event)
+        })
+        this.registerEvent("worldLoad", () => {
+            this.dungeonReady.reset()
         })
         this.registerStep(true, 10, this.step)
-        this.registerEvent("worldUnload", ()=>{this.museumGui.saveMuseumCache.call(this.museumGui)})
-        this.registerStep(false, 30, ()=>{this.museumGui.saveMuseumCache.call(this.museumGui)})
+        this.registerEvent("worldUnload", () => { this.museumGui.saveMuseumCache.call(this.museumGui) })
+        this.registerStep(false, 30, () => { this.museumGui.saveMuseumCache.call(this.museumGui) })
     }
 
-    guiClicked(mouseX, mouseY, button, gui, event){
-        if(gui.class.toString()==="class net.minecraft.client.gui.inventory.GuiChest" && button===0 && this.replaceSbMenuClicks.getValue()){
-            
+    guiClicked(mouseX, mouseY, button, gui, event) {
+        if (gui.class.toString() === "class net.minecraft.client.gui.inventory.GuiChest" && button === 0 && this.replaceSbMenuClicks.getValue()) {
+
             let hoveredSlot = gui.getSlotUnderMouse()
-            if(!hoveredSlot) return
+            if (!hoveredSlot) return
 
             let hoveredSlotId = hoveredSlot[f.slotNumber]
 
             // logger.logMessage(hoveredSlotId, 4)
 
-            if(this.guiSlotClicked(ChatLib.removeFormatting(Player.getContainer().getName()), hoveredSlotId)){
+            if (this.guiSlotClicked(ChatLib.removeFormatting(Player.getContainer().getName()), hoveredSlotId)) {
                 cancel(event)
             }
         }
     }
 
-    step(){
-        if(this.museumGuiEnabled.getValue()) this.museumGui.tick.call(this.museumGui)
-        // if(this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.tick.call(this.dungeonReady)
-        
-        if(this.replaceSbMenuClicks.getValue()){
-            if(Player.getContainer() && Player.getContainer().getName()==="SkyBlock Menu"){
-                if(this.lastWindowId === 0){
+    step() {
+        if (this.museumGuiEnabled.getValue()) this.museumGui.tick.call(this.museumGui)
+        if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.tick.call(this.dungeonReady)
+
+        if (this.replaceSbMenuClicks.getValue()) {
+            if (Player.getContainer() && Player.getContainer().getName() === "SkyBlock Menu") {
+                if (this.lastWindowId === 0) {
                     this.lastWindowId = Player.getContainer().getWindowId()
                     return;
                 }
-                if(Player.getContainer().getWindowId()!==this.lastWindowId){
+                if (Player.getContainer().getWindowId() !== this.lastWindowId) {
                     this.lastWindowId = Player.getContainer().getWindowId()
-                    this.shouldHold+= 10
-                    if(Date.now()-this.clickSlotTime >1000){
+                    this.shouldHold += 10
+                    if (Date.now() - this.clickSlotTime > 1000) {
                         this.clickSlot = -1
                     }
-                    if(this.clickSlot && this.clickSlot != -1){
+                    if (this.clickSlot && this.clickSlot != -1) {
                         Player.getContainer().click(this.clickSlot, false, "MIDDLE")
                         this.clickSlot = -1
                     }
-                }else{
+                } else {
                     this.shouldHold--
                 }
-            }else{
-                this.lastWindowId =0
+            } else {
+                this.lastWindowId = 0
             }
         }
     }
 
-    guiSlotClicked(inventoryName, slotId){
-        if(inventoryName.endsWith(" Sack")) return false
-        switch(inventoryName){
+    guiSlotClicked(inventoryName, slotId) {
+        if (inventoryName.endsWith(" Sack")) return false
+        switch (inventoryName) {
             case "SkyBlock Menu":
-                switch(slotId){
+                switch (slotId) {
                     case 30:
                         ChatLib.command("pets")
-                    break
+                        break
                     case 25:
                         ChatLib.command("storage")
-                    break
+                        break
                     default:
-                        if(this.shouldHold>0 && this.reliableSbMenuClicks.getValue()){
+                        if (this.shouldHold > 0 && this.reliableSbMenuClicks.getValue()) {
                             this.clickSlot = slotId
                             this.clickSlotTime = Date.now()
-                        }else{
+                        } else {
                             Player.getContainer().click(slotId, false, "MIDDLE")
                         }
-                    break;
+                        break;
                 }
                 return true
-            break
+                break
             default:
-                if(this.middleClickGuis.includes(inventoryName)){
+                if (this.middleClickGuis.includes(inventoryName)) {
                     Player.getContainer().click(slotId, false, "MIDDLE")
                     return true
                 }
-                for(let thing of this.middleClickStartsWith){
-                    if(inventoryName.startsWith(thing)){
+                for (let thing of this.middleClickStartsWith) {
+                    if (inventoryName.startsWith(thing)) {
                         Player.getContainer().click(slotId, false, "MIDDLE")
                         return true
                     }
                 }
-                for(let thing of this.middleClickEndsWith){
-                    if(inventoryName.endsWith(thing)){
+                for (let thing of this.middleClickEndsWith) {
+                    if (inventoryName.endsWith(thing)) {
                         Player.getContainer().click(slotId, false, "MIDDLE")
                         return true
                     }
                 }
                 return false
-            break
+                break
         }
     }
 
-    initVariables(){
+    initVariables() {
         this.replaceSbMenuClicks = undefined
         this.lastWindowId = undefined
         this.shouldHold = undefined
@@ -211,7 +220,7 @@ class BetterGuis extends Feature {
         this.museumGui = undefined
     }
 
-    onDisable(){
+    onDisable() {
         this.initVariables()
     }
 }

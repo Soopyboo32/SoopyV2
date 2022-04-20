@@ -31,8 +31,10 @@ class DungeonMap extends Feature {
         this.initVariables()
 
         this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud", false, "dmap_render", this)
-        this.mapLocation = new ImageLocationSetting("Map Location", "Sets the location of the map on the hud", "dmap_location", this, [10, 10, 1], new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/map.png"))), 100, 100)
-        this.mapBackground = new ToggleSetting("Map Background And Border", "Puts a grey background behind the map + Black border", false, "dmap_background", this)
+        this.mapLocation = new ImageLocationSetting("Map Location", "Sets the location of the map on the hud", "dmap_location", this, [10, 10, 1], new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/map.png"))), 100, 100).requires(this.renderMap)
+        this.mapBackground = new ToggleSetting("Map Background And Border", "Puts a grey background behind the map + Black border", true, "dmap_background", this)
+        this.showMapInBoss = new ToggleSetting("Keep showing the map in the dungeon boss room", "This will center the map when in boss to still be usefull", true, "dmap_enable_boss", this)
+        this.borderedHeads = new ToggleSetting("Add a black border around heads on map", "", false, "dmap_border_head", this)
         this.brBox = new ToggleSetting("Box around doors in br", "In map category because it uses map to find location (no esp)", true, "dmap_door", this)
         this.brBoxDisableWhenBloodOpened = new ToggleSetting("Disable blood rush box when blood open", "", true, "dmap_door_disable", this).requires(this.brBox)
         this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this)
@@ -122,6 +124,9 @@ class DungeonMap extends Feature {
         this.registerChat("&r&aDungeon starts in 1 second.&r", () => {
             this.boringMap = false
         })
+        this.registerChat("&r&aDungeon starts in 1 second. Get ready!&r", () => {
+            this.boringMap = false
+        })
 
         this.running = true
         this.registerEvent("gameUnload", () => {
@@ -169,13 +174,18 @@ class DungeonMap extends Feature {
 
     drawMap(x, y, size, scale) {
         if (this.mapImage) {
-            if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0, 100), x, y, size, size)
-
+            if (this.FeatureManager.features["dataLoader"].class.stats.Time === "Soon!" && Player.getInventory().getStackInSlot(8).getID() !== 358) return
             if (this.boringMap) {
+                if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0, 100), x, y, size, size)
+
                 this.mapImage.draw(x, y, size, size)
+
+                if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y, size, 2)
+                if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y, 2, size)
+                if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x + size - 2, y, 2, size)
+                if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y + size - 2, size, 2)
                 return
             }
-            renderLibs.scizzor(x, y, size, size)
 
             World.getAllPlayers().forEach(player => {
                 if (player.getPing() === -1) return
@@ -188,12 +198,20 @@ class DungeonMap extends Feature {
                     uuid: player.getUUID().toString()
                 }
             })
+            this.mapDataPlayers[Player.getUUID().toString()] = {
+                x: Player.getX(),
+                y: Player.getZ(),
+                rot: Player.getYaw() + 180,
+                username: Player.getName(),
+                uuid: Player.getUUID().toString()
+            }
 
             let uuid = Player.getUUID().toString()
             let renderX
             let renderY
             let xOff = 0
             let yOff = 0
+            let disableMap = false
             if (this.mapDataPlayers[uuid]) {
 
                 if (this.currDungeonBossImage) {
@@ -208,9 +226,16 @@ class DungeonMap extends Feature {
                     || renderY < 0 || renderY > size) {
                     xOff = size / 2 - renderX
                     yOff = size / 2 - renderY
+
+                    if (!this.showMapInBoss.getValue()) {
+                        disableMap = true
+                    }
                 }
             }
+            if (disableMap) return
 
+            if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0, 100), x, y, size, size)
+            renderLibs.scizzor(x, y, size, size)
             this.mapImage.draw(x + xOff, y + yOff, size, size)
 
             this.drawOtherMisc(x + xOff, y + yOff, size, scale)
@@ -267,7 +292,12 @@ class DungeonMap extends Feature {
                 renderY = this.mapDataPlayers[uuid].y / this.mapScale / 128 * size + this.offset[1] / 128 * size//*16/this.roomWidth
             }
 
-
+            if (this.borderedHeads.getValue()) {
+                Renderer.translate(renderX + x, renderY + y, 1000)
+                Renderer.scale(scale * 1.5, scale * 1.5)
+                Renderer.rotate(this.mapDataPlayers[uuid].rot)
+                Renderer.drawRect(Renderer.color(0, 0, 0), -6, -6, 12, 12)
+            }
             Renderer.translate(renderX + x, renderY + y, 1000)
             Renderer.scale(scale * 1.5, scale * 1.5)
             Renderer.rotate(this.mapDataPlayers[uuid].rot)
@@ -288,6 +318,12 @@ class DungeonMap extends Feature {
         }
 
 
+        if (this.borderedHeads.getValue()) {
+            Renderer.translate(renderX + x, renderY + y, 1000)
+            Renderer.scale(scale * 1.5, scale * 1.5)
+            Renderer.rotate(this.mapDataPlayers[uuid].rot)
+            Renderer.drawRect(Renderer.color(0, 0, 0), -6, -6, 12, 12)
+        }
         Renderer.translate(renderX + x, renderY + y, 1000)
         Renderer.scale(scale * 1.5, scale * 1.5)
         Renderer.rotate(this.mapDataPlayers[uuid].rot)
@@ -562,7 +598,7 @@ class DungeonMap extends Feature {
             // console.log(bytes[Math.floor(Player.getX()/this.mapScale+this.offset[0])+Math.floor(Player.getZ()/this.mapScale + this.offset[1])*128])
             this.roomWidth = roomWidth
 
-            this.mortLocationOnMap = this.mortLocationOnMap
+            this.mortLocationOnMap = mortLocationOnMap
 
             if (this.mortLocation && mortLocationOnMap && roomWidth) {
                 let deco = mapData[f.mapDecorations]
@@ -651,7 +687,10 @@ class DungeonMap extends Feature {
     }
 
     getImageForPlayer(uuid) {
-        return renderLibs.getImage("https://crafatar.com/avatars/" + uuid.replace(/-/g, "") + "?size=8") || this.defaultPlayerImage
+        let img = renderLibs.getImage("https://crafatar.com/avatars/" + uuid.replace(/-/g, "") + "?size=8&overlay")
+        if (!img) return this.defaultPlayerImage
+
+        return img
     }
 
     initVariables() {

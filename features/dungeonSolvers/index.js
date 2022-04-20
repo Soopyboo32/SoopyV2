@@ -196,6 +196,14 @@ class DungeonSolvers extends Feature {
 			this.firstDeathHadSpirit = false
 		})
 
+		this.registerChat("&r&aDungeon starts in 1 second. Get ready!&r", () => {
+			this.goneInBonus = false;
+			this.bloodOpenedBonus = false;
+
+			this.firstDeath = false
+			this.firstDeathHadSpirit = false
+		})
+
 		this.firstDeath = false
 		this.firstDeathHadSpirit = false
 
@@ -341,9 +349,9 @@ class DungeonSolvers extends Feature {
 
 				if (latestProfile[1]) {
 					this.firstDeathHadSpirit = true
-					ChatLib.chat(this.FeatureManager.messagePrefix + username + " has spirit pet!")
+					if (this.scoreCalculation.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + username + " has spirit pet!")
 				} else {
-					ChatLib.chat(this.FeatureManager.messagePrefix + username + " does not have spirit pet!")
+					if (this.scoreCalculation.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + username + " does not have spirit pet!")
 				}
 			})
 		} else {
@@ -352,9 +360,9 @@ class DungeonSolvers extends Feature {
 
 				if (data.data.profiles[data2.data.stats.currentProfileId].members[uuid].pets.some(pet => pet.type === "SPIRIT" && pet.tier === "LEGENDARY")) {
 					this.firstDeathHadSpirit = true
-					ChatLib.chat(this.FeatureManager.messagePrefix + username + " has spirit pet!")
+					if (this.scoreCalculation.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + username + " has spirit pet!")
 				} else {
-					ChatLib.chat(this.FeatureManager.messagePrefix + username + " does not have spirit pet!")
+					if (this.scoreCalculation.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + username + " does not have spirit pet!")
 				}
 			})
 		}
