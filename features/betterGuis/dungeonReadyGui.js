@@ -4,6 +4,7 @@ import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseCl
 import BoxWithTextAndDescription from "../../../guimanager/GuiElement/BoxWithTextAndDescription"
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow"
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement"
+import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement"
 
 
 const ContainerChest = Java.type("net.minecraft.inventory.ContainerChest")
@@ -28,10 +29,15 @@ class DungeonReadyGui {
         }))
         this.soopyGui.element.addChild(this.startButton)
 
+        this.startButton.desc = new SoopyTextElement().setMaxTextScale(2).setLocation(0.05, 0.6, 0.7, 0.4).setText("")
+        this.startButton.addChild(this.startButton.desc)
+
         this.closeMenu = 0
         this.nameToId = {}
         this.nextId = 0
+        this.currPlayers = 1
         this.readyBoxes = []
+        this.confirmationCooldown = 0
         for (let i = 0; i < 4; i++) {
             let readyBox = new BoxWithTextAndDescription().setText("§0").setDesc("§0").setLocation(0.1 + 0.2 * i, 0.75, 0.15, 0.15).setColor(255, 150, 150)
             this.readyBoxes.push(readyBox)
@@ -72,8 +78,20 @@ class DungeonReadyGui {
         this.mainPage.addChild(this.playerReadyButton)
     }
 
+    joinedDungeon(players) {
+        this.currPlayers = players
+    }
+
     startDungeon() {
         if (Player.getContainer().getName() !== "Start Dungeon?") return
+
+        if (!this.confirmationCooldown && World.getAllPlayers().filter(p => p.getPing() === 1).length !== this.currPlayers) {
+            this.startButton.setText("§0Confirm starting Dungeon? (3s)")
+            this.startButton.desc.setText("§0(" + World.getAllPlayers().filter(p => p.getPing() === 1).length + "/" + this.currPlayers + " in dungeon)")
+            this.confirmationCooldown = Date.now() + 3000
+            return
+        }
+        if (Date.now() < this.confirmationCooldown) return
 
         this.startButton.visable = false
         Player.getContainer().click(13, false, "MIDDLE")
@@ -106,6 +124,10 @@ class DungeonReadyGui {
         this.nameToId = {}
         this.nextId = 0
         this.closeMenu = 0
+
+        this.startButton.setText("§0Start Dungeon")
+        this.startButton.desc.setText("")
+        this.confirmationCooldown = 0
 
         this.readyBoxes.forEach(b => {
             b.visable = false
@@ -153,7 +175,8 @@ class DungeonReadyGui {
                             } else {
                                 this.readyBoxes[boxId].setColor(255, 150, 150)
                             }
-                            this.readyBoxes[boxId].setDesc("§0" + Player.getContainer().getStackInSlot(3 + i).getLore()[1])
+                            this.readyBoxes[boxId].setLore(Player.getContainer().getStackInSlot(3 + i).getLore())
+                            this.readyBoxes[boxId].setDesc("§0" + ChatLib.removeFormatting(Player.getContainer().getStackInSlot(3 + i).getLore()[2]))
                         }
                     }
                 }
@@ -162,12 +185,25 @@ class DungeonReadyGui {
                 //select class buttons
                 if (Player.getContainer().getStackInSlot(2 + 4 * 9 + i)) {
                     if (Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getDamage() === 10) {
-                        this.currentPlayerClass = i
                         this.classBoxes[i].setColor(250, 255, 150)
                     } else {
                         this.classBoxes[i].setColor(253, 255, 227)
                     }
                     this.classBoxes[i].setText("§0" + Object.keys(this.classes)[i] + "§7 - " + ChatLib.removeFormatting(Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getName().split(" ")[0])).setLore(Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getLore())
+
+                    let isPlayerClass = false
+                    Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getLore().forEach(line => {
+                        if (!ChatLib.removeFormatting(line).startsWith(" - ")) return
+
+                        if (ChatLib.removeFormatting(line.split(" ").pop()) === Player.getName()) {
+                            isPlayerClass = true
+                        }
+                    })
+
+                    if (isPlayerClass) {
+                        this.currentPlayerClass = i
+                        this.classBoxes[i].setColor(150, 255, 150)
+                    }
                 } else {
                     clickingClassButton = i
                 }
@@ -177,6 +213,10 @@ class DungeonReadyGui {
                 this.classBoxes[clickingClassButton].setColor(150, 150, 150)
                 if (this.currentPlayerClass !== -1) this.classBoxes[this.currentPlayerClass].setColor(253, 255, 227)
             }
+        }
+
+        if (this.confirmationCooldown) {
+            this.startButton.setText("§0Confirm starting Dungeon? (" + Math.ceil(Math.max(0, this.confirmationCooldown - Date.now()) / 1000) + "s)")
         }
 
         World.getAllPlayers().filter(p => p.getPing() === 1).forEach(p => {

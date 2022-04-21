@@ -106,6 +106,14 @@ class Hud extends Feature {
                 .editTempText("&6Soulflow&7> &f12,345"))
         this.hudElements.push(this.soulflowElement)
 
+        this.lagEnabled = new ToggleSetting("Show Lobby TPS", "Calculates the TPS of your current lobby (20=no lag)", true, "lobby_lag", this)
+        this.lagElement = new HudTextElement()
+            .setToggleSetting(this.lagEnabled)
+            .setLocationSetting(new LocationSetting("Lobby TPS Location", "Allows you to edit the location of the TPS", "lobby_lag_location", this, [10, 70, 1, 1])
+                .requires(this.lagEnabled)
+                .editTempText("&6Tps&7> &f20.0"))
+        this.hudElements.push(this.lagElement)
+
         this.witherImpactCooldownSetting = new ToggleSetting("Show Wither Impact Cooldown", "This will render a small cooldown above your crosshair", true, "wither_impact_cooldown_enabled", this)
 
         this.guidedSheepCooldownSetting = new ToggleSetting("Show Guided Sheep / Explosive Shot Cooldown", "This will render a small cooldown below your crosshair", true, "guided_sheep_cooldown_enabled", this)
@@ -262,6 +270,41 @@ class Hud extends Feature {
         })
 
         this.registerActionBar("${m}", this.actionbarMessage)
+
+        this.registerCustom("packetReceived", this.packetReceived)
+
+        this.packetMoves = 0
+        this.secondPackets = 0
+        this.tps = -1
+        this.lastTps = []
+        this.registerEvent("tick", this.tick)
+        this.registerStep(false, 1, this.step_1second)
+    }
+
+    packetReceived(packet) {
+        this.packetMoves++
+    }
+
+    step_1second() {
+        if (!this.lagEnabled.getValue()) return
+        this.lastTps.push(this.secondPackets)
+        if (this.lastTps.length > 10) this.lastTps.shift()
+        this.tps = this.lastTps.reduce((a, b) => a + b, 0) / this.lastTps.length
+        this.secondPackets = 0
+
+        if (this.lastTps.length > 1) {
+            this.lagElement.setText("&6Tps&7> &f" + Math.min(20, this.tps).toFixed(1))
+        } else {
+            this.lagElement.setText("&6Tps&7> &fLOADING")
+        }
+    }
+
+    tick() {
+        if (!this.lagEnabled.getValue()) return
+        if (this.packetMoves > 0) {
+            this.secondPackets++
+            this.packetMoves = 0
+        }
     }
 
     onDisable() {
@@ -620,6 +663,11 @@ class Hud extends Feature {
 
     worldLoad() {
         this.lastUpdatedStatData = 0
+        this.packetMoves = 0
+        this.secondPackets = 0
+        this.tps = -1
+        this.lastTps = []
+        this.lagElement.setText("&6Tps&7> &fLOADING")
     }
 }
 

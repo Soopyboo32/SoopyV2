@@ -112,6 +112,12 @@ class BetterGuis extends Feature {
         this.registerEvent("worldLoad", () => {
             this.dungeonReady.reset()
         })
+        this.registerChat("&e${*} &r&cThe Catacombs &r&ewith &r&9${players}/5 players &r&eon &r${*}&r", (players) => {
+            if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.joinedDungeon.call(this.dungeonReady, ~~players)
+        })
+        this.registerChat("&eSkyBlock Dungeon Warp &r&7(${players} players)&r", (players) => {
+            if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.joinedDungeon.call(this.dungeonReady, ~~players)
+        })
         this.registerStep(true, 10, this.step)
         this.registerEvent("worldUnload", () => { this.museumGui.saveMuseumCache.call(this.museumGui) })
         this.registerStep(false, 30, () => { this.museumGui.saveMuseumCache.call(this.museumGui) })

@@ -15,6 +15,7 @@ import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import ImageLocationSetting from "../settings/settingThings/imageLocation";
 import socketConnection from "../../socketConnection";
 import SoopyKeyPressEvent from "../../../guimanager/EventListener/SoopyKeyPressEvent";
+import SettingBase from "../settings/settingThings/settingBase";
 const BufferedImage = Java.type("java.awt.image.BufferedImage")
 const AlphaComposite = Java.type("java.awt.AlphaComposite")
 
@@ -30,6 +31,7 @@ class DungeonMap extends Feature {
     onEnable() {
         this.initVariables()
 
+        this.mapInfo = new SettingBase("NOTE: The more players in the party with this", "category enabled the more accurate the map will be.", undefined, "map_info", this)
         this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud", false, "dmap_render", this)
         this.mapLocation = new ImageLocationSetting("Map Location", "Sets the location of the map on the hud", "dmap_location", this, [10, 10, 1], new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/map.png"))), 100, 100).requires(this.renderMap)
         this.mapBackground = new ToggleSetting("Map Background And Border", "Puts a grey background behind the map + Black border", true, "dmap_background", this)

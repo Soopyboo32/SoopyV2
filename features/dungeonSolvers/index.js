@@ -172,6 +172,7 @@ class DungeonSolvers extends Feature {
 
 		this.bloodOpenedBonus = false;
 		this.goneInBonus = false;
+		this.mimicDead = false
 		this.registerChat("&r&cThe &r&c&lBLOOD DOOR&r&c has been opened!&r", () => {
 			this.bloodOpenedBonus = true;
 			this.goneInBonus = true;
@@ -186,6 +187,21 @@ class DungeonSolvers extends Feature {
 				this.goneInBonus = false;
 				this.bloodOpenedBonus = false;
 			});
+		})
+		this.registerEvent("entityDeath", (entity) => {
+			if (entity.getClassName() === "EntityZombie") {
+				if (entity.getEntity().func_70631_g_()) {
+					if (entity.getEntity().func_82169_q(0) === null && entity.getEntity().func_82169_q(1) === null && entity.getEntity().func_82169_q(2) === null && entity.getEntity().func_82169_q(3) === null) {
+						this.mimicDead = true
+					}
+				}
+			}
+		})
+		let mimicDeadMessages = ["$SKYTILS-DUNGEON-SCORE-MIMIC$", "Mimic Killed!", "Mimic Dead!", "Mimic dead!"]
+		this.registerChat("&r&9Party &8> ${msg}", (msg) => {
+			mimicDeadMessages.forEach(dmsg => {
+				if (msg.includes(dmsg)) this.mimicDead = true
+			})
 		})
 
 		this.registerChat("&r&aDungeon starts in 1 second.&r", () => {
@@ -261,7 +277,6 @@ class DungeonSolvers extends Feature {
 		let currentSecretsFound = parseInt(this.FeatureManager.features["dataLoader"].class.stats["Secrets Found"]);
 		let currentSecretPercent = parseFloat(this.FeatureManager.features["dataLoader"].class.stats["Secrets Found%"].replace("%", "")) / 100;
 
-		let mimicKilled = false; //TODO: this
 		let crypts = parseInt(this.FeatureManager.features["dataLoader"].class.stats["Crypts"]);
 
 		let ezpz = false;
@@ -285,7 +300,7 @@ class DungeonSolvers extends Feature {
 		} else {
 			speedScore = 0;
 		}
-		let bonus = Math.min(5, crypts) + mimicKilled * 2 + ezpz * 10;
+		let bonus = Math.min(5, crypts) + this.mimicDead * 2 + ezpz * 10;
 
 		//Calculating secrets for s/s+
 
@@ -293,7 +308,7 @@ class DungeonSolvers extends Feature {
 		let hypotheticalSpeedScore = speedScore
 
 		//Calculating for S
-		let hypotheticalBonusScoreS = Math.min(5, crypts) + mimicKilled * 2 + ezpz * 10;
+		let hypotheticalBonusScoreS = Math.min(5, crypts) + this.mimicDead * 2 + ezpz * 10;
 
 		let sNeededSecrets = Math.min(maxSecrets * secretPercentRequired, Math.ceil((270 - hypotheticalSkillScore - hypotheticalBonusScoreS - hypotheticalSpeedScore - 60) * maxSecrets * secretPercentRequired / 40));
 
@@ -302,13 +317,13 @@ class DungeonSolvers extends Feature {
 		let hypotheticalScoreGottenS = hypotheticalSkillScore + hypotheticalSpeedScore + hypotheticalBonusScoreS + 60 + Math.floor(Math.min(40, (40 * sNeededSecrets) / secretPercentRequired / maxSecrets));
 		let sCryptsNeeded = Math.max(crypts, Math.min(5, (270 - hypotheticalScoreGottenS)))
 		hypotheticalScoreGottenS -= hypotheticalBonusScoreS
-		hypotheticalBonusScoreS = sCryptsNeeded + mimicKilled * 2 + ezpz * 10
+		hypotheticalBonusScoreS = sCryptsNeeded + this.mimicDead * 2 + ezpz * 10
 		hypotheticalScoreGottenS += hypotheticalBonusScoreS
 
 		let sPossible = hypotheticalScoreGottenS >= 270
 
 		//Calculating for S+
-		let hypotheticalBonusScoreSplus = 5 + mimicKilled * 2 + ezpz * 10;
+		let hypotheticalBonusScoreSplus = 5 + this.mimicDead * 2 + ezpz * 10;
 
 		let splusNeededSecrets = Math.ceil((300 - hypotheticalSkillScore - hypotheticalBonusScoreSplus - hypotheticalSpeedScore - 60) * maxSecrets * secretPercentRequired / 40);
 
@@ -319,7 +334,7 @@ class DungeonSolvers extends Feature {
 		let hypotheticalScoreGottenSPlus = hypotheticalSkillScore + hypotheticalSpeedScore + hypotheticalBonusScoreSplus + 60 + Math.floor(Math.min(40, (40 * splusNeededSecrets) / secretPercentRequired / maxSecrets));
 		let splusCryptsNeeded = Math.max(crypts, 5 - (hypotheticalScoreGottenSPlus - 300))
 		hypotheticalScoreGottenSPlus -= hypotheticalBonusScoreSplus
-		hypotheticalBonusScoreSplus = splusCryptsNeeded + mimicKilled * 2 + ezpz * 10
+		hypotheticalBonusScoreSplus = splusCryptsNeeded + this.mimicDead * 2 + ezpz * 10
 		hypotheticalScoreGottenSPlus += hypotheticalBonusScoreSplus
 
 		//Setting hud element
@@ -461,6 +476,7 @@ class DungeonSolvers extends Feature {
 	onWorldLoad() {
 		this.goneInBonus = false;
 		this.bloodOpenedBonus = false;
+		this.mimicDead = false
 		this.lividData.correctLividColor = undefined;
 		this.lividData.correctLividColorHP = undefined;
 		this.lividData.sayLividColors = [];

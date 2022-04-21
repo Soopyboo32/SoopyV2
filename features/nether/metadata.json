@@ -1,0 +1,8 @@
+{
+    "name": "Nether",
+    "description": "Nether features",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}

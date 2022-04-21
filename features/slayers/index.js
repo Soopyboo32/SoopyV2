@@ -206,7 +206,8 @@ class Slayers extends Feature {
 					tarantula: "spider",
 					sven: "wolf",
 					voidgloom: "enderman",
-				};
+					inferno: "blaze"
+				}
 				this.lastSlayerType = slayerStrToType[slayerInfo.split(" ")[0].toLowerCase()];
 				//slayerExp[lastSlayerType] += lastSlayerExp
 			}
@@ -270,6 +271,14 @@ class Slayers extends Feature {
 						this.emanBoss = new Entity(e);
 						this.nextIsBoss = false;
 					}
+				}
+
+				if (e instanceof net.minecraft.entity.item.EntityArmorStand && e[m.getCustomNameTag]()) {
+					let name = e[m.getCustomNameTag]()
+					let isPiller = true
+					if (name.split(" ")[0].split("").pop() !== "s") isPiller = false
+					if (name.split(" ")[0].split("").pop() !== "s") isPiller = false
+					//TODO: thus
 				}
 			} catch (_) {
 				console.log(JSON.stringify(_, undefined, 2));
@@ -383,10 +392,11 @@ class Slayers extends Feature {
 		if (!isSoopyServer || !isLatest) return;
 		if (dataType !== "skyblock") return;
 
-		this.slayerExp.zombie = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].slayer.zombie.xp;
-		this.slayerExp.spider = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].slayer.spider.xp;
-		this.slayerExp.wolf = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].slayer.wolf.xp;
-		this.slayerExp.enderman = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].slayer.enderman.xp;
+		this.slayerExp.zombie = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].slayer.zombie?.xp;
+		this.slayerExp.spider = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].slayer.spider?.xp;
+		this.slayerExp.wolf = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].slayer.wolf?.xp;
+		this.slayerExp.enderman = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].slayer.enderman?.xp;
+		this.slayerExp.blaze = data.data.profiles[data.data.stats.currentProfileId].members[Player.getUUID().replace(/-/g, "")].slayer.blaze?.xp;
 	}
 
 	renderOverlay() {
