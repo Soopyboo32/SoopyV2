@@ -276,9 +276,13 @@ class Slayers extends Feature {
 				// if (e instanceof net.minecraft.entity.item.EntityArmorStand && e[m.getCustomNameTag]()) {
 				// 	let name = e[m.getCustomNameTag]()
 				// 	let isPiller = true
-				// 	if (name.split(" ")[0].split("").pop() !== "s") isPiller = false
-				// 	if (name.split(" ")[0].split("").pop() !== "s") isPiller = false
+				// 	if (isPiller && name.trim().split(" ").length !== 2) isPiller = false
+				// 	if (isPiller && name.trim().split(" ")[0].split("").pop() !== "s") isPiller = false
+				// 	if (isPiller && name.trim().split(" ")[1].split("").pop() !== "s") isPiller = false
 				// 	//TODO: thus
+				// 	if (isPiller) {
+				// 		ChatLib.chat(name)
+				// 	}
 				// }
 			} catch (_) {
 				console.log(JSON.stringify(_, undefined, 2));

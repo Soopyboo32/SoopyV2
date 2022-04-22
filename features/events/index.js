@@ -1,11 +1,9 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import { f } from "../../../mappings/mappings";
-import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
-import { calculateDistance, calculateDistanceQuick, fastestPathThrough } from "../../utils/utils";
-import HudTextElement from "../hud/HudTextElement";
-import LocationSetting from "../settings/settingThings/location";
+import { drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
+import { calculateDistanceQuick } from "../../utils/utils";
+import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
 
 class Events extends Feature {
@@ -13,7 +11,7 @@ class Events extends Feature {
         super()
     }
 
-    onEnable(){
+    onEnable() {
         this.initVariables()
 
         this.burrialData = {
@@ -21,8 +19,6 @@ class Events extends Feature {
             locations: [],
             historicalLocations: []
         }
-        this.lastRequestTime = 0
-        this.nextUpdateApprox = -1
         this.lastWorldChange = 0
         this.lastRequest = 0
         this.potentialParticleLocs = {}
@@ -33,61 +29,53 @@ class Events extends Feature {
         this.lastPathCords = undefined
 
 
-        this.burrialWaypointsEnabled = new ToggleSetting("Burrial waypoints", "Show waypoints for burrials during the diana event", true, "burrial_waypoints", this)
-        this.burrialWaypointsPath = new ToggleSetting("Pathfind waypoints", "Calculate a path thru all the waypoints", true, "burrial_waypoints_path", this).requires(this.burrialWaypointsEnabled)
-        this.onlyShowPath = new ToggleSetting("Only show waypoint path", "For if u want to use other mod waypoints + soopy path", false, "burrial_waypoints_only_path", this).requires(this.burrialWaypointsPath)
-        this.burrialWaypointsNearest = new ToggleSetting("Show nearest using pathfinding", "Use pathfinding to highlight the next burrial instead of disance", true, "burrial_nearest_path", this).requires(this.burrialWaypointsEnabled)
-        this.loadFromParticles = new ToggleSetting("Load burrials from particles", "Will load particles from burrows in the world", true, "burrial_from_partles", this).requires(this.burrialWaypointsEnabled)
-
-        this.updateTimerEnabled = new ToggleSetting("Show API update timer", "Shows a countdown till the burrial waypoints will be next updated", true, "burrial_timer", this).requires(this.burrialWaypointsEnabled)
-        this.updateTimer = new HudTextElement()
-            .setToggleSetting(this.updateTimerEnabled)
-            .setLocationSetting(new LocationSetting("Timer Location", "Allows you to edit the location of the timer", "burrial_timer_location", this, [10, 50, 1, 1])
-                .requires(this.burrialWaypointsEnabled)
-                .editTempText("&6Update&7> &f100s"))
-        this.hudElements.push(this.updateTimer)
+        this.loadFromParticles = new ToggleSetting("Load burrials from particles", "Will load particles from burrows in the world", true, "burrial_from_partles", this)
+        this.showBurrialGuess = new ToggleSetting("Estimate burrial location from ability", "Will show a line + box where it thinks the burrial is", true, "burrial_guess", this)
+        new SettingBase("NOTE: You must have music disabled for burrial guessess to work", "/togglemusic", false, "burrial_guess_into", this).requires(this.showBurrialGuess)
 
         this.shinyBlocks = []
-    
+
+        this.lastDing = 0
+        this.lastDingPitch = 0
+        this.firstPitch = 0
+        this.lastParticlePoint = undefined
+        this.particlePoint = undefined
+        this.guessPoint1 = undefined
+        this.guessPoint = undefined
+        this.guessPoint2 = undefined
+        this.dingIndex = 0
+
         this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
-        
+
         this.registerEvent("worldLoad", this.worldLoad)
         this.registerEvent("spawnParticle", this.spawnParticle)
         this.registerEvent("renderWorld", this.renderWorld)
         this.registerEvent("renderOverlay", this.renderOverlay)
         this.registerStep(true, 2, this.step)
         this.registerStep(false, 5, this.step_5s)
-        this.registerSoopy("apiLoad", this.apiLoad)
+
+        this.registerEvent("soundPlay", this.playSound)
 
         this.registerChat("&r&eYou dug out a Griffin Burrow! &r&7(${*}/4)&r", this.burrialClicked)
         this.registerChat("&r&eYou finished the Griffin burrow chain! &r&7(4/4)&r", this.burrialClicked)
     }
 
-    renderOverlay(){
-        for(let element of this.hudElements){
+    renderOverlay() {
+        for (let element of this.hudElements) {
             element.render()
         }
     }
 
-    renderWorld(ticks){
-        this.shinyBlocks.forEach(([loc])=>{
-            drawBoxAtBlockNotVisThruWalls(loc[0], loc[1], loc[2], 0,255,0,0.1,0.1)
+    renderWorld(ticks) {
+        this.shinyBlocks.forEach(([loc]) => {
+            drawBoxAtBlockNotVisThruWalls(loc[0], loc[1], loc[2], 0, 255, 0, 0.1, 0.1)
         })
-        if(this.showingWaypoints && this.lastPathCords && this.burrialWaypointsPath.getValue()){
-            let startPoint = [Player.getPlayer()[f.lastTickPosX]+Player.getPlayer()[f.motionX.Entity]*ticks,
-                Player.getPlayer()[f.lastTickPosY]+Player.getPlayer()[f.motionY.Entity]*ticks,
-                Player.getPlayer()[f.lastTickPosZ]+Player.getPlayer()[f.motionZ.Entity]*ticks]
-    
-            let lastPoint = startPoint || [0,0,0]
-    
-            this.lastPathCords.forEach((point)=>{
-                drawLine(...lastPoint,...point,255,255,0)
-    
-                lastPoint = point
-            })
-        }	
-        if(this.showingWaypoints && !this.onlyShowPath.getValue()){
-            this.burrialData.locations.forEach((loc,i)=>{
+        if (this.showingWaypoints) {
+            if (this.guessPoint && this.showBurrialGuess.getValue()) {
+                drawCoolWaypoint(this.guessPoint[0] - 0.5, this.guessPoint[1] - 0.5, this.guessPoint[2] - 0.5, 0, 255, 0, { name: "Guess" })
+                drawLine(this.guessPoint1[0], this.guessPoint1[1], this.guessPoint1[2], this.guessPoint2[0], this.guessPoint2[1], this.guessPoint2[2], 0, 255, 0)
+            }
+            this.burrialData.locations.forEach((loc, i) => {
 
                 let typeReplace = [
                     "Start",
@@ -96,395 +84,284 @@ class Events extends Feature {
                     "Finish",
                     "Unknown"
                 ]
-                if(!loc.clicked){
+                if (!loc.clicked) {
                     blue = false
-                    if(loc.lastPing && Date.now()-loc.lastPing < 500){
+                    if (loc.lastPing && Date.now() - loc.lastPing < 500) {
                         blue = true
                     }
 
                     let name = ""
 
-                    if(loc.fromApi){
-                        name = (loc.nearest?"§c":"§a")+"(" + (loc.chain+1) + "/4) " + typeReplace[loc.type] + " burrial"
-                    }else{
-                        name = (loc.nearest?"§c":"§a")+typeReplace[loc.type] + " burrial"
+                    if (loc.fromApi) {
+                        name = (loc.nearest ? "§c" : "§a") + "(" + (loc.chain + 1) + "/4) " + typeReplace[loc.type] + " burrial"
+                    } else {
+                        name = (loc.nearest ? "§c" : "§a") + typeReplace[loc.type] + " burrial"
                     }
 
-                    drawCoolWaypoint(loc.x, loc.y,loc.z,0,blue?100:255,blue?255:0, {name: name})
+                    drawCoolWaypoint(loc.x, loc.y, loc.z, 0, blue ? 100 : 255, blue ? 255 : 0, { name: name })
                 }
             })
         }
     }
 
-    sortBurrialLocations(){
+    sortBurrialLocations() {
         let sorted = [...this.burrialData.locations]
-        sorted.sort((a,b)=>{
-            let aDist = calculateDistanceQuick([Player.getX(),Player.getY(),Player.getZ()],[a.x+0.5,a.y+2.5,a.z+0.5])
-            let bDist = calculateDistanceQuick([Player.getX(),Player.getY(),Player.getZ()],[b.x+0.5,b.y+2.5,b.z+0.5])
+        sorted.sort((a, b) => {
+            let aDist = calculateDistanceQuick([Player.getX(), Player.getY(), Player.getZ()], [a.x + 0.5, a.y + 2.5, a.z + 0.5])
+            let bDist = calculateDistanceQuick([Player.getX(), Player.getY(), Player.getZ()], [b.x + 0.5, b.y + 2.5, b.z + 0.5])
 
-            return bDist-aDist
+            return bDist - aDist
         })
         this.burrialData.locations = sorted
     }
 
-    step(){
-        if(!Player.getInventory()) return
-        
+    step() {
+        if (!Player.getInventory()) return
+
         hasDianaShovle = false
         let slots = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-        slots.forEach(a=>{
+        slots.forEach(a => {
             item = Player.getInventory().getStackInSlot(a)
-            if(!item) return
-            if(ChatLib.removeFormatting(item.getName()) === "Ancestral Spade"){
+            if (!item) return
+            if (ChatLib.removeFormatting(item.getName()) === "Ancestral Spade") {
                 hasDianaShovle = true
             }
         })
 
-        let showingWaypointsNew = (this.lastWorldChange+5000<Date.now()?hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.burrialWaypointsEnabled.getValue():this.showingWaypoints || (hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.burrialWaypointsEnabled.getValue()))
-
-        if(!this.showingWaypoints && showingWaypointsNew){
-            this.loadApi()
-        }else if(showingWaypointsNew){
-            if(Date.now()-this.nextUpdateApprox > 0 && this.nextUpdateApprox > 0 && Date.now()-this.lastRequest>5000){
-                this.nextUpdateApprox = -2
-                this.loadApi()
-            }
-        }
+        let showingWaypointsNew = (this.lastWorldChange + 5000 < Date.now() ? hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.loadFromParticles.getValue() : this.showingWaypoints || (hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.loadFromParticles.getValue()))
 
         this.showingWaypoints = showingWaypointsNew
 
-        if(this.showingWaypoints){
-
-            this.updateTimer.setText("&6Update&7> &f" + (this.nextUpdateApprox===-1?"Updating...":(this.nextUpdateApprox===-2?"Loading...":Math.ceil((this.nextUpdateApprox-Date.now())/1000) + "s")))
-        }else{
-            this.updateTimer.setText("")
-        }
-
-        this.shinyBlocks = this.shinyBlocks.filter(([loc, time])=>{
-            return time > Date.now()-5000
+        this.shinyBlocks = this.shinyBlocks.filter(([loc, time]) => {
+            return time > Date.now() - 5000
         })
 
+        if (this.showBurrialGuess.getValue() && Date.now() - this.lastDing > 500 && Date.now() - this.lastDing < 100000) {
+            // console.log(this.firstPitch, this.lastDingPitch, this.lastDingPitch / this.firstPitch)
+            this.lastDing = 0
+
+            let distance1 = 142.837 / ((this.lastDingPitch / this.firstPitch) - 0.984354) - 57.1417
+            let distance = 142.837 / ((this.lastDingPitch / this.firstPitch + 0.025) - 0.984354) - 57.1417
+            let distance2 = 142.837 / ((this.lastDingPitch / this.firstPitch + 0.05) - 0.984354) - 67.1417
+
+
+            // this.lastParticlePoint = undefined
+            // this.particlePoint = undefined
+            let lineDist = Math.hypot(this.lastParticlePoint[0] - this.particlePoint[0], this.lastParticlePoint[1] - this.particlePoint[1], this.lastParticlePoint[2] - this.particlePoint[2])
+            let changes = [this.particlePoint[0] - this.lastParticlePoint[0], this.particlePoint[1] - this.lastParticlePoint[1], this.particlePoint[2] - this.lastParticlePoint[2]]
+            changes = changes.map(a => a / lineDist)
+
+            let finalPoint1 = [this.particlePoint[0] + changes[0] * distance1, this.particlePoint[1] + changes[1] * distance1, this.particlePoint[2] + changes[2] * distance1]
+            this.guessPoint1 = finalPoint1
+            let finalPoint = [this.particlePoint[0] + changes[0] * distance, this.particlePoint[1] + changes[1] * distance, this.particlePoint[2] + changes[2] * distance]
+            this.guessPoint = finalPoint
+            let finalPoint2 = [this.particlePoint[0] + changes[0] * distance2, this.particlePoint[1] + changes[1] * distance2, this.particlePoint[2] + changes[2] * distance2]
+            this.guessPoint2 = finalPoint2
+
+            Client.showTitle("&cGo!", "", 0, 20, 20)
+        }
     }
 
-    step_5s(){
-        if(this.showingWaypoints){
-            if(this.burrialWaypointsPath.getValue() || this.burrialWaypointsNearest.getValue()){
-                new Thread(()=>{
-                    this.updateBurrialPath()
-                }).start()
-            }
-        }
+    step_5s() {
         this.sortBurrialLocations()
-
-        if(this.nextUpdateApprox === -2){
-            this.loadApi()
-        }
     }
 
-    worldLoad(){
+    worldLoad() {
         this.burrialData.points = []
         this.burrialData.locations = []
         this.burrialData.historicalLocations = []
-        this.lastRequestTime = 0
-        
+        this.lastDing = 0
+        this.lastDingPitch = 0
+        this.firstPitch = 0
+        this.lastParticlePoint = undefined
+        this.particlePoint = undefined
+        this.guessPoint1 = undefined
+        this.guessPoint = undefined
+        this.guessPoint2 = undefined
+        this.dingIndex = 0
+
         this.lastPath = undefined
         this.lastPathCords = undefined
-
-        this.nextUpdateApprox = Date.now()
 
         this.lastWorldChange = Date.now()
     }
 
-    loadApi(){
-        this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
+    playSound(pos, name, volume, pitch, categoryName, event) {
+        if (!this.showBurrialGuess.getValue()) return
+        // if (pos.getX() === Math.floor(Player.getX() * 8) / 8 && pos.getZ() === Math.floor(Player.getZ() * 8) / 8) return
+        if (name !== "note.harp") return
+        if (this.lastDing === 0) {
+            this.firstPitch = pitch
+        }
+        this.lastDing = Date.now()
+        this.lastDingPitch = pitch
     }
 
-    apiLoad(data, dataType, isSoopyServer, isLatest){ 
-        if(isSoopyServer || dataType !== "skyblock" || !isLatest) return
-		this.lastRequest = Date.now()
-
-        let profileData = data.profiles[0].members[Player.getUUID().toString().replace(/-/g,"")]
-
-        data.profiles.forEach((prof)=>{
-            if((prof.members[Player.getUUID().toString().replace(/-/g,"")].last_save || 0) > (profileData.last_save || 0)){
-                profileData = prof.members[Player.getUUID().toString().replace(/-/g,"")]
+    spawnParticle(particle, type, event) {
+        if (this.showBurrialGuess.getValue() && particle.toString().startsWith("SparkFX,")) {
+            let run = false
+            if (Math.abs(particle.getX() - Player.getX()) < 3 && Math.abs(particle.getY() - Player.getY()) < 3 && Math.abs(particle.getZ() - Player.getZ()) < 3) {
+                run = true
             }
-        })
-        this.nextUpdateApprox = profileData.last_save+173000
-        this.nextUpdateApprox += 2000 //incase ur pc time is behind
-        if(profileData.last_save === this.lastRequestTime){
-            return
+            if (this.particlePoint && !run && Math.abs(particle.getX() - this.particlePoint[0]) < 2 && Math.abs(particle.getY() - this.particlePoint[1]) < 0.5 && Math.abs(particle.getZ() - this.particlePoint[2]) < 2) {
+                run = true
+            }
+            if (run) {
+                this.lastParticlePoint = this.particlePoint
+                this.particlePoint = [particle.getX(), particle.getY(), particle.getZ()]
+                Client.showTitle("&cStand still...", "", 0, 20, 20)
+            }
         }
-        this.lastRequestTime = profileData.last_save
-        
-        let locsAccessed = []
-        let newLocs = []
-        if(!profileData.griffin) return
-        
-        profileData.griffin.burrows.forEach((burrow)=>{
-            let pushed = false
-            this.burrialData.locations.forEach((loc, i)=>{
-                if((loc.fromApi || loc.clicked) && loc.x + "," + loc.y + "," + loc.z === burrow.x + "," + burrow.y + "," + burrow.z){
-                    newLocs.push(loc)
-                    pushed = true
-                    locsAccessed.push(i)
-                }
-            })
-            this.burrialData.historicalLocations.forEach((loc)=>{
-                if(loc.x + "," + loc.y + "," + loc.z === burrow.x + "," + burrow.y + "," + burrow.z){
-                    pushed = true
-                }
-            })
-            if(!pushed){
-                burrow.clicked = false
-                burrow.fromApi = true
-                newLocs.push(burrow)
-            }
-        })
-        
-        this.burrialData.locations.forEach((loc)=>{
-            if(!loc.fromApi){
-                let found = false
-                newLocs.forEach((burrow)=>{
-                    if(loc.x + "," + loc.y + "," + loc.z === burrow.x + "," + burrow.y + "," + burrow.z){
-                        found = true
-                    }
-                })
-
-                if(!found){
-                    newLocs.push(loc)
-                }
-            }
-        })
-
-        this.burrialData.locations = newLocs
-        if(this.showingWaypoints){
-            this.sortBurrialLocations()
-            this.updateBurrialPath()
-        }
-    }
-
-    
-    spawnParticle(particle, type, event){
-        if(this.shinyBlockOverlayEnabled.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "The End"){
-            if(particle.toString().startsWith("EntitySpellParticleFX,")){
-                if(particle.getUnderlyingEntity().func_70534_d()===particle.getUnderlyingEntity().func_70535_g()){
+        if (this.shinyBlockOverlayEnabled.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "The End") {
+            if (particle.toString().startsWith("EntitySpellParticleFX,")) {
+                if (particle.getUnderlyingEntity().func_70534_d() === particle.getUnderlyingEntity().func_70535_g()) {
                     let arr = [particle.getX(), particle.getY(), particle.getZ()]
-                    if(arr.map(a=>Math.abs(a%1)).includes(0.25) || arr.map(a=>Math.abs(a%1)).includes(0.75)){
+                    if (arr.map(a => Math.abs(a % 1)).includes(0.25) || arr.map(a => Math.abs(a % 1)).includes(0.75)) {
                         this.shinyBlocks.push([[particle.getX(), particle.getY(), particle.getZ()], Date.now()])
                     }
                 }
             }
         }
-        if(this.showingWaypoints && this.loadFromParticles.getValue()){
+        if (this.showingWaypoints && this.loadFromParticles.getValue()) {
             let foundEnchant = false
             let foundCrit = false
             let foundStep = false
             let isMob = undefined
 
-            if(particle.toString().startsWith('EntityEnchantmentTableParticleFX, ')){
+            if (particle.toString().startsWith('EntityEnchantmentTableParticleFX, ')) {
                 foundEnchant = true
             }
-            else if(particle.toString().startsWith('EntityCrit2FX, ')){
+            else if (particle.toString().startsWith('EntityCrit2FX, ')) {
                 foundCrit = true
-                
+
                 isMob = particle.getUnderlyingEntity().func_70534_d() > 0.5 //mob)
             }
-            else if(particle.toString().startsWith('EntityFootStepFX, ')){
+            else if (particle.toString().startsWith('EntityFootStepFX, ')) {
                 foundStep = true
             }
-            else if(particle.toString().startsWith('EntityCritFX, ')){
-                
-                let locstr = Math.floor(particle.getX()) + "," + Math.floor(particle.getY()-1) + "," + Math.floor(particle.getZ())
+            else if (particle.toString().startsWith('EntityCritFX, ')) {
+
+                let locstr = Math.floor(particle.getX()) + "," + Math.floor(particle.getY() - 1) + "," + Math.floor(particle.getZ())
 
                 let removed = false
-                this.burrialData.locations.filter((loc, i)=>{
-                    if(!loc.clicked && loc.x + "," + loc.y + "," + loc.z === locstr){
+                this.burrialData.locations.filter((loc, i) => {
+                    if (!loc.clicked && loc.x + "," + loc.y + "," + loc.z === locstr) {
                         loc.clicked = true
                         removed = true
-                        
+
                         this.lastPathCords.shift()
                     }
                 })
-                if(!removed) return;
-                this.burrialData.locations = this.burrialData.locations.filter(a=>{
-                    if(!a.clicked) return true
-                    if(calculateDistanceQuick([a.x,a.y,a.z],[Player.getX(),Player.getY(),Player.getZ()]) < 15*15) return true;
-            
+                if (!removed) return;
+                this.burrialData.locations = this.burrialData.locations.filter(a => {
+                    if (!a.clicked) return true
+                    if (calculateDistanceQuick([a.x, a.y, a.z], [Player.getX(), Player.getY(), Player.getZ()]) < 15 * 15) return true;
+
                     this.burrialData.historicalLocations.unshift(a)
-            
+
                     return false
                 })
-                if(this.burrialData.historicalLocations.length > 10) this.burrialData.historicalLocations.pop()
+                if (this.burrialData.historicalLocations.length > 10) this.burrialData.historicalLocations.pop()
 
                 return;
             }
 
-            if(!foundEnchant && !foundCrit && !foundStep) return;
+            if (!foundEnchant && !foundCrit && !foundStep) return;
 
-            let locstr = Math.floor(particle.getX()) + "," + Math.floor(particle.getY()-1) + "," + Math.floor(particle.getZ())
-            let locarr = [Math.floor(particle.getX()), Math.floor(particle.getY()-1), Math.floor(particle.getZ())]
+            let locstr = Math.floor(particle.getX()) + "," + Math.floor(particle.getY() - 1) + "," + Math.floor(particle.getZ())
+            let locarr = [Math.floor(particle.getX()), Math.floor(particle.getY() - 1), Math.floor(particle.getZ())]
 
             let found = false
 
-            this.burrialData.locations.forEach((loc)=>{
-                if(loc.x + "," + loc.y + "," + loc.z === locstr){
+            this.burrialData.locations.forEach((loc) => {
+                if (loc.x + "," + loc.y + "," + loc.z === locstr) {
                     found = true
                     loc.lastPing = Date.now()
                 }
-                if((loc.x+1) + "," + loc.y + "," + loc.z === locstr){
+                if ((loc.x + 1) + "," + loc.y + "," + loc.z === locstr) {
                     found = true
                     loc.lastPing = Date.now()
                 }
-                if((loc.x-1) + "," + loc.y + "," + loc.z === locstr){
+                if ((loc.x - 1) + "," + loc.y + "," + loc.z === locstr) {
                     found = true
                     loc.lastPing = Date.now()
                 }
-                if(loc.x + "," + loc.y + "," + (loc.z+1) === locstr){
+                if (loc.x + "," + loc.y + "," + (loc.z + 1) === locstr) {
                     found = true
                     loc.lastPing = Date.now()
                 }
-                if(loc.x + "," + loc.y + "," + (loc.z-1) === locstr){
+                if (loc.x + "," + loc.y + "," + (loc.z - 1) === locstr) {
                     found = true
                     loc.lastPing = Date.now()
                 }
             })
-            if(this.burrialData.historicalLocations){
-                this.burrialData.historicalLocations.forEach((loc)=>{
-                    if(loc.x + "," + loc.y + "," + loc.z === locstr){
+            if (this.burrialData.historicalLocations) {
+                this.burrialData.historicalLocations.forEach((loc) => {
+                    if (loc.x + "," + loc.y + "," + loc.z === locstr) {
                         found = true
                     }
                 })
             }
 
-            if(found) return;
+            if (found) return;
 
 
-            if (!this.potentialParticleLocs[locstr])this.potentialParticleLocs[locstr] = {enchant: 0, crit: 0, step: 0, isMob: 0, timestamp: Date.now()}
+            if (!this.potentialParticleLocs[locstr]) this.potentialParticleLocs[locstr] = { enchant: 0, crit: 0, step: 0, isMob: 0, timestamp: Date.now() }
 
-            if(foundEnchant) this.potentialParticleLocs[locstr].enchant++
-            if(foundCrit) this.potentialParticleLocs[locstr].crit++
-            if(foundStep) this.potentialParticleLocs[locstr].step++
-            if(foundCrit && isMob) this.potentialParticleLocs[locstr].isMob++
-            if(foundCrit && !isMob) this.potentialParticleLocs[locstr].isMob--
+            if (foundEnchant) this.potentialParticleLocs[locstr].enchant++
+            if (foundCrit) this.potentialParticleLocs[locstr].crit++
+            if (foundStep) this.potentialParticleLocs[locstr].step++
+            if (foundCrit && isMob) this.potentialParticleLocs[locstr].isMob++
+            if (foundCrit && !isMob) this.potentialParticleLocs[locstr].isMob--
 
             this.potentialParticleLocs[locstr].timestamp = Date.now()
 
-            if(this.potentialParticleLocs[locstr].enchant > 4 && this.potentialParticleLocs[locstr].step > 10){
+            if (this.potentialParticleLocs[locstr].enchant > 1 && this.potentialParticleLocs[locstr].step > 3) {
                 this.burrialData.locations.push({
                     "x": locarr[0],
                     "y": locarr[1],
                     "z": locarr[2],
-                    "type": this.potentialParticleLocs[locstr].isMob > 1? 1:(this.potentialParticleLocs[locstr].crit > this.potentialParticleLocs[locstr].enchant/20?0:2),
+                    "type": this.potentialParticleLocs[locstr].isMob > 1 ? 1 : (this.potentialParticleLocs[locstr].crit > this.potentialParticleLocs[locstr].enchant / 20 ? 0 : 2),
                     "tier": -1,
                     "chain": -1,
                     "fromApi": false
                 })
-                new Thread(()=>{
-                    this.updateBurrialPath()
-                }).start()
+                World.playSound("note.pling", 100, 2)
             }
         }
     }
-    
-    burrialClicked(){
-        if(!this.showingWaypoints) return
+
+    burrialClicked() {
+        if (!this.showingWaypoints) return
 
         let nearestBurriali = undefined
         let nearestBurrialDist = Infinity
 
-        this.burrialData.locations.forEach((loc, i)=>{
+        this.burrialData.locations.forEach((loc, i) => {
             let dist = calculateDistanceQuick([loc.x, loc.y, loc.z], [Player.getX(), Player.getY(), Player.getZ()])
-            if(dist < nearestBurrialDist){
+            if (dist < nearestBurrialDist) {
                 nearestBurrialDist = dist
                 nearestBurriali = i
             }
         })
 
-        if(nearestBurriali === undefined) return;
+        if (nearestBurriali === undefined) return;
         this.burrialData.locations[nearestBurriali].clicked = true
 
-        this.burrialData.locations = this.burrialData.locations.filter(a=>{
-            if(!a.clicked) return true
-            if(calculateDistanceQuick([a.x,a.y,a.z],[Player.getX(),Player.getY(),Player.getZ()]) < 15*15) return true;
-    
+        this.burrialData.locations = this.burrialData.locations.filter(a => {
+            if (!a.clicked) return true
+            if (calculateDistanceQuick([a.x, a.y, a.z], [Player.getX(), Player.getY(), Player.getZ()]) < 15 * 15) return true;
+
             this.burrialData.historicalLocations.unshift(a)
-    
+
             return false
         })
-        if(this.burrialData.historicalLocations.length > 10) this.burrialData.historicalLocations.pop()
-        if(this.lastPathCords) this.lastPathCords.shift()
-        new Thread(()=>{
-            this.updateBurrialPath()
-        }).start()
-    }
-    updateBurrialPath(){
-        if(this.burrialWaypointsPath.getValue() || this.burrialWaypointsNearest.getValue()){
-            let startPoint = [Player.getX(),Player.getY(),Player.getZ()]
-    
-            let points = this.burrialData.locations.filter((a)=>{return !a.clicked}).map((a)=>{return [a.x+0.5,a.y+1.3,a.z+0.5]})
-    
-            if(points.length !== 0){
-    
-                if(points.length >= 10){
-                    this.lastPath = undefined
-                    this.lastPathCords = undefined
-                }else{
-                    this.lastPath = fastestPathThrough(startPoint,points)
-
-                    this.lastPathCords = []
-                    this.lastPath.forEach(a=>{
-                        this.lastPathCords.push(points[a])
-                    })
-                }
-                
-                if(this.lastPath.length === 0){
-                    this.lastPath = undefined
-                    this.lastPathCords = undefined
-                }
-    
-            }else{
-                this.lastPath = undefined
-                this.lastPathCords = undefined
-            }
-        }
-
-    
-        if(this.showingWaypoints){
-            if(this.burrialWaypointsNearest.getValue()){
-                let trueI = 0
-                this.burrialData.locations.forEach((loc,i)=>{
-                    if(!loc.clicked && trueI === this.lastPath[0]){
-                        this.burrialData.locations[i].nearest = true
-                    }else{
-                        this.burrialData.locations[i].nearest = false
-                    }
-        
-                    if(!loc.clicked) trueI++
-                })
-            }else{
-                let closestBurrialI = 0
-                let closestBurrialDist = Infinity
-        
-                this.burrialData.locations.forEach((loc,i)=>{
-                    let dist = calculateDistanceQuick([loc.x,loc.y,loc.z],[Player.getX(),Player.getY(),Player.getZ()])
-                    if(dist < closestBurrialDist){
-                        closestBurrialDist = dist
-                        closestBurrialI = i
-                    }
-                    this.burrialData.locations[i].nearest = false
-                })
-        
-                this.burrialData.locations[closestBurrialI].nearest = true
-            }
-        }
+        if (this.burrialData.historicalLocations.length > 10) this.burrialData.historicalLocations.pop()
+        if (this.lastPathCords) this.lastPathCords.shift()
     }
 
-    initVariables(){
+    initVariables() {
         this.burrialData = undefined
-        this.lastRequestTime = undefined
-        this.nextUpdateApprox = undefined
-        this.lastRequest = undefined
         this.potentialParticleLocs = undefined
         this.showingWaypoints = undefined
         this.lastPath = undefined
@@ -493,7 +370,7 @@ class Events extends Feature {
         this.lastPathCords = undefined
     }
 
-    onDisable(){
+    onDisable() {
         this.initVariables()
     }
 }

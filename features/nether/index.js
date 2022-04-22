@@ -2,6 +2,7 @@
 /// <reference lib="es2015" />
 import { m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
+import { drawBoxAtBlock } from "../../utils/renderUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 const MCBlock = Java.type("net.minecraft.block.Block");
 
@@ -24,29 +25,32 @@ class Nether extends Feature {
 	}
 
 	packetReceived(packet, event) {
+		if (!this.masteryTimer.getValue()) return
 		let packetType = new String(packet.class.getSimpleName()).valueOf()
-		if (packetType !== "S23PacketBlockChange") return;
-		let position = new BlockPos(packet[m.getBlockPosition.S23PacketBlockChange]())
-		let blockState = this.getBlockIdFromState(packet[m.getBlockState.S23PacketBlockChange]())
-		let oldBlockState = this.getBlockIdFromState(World.getBlockStateAt(position))
-		if (oldBlockState === 20515 && blockState === 16419) {
-			this.blocks.push({ loc: position, time: Date.now() + 3000 })
+		if (packetType === "S23PacketBlockChange") {
+			let position = new BlockPos(packet[m.getBlockPosition.S23PacketBlockChange]())
+			let blockState = this.getBlockIdFromState(packet[m.getBlockState.S23PacketBlockChange]())
+			let oldBlockState = this.getBlockIdFromState(World.getBlockStateAt(position))
+			if (oldBlockState === 20515 && blockState === 16419) {
+				this.blocks.push({ loc: position, time: Date.now() + 3000 })
+			}
+			if (blockState === 57379) {
+				this.blocks.filter(b => {
+					if (b.loc.x === position.x && b.loc.y === position.y && b.loc.z === position.z) {
+						return false
+					}
+					return true
+				})
+				//air=0
+				//green=20515
+				//yellow=16419
+				//red=57379
+			}
 		}
-		if (blockState === 57379) {
-			this.blocks.filter(b => {
-				if (b.loc.x === position.x && b.loc.y === position.y && b.loc.z === position.z) {
-					return false
-				}
-				return true
-			})
-		}
-		//air=0
-		//green=20515
-		//yellow=16419
-		//red=57379
 	}
 
 	renderWorld(event) {
+		if (!this.masteryTimer.getValue()) return
 		this.blocks.forEach(data => {
 			Tessellator.drawString(Math.max(0, (data.time - Date.now()) / 1000).toFixed(1) + "s", data.loc.getX() + 0.5, data.loc.getY() + 0.5, data.loc.getZ() + 0.5, 0, false, 0.05, false)
 		})
