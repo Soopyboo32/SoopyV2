@@ -158,7 +158,7 @@ class Events extends Feature {
             let finalPoint2 = [this.particlePoint[0] + changes[0] * distance2, this.particlePoint[1] + changes[1] * distance2, this.particlePoint[2] + changes[2] * distance2]
             this.guessPoint2 = finalPoint2
 
-            Client.showTitle("&cGo!", "", 0, 20, 20)
+            if (this.showingWaypoints) Client.showTitle("&cGo!", "", 0, 20, 20)
         }
     }
 
@@ -198,7 +198,7 @@ class Events extends Feature {
     }
 
     spawnParticle(particle, type, event) {
-        if (this.showBurrialGuess.getValue() && particle.toString().startsWith("SparkFX,")) {
+        if (this.showingWaypoints && this.showBurrialGuess.getValue() && particle.toString().startsWith("SparkFX,")) {
             let run = false
             if (Math.abs(particle.getX() - Player.getX()) < 3 && Math.abs(particle.getY() - Player.getY()) < 3 && Math.abs(particle.getZ() - Player.getZ()) < 3) {
                 run = true
