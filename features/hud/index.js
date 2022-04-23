@@ -275,7 +275,7 @@ class Hud extends Feature {
 
         this.packetMoves = 0
         this.secondPackets = 0
-        this.tps = -1
+        this.tps = -2
         this.lastTps = []
         this.registerEvent("tick", this.tick)
         this.registerStep(false, 1, this.step_1second)
@@ -289,6 +289,10 @@ class Hud extends Feature {
         if (!this.lagEnabled.getValue()) return
         this.lastTps.push(this.secondPackets)
         if (this.lastTps.length > 10) this.lastTps.shift()
+        if (this.tps === -2) {
+            this.tps = -1
+            this.lastTps = []
+        }
         this.tps = this.lastTps.reduce((a, b) => a + b, 0) / this.lastTps.length
         this.secondPackets = 0
 
@@ -665,7 +669,7 @@ class Hud extends Feature {
         this.lastUpdatedStatData = 0
         this.packetMoves = 0
         this.secondPackets = 0
-        this.tps = -1
+        this.tps = -2
         this.lastTps = []
         this.lagElement.setText("&6Tps&7> &fLOADING")
     }

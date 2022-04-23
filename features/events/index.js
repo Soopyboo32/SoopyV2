@@ -1,7 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import { drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
+import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
 import { calculateDistanceQuick } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
@@ -136,7 +136,7 @@ class Events extends Feature {
             return time > Date.now() - 5000
         })
 
-        if (this.showBurrialGuess.getValue() && Date.now() - this.lastDing > 500 && Date.now() - this.lastDing < 100000) {
+        if (this.lastParticlePoint && this.showBurrialGuess.getValue() && Date.now() - this.lastDing > 500 && Date.now() - this.lastDing < 100000) {
             // console.log(this.firstPitch, this.lastDingPitch, this.lastDingPitch / this.firstPitch)
             this.lastDing = 0
 
@@ -279,6 +279,22 @@ class Events extends Feature {
                     loc.lastPing = Date.now()
                 }
                 if ((loc.x + 1) + "," + loc.y + "," + loc.z === locstr) {
+                    found = true
+                    loc.lastPing = Date.now()
+                }
+                if ((loc.x + 1) + "," + (loc.y + 1) + "," + loc.z === locstr) {
+                    found = true
+                    loc.lastPing = Date.now()
+                }
+                if ((loc.x + 1) + "," + (loc.y - 1) + "," + loc.z === locstr) {
+                    found = true
+                    loc.lastPing = Date.now()
+                }
+                if ((loc.x - 1) + "," + (loc.y + 1) + "," + loc.z === locstr) {
+                    found = true
+                    loc.lastPing = Date.now()
+                }
+                if ((loc.x - 1) + "," + (loc.y - 1) + "," + loc.z === locstr) {
                     found = true
                     loc.lastPing = Date.now()
                 }

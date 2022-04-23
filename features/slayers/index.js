@@ -39,10 +39,16 @@ class Slayers extends Feature {
 
 		this.hudElements.push(this.slayerSpeedRatesElement);
 
+		this.blazeTowerDink = new ToggleSetting("DinkDonk & Box for blaze tower", "(the tower might not nessesarily belong to your boss though)", true, "blaze_tower_dinkdink", this);
+		this.slayerProgressAlert = new ToggleSetting("Shows slayer progress in middle of screen when close", "(blame dulkir)", false, "slayer_progress_alert", this);
+
 		this.lastSlayerFinishes = [];
 		this.lastSlayerExps = [];
 		this.slayerExp = {};
 		this.slayerExpLoaded = false;
+
+		this.slayerProgressAlertText = ""
+		this.slayerProgressAlertTime = 0
 
 		this.lastSlayerType = "";
 		this.lastSlayerExp = 0;
@@ -93,6 +99,8 @@ class Slayers extends Feature {
 		this.nextIsBoss = 0;
 		this.counter = 0;
 		this.emanStartedSittingTime = -1
+		this.pillerE = undefined
+		this.lastPillerDink = 0
 
 		this.entityAttackEventLoaded = false;
 		this.entityAttackEventE = undefined;
@@ -144,6 +152,10 @@ class Slayers extends Feature {
 
 		if (this.emanBoss && this.emanStartedSittingTime > 0 && this.emanLazerTimer.getValue()) {
 			Tessellator.drawString(ChatLib.addColor("&a&lLazer: &c&l" + Math.max(0, 8.2 - (Date.now() - this.emanStartedSittingTime) / 1000).toFixed(1)), this.emanBoss.getX(), this.emanBoss.getY() - 1.2, this.emanBoss.getZ(), 0, true, 0.04, false);
+		}
+
+		if (this.pillerE && this.bossSpawnedMessage) {
+			drawBoxAtBlock(~~this.pillerE.getX() - 1, ~~this.pillerE.getY() + 2, ~~this.pillerE.getZ() - 1, 255, 0, 0, 1, -4);
 		}
 
 		if (this.boxToEmanBeacon.getValue()) {
@@ -223,6 +235,18 @@ class Slayers extends Feature {
 				dis1 = true;
 				this.bossSpawnedMessage = true;
 			}
+			if (ChatLib.removeFormatting(line.getName()).trim().split(" ")[0]
+				&& ChatLib.removeFormatting(line.getName()).trim().split(" ")[0].split("/").length == 2
+				&& ChatLib.removeFormatting(line.getName()).trim().split(" ")[1] === "Kills") {
+				let kills = ChatLib.removeFormatting(line.getName()).trim().split(" ")[0].split("/").map(a => parseInt(a))
+				if (kills[0] > kills[1] - 4 || kills[0] / kills[1] > 0.95) {
+					this.slayerProgressAlertText = line.getName()
+					this.slayerProgressAlertTime = Date.now() + 1000
+				}
+			}
+			// 	this.slayerProgressAlert
+			// this.slayerProgressAlertText = ""
+			// this.slayerProgressAlertTime = 0
 		});
 		if (!dis1) {
 			this.lastBossNotSpawnedTime = Date.now();
@@ -273,17 +297,16 @@ class Slayers extends Feature {
 					}
 				}
 
-				// if (e instanceof net.minecraft.entity.item.EntityArmorStand && e[m.getCustomNameTag]()) {
-				// 	let name = e[m.getCustomNameTag]()
-				// 	let isPiller = true
-				// 	if (isPiller && name.trim().split(" ").length !== 2) isPiller = false
-				// 	if (isPiller && name.trim().split(" ")[0].split("").pop() !== "s") isPiller = false
-				// 	if (isPiller && name.trim().split(" ")[1].split("").pop() !== "s") isPiller = false
-				// 	//TODO: thus
-				// 	if (isPiller) {
-				// 		ChatLib.chat(name)
-				// 	}
-				// }
+				if (e instanceof net.minecraft.entity.item.EntityArmorStand && e[m.getCustomNameTag]() && this.blazeTowerDink.getValue()) {
+					let name = ChatLib.removeFormatting(e[m.getCustomNameTag]())
+					let isPiller = true
+					if (isPiller && name.trim().split(" ").length !== 3) isPiller = false
+					if (isPiller && name.trim().split(" ")[0].split("").pop() !== "s") isPiller = false
+					if (isPiller && name.trim().split(" ")[2] !== "hits") isPiller = false
+					if (isPiller) {
+						this.pillerE = new Entity(e)
+					}
+				}
 			} catch (_) {
 				console.log(JSON.stringify(_, undefined, 2));
 			}
@@ -383,6 +406,18 @@ class Slayers extends Feature {
 			this.emanHpElement.setText("");
 		}
 
+		if (this.pillerE) {
+			if (this.pillerE.getEntity()[f.isDead]) this.pillerE = undefined
+		}
+		if (this.pillerE && ChatLib.removeFormatting(this.pillerE.getName())[1] === "s" && this.bossSpawnedMessage) {
+			let time = parseInt(ChatLib.removeFormatting(this.pillerE.getName())[0]);
+			if (Date.now() - this.lastPillerDink > time * 40) {
+				World.playSound("note.pling", 1, 1);
+				this.lastPillerDink = Date.now()
+			}
+			Client.showTitle(this.pillerE.getName(), "", 0, 20, 10);
+		}
+
 		if (this.emanLazerTimer.getValue() && this.actualEmanBoss && this.actualEmanBoss[m.isRiding]()) {
 			if (this.emanStartedSittingTime === -1) {
 				this.emanStartedSittingTime = Date.now()
@@ -416,6 +451,11 @@ class Slayers extends Feature {
 
 			Renderer.scale(1 / scale, 1 / scale);
 			Renderer.drawString("&4BOSS SPAWNED", Renderer.screen.getWidth() * 0.125 * scale, (Renderer.screen.getHeight() / 2 - 9 / scale) * scale);
+			Renderer.scale(1, 1);
+		}
+		if (this.slayerProgressAlert.getValue() && Date.now() > this.slayerProgressAlertTime) {
+			Renderer.scale(1 / scale, 1 / scale);
+			Renderer.drawString(this.slayerProgressAlertText, Renderer.screen.getWidth() * 0.125 * scale, (Renderer.screen.getHeight() / 2 - 9 / scale) * scale);
 			Renderer.scale(1, 1);
 		}
 	}

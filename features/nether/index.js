@@ -15,6 +15,7 @@ class Nether extends Feature {
 		this.initVariables();
 
 		this.masteryTimer = new ToggleSetting("Mastery Timer", "Countdown untill a block will turn red", true, "nether_mastery_timer", this)
+		this.speedNextBlock = new ToggleSetting("Show next block to stand on for dojo swiftness", "", true, "dojo_swiftness", this)
 
 		this.registerCustom("packetReceived", this.packetReceived)
 
@@ -22,6 +23,19 @@ class Nether extends Feature {
 		this.registerEvent("renderWorld", this.renderWorld)
 
 		this.blocks = []
+
+		this.inSwiftness = false
+		this.lastBlock = undefined
+		this.registerChat("&r&r&r                    &r&aTest of Swiftness &r&e&lOBJECTIVES&r", () => {
+			if (this.speedNextBlock.getValue()) {
+				this.inSwiftness = true
+				this.lastBlock = [Math.floor(Player.getX()), Math.floor(Player.getY()) - 1, Math.floor(Player.getZ())]
+			}
+		})
+		this.registerChat("&r&r&r           ${*}&r&6Your Rank: &r${*}&r", () => {
+			this.inSwiftness = false
+			this.lastBlock = undefined
+		})
 	}
 
 	packetReceived(packet, event) {
@@ -46,14 +60,30 @@ class Nether extends Feature {
 				//yellow=16419
 				//red=57379
 			}
+			if (oldBlockState === 0 && blockState === 20515 && this.inSwiftness) {
+				this.lastBlock = [position.getX(), position.getY(), position.getZ()]
+			}
+		}
+		if (packetType === "S22PacketMultiBlockChange") {
+			packet[m.getChangedBlocks]().forEach(b => {
+				let position = new BlockPos(b[m.getPos.S22PacketMultiBlockChange$BlockUpdateData]())
+				let blockState = this.getBlockIdFromState(b[m.getBlockState.S22PacketMultiBlockChange$BlockUpdateData]())
+				let oldBlockState = this.getBlockIdFromState(World.getBlockStateAt(position))
+				if (oldBlockState === 0 && blockState === 20515 && this.inSwiftness) {
+					this.lastBlock = [position.getX(), position.getY(), position.getZ()]
+				}
+			})
 		}
 	}
 
 	renderWorld(event) {
-		if (!this.masteryTimer.getValue()) return
-		this.blocks.forEach(data => {
-			Tessellator.drawString(Math.max(0, (data.time - Date.now()) / 1000).toFixed(1) + "s", data.loc.getX() + 0.5, data.loc.getY() + 0.5, data.loc.getZ() + 0.5, 0, false, 0.05, false)
-		})
+		if (this.masteryTimer.getValue()) {
+			this.blocks.forEach(data => {
+				Tessellator.drawString(Math.max(0, (data.time - Date.now()) / 1000).toFixed(1) + "s", data.loc.getX() + 0.5, data.loc.getY() + 0.5, data.loc.getZ() + 0.5, 0, false, 0.05, false)
+			})
+		}
+
+		if (this.lastBlock && this.inSwiftness) drawBoxAtBlock(this.lastBlock[0], this.lastBlock[1], this.lastBlock[2], 0, 255, 0, 1, 1)
 	}
 
 	step1S() {
