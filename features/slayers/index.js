@@ -235,11 +235,13 @@ class Slayers extends Feature {
 				dis1 = true;
 				this.bossSpawnedMessage = true;
 			}
-			if (ChatLib.removeFormatting(line.getName()).trim().split(" ")[0]
-				&& ChatLib.removeFormatting(line.getName()).trim().split(" ")[0].split("/").length == 2
-				&& ChatLib.removeFormatting(line.getName()).trim().split(" ")[1] === "Kills") {
-				let kills = ChatLib.removeFormatting(line.getName()).trim().split(" ")[0].split("/").map(a => parseInt(a))
-				if (kills[0] > kills[1] - 4 || kills[0] / kills[1] > 0.95) {
+			let lineSplitThing = ChatLib.removeFormatting(line.getName()).replace(/[^a-z/0-9 ]/gi, "").trim().split(" ")
+			// ChatLib.chat(ChatLib.removeFormatting(line.getName()).replace(/[^a-z/0-9 ]+/gi, "").trim())
+			if (this.slayerProgressAlert.getValue() && lineSplitThing[0]
+				&& lineSplitThing[0].split("/").length === 2
+				&& lineSplitThing[1] === "Kills") {
+				let kills = lineSplitThing[0].split("/").map(a => parseInt(a))
+				if (kills[0] >= kills[1] - 4 || kills[0] / kills[1] > 0.95) {
 					this.slayerProgressAlertText = line.getName()
 					this.slayerProgressAlertTime = Date.now() + 1000
 				}
@@ -453,7 +455,8 @@ class Slayers extends Feature {
 			Renderer.drawString("&4BOSS SPAWNED", Renderer.screen.getWidth() * 0.125 * scale, (Renderer.screen.getHeight() / 2 - 9 / scale) * scale);
 			Renderer.scale(1, 1);
 		}
-		if (this.slayerProgressAlert.getValue() && Date.now() > this.slayerProgressAlertTime) {
+		if (this.slayerProgressAlert.getValue() && Date.now() < this.slayerProgressAlertTime) {
+			let scale = Renderer.getStringWidth(ChatLib.removeFormatting(this.slayerProgressAlertText)) / (Renderer.screen.getWidth() * 0.75);
 			Renderer.scale(1 / scale, 1 / scale);
 			Renderer.drawString(this.slayerProgressAlertText, Renderer.screen.getWidth() * 0.125 * scale, (Renderer.screen.getHeight() / 2 - 9 / scale) * scale);
 			Renderer.scale(1, 1);
