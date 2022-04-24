@@ -67,7 +67,7 @@ class DungeonSolvers extends Feature {
 			.setLocationSetting(new LocationSetting("Run speed and exp rates location", "Allows you to edit the location of the information", "run_speed_rates_location", this, [10, 100, 1, 1]).requires(this.runSpeedRates).editTempText("&6Run speed&7> &f4:30\n&6Exp/hour&7> &f1,234,567\n&6Runs/hour&7> &f17"));
 
 		this.scoreCalculation = new ToggleSetting("Show score calculation", "NOTE: doesent include mimic or spirit pet yet", true, "run_score_calc", this);
-		this.scoreElement = new HudTextElement().setToggleSetting(this.scoreCalculation).setLocationSetting(new LocationSetting("Score calculation location", "Allows you to edit the location of the score calc", "score_calc_location", this, [10, 130, 1, 1]).requires(this.scoreCalculation).editTempText("Editing temp text here"));
+		this.scoreElement = new HudTextElement().setToggleSetting(this.scoreCalculation).setLocationSetting(new LocationSetting("Score calculation location", "Allows you to edit the location of the score calc", "score_calc_location", this, [10, 130, 1, 1]).requires(this.scoreCalculation).editTempText("&dScore: 120\n&aS+ ??\n&aS  ??"));
 
 		this.hudElements.push(this.runSpeedRatesElement);
 		this.hudElements.push(this.scoreElement);

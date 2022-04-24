@@ -21,8 +21,10 @@ class Waypoints extends Feature {
         new SettingBase("/savewaypoints", "Copys the waypoints to your clipboard", undefined, "save_waypoints", this)
         new SettingBase("/loadwaypoints", "Loads waypoints from your clipboard", undefined, "load_waypoints", this)
 
-        this.waypoints = []
         this.userWaypoints = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2userwaypoints.json") || "{}")
+        this.userWaypointsHash = {}
+        this.userWaypointsAll = []
+        this.updateWaypointsHashes()
         this.userWaypointsArr = Object.values(this.userWaypoints)
         this.waypointsChanged = false
 
@@ -57,6 +59,7 @@ class Waypoints extends Feature {
 
             this.userWaypointsArr = Object.values(this.userWaypoints)
             this.waypointsChanged = true
+            this.updateWaypointsHashes()
             ChatLib.chat(this.FeatureManager.messagePrefix + "Added waypoint " + name + "!")
         })
 
@@ -64,12 +67,14 @@ class Waypoints extends Feature {
             delete this.userWaypoints[name]
             this.userWaypointsArr = Object.values(this.userWaypoints)
             this.waypointsChanged = true
+            this.updateWaypointsHashes()
             ChatLib.chat(this.FeatureManager.messagePrefix + "Deleted waypoint " + name + "!")
         })
         this.registerCommand("clearwaypoints", () => {
             this.userWaypoints = {}
             this.userWaypointsArr = []
             this.waypointsChanged = true
+            this.updateWaypointsHashes()
             ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared waypoints!")
         })
         this.registerCommand("savewaypoints", () => {
@@ -82,6 +87,7 @@ class Waypoints extends Feature {
 
                 this.userWaypointsArr = Object.values(this.userWaypoints)
                 this.waypointsChanged = true
+                this.updateWaypointsHashes()
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Loaded waypoints from clipboard!")
             } catch (e) {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
@@ -89,31 +95,32 @@ class Waypoints extends Feature {
         })
     }
 
-    addWaypoint(x, y, z, r, g, b, options) {
-        this.waypoints.push({
-            x: x,
-            y: y,
-            z: z,
-            r: r,
-            g: g,
-            b: b,
-            options: options
-        })
+    updateWaypointsHashes() {
+        this.userWaypointsAll = []
+        this.userWaypointsHash = {}
+        for (let waypoint of this.userWaypointsArr) {
+            if (!waypoint.area) {
+                this.userWaypointsAll.push(waypoint)
+            } else {
+                if (!this.userWaypointsHash[waypoint.area]) this.userWaypointsHash[waypoint.area] = []
+                this.userWaypointsHash[waypoint.area].push(waypoint)
+            }
+        }
     }
 
     renderWorldLast() {
-        for (let waypoint of this.waypoints) {
+        for (let waypoint of this.userWaypointsAll) {
             drawCoolWaypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, waypoint.options)
         }
-        for (let waypoint of this.userWaypointsArr) { //TODO: Performance optimisation: Make hash from waypoint.area -> waypoints[]
-            if (!waypoint.area || this.FeatureManager.features["dataLoader"].class.area === waypoint.area) {
-                drawCoolWaypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, { ...waypoint.options })
+        if (this.userWaypointsHash[this.FeatureManager.features["dataLoader"].class.area]) {
+            for (let waypoint of this.userWaypointsHash[this.FeatureManager.features["dataLoader"].class.area]) {
+                drawCoolWaypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, waypoint.options)
             }
         }
     }
 
     initVariables() {
-        this.waypoints = undefined
+
     }
 
     onDisable() {

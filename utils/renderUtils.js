@@ -1,10 +1,10 @@
 const { f, m } = require("../../mappings/mappings");
 
-const {default:renderBeaconBeam2} = require("../../BeaconBeam/index");
+const { default: renderBeaconBeam2 } = require("../../BeaconBeam/index");
 const numberUtils = require("./numberUtils");
 const { default: RenderLib2D } = require("./renderLib2d");
 
-if(!GlStateManager){
+if (!GlStateManager) {
     var GL11 = Java.type("org.lwjgl.opengl.GL11"); //using var so it goes to global scope
     var GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
 }
@@ -15,7 +15,7 @@ let ret = {
      * OR
      * h, s, v
     */
-    HSVtoRGB:function (h, s, v) {
+    HSVtoRGB: function (h, s, v) {
         var r, g, b, i, f, p, q, t;
         if (arguments.length === 1) {
             s = h.s, v = h.v, h = h.h;
@@ -39,8 +39,8 @@ let ret = {
             b: b * 255
         };
     },
-    drawLine:function (x, y, z, x2, y2, z2, r, g, b, thickness=1) {
-    
+    drawLine: function (x, y, z, x2, y2, z2, r, g, b, thickness = 1) {
+
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(thickness);
@@ -48,44 +48,44 @@ let ret = {
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
-    
+
         Tessellator.begin(3).colorize(r, g, b);
-    
+
         Tessellator.pos(x, y, z);
         Tessellator.pos(x2, y2, z2);
-    
+
         Tessellator.draw();
-    
-    
+
+
         GlStateManager.func_179121_F();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawLineWithDepth:function (x, y, z, x2, y2, z2, r, g, b,t) {
-    
+    drawLineWithDepth: function (x, y, z, x2, y2, z2, r, g, b, t) {
+
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(t);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
-    
+
         Tessellator.begin(3).colorize(r, g, b);
-    
+
         Tessellator.pos(x, y, z);
         Tessellator.pos(x2, y2, z2);
-    
+
         Tessellator.draw();
-    
-    
+
+
         GlStateManager.func_179121_F();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    setupLineSmall: function(width){
+    setupLineSmall: function (width) {
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(width);
@@ -93,86 +93,86 @@ let ret = {
         GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
     },
-    endLineSmall: function(){
+    endLineSmall: function () {
         GlStateManager.func_179121_F();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawLineSmall:function (x, y, z, x2, y2, z2, r, g, b) {
-    
+    drawLineSmall: function (x, y, z, x2, y2, z2, r, g, b) {
+
         Tessellator.begin(3).colorize(r, g, b);
-    
+
         Tessellator.pos(x, y, z);
         Tessellator.pos(x2, y2, z2);
-    
+
         Tessellator.draw();
     },
-    drawLinePoints: function(locations, r, g, b, thickness=1){
+    drawLinePoints: function (locations, r, g, b, thickness = 1) {
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(thickness);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
-    
+
         Tessellator.begin(3).colorize(r, g, b);
-    
+
         locations.forEach(loc => {
             Tessellator.pos(...loc);
         });
-    
+
         Tessellator.draw();
-    
-    
+
+
         GlStateManager.func_179121_F();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawBoxAtBlockNotVisThruWalls:function (x, y, z, colorR, colorG, colorB, w=1, h=1, a=1){
+    drawBoxAtBlockNotVisThruWalls: function (x, y, z, colorR, colorG, colorB, w = 1, h = 1, a = 1) {
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(3);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GlStateManager.func_179094_E();
-    
+
         x -= 0.005
         y -= 0.005
         z -= 0.005
         w += 0.01
         h += 0.01
-        
+
         Tessellator.begin(3).colorize(colorR, colorG, colorB, a);
-            
-        Tessellator.pos(x+w,y+h,z+w);
-        Tessellator.pos(x+w,y+h,z);
-        Tessellator.pos(x,y+h,z);
-        Tessellator.pos(x,y+h,z+w);
-        Tessellator.pos(x+w,y+h,z+w);
-        Tessellator.pos(x+w,y,z+w);
-        Tessellator.pos(x+w,y,z);
-        Tessellator.pos(x,y,z);
-        Tessellator.pos(x,y,z+w);
-        Tessellator.pos(x,y,z);
-        Tessellator.pos(x,y+h,z);
-        Tessellator.pos(x,y,z);
-        Tessellator.pos(x+w,y,z);
-        Tessellator.pos(x+w,y+h,z);
-        Tessellator.pos(x+w,y,z);
-        Tessellator.pos(x+w,y,z+w);
-        Tessellator.pos(x,y,z+w);
-        Tessellator.pos(x,y+h,z+w);
-        Tessellator.pos(x+w,y+h,z+w);
-    
+
+        Tessellator.pos(x + w, y + h, z + w);
+        Tessellator.pos(x + w, y + h, z);
+        Tessellator.pos(x, y + h, z);
+        Tessellator.pos(x, y + h, z + w);
+        Tessellator.pos(x + w, y + h, z + w);
+        Tessellator.pos(x + w, y, z + w);
+        Tessellator.pos(x + w, y, z);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x, y, z + w);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x, y + h, z);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x + w, y, z);
+        Tessellator.pos(x + w, y + h, z);
+        Tessellator.pos(x + w, y, z);
+        Tessellator.pos(x + w, y, z + w);
+        Tessellator.pos(x, y, z + w);
+        Tessellator.pos(x, y + h, z + w);
+        Tessellator.pos(x + w, y + h, z + w);
+
         Tessellator.draw();
-    
+
         GlStateManager.func_179121_F();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawBoxAtBlock:function (x, y, z, colorR, colorG, colorB, w=1, h=1, a=1){
-    
+    drawBoxAtBlock: function (x, y, z, colorR, colorG, colorB, w = 1, h = 1, a = 1) {
+
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(3);
@@ -180,89 +180,89 @@ let ret = {
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(false);
         GlStateManager[m.pushMatrix]()
-    
-        
+
+
         Tessellator.begin(3).colorize(colorR, colorG, colorB, a);
-            
-        Tessellator.pos(x+w,y+h,z+w);
-        Tessellator.pos(x+w,y+h,z);
-        Tessellator.pos(x,y+h,z);
-        Tessellator.pos(x,y+h,z+w);
-        Tessellator.pos(x+w,y+h,z+w);
-        Tessellator.pos(x+w,y,z+w);
-        Tessellator.pos(x+w,y,z);
-        Tessellator.pos(x,y,z);
-        Tessellator.pos(x,y,z+w);
-        Tessellator.pos(x,y,z);
-        Tessellator.pos(x,y+h,z);
-        Tessellator.pos(x,y,z);
-        Tessellator.pos(x+w,y,z);
-        Tessellator.pos(x+w,y+h,z);
-        Tessellator.pos(x+w,y,z);
-        Tessellator.pos(x+w,y,z+w);
-        Tessellator.pos(x,y,z+w);
-        Tessellator.pos(x,y+h,z+w);
-        Tessellator.pos(x+w,y+h,z+w);
-    
+
+        Tessellator.pos(x + w, y + h, z + w);
+        Tessellator.pos(x + w, y + h, z);
+        Tessellator.pos(x, y + h, z);
+        Tessellator.pos(x, y + h, z + w);
+        Tessellator.pos(x + w, y + h, z + w);
+        Tessellator.pos(x + w, y, z + w);
+        Tessellator.pos(x + w, y, z);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x, y, z + w);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x, y + h, z);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x + w, y, z);
+        Tessellator.pos(x + w, y + h, z);
+        Tessellator.pos(x + w, y, z);
+        Tessellator.pos(x + w, y, z + w);
+        Tessellator.pos(x, y, z + w);
+        Tessellator.pos(x, y + h, z + w);
+        Tessellator.pos(x + w, y + h, z + w);
+
         Tessellator.draw();
-    
+
         GlStateManager[m.popMatrix]()
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawBoxAtEntity:function (entity, colorR, colorG, colorB, width, height, partialTicks, lineWidth=2, phase=false){
-        let x = entity.getX() + ((entity.getX()-entity.getLastX())*partialTicks)
-        let y = entity.getY() + ((entity.getY()-entity.getLastY())*partialTicks)
-        let z = entity.getZ() + ((entity.getZ()-entity.getLastZ())*partialTicks)
-        
-        if(width === null){
-            width = entity.getWidth()/2
+    drawBoxAtEntity: function (entity, colorR, colorG, colorB, width, height, partialTicks, lineWidth = 2, phase = false) {
+        let x = entity.getX() + ((entity.getX() - entity.getLastX()) * partialTicks)
+        let y = entity.getY() + ((entity.getY() - entity.getLastY()) * partialTicks)
+        let z = entity.getZ() + ((entity.getZ() - entity.getLastZ()) * partialTicks)
+
+        if (width === null) {
+            width = entity.getWidth() / 2
             height = entity.getHeight()
-        }else{
-            width = width/2
+        } else {
+            width = width / 2
         }
-        
-    
+
+
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(lineWidth);
-        if(phase) GL11.glDisable(GL11.GL_DEPTH_TEST);
+        if (phase) GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GlStateManager.func_179094_E();
-    
-        
+
+
         Tessellator.begin(3).colorize(colorR, colorG, colorB);
-            
-        Tessellator.pos(x+width,y+height,z+width);
-        Tessellator.pos(x+width,y+height,z-width);
-        Tessellator.pos(x-width,y+height,z-width);
-        Tessellator.pos(x-width,y+height,z+width);
-        Tessellator.pos(x+width,y+height,z+width);
-        Tessellator.pos(x+width,y,z+width);
-        Tessellator.pos(x+width,y,z-width);
-        Tessellator.pos(x-width,y,z-width);
-        Tessellator.pos(x-width,y,z+width);
-        Tessellator.pos(x-width,y,z-width);
-        Tessellator.pos(x-width,y+height,z-width);
-        Tessellator.pos(x-width,y,z-width);
-        Tessellator.pos(x+width,y,z-width);
-        Tessellator.pos(x+width,y+height,z-width);
-        Tessellator.pos(x+width,y,z-width);
-        Tessellator.pos(x+width,y,z+width);
-        Tessellator.pos(x-width,y,z+width);
-        Tessellator.pos(x-width,y+height,z+width);
-        Tessellator.pos(x+width,y+height,z+width);
-    
+
+        Tessellator.pos(x + width, y + height, z + width);
+        Tessellator.pos(x + width, y + height, z - width);
+        Tessellator.pos(x - width, y + height, z - width);
+        Tessellator.pos(x - width, y + height, z + width);
+        Tessellator.pos(x + width, y + height, z + width);
+        Tessellator.pos(x + width, y, z + width);
+        Tessellator.pos(x + width, y, z - width);
+        Tessellator.pos(x - width, y, z - width);
+        Tessellator.pos(x - width, y, z + width);
+        Tessellator.pos(x - width, y, z - width);
+        Tessellator.pos(x - width, y + height, z - width);
+        Tessellator.pos(x - width, y, z - width);
+        Tessellator.pos(x + width, y, z - width);
+        Tessellator.pos(x + width, y + height, z - width);
+        Tessellator.pos(x + width, y, z - width);
+        Tessellator.pos(x + width, y, z + width);
+        Tessellator.pos(x - width, y, z + width);
+        Tessellator.pos(x - width, y + height, z + width);
+        Tessellator.pos(x + width, y + height, z + width);
+
         Tessellator.draw();
-    
+
         GlStateManager.func_179121_F();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-        if(phase) GL11.glEnable(GL11.GL_DEPTH_TEST);
+        if (phase) GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawFilledBox: function(x, y, z, w, h, red, green, blue, alpha, phase) { //FROM RENDERUTILS
+    drawFilledBox: function (x, y, z, w, h, red, green, blue, alpha, phase) { //FROM RENDERUTILS
         GL11.glDisable(GL11.GL_CULL_FACE);
         if (phase) {
             GL11.glBlendFunc(770, 771);
@@ -332,34 +332,28 @@ let ret = {
             GL11.glDisable(GL11.GL_BLEND);
         }
     },
-    renderBeaconBeam(x, y, z, r, g, b, alpha, phase){
+    renderBeaconBeam(x, y, z, r, g, b, alpha, phase) {
         renderBeaconBeam2(x, y, z, r, g, b, alpha, !phase)
     },
-    drawCoolWaypoint(x, y, z, r, g, b, {name="", showDist=!!name ,phase=false}){
-        let distToPlayerSq = (x-Player.getRenderX())**2 + (y-(Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]()))**2 + (z-Player.getRenderZ())**2
+    drawCoolWaypoint(x, y, z, r, g, b, { name = "", showDist = !!name, phase = false }) {
+        let distToPlayerSq = (x - Player.getRenderX()) ** 2 + (y - (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]())) ** 2 + (z - Player.getRenderZ()) ** 2
 
-        let alpha = Math.min(1,Math.max(0,1-(distToPlayerSq-10000)/12500))
+        let alpha = Math.min(1, Math.max(0, 1 - (distToPlayerSq - 10000) / 12500))
 
-        ret[phase?"drawBoxAtBlock":"drawBoxAtBlockNotVisThruWalls"](x-0.005, y-0.005, z-0.005, r, g, b, 1.01, 1.01, alpha)
-        ret.drawFilledBox(x+0.5, y, z+0.5, 1.02, 1.01, r, g, b, 0.25*alpha, phase)
-        ret.renderBeaconBeam(x, y+1, z, r, g, b, Math.min(1,Math.max(0,(distToPlayerSq-25)/100))*alpha, false)
+        ret[phase ? "drawBoxAtBlock" : "drawBoxAtBlockNotVisThruWalls"](x - 0.005, y - 0.005, z - 0.005, r, g, b, 1.01, 1.01, alpha)
+        ret.drawFilledBox(x + 0.5, y, z + 0.5, 1.02, 1.01, r, g, b, 0.25 * alpha, phase)
+        renderBeaconBeam2(x, y + 1, z, r, g, b, Math.min(1, Math.max(0, (distToPlayerSq - 25) / 100)) * alpha, true)
 
-        if(name || showDist){
+        if (name || showDist) {
             let distToPlayer = Math.sqrt(distToPlayerSq)
 
-            let distRender = Math.min(distToPlayer,50)
+            let distRender = Math.min(distToPlayer, 50)
 
-            let loc1 = [x+0.5, y+2+20*distToPlayer/300, z+0.5]
-            let loc2 = [x+0.5, y+2+20*distToPlayer/300-10*distToPlayer/300, z+0.5]
+            let loc5 = [Player.getRenderX() + (x + 0.5 - Player.getRenderX()) / (distToPlayer / distRender), (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]()) + (y + 2 + 20 * distToPlayer / 300 - (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]())) / (distToPlayer / distRender), Player.getRenderZ() + (z + 0.5 - Player.getRenderZ()) / (distToPlayer / distRender)]
+            let loc6 = [Player.getRenderX() + (x + 0.5 - Player.getRenderX()) / (distToPlayer / distRender), (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]()) + (y + 2 + 20 * distToPlayer / 300 - 10 * distToPlayer / 300 - (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]())) / (distToPlayer / distRender), Player.getRenderZ() + (z + 0.5 - Player.getRenderZ()) / (distToPlayer / distRender)]
 
-            let loc3 = [loc1[0]-Player.getRenderX(), loc1[1]-(Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]()), loc1[2]-Player.getRenderZ()]
-            let loc4 = [loc2[0]-Player.getRenderX(), loc2[1]-(Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]()), loc2[2]-Player.getRenderZ()]
-
-            let loc5 = [Player.getRenderX()+loc3[0]/(distToPlayer/distRender), (Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]())+loc3[1]/(distToPlayer/distRender), Player.getRenderZ()+loc3[2]/(distToPlayer/distRender)]
-            let loc6 = [Player.getRenderX()+loc4[0]/(distToPlayer/distRender), (Player.getRenderY()+Player.getPlayer()[m.getEyeHeight]())+loc4[1]/(distToPlayer/distRender), Player.getRenderZ()+loc4[2]/(distToPlayer/distRender)]
-
-            if(name) Tessellator.drawString("§a" + name, loc5[0], loc5[1], loc5[2], 0, true, distRender/300, false)
-            if(showDist) Tessellator.drawString("§b(" + numberUtils.numberWithCommas(Math.round(distToPlayer)) + "m)", (name?loc6[0]:loc5[0]), (name?loc6[1]:loc5[1]), (name?loc6[2]:loc5[2]), 0, false, distRender/300, false)
+            if (name) Tessellator.drawString("§a" + name, loc5[0], loc5[1], loc5[2], 0, true, distRender / 300, false)
+            if (showDist) Tessellator.drawString("§b(" + numberUtils.numberWithCommas(Math.round(distToPlayer)) + "m)", (name ? loc6[0] : loc5[0]), (name ? loc6[1] : loc5[1]), (name ? loc6[2] : loc5[2]), 0, false, distRender / 300, false)
         }
     }
 }
