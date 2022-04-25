@@ -241,7 +241,7 @@ class Slayers extends Feature {
 				&& lineSplitThing[0].split("/").length === 2
 				&& lineSplitThing[1] === "Kills") {
 				let kills = lineSplitThing[0].split("/").map(a => parseInt(a))
-				if (kills[0] >= kills[1] - 4 || kills[0] / kills[1] > 0.95) {
+				if (kills[0] / kills[1] > 0.9) {
 					this.slayerProgressAlertText = line.getName()
 					this.slayerProgressAlertTime = Date.now() + 1000
 				}
@@ -456,9 +456,9 @@ class Slayers extends Feature {
 			Renderer.scale(1, 1);
 		}
 		if (this.slayerProgressAlert.getValue() && Date.now() < this.slayerProgressAlertTime) {
-			let scale = Renderer.getStringWidth(ChatLib.removeFormatting(this.slayerProgressAlertText)) / (Renderer.screen.getWidth() * 0.75);
+			let scale = Renderer.getStringWidth(ChatLib.removeFormatting(this.slayerProgressAlertText)) / (Renderer.screen.getWidth() * 0.5);
 			Renderer.scale(1 / scale, 1 / scale);
-			Renderer.drawString(this.slayerProgressAlertText, Renderer.screen.getWidth() * 0.125 * scale, (Renderer.screen.getHeight() / 2 - 9 / scale) * scale);
+			Renderer.drawString(this.slayerProgressAlertText, Renderer.screen.getWidth() * 0.125 * scale, (Renderer.screen.getHeight() / 2 + 9 / scale) * scale);
 			Renderer.scale(1, 1);
 		}
 	}

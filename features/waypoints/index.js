@@ -24,8 +24,8 @@ class Waypoints extends Feature {
         this.userWaypoints = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2userwaypoints.json") || "{}")
         this.userWaypointsHash = {}
         this.userWaypointsAll = []
-        this.updateWaypointsHashes()
         this.userWaypointsArr = Object.values(this.userWaypoints)
+        this.updateWaypointsHashes()
         this.waypointsChanged = false
 
         this.registerForge(RenderWorldLastEvent, this.renderWorldLast)
