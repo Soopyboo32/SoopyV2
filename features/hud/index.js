@@ -95,6 +95,7 @@ class Hud extends Feature {
                 .requires(this.petEnabledSetting)
                 .editTempText("&6Pet&7> &7[Lvl 100] &aEnderman"))
         this.hudElements.push(this.petElement)
+        this.scanGuiForPet = new ToggleSetting("Scan pets menu gui for selected pet", "Only disable if you get a lot of lag in the pets menu", true, "scan_pets_menu", true).requires(this.petEnabledSetting)
 
         this.soulflowEnabledSetting = new ToggleSetting("Show Soulflow", "Whether the soulflow count is rendered onto the screen", true, "soulflow_enabled", this)
         this.soulflowShowWarningSetting = new ToggleSetting("Show no Talisman Warning", "Shows a warning if you dont have a soulflow talis in ur inv", true, "soulflow_notalis_warning", this).requires(this.soulflowEnabledSetting)
@@ -441,7 +442,7 @@ class Hud extends Feature {
         this.cpsElement.setText("&6Cps&7> &f" + cpsText)
 
         //Scan opened inventory for all pet levels
-        if (Player && Player.getContainer() && Player.getContainer().getName().includes(") Pets")) {
+        if (this.scanGuiForPet.getValue() && Player && Player.getContainer() && Player.getContainer().getName().includes(") Pets")) {
             let inv = Player.getContainer().getItems()
             for (let i = 0; i < inv.length; i++) {
                 if (inv[i] != null && inv[i].getName().includes("[Lvl ")) {

@@ -41,14 +41,17 @@ class Slayers extends Feature {
 
 		this.blazeTowerDink = new ToggleSetting("DinkDonk & Box for blaze tower", "(the tower might not nessesarily belong to your boss though)", true, "blaze_tower_dinkdink", this);
 		this.slayerProgressAlert = new ToggleSetting("Shows slayer progress in middle of screen when close", "(blame dulkir)", false, "slayer_progress_alert", this);
+		this.dulkirThingElement = new HudTextElement()
+			.setText("")
+			.setToggleSetting(this.slayerProgressAlert)
+			.setLocationSetting(new LocationSetting("Slayer progress location", "Allows you to edit the location of the dulkir thing", "dulkir_thing_location", this, [10, 150, 1, 1]).requires(this.slayerProgressAlert).editTempText("&e98&7/&c100&7 Kills"));
+
+		this.hudElements.push(this.dulkirThingElement);
 
 		this.lastSlayerFinishes = [];
 		this.lastSlayerExps = [];
 		this.slayerExp = {};
 		this.slayerExpLoaded = false;
-
-		this.slayerProgressAlertText = ""
-		this.slayerProgressAlertTime = 0
 
 		this.lastSlayerType = "";
 		this.lastSlayerExp = 0;
@@ -201,6 +204,7 @@ class Slayers extends Feature {
 
 		this.bossSlainMessage = false;
 		let dis1 = false;
+		this.dulkirThingElement.setText("")
 		Scoreboard.getLines().forEach((line, i) => {
 			if (ChatLib.removeFormatting(line.getName()).includes("Slayer Quest")) {
 				let slayerInfo = ChatLib.removeFormatting(Scoreboard.getLines()[i - 1].getName().replace(/§/g, "&"));
@@ -237,18 +241,16 @@ class Slayers extends Feature {
 			}
 			let lineSplitThing = ChatLib.removeFormatting(line.getName()).replace(/[^a-z/0-9 ]/gi, "").trim().split(" ")
 			// ChatLib.chat(ChatLib.removeFormatting(line.getName()).replace(/[^a-z/0-9 ]+/gi, "").trim())
+
 			if (this.slayerProgressAlert.getValue() && lineSplitThing[0]
 				&& lineSplitThing[0].split("/").length === 2
 				&& lineSplitThing[1] === "Kills") {
 				let kills = lineSplitThing[0].split("/").map(a => parseInt(a))
-				if (kills[0] / kills[1] > 0.9) {
-					this.slayerProgressAlertText = line.getName()
-					this.slayerProgressAlertTime = Date.now() + 1000
+				console.log(kills[0], kills[1])
+				if (kills[0] / kills[1] >= 0.9) {
+					this.dulkirThingElement.setText(line.getName())
 				}
 			}
-			// 	this.slayerProgressAlert
-			// this.slayerProgressAlertText = ""
-			// this.slayerProgressAlertTime = 0
 		});
 		if (!dis1) {
 			this.lastBossNotSpawnedTime = Date.now();
@@ -453,12 +455,6 @@ class Slayers extends Feature {
 
 			Renderer.scale(1 / scale, 1 / scale);
 			Renderer.drawString("&4BOSS SPAWNED", Renderer.screen.getWidth() * 0.125 * scale, (Renderer.screen.getHeight() / 2 - 9 / scale) * scale);
-			Renderer.scale(1, 1);
-		}
-		if (this.slayerProgressAlert.getValue() && Date.now() < this.slayerProgressAlertTime) {
-			let scale = Renderer.getStringWidth(ChatLib.removeFormatting(this.slayerProgressAlertText)) / (Renderer.screen.getWidth() * 0.5);
-			Renderer.scale(1 / scale, 1 / scale);
-			Renderer.drawString(this.slayerProgressAlertText, Renderer.screen.getWidth() * 0.125 * scale, (Renderer.screen.getHeight() / 2 + 9 / scale) * scale);
 			Renderer.scale(1, 1);
 		}
 	}

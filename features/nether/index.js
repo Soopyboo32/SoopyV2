@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import { m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
-import { drawBoxAtBlock } from "../../utils/renderUtils";
+import { drawBoxAtBlock, drawLine } from "../../utils/renderUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 const MCBlock = Java.type("net.minecraft.block.Block");
 
@@ -23,7 +23,6 @@ class Nether extends Feature {
 		this.registerEvent("renderWorld", this.renderWorld)
 
 		this.blocks = []
-
 		this.inSwiftness = false
 		this.lastBlock = undefined
 		this.registerChat("&r&r&r                    &r&aTest of Swiftness &r&e&lOBJECTIVES&r", () => {
@@ -49,7 +48,7 @@ class Nether extends Feature {
 				this.blocks.push({ loc: position, time: Date.now() + 3000 })
 			}
 			if (blockState === 57379) {
-				this.blocks.filter(b => {
+				this.blocks = this.blocks.filter(b => {
 					if (b.loc.x === position.x && b.loc.y === position.y && b.loc.z === position.z) {
 						return false
 					}
@@ -81,6 +80,7 @@ class Nether extends Feature {
 			this.blocks.forEach(data => {
 				Tessellator.drawString(Math.max(0, (data.time - Date.now()) / 1000).toFixed(1) + "s", data.loc.getX() + 0.5, data.loc.getY() + 0.5, data.loc.getZ() + 0.5, 0, false, 0.05, false)
 			})
+			if (this.blocks.length >= 2) drawLine(this.blocks[0].loc.getX(), this.blocks[0].loc.getY(), this.blocks[0].loc.getZ(), this.blocks[1].loc.getX(), this.blocks[1].loc.getY(), this.blocks[1].loc.getZ(), 255, 0, 0)
 		}
 
 		if (this.lastBlock && this.inSwiftness) drawBoxAtBlock(this.lastBlock[0], this.lastBlock[1], this.lastBlock[2], 0, 255, 0, 1, 1)
