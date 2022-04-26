@@ -544,6 +544,7 @@ class FeatureManager {
         } catch (e) {
             logger.logMessage("Error loading feature " + feature, 1)
             console.log(JSON.stringify(e, undefined, 2))
+            console.log(e.stack)
             ChatLib.chat(this.messagePrefix + "Error loading feature " + feature)
 
             soopyV2Server.reportError(e, "Error loading feature " + feature)

@@ -63,7 +63,7 @@ let ret = {
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
-    drawLineWithDepth: function (x, y, z, x2, y2, z2, r, g, b, t) {
+    drawLineWithDepth: function (x, y, z, x2, y2, z2, r, g, b, t = 1) {
 
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);

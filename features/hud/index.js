@@ -13,6 +13,9 @@ import renderLibs from "../../../guimanager/renderLibs";
 
 const ProcessBuilder = Java.type("java.lang.ProcessBuilder")
 const Scanner = Java.type("java.util.Scanner")
+const Base64 = Java.type("java.util.Base64")
+const CompressedStreamTools = Java.type("net.minecraft.nbt.CompressedStreamTools")
+const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream")
 
 class Hud extends Feature {
     constructor() {
@@ -95,7 +98,7 @@ class Hud extends Feature {
                 .requires(this.petEnabledSetting)
                 .editTempText("&6Pet&7> &7[Lvl 100] &aEnderman"))
         this.hudElements.push(this.petElement)
-        this.scanGuiForPet = new ToggleSetting("Scan pets menu gui for selected pet", "Only disable if you get a lot of lag in the pets menu", true, "scan_pets_menu", true).requires(this.petEnabledSetting)
+        this.scanGuiForPet = new ToggleSetting("Scan pets menu gui for selected pet", "Only disable if you get a lot of lag in the pets menu", true, "scan_pets_menu", this).requires(this.petEnabledSetting)
 
         this.soulflowEnabledSetting = new ToggleSetting("Show Soulflow", "Whether the soulflow count is rendered onto the screen", true, "soulflow_enabled", this)
         this.soulflowShowWarningSetting = new ToggleSetting("Show no Talisman Warning", "Shows a warning if you dont have a soulflow talis in ur inv", true, "soulflow_notalis_warning", this).requires(this.soulflowEnabledSetting)
@@ -205,6 +208,7 @@ class Hud extends Feature {
         this.lastTickEventEpochTimestamp = 0
         this.lastAbsorbtion = 0
         this.impactTest = false
+        this.apiSoulflow = false
 
         this.lastUpdatedStatData = 0
 
@@ -505,15 +509,17 @@ class Hud extends Feature {
             }
         })
         if (!hasSoulflowItem) {
-            if (this.soulflowShowWarningSetting.getValue()) {
-                this.soulflowElement.setText("&6Soulflow&7> &cNO TALISMAN")
-            } else {
-                this.soulflowElement.setText("")
+            if (!this.apiSoulflow) {
+                if (this.soulflowShowWarningSetting.getValue()) {
+                    this.soulflowElement.setText("&6Soulflow&7> &cNO TALISMAN")
+                } else {
+                    this.soulflowElement.setText("")
+                }
             }
             return;
         }
         if (soulflowCount > 0 && !this.soulflowShowWhen0Setting.getValue()) {
-            this.soulflowElement.setText("")
+            if (!this.apiSoulflow) this.soulflowElement.setText("")
             return;
         }
 
@@ -524,8 +530,33 @@ class Hud extends Feature {
         data.profiles.forEach(p => {
             if (!this.lastStatData || (p.members[Player.getUUID().toString().replace(/-/g, "")] && p.members[Player.getUUID().toString().replace(/-/g, "")].last_save > this.lastStatData.last_save)) {
                 this.lastStatData = p.members[Player.getUUID().toString().replace(/-/g, "")]
+                this.lastStatData.itemsData = {}
+
+                if (this.lastStatData?.talisman_bag && this.lastStatData?.talisman_bag?.data) {
+                    let nbtTagCompound = CompressedStreamTools[m.readCompressed](new ByteArrayInputStream(Base64.getDecoder().decode(this.lastStatData.talisman_bag.data)));
+
+                    this.lastStatData.itemsData.talisman_bag = new NBTTagCompound(nbtTagCompound)
+                }
             }
         })
+
+        if (this.lastStatData.itemsData.talisman_bag) {
+            let isSoulflowCounting = false
+            this.lastStatData.itemsData.talisman_bag.toString().split(",").forEach(line => {
+                if (isSoulflowCounting) {
+                    this.lastStatData._soulflow *= 1000
+                    this.lastStatData._soulflow += parseInt(ChatLib.removeFormatting(line.split(` `)[0]).replace(/[^0-9]/g, ""))
+                    isSoulflowCounting = !line.endsWith(`Soulflow"`)
+                }
+                if (line.startsWith(`display:{Lore:[0:"§7Internalized:`)) {
+                    isSoulflowCounting = !line.endsWith(`Soulflow"`)
+                    this.lastStatData._soulflow = parseInt(ChatLib.removeFormatting(line.split(`"§7Internalized: `)[1]))
+
+                    this.apiSoulflow = true
+                }
+            })
+            if (this.apiSoulflow) this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData._soulflow))
+        }
 
         this.updateHudThingos()
     }
