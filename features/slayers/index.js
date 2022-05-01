@@ -112,6 +112,7 @@ class Slayers extends Feature {
 		this.pillerE = undefined
 		this.lastPillerDink = 0
 		this.lastServer = undefined
+		this.lastSentServer = 0
 		this.slayerLocationDataH = {}
 
 		this.entityAttackEventLoaded = false;
@@ -230,8 +231,9 @@ class Slayers extends Feature {
 			}
 		}
 
-		if (this.lastServer !== this.FeatureManager.features["dataLoader"].class.stats.Server) {
+		if (this.lastServer !== this.FeatureManager.features["dataLoader"].class.stats.Server || Date.now() - this.lastSentServer > 60000 * 5) {
 			this.lastServer = this.FeatureManager.features["dataLoader"].class.stats.Server;
+			this.lastSentServer = Date.now()
 
 			socketConnection.setSlayerServer(this.FeatureManager.features["dataLoader"].class.stats.Server);
 		}
