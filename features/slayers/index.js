@@ -153,6 +153,8 @@ class Slayers extends Feature {
 		this.eyeE = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined
+
+		this.slayerLocationDataH = {}
 	}
 
 	entityAttackEvent(event) {
