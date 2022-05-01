@@ -416,8 +416,10 @@ class Slayers extends Feature {
 
 			if (World.getBlockAt(0, 0, 0).getID) {
 				if (World.getBlockAt(location[0], location[1], location[2]).getID() === 138) {
-					Client.showTitle("&cGO TO BEACON!", "&c" + (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) + "s", 0, 20, 10);
-					World.playSound("note.pling", 1, 1);
+					if (this.emanBeaconDinkDonk.getValue()) {
+						Client.showTitle("&cGO TO BEACON!", "&c" + (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) + "s", 0, 20, 10);
+						World.playSound("note.pling", 1, 1);
+					}
 				} else {
 					delete this.beaconPoints[e[1]];
 					delete this.beaconLocations[e[1]];
@@ -426,8 +428,10 @@ class Slayers extends Feature {
 			} else {
 				//CT 2.0 support
 				if (World.getBlockAt(location[0], location[1], location[2]).getType().getID() === 138) {
-					Client.showTitle("&cGO TO BEACON!", "&c" + (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) + "s", 0, 20, 10);
-					World.playSound("note.pling", 1, 1);
+					if (this.emanBeaconDinkDonk.getValue()) {
+						Client.showTitle("&cGO TO BEACON!", "&c" + (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) + "s", 0, 20, 10);
+						World.playSound("note.pling", 1, 1);
+					}
 				} else {
 					delete this.beaconPoints[e[1]];
 					delete this.beaconLocations[e[1]];
