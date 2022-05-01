@@ -276,8 +276,6 @@ class Hud extends Feature {
 
         this.registerActionBar("${m}", this.actionbarMessage)
 
-        this.registerCustom("packetReceived", this.packetReceived)
-
         this.packetMoves = 0
         this.secondPackets = 0
         this.tps = -2
@@ -286,12 +284,14 @@ class Hud extends Feature {
         this.registerStep(false, 1, this.step_1second)
     }
 
-    packetReceived(packet) {
-        this.packetMoves++
-    }
-
     step_1second() {
-        if (!this.lagEnabled.getValue()) return
+        if (!this.lagEnabled.getValue()) {
+            if (this.packetReceived) this.packetReceived.unregister()
+            return
+        }
+        if (!this.packetReceived) this.packetReceived = register("packetReceived", () => {
+            this.packetMoves++
+        })
         this.lastTps.push(this.secondPackets)
         if (this.lastTps.length > 10) this.lastTps.shift()
         if (this.tps === -2) {
@@ -322,6 +322,8 @@ class Hud extends Feature {
         this.cpsEnabledSetting.delete()
 
         this.initVariables()
+
+        if (this.packetReceived) this.packetReceived.unregister()
     }
 
     renderHud() {
@@ -542,7 +544,7 @@ class Hud extends Feature {
 
         if (this.lastStatData.itemsData.talisman_bag) {
             let isSoulflowCounting = false
-            this.lastStatData.itemsData.talisman_bag.toString().split(",").forEach(line => {
+            this.lastStatData.itemsData.talisman_bag.toString().split(",").forEach(line => { //omega scuffed because i cba actually using the nbt like a normal person
                 if (isSoulflowCounting) {
                     this.lastStatData._soulflow *= 1000
                     this.lastStatData._soulflow += parseInt(ChatLib.removeFormatting(line.split(` `)[0]).replace(/[^0-9]/g, ""))

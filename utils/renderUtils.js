@@ -49,7 +49,7 @@ let ret = {
         GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
 
-        Tessellator.begin(3).colorize(r, g, b);
+        Tessellator.begin(2).colorize(r, g, b);
 
         Tessellator.pos(x, y, z);
         Tessellator.pos(x2, y2, z2);
@@ -72,7 +72,7 @@ let ret = {
         GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
 
-        Tessellator.begin(3).colorize(r, g, b);
+        Tessellator.begin(2).colorize(r, g, b);
 
         Tessellator.pos(x, y, z);
         Tessellator.pos(x2, y2, z2);
@@ -101,7 +101,7 @@ let ret = {
     },
     drawLineSmall: function (x, y, z, x2, y2, z2, r, g, b) {
 
-        Tessellator.begin(3).colorize(r, g, b);
+        Tessellator.begin(2).colorize(r, g, b);
 
         Tessellator.pos(x, y, z);
         Tessellator.pos(x2, y2, z2);
@@ -116,7 +116,7 @@ let ret = {
         GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
 
-        Tessellator.begin(3).colorize(r, g, b);
+        Tessellator.begin(2).colorize(r, g, b);
 
         locations.forEach(loc => {
             Tessellator.pos(...loc);
@@ -143,7 +143,7 @@ let ret = {
         w += 0.01
         h += 0.01
 
-        Tessellator.begin(3).colorize(colorR, colorG, colorB, a);
+        Tessellator.begin(2).colorize(colorR, colorG, colorB, a);
 
         Tessellator.pos(x + w, y + h, z + w);
         Tessellator.pos(x + w, y + h, z);
@@ -182,7 +182,7 @@ let ret = {
         GlStateManager[m.pushMatrix]()
 
 
-        Tessellator.begin(3).colorize(colorR, colorG, colorB, a);
+        Tessellator.begin(2).colorize(colorR, colorG, colorB, a);
 
         Tessellator.pos(x + w, y + h, z + w);
         Tessellator.pos(x + w, y + h, z);
@@ -233,7 +233,7 @@ let ret = {
         GlStateManager.func_179094_E();
 
 
-        Tessellator.begin(3).colorize(colorR, colorG, colorB);
+        Tessellator.begin(2).colorize(colorR, colorG, colorB);
 
         Tessellator.pos(x + width, y + height, z + width);
         Tessellator.pos(x + width, y + height, z - width);

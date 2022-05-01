@@ -57,6 +57,7 @@ class DungeonMap extends Feature {
         this.newPuzzlesTab = []
         this.mortLocationOnMap = undefined
         this.brBoxLoc = undefined
+        this.keys = 0
         this.invMapImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB)
         this.renderImage = new BufferedImage(this.IMAGE_SIZE, this.IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB)
         this.mapImage = new Image(this.renderImage)
@@ -95,9 +96,17 @@ class DungeonMap extends Feature {
             this.bloodOpened = true
         })
 
+        this.registerChat("&r${*}&r&f &r&ehas obtained &r&a&r&${*} Key&r&e!&r", () => {
+            this.keys++
+        })
+        this.registerChat("&r&eA &r&a&r&${*} Key&r&e was picked up!&r", () => {
+            this.keys++
+        })
+
         this.lastDoorOpener = undefined
         this.registerChat("&r&a${player}&r&a opened a &r&8&lWITHER &r&adoor!&r", (player) => {
             this.lastDoorOpener = ChatLib.removeFormatting(player)
+            this.keys--
         })
 
         this.spiritLeapOverlayGui = new SpiritLeapOverlay(this)
@@ -158,12 +167,13 @@ class DungeonMap extends Feature {
         this.brBoxLoc = undefined
         this.mortLocationOnMap = undefined
         this.bloodOpened = false
+        this.keys = 0
     }
 
     renderWorld() {
         if (this.isInDungeon() && this.brBox.getValue()) {
             if (this.brBoxLoc && (!this.bloodOpened || !this.brBoxDisableWhenBloodOpened.getValue())) {
-                drawBoxAtBlock(this.brBoxLoc[0] - 1.5, 69, this.brBoxLoc[1] - 1.5, 255, 0, 0, 3, 4)
+                drawBoxAtBlock(this.brBoxLoc[0] - 1.5, 69, this.brBoxLoc[1] - 1.5, this.keys === 0 ? 255 : 0, this.keys === 0 ? 0 : 255, 0, 3, 4)
             }
         }
     }

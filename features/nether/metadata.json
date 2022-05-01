@@ -1,6 +1,6 @@
 {
     "name": "Nether",
-    "description": "Nether features",
+    "description": "May cause some lag if enabled when not in nether",
     "isHidden": false,
     "isTogglable": true,
     "defaultEnabled": true,

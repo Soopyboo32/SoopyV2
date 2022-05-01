@@ -71,7 +71,9 @@ class Nether extends Feature {
 			let blockState = this.getBlockIdFromState(packet[m.getBlockState.S23PacketBlockChange]())
 			let oldBlockState = this.getBlockIdFromState(World.getBlockStateAt(position))
 			if (oldBlockState === 20515 && blockState === 16419) {
-				this.blocks.push({ loc: position, time: Date.now() + 3000 })
+				if (Math.abs(Player.getX() - position.getX()) <= 20 && Math.abs(Player.getY() - position.getY()) <= 20 && Math.abs(Player.getZ() - position.getZ()) <= 20) {
+					this.blocks.push({ loc: position, time: Date.now() + 3000 })
+				}
 			}
 			if (blockState === 57379) {
 				this.blocks = this.blocks.filter(b => {
@@ -98,7 +100,9 @@ class Nether extends Feature {
 					this.lastBlock = [position.getX(), position.getY(), position.getZ()]
 				}
 				if (oldBlockState === 20515 && blockState === 16419) {
-					this.blocks.push({ loc: position, time: Date.now() + 3000 })
+					if (Math.abs(Player.getX() - position.getX()) <= 20 && Math.abs(Player.getY() - position.getY()) <= 20 && Math.abs(Player.getZ() - position.getZ()) <= 20) {
+						this.blocks.push({ loc: position, time: Date.now() + 3000 })
+					}
 				}
 				if (blockState === 57379) {
 					this.blocks = this.blocks.filter(b => {

@@ -4,7 +4,7 @@ import logger from "./logger"
 import metadata from "./metadata"
 
 class SoopyV2Server extends WebsiteCommunicator {
-    constructor(){
+    constructor() {
         super(socketData.serverNameToId.soopyv2)
 
         // this.spammedMessages = []
@@ -21,32 +21,35 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.userCosmeticPermissions = undefined
     }
 
-    onData(data){
-        if(data.type === "updateCosmeticPermissions"){
+    onData(data) {
+        if (data.type === "updateCosmeticPermissions") {
             this.userCosmeticPermissions = data.permissions
-            if(global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.cosmetics)global.soopyv2featuremanagerthing.features.cosmetics.class.updateUserCosmeticPermissionSettings()
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.cosmetics) global.soopyv2featuremanagerthing.features.cosmetics.class.updateUserCosmeticPermissionSettings()
         }
-        if(data.type === "updateCosmetics"){
-            if(global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.cosmetics)global.soopyv2featuremanagerthing.features.cosmetics.class.setUserCosmeticsInformation(data.uuid, data.cosmetics)
+        if (data.type === "updateCosmetics") {
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.cosmetics) global.soopyv2featuremanagerthing.features.cosmetics.class.setUserCosmeticsInformation(data.uuid, data.cosmetics)
         }
         // if(data.type === "spammedmessage"){
         //     this.spammedMessages.push(...data.messages)
         // }
-        if(data.type === "playerStatsQuick"){
-            if(this.onPlayerStatsLoaded) this.onPlayerStatsLoaded(data.data)
+        if (data.type === "playerStatsQuick") {
+            if (this.onPlayerStatsLoaded) this.onPlayerStatsLoaded(data.data)
         }
-        if(data.type === "updateLbDataThing"){
+        if (data.type === "updateLbDataThing") {
             this.lbdatathing = data.data
             this.lbdatathingupdated = data.lastUpdated
         }
-        if(data.type === "dungeonMapData"){
-            if(global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.dungeonMap)global.soopyv2featuremanagerthing.features.dungeonMap.class.updateDungeonMapData(data.data)
+        if (data.type === "dungeonMapData") {
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.dungeonMap) global.soopyv2featuremanagerthing.features.dungeonMap.class.updateDungeonMapData(data.data)
+        }
+        if (data.type === "slayerSpawnData") {
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.slayers) global.soopyv2featuremanagerthing.features.slayers.class.slayerLocationData(data.location, data.user)
         }
     }
 
-    onConnect(){
-        if(this.reportErrorsSetting && !this.reportErrorsSetting.getValue()) return
-            
+    onConnect() {
+        if (this.reportErrorsSetting && !this.reportErrorsSetting.getValue()) return
+
         this.errorsToReport.forEach(data => {
             this.sendData({
                 type: "error",
@@ -56,7 +59,7 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.errorsToReport = []
     }
 
-    updateCosmeticsData(data){
+    updateCosmeticsData(data) {
         this.sendData({
             type: "cosmeticSettings",
             data: data
@@ -71,9 +74,9 @@ class SoopyV2Server extends WebsiteCommunicator {
     //     })
     // }
 
-    reportError(error, description){
+    reportError(error, description) {
         // ChatLib.chat(JSON.stringify(error))
-        if(this.reportErrorsSetting && !this.reportErrorsSetting.getValue()) return
+        if (this.reportErrorsSetting && !this.reportErrorsSetting.getValue()) return
         let data = {
             lineNumber: error.lineNumber,
             fileName: error.fileName.replace(/file:.+?ChatTriggers/g, "file:"), //The replace is to not leak irl names thru windows acct name
@@ -84,17 +87,17 @@ class SoopyV2Server extends WebsiteCommunicator {
             modVersionId: metadata.versionId,
         }
 
-        if(this.connected && this.reportErrorsSetting){
+        if (this.connected && this.reportErrorsSetting) {
             this.sendData({
                 type: "error",
                 data: data
             })
-        }else{
+        } else {
             this.errorsToReport.push(data)
         }
     }
 
-    requestPlayerStats(uuid, username){
+    requestPlayerStats(uuid, username) {
         this.sendData({
             type: "loadStatsQuick",
             uuid: uuid,
@@ -102,27 +105,41 @@ class SoopyV2Server extends WebsiteCommunicator {
         })
     }
 
-    requestPlayerStatsCache(uuid, username){
+    requestPlayerStatsCache(uuid, username) {
         this.sendData({
             type: "loadStatsQuickCache",
             uuid: uuid,
             username: username
         })
     }
-    
-    sendDungeonData(names, data){
+
+    sendDungeonData(names, data) {
         this.sendData({
             type: "dungeonMapData",
             names: names,
             data: data
         })
     }
+
+    sendSlayerSpawnData(data) {
+        this.sendData({
+            type: "slayerSpawnData",
+            data: data
+        })
+    }
+
+    setSlayerServer(server) {
+        this.sendData({
+            type: "slayerServer",
+            server: server
+        })
+    }
 }
 
-if(!global.soopyV2Server){
+if (!global.soopyV2Server) {
     global.soopyV2Server = new SoopyV2Server()
-    
-    register("gameUnload", ()=>{
+
+    register("gameUnload", () => {
         global.soopyV2Server = undefined
     })
 }

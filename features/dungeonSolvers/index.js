@@ -703,6 +703,7 @@ class DungeonSolvers extends Feature {
 	}
 
 	step() {
+		if (!TabList || !TabList.getNames()) return
 		World.getAllPlayers().forEach((p) => {
 			this.nameToUuid[p.getName().toLowerCase()] = p.getUUID().toString()
 		})

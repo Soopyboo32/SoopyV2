@@ -3,10 +3,11 @@
 import Feature from "../../featureClass/class";
 import { f, m } from "../../../mappings/mappings";
 import { numberWithCommas, timeNumber } from "../../utils/numberUtils";
-import { drawBoxAtBlock, drawBoxAtEntity, drawFilledBox, drawLine } from "../../utils/renderUtils";
+import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawFilledBox, drawLine } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
+import socketConnection from "../../socketConnection";
 
 class Slayers extends Feature {
 	constructor() {
@@ -47,6 +48,8 @@ class Slayers extends Feature {
 			.setLocationSetting(new LocationSetting("Slayer progress location", "Allows you to edit the location of the dulkir thing", "dulkir_thing_location", this, [10, 150, 1, 1]).requires(this.slayerProgressAlert).editTempText("&e98&7/&c100&7 Kills"));
 
 		this.hudElements.push(this.dulkirThingElement);
+
+		this.otherSlayerWaypoints = new ToggleSetting("Show other users slayer boss locations", "May be usefull for loot share", true, "slayer_location_other", this)
 
 		this.lastSlayerFinishes = [];
 		this.lastSlayerExps = [];
@@ -104,6 +107,8 @@ class Slayers extends Feature {
 		this.emanStartedSittingTime = -1
 		this.pillerE = undefined
 		this.lastPillerDink = 0
+		this.lastServer = undefined
+		this.slayerLocationDataH = {}
 
 		this.entityAttackEventLoaded = false;
 		this.entityAttackEventE = undefined;
@@ -114,6 +119,22 @@ class Slayers extends Feature {
 		this.registerEvent("worldLoad", this.worldLoad);
 		this.registerEvent("renderOverlay", this.renderHud);
 		this.registerStep(true, 2, this.step);
+		this.registerForge(Java.type("net.minecraftforge.client.event.RenderWorldLastEvent"), this.renderWorldLast)
+	}
+
+	renderWorldLast() {
+		if (!this.otherSlayerWaypoints) return
+		Object.keys(this.slayerLocationDataH).forEach(key => {
+			drawCoolWaypoint(this.slayerLocationDataH[key][0][0], this.slayerLocationDataH[key][0][1], this.slayerLocationDataH[key][0][2], 255, 0, 0, { name: key + "'s boss" })
+		})
+	}
+
+	slayerLocationData(loc, user) {
+		if (!loc) {
+			delete this.slayerLocationDataH[user]
+			return
+		}
+		this.slayerLocationDataH[user] = [loc, Date.now()]
 	}
 
 	renderHud() {
@@ -202,6 +223,13 @@ class Slayers extends Feature {
 			}
 		}
 
+		if (this.lastServer !== this.FeatureManager.features["dataLoader"].class.stats.Server) {
+			this.lastServer = this.FeatureManager.features["dataLoader"].class.stats.Server;
+
+			socketConnection.setSlayerServer(this.FeatureManager.features["dataLoader"].class.stats.Server);
+		}
+
+		let lastBossSlainMessage = this.bossSlainMessage
 		this.bossSlainMessage = false;
 		let dis1 = false;
 		this.dulkirThingElement.setText("")
@@ -228,10 +256,16 @@ class Slayers extends Feature {
 				//slayerExp[lastSlayerType] += lastSlayerExp
 			}
 			if (line.getName().includes("Boss slain!")) {
+				if (!lastBossSlainMessage) {
+					socketConnection.sendSlayerSpawnData({ loc: null, lobby: this.FeatureManager.features["dataLoader"].class.stats.Server });
+				}
 				this.bossSlainMessage = true;
 			}
 
 			if (line.getName().includes("Slay the boss!")) {
+				if (!this.bossSpawnedMessage) {
+					socketConnection.sendSlayerSpawnData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())], lobby: this.FeatureManager.features["dataLoader"].class.stats.Server });
+				}
 				if (!this.bossSpawnedMessage && !this.emanBoss) {
 					this.nextIsBoss = Date.now();
 				}
@@ -246,7 +280,6 @@ class Slayers extends Feature {
 				&& lineSplitThing[0].split("/").length === 2
 				&& lineSplitThing[1] === "Kills") {
 				let kills = lineSplitThing[0].split("/").map(a => parseInt(a))
-				console.log(kills[0], kills[1])
 				if (kills[0] / kills[1] >= 0.9) {
 					this.dulkirThingElement.setText(line.getName())
 				}
@@ -474,6 +507,12 @@ class Slayers extends Feature {
 		} else {
 			this.slayerSpeedRatesElement.setText("");
 		}
+
+		Object.keys(this.slayerLocationDataH).forEach(n => {
+			if (this.slayerLocationDataH[n][1] + 60000 * 3 < Date.now()) {
+				delete this.slayerLocationDataH[n]
+			}
+		})
 	}
 
 	initVariables() {
