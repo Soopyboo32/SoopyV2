@@ -81,6 +81,10 @@ class Slayers extends Feature {
 			this.lastBossSlain = Date.now();
 		});
 
+		this.registerChat("&r  &r&c&lSLAYER QUEST FAILED!&r", () => {
+			socketConnection.sendSlayerSpawnData({ loc: null, lobby: this.FeatureManager.features["dataLoader"].class.stats.Server });
+		})
+
 		this.bossSlainMessage = false;
 		this.bossSpawnedMessage = false;
 		this.lastBossNotSpawnedTime = 0;
@@ -130,6 +134,7 @@ class Slayers extends Feature {
 	}
 
 	slayerLocationData(loc, user) {
+		console.log(user + " : " + JSON.stringify(loc))
 		if (!loc) {
 			delete this.slayerLocationDataH[user]
 			return
