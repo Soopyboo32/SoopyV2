@@ -124,14 +124,6 @@ class Slayers extends Feature {
 		this.registerEvent("worldLoad", this.worldLoad);
 		this.registerEvent("renderOverlay", this.renderHud);
 		this.registerStep(true, 2, this.step);
-		this.registerForge(Java.type("net.minecraftforge.client.event.RenderWorldLastEvent"), this.renderWorldLast)
-	}
-
-	renderWorldLast() {
-		if (!this.otherSlayerWaypoints) return
-		Object.keys(this.slayerLocationDataH).forEach(key => {
-			drawCoolWaypoint(this.slayerLocationDataH[key][0][0], this.slayerLocationDataH[key][0][1], this.slayerLocationDataH[key][0][2], 255, 0, 0, { name: key + "'s boss" })
-		})
 	}
 
 	slayerLocationData(loc, user) {
@@ -212,6 +204,11 @@ class Slayers extends Feature {
 
 			drawBoxAtBlock(x - 0.5, y + 0.7, z - 0.5, 255, 0, 0);
 		});
+		if (this.otherSlayerWaypoints) {
+			Object.keys(this.slayerLocationDataH).forEach(key => {
+				drawCoolWaypoint(this.slayerLocationDataH[key][0][0], this.slayerLocationDataH[key][0][1], this.slayerLocationDataH[key][0][2], 255, 0, 0, { name: key + "'s boss" })
+			})
+		}
 	}
 
 	entityJoinWorldEvent(event) {

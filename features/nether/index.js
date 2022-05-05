@@ -2,11 +2,26 @@
 /// <reference lib="es2015" />
 import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
-import { drawBoxAtBlock, drawBoxAtEntity, drawLine, drawLineWithDepth, renderBeaconBeam } from "../../utils/renderUtils";
+import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawLine, drawLineWithDepth, renderBeaconBeam } from "../../utils/renderUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 const MCBlock = Java.type("net.minecraft.block.Block");
 const ArmorStand = Java.type("net.minecraft.entity.item.EntityArmorStand")
 const MCItem = Java.type("net.minecraft.item.Item");
+
+let locationData = {
+	barbarian: {
+		"Ⓐ": [16, 148, -929],
+		"Ⓑ": [-37, 122, -1020],
+		"Ⓒ": [-30, 137, -888],
+		"Ⓓ": [-6, 156, -881],
+	},
+	mage: {
+		"Ⓐ": [-664, 124, -981],
+		"Ⓑ": [-635, 160, -1056],
+		"Ⓒ": [-726, 123, -997],
+		"Ⓓ": [-685, 124, -1049],
+	}
+}
 
 class Nether extends Feature {
 	constructor() {
@@ -33,6 +48,8 @@ class Nether extends Feature {
 		this.blocks = []
 		this.dojoFireBalls = []
 		this.inSwiftness = false
+		this.rescueMissionDifficulty = undefined
+		this.rescueMissionType = undefined
 		this.lastBlock = undefined
 		this.registerChat("&r&r&r                    &r&aTest of Swiftness &r&e&lOBJECTIVES&r", () => {
 			if (this.speedNextBlock.getValue()) {
@@ -44,9 +61,29 @@ class Nether extends Feature {
 			this.inSwiftness = false
 			this.lastBlock = undefined
 		})
+		//&e[NPC] &eRescue Recruiter&f: &rPerfect! Go see our &eUndercover Agent &rat the &5Cathedral &rarea in &5Mage &rterritory to get started.&r
+		this.registerChat("&e[NPC] &eRescue Recruiter&f: &rPerfect! Go see our &eUndercover Agent &rat the ${*} in ${type} &rterritory to get started.&r", (type) => {
+			// console.log(type)
+			this.rescueMissionType = ChatLib.removeFormatting(type) === "Mage" ? "barbarian" : "mage"
+			// console.log(this.rescueMissionDifficulty, this.rescueMissionType)
+		})
+
+		this.registerChat("You completed your rescue quest! Visit the Town Board to claim the rewards,", () => {
+			this.rescueMissionDifficulty = this.rescueMissionType = undefined
+		})
+		this.registerEvent("worldLoad", () => {
+			this.rescueMissionDifficulty = this.rescueMissionType = undefined
+		})
 	}
 
 	tick() {
+		if (Player.getContainer().getName() === "Rescue") {
+			let difficulty = ChatLib.removeFormatting(Player.getContainer().getStackInSlot(22).getName()).trim()[0]
+
+			this.rescueMissionDifficulty = difficulty
+			// console.log(this.rescueMissionDifficulty, this.rescueMissionType)
+		}
+
 		this.todoE2.forEach(e => {
 			let item = e[m.getHeldItem]()
 			if (!item) return
@@ -137,6 +174,11 @@ class Nether extends Feature {
 			let change = [entitylocation[0] - lastLocation[0], entitylocation[1] - lastLocation[1], entitylocation[2] - lastLocation[2]]
 			drawLineWithDepth(entitylocation[0] + change[0] * 100 + offset[0], entitylocation[1] + change[1] * 100 + offset[1], entitylocation[2] + change[2] * 100 + offset[2], entitylocation[0] + offset[0], entitylocation[1] + offset[1], entitylocation[2] + offset[2], 255, 0, 0, 2)
 		})
+
+		if (this.rescueMissionDifficulty && this.rescueMissionType) {
+			let location = locationData[this.rescueMissionType][this.rescueMissionDifficulty]
+			drawCoolWaypoint(location[0], location[1], location[2], 255, 0, 0, { name: "Hostage" })
+		}
 	}
 
 	step1S() {

@@ -5,7 +5,6 @@ import Feature from "../../featureClass/class";
 import { drawCoolWaypoint } from "../../utils/renderUtils";
 import SettingBase from "../settings/settingThings/settingBase";
 
-const RenderWorldLastEvent = Java.type("net.minecraftforge.client.event.RenderWorldLastEvent")
 
 class Waypoints extends Feature {
     constructor() {
@@ -28,7 +27,7 @@ class Waypoints extends Feature {
         this.updateWaypointsHashes()
         this.waypointsChanged = false
 
-        this.registerForge(RenderWorldLastEvent, this.renderWorldLast)
+        this.registerEvent("renderWorld", this.renderWorld)
 
         this.registerCommand("addwaypoint", (name, x = Math.floor(Player.getX()).toString(), y = Math.floor(Player.getY()).toString(), z = Math.floor(Player.getZ()).toString(), r = "0", g = "255", b = "0", area = "") => {
             let lx = 0
@@ -108,7 +107,7 @@ class Waypoints extends Feature {
         }
     }
 
-    renderWorldLast() {
+    renderWorld() {
         for (let waypoint of this.userWaypointsAll) {
             drawCoolWaypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, waypoint.options)
         }
