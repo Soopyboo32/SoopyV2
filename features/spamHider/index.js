@@ -11,7 +11,7 @@ class SpamHider extends Feature {
         super()
     }
 
-    onEnable(){
+    onEnable() {
         this.initVariables()
 
         this.hideMessages = []
@@ -32,7 +32,7 @@ class SpamHider extends Feature {
         this.textShadowSetting = new ToggleSetting("Spam Hider Text Shadow", "Whether to give the spam hider text shadow", true, "spam_text_shadow", this)
 
         this.SpamHiderMessagesRenderer = new SpamHiderMessagesRenderer()
-        this.textShadowSetting.toggleObject.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun)=>{
+        this.textShadowSetting.toggleObject.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun) => {
             this.SpamHiderMessagesRenderer.textShadow = this.textShadowSetting.getValue()
         }))
 
@@ -40,7 +40,7 @@ class SpamHider extends Feature {
 
         this.registerChat("${*}", this.onChat)
 
-        this.registerEvent("renderOverlay", this.renderOverlay)
+        this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.moveMessagesSetting.getValue())
 
         // this.registerChat("&r${userandrank}&r&f: ${message}&r", this.chatPlayerMessage)
     }
@@ -65,37 +65,37 @@ class SpamHider extends Feature {
     //     }
     // }
 
-    onChat(e){
+    onChat(e) {
         let msg = ChatLib.getChatMessage(e, true).replace(/§/g, "&").replace(/(?:^&r)|(?:&r$)/g, "")
-        if(msg.length > 1000) return //performance
+        if (msg.length > 1000) return //performance
 
-        if(this.hideMessagesSetting.getValue()){
+        if (this.hideMessagesSetting.getValue()) {
             // console.log("testing " + (this.hideMessagesDict[msg.substring(0,5)]?.length || 0) + this.hideMessagesDict.all.length + " hide messages")
-            this.hideMessagesDict[msg.substring(0,5)]?.forEach(regex => {
-                if(regex.test(msg)){
+            this.hideMessagesDict[msg.substring(0, 5)]?.forEach(regex => {
+                if (regex.test(msg)) {
                     cancel(e)
                     return
                 }
             })
             this.hideMessagesDict.all.forEach(regex => {
-                if(regex.test(msg)){
+                if (regex.test(msg)) {
                     cancel(e)
                     return
                 }
             })
         }
 
-        if(this.moveMessagesSetting.getValue()){
+        if (this.moveMessagesSetting.getValue()) {
             // console.log("testing " + (this.moveMessagesDict[msg.substring(0,5)]?.length || 0) + this.moveMessagesDict.all.length + " spam messages")
-            this.moveMessagesDict[msg.substring(0,5)]?.forEach(regex => {
-                if(regex.test(msg)){
+            this.moveMessagesDict[msg.substring(0, 5)]?.forEach(regex => {
+                if (regex.test(msg)) {
                     this.SpamHiderMessagesRenderer.addMessage(msg)
                     cancel(e)
                     return
                 }
             })
             this.moveMessagesDict.all.forEach(regex => {
-                if(regex.test(msg)){
+                if (regex.test(msg)) {
                     this.SpamHiderMessagesRenderer.addMessage(msg)
                     cancel(e)
                     return
@@ -103,45 +103,45 @@ class SpamHider extends Feature {
             })
         }
     }
-    renderOverlay(){
-        this.SpamHiderMessagesRenderer.render(100,100,1, 1)
+    renderOverlay() {
+        this.SpamHiderMessagesRenderer.render(100, 100, 1, 1)
     }
 
-    loadSpamMessages(){
-        fetch("http://soopymc.my.to/api/soopyv2/spamHiderMessages.json").json(messages=>{
+    loadSpamMessages() {
+        fetch("http://soopymc.my.to/api/soopyv2/spamHiderMessages.json").json(messages => {
             this.hideMessages = messages.hideMessages
             this.moveMessages = messages.moveMessages
-    
+
             this.hideMessagesDict = {
                 all: []
             }
-    
+
             this.hideMessagesRexex = []
-            this.hideMessages.forEach(message=>{
+            this.hideMessages.forEach(message => {
                 let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
-                            .replace(/\$\{\*\}/g, "(?:.+)"))
-                if(!message.substring(0,5).includes("$")){
-                    if(!this.hideMessagesDict[message.substring(0,5)]) this.hideMessagesDict[message.substring(0,5)] = []
-                    this.hideMessagesDict[message.substring(0,5)].push(regex)
-                }else{
+                    .replace(/\$\{\*\}/g, "(?:.+)"))
+                if (!message.substring(0, 5).includes("$")) {
+                    if (!this.hideMessagesDict[message.substring(0, 5)]) this.hideMessagesDict[message.substring(0, 5)] = []
+                    this.hideMessagesDict[message.substring(0, 5)].push(regex)
+                } else {
                     this.hideMessagesDict.all.push(regex)
                 }
                 this.hideMessagesRexex.push(regex)
             })
-    
+
             this.moveMessagesDict = {
                 all: []
             }
-    
+
             this.moveMessagesRexex = []
-            this.moveMessages.forEach(message=>{
+            this.moveMessages.forEach(message => {
                 let regex = new RegExp(message.replace(/[\\^$*+?.()|[\]{}]/g, '$&')
-                            .replace(/\$\{\*\}/g, "(?:.+)"))
-                            
-                if(!message.substring(0,5).includes("$")){
-                    if(!this.moveMessagesDict[message.substring(0,5)]) this.moveMessagesDict[message.substring(0,5)] = []
-                    this.moveMessagesDict[message.substring(0,5)].push(regex)
-                }else{
+                    .replace(/\$\{\*\}/g, "(?:.+)"))
+
+                if (!message.substring(0, 5).includes("$")) {
+                    if (!this.moveMessagesDict[message.substring(0, 5)]) this.moveMessagesDict[message.substring(0, 5)] = []
+                    this.moveMessagesDict[message.substring(0, 5)].push(regex)
+                } else {
                     this.moveMessagesDict.all.push(regex)
                 }
                 this.moveMessagesRexex.push(regex)
@@ -149,7 +149,7 @@ class SpamHider extends Feature {
         })
     }
 
-    initVariables(){
+    initVariables() {
         this.hideMessages = undefined
         this.hideMessagesRexex = undefined
         this.moveMessages = undefined
@@ -157,13 +157,13 @@ class SpamHider extends Feature {
         this.SpamHiderMessagesRenderer = undefined
     }
 
-    onDisable(){
+    onDisable() {
         this.initVariables()
     }
 }
 
-class SpamHiderMessagesRenderer{
-    constructor(){
+class SpamHiderMessagesRenderer {
+    constructor() {
         this.messages = []
         this.x = 0 //offset from corner, not absolute location
         this.y = 0 //offset from corner, not absolute location
@@ -175,26 +175,26 @@ class SpamHiderMessagesRenderer{
         this.textShadow = true
     }
 
-    addMessage(str){
+    addMessage(str) {
         this.messages.push([str, Date.now(), this.y])
     }
 
-    render(){
+    render() {
         Renderer.drawString("", -100, -100)//Fixes skytils issue //idk if this is still needed, it was in old code and imma just leave it ig
 
         let now = Date.now()
-        let animDiv = (now-this.lastRender) / 1000
+        let animDiv = (now - this.lastRender) / 1000
         this.lastRender = now
         let swidth = Renderer.screen.getWidth()
         let sheight = Renderer.screen.getHeight()
 
         //loop over all messages backwards
-        for(let i = this.messages.length - 1; i >= 0; i--){
+        for (let i = this.messages.length - 1; i >= 0; i--) {
             let message = this.messages[i]
-            
+
             let [str, time, height] = message
 
-            time = now-time
+            time = now - time
 
             let messageWidth = Renderer.getStringWidth(ChatLib.removeFormatting(str))
 
@@ -202,15 +202,15 @@ class SpamHiderMessagesRenderer{
             let y = 0;
             if (this.corner === 0) { //top left
                 x = 20
-                this.messages[i][2] = height + (((this.messages.length-i) * -10) - height) * (animDiv * 5)
+                this.messages[i][2] = height + (((this.messages.length - i) * -10) - height) * (animDiv * 5)
             }
             if (this.corner === 1) { //top right
                 x = swidth - 20 - messageWidth
-                this.messages[i][2] = height + (((this.messages.length-i) * -10) - height) * (animDiv * 5)
+                this.messages[i][2] = height + (((this.messages.length - i) * -10) - height) * (animDiv * 5)
             }
             if (this.corner === 2) { //bottom right
                 x = swidth - 20 - messageWidth
-                this.messages[i][2] = height + (((this.messages.length-i) * 10) - height) * (animDiv * 5)
+                this.messages[i][2] = height + (((this.messages.length - i) * 10) - height) * (animDiv * 5)
             }
 
             let animOnOff = 0
@@ -244,9 +244,9 @@ class SpamHiderMessagesRenderer{
                 y = sheight - 30 - (height)
             }
 
-            if(this.textShadow){
+            if (this.textShadow) {
                 Renderer.drawStringWithShadow(str, x + this.x, y + this.y);
-            }else{
+            } else {
                 Renderer.drawString(str, x + this.x, y + this.y);
             }
 
@@ -263,66 +263,66 @@ module.exports = {
 
 var sha256 = function a(b) {
     function c(a, b) {
-      return (a >>> b) | (a << (32 - b));
+        return (a >>> b) | (a << (32 - b));
     }
     for (
-      var d,
-      e,
-      f = Math.pow,
-      g = f(2, 32),
-      h = "length",
-      i = "",
-      j = [],
-      k = 8 * b[h],
-      l = (a.h = a.h || []),
-      m = (a.k = a.k || []),
-      n = m[h],
-      o = {},
-      p = 2;
-      64 > n;
-      p++
+        var d,
+        e,
+        f = Math.pow,
+        g = f(2, 32),
+        h = "length",
+        i = "",
+        j = [],
+        k = 8 * b[h],
+        l = (a.h = a.h || []),
+        m = (a.k = a.k || []),
+        n = m[h],
+        o = {},
+        p = 2;
+        64 > n;
+        p++
     )
-      if (!o[p]) {
-        for (d = 0; 313 > d; d += p) o[d] = p;
-        (l[n] = (f(p, 0.5) * g) | 0), (m[n++] = (f(p, 1 / 3) * g) | 0);
-      }
+        if (!o[p]) {
+            for (d = 0; 313 > d; d += p) o[d] = p;
+            (l[n] = (f(p, 0.5) * g) | 0), (m[n++] = (f(p, 1 / 3) * g) | 0);
+        }
     for (b += "\x80"; (b[h] % 64) - 56;) b += "\x00";
     for (d = 0; d < b[h]; d++) {
-      if (((e = b.charCodeAt(d)), e >> 8)) return;
-      j[d >> 2] |= e << (((3 - d) % 4) * 8);
+        if (((e = b.charCodeAt(d)), e >> 8)) return;
+        j[d >> 2] |= e << (((3 - d) % 4) * 8);
     }
     for (j[j[h]] = (k / g) | 0, j[j[h]] = k, e = 0; e < j[h];) {
-      var q = j.slice(e, (e += 16)),
-        r = l;
-      for (l = l.slice(0, 8), d = 0; 64 > d; d++) {
-        var s = q[d - 15],
-          t = q[d - 2],
-          u = l[0],
-          v = l[4],
-          w =
-            l[7] +
-            (c(v, 6) ^ c(v, 11) ^ c(v, 25)) +
-            ((v & l[5]) ^ (~v & l[6])) +
-            m[d] +
-            (q[d] =
-              16 > d
-                ? q[d]
-                : (q[d - 16] +
-                  (c(s, 7) ^ c(s, 18) ^ (s >>> 3)) +
-                  q[d - 7] +
-                  (c(t, 17) ^ c(t, 19) ^ (t >>> 10))) |
-                0),
-          x =
-            (c(u, 2) ^ c(u, 13) ^ c(u, 22)) +
-            ((u & l[1]) ^ (u & l[2]) ^ (l[1] & l[2]));
-        (l = [(w + x) | 0].concat(l)), (l[4] = (l[4] + w) | 0);
-      }
-      for (d = 0; 8 > d; d++) l[d] = (l[d] + r[d]) | 0;
+        var q = j.slice(e, (e += 16)),
+            r = l;
+        for (l = l.slice(0, 8), d = 0; 64 > d; d++) {
+            var s = q[d - 15],
+                t = q[d - 2],
+                u = l[0],
+                v = l[4],
+                w =
+                    l[7] +
+                    (c(v, 6) ^ c(v, 11) ^ c(v, 25)) +
+                    ((v & l[5]) ^ (~v & l[6])) +
+                    m[d] +
+                    (q[d] =
+                        16 > d
+                            ? q[d]
+                            : (q[d - 16] +
+                                (c(s, 7) ^ c(s, 18) ^ (s >>> 3)) +
+                                q[d - 7] +
+                                (c(t, 17) ^ c(t, 19) ^ (t >>> 10))) |
+                            0),
+                x =
+                    (c(u, 2) ^ c(u, 13) ^ c(u, 22)) +
+                    ((u & l[1]) ^ (u & l[2]) ^ (l[1] & l[2]));
+            (l = [(w + x) | 0].concat(l)), (l[4] = (l[4] + w) | 0);
+        }
+        for (d = 0; 8 > d; d++) l[d] = (l[d] + r[d]) | 0;
     }
     for (d = 0; 8 > d; d++)
-      for (e = 3; e + 1; e--) {
-        var y = (l[d] >> (8 * e)) & 255;
-        i += (16 > y ? 0 : "") + y.toString(16);
-      }
+        for (e = 3; e + 1; e--) {
+            var y = (l[d] >> (8 * e)) & 255;
+            i += (16 > y ? 0 : "") + y.toString(16);
+        }
     return i;
-  };
+};

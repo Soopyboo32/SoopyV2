@@ -25,6 +25,7 @@ class DungeonMap extends Feature {
     }
 
     isInDungeon() {
+        if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false
         return this.FeatureManager.features["dataLoader"].class.isInDungeon
     }
 
@@ -112,13 +113,13 @@ class DungeonMap extends Feature {
         this.spiritLeapOverlayGui = new SpiritLeapOverlay(this)
 
         // this.registerEvent("tick", this.tick)
-        this.registerStep(true, 3, this.step)
+        this.registerStep(true, 3, this.step).registeredWhen(() => this.isInDungeon())
         this.registerStep(true, 10, () => {
             this.spiritLeapOverlayGui.tick()
-        })
-        this.registerStep(false, 5, this.step5s)
-        this.registerEvent("renderOverlay", this.renderOverlay)
-        this.registerEvent("renderWorld", this.renderWorld)
+        }).registeredWhen(() => this.isInDungeon())
+        this.registerStep(false, 5, this.step5s).registeredWhen(() => this.isInDungeon())
+        this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.isInDungeon())
+        this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInDungeon())
         this.registerEvent("worldLoad", this.worldLoad)
 
         this.registerEvent("guiOpened", (event) => {
@@ -150,7 +151,7 @@ class DungeonMap extends Feature {
             new Thread(() => {
                 this.updateMapImage()
             }).start()
-        })
+        }).registeredWhen(() => this.isInDungeon())
 
         this.registerChat("&r&r&r                     &r&cThe Catacombs &r&8- &r&eFloor ${*} Stats&r", () => {
             this.puzzles = {}

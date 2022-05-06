@@ -4,7 +4,6 @@ import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import { numberWithCommas } from "../../utils/numberUtils";
 import * as renderUtils from "../../utils/renderUtils";
-import { drawBoxAtBlock } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
@@ -21,6 +20,11 @@ try {
 class DungeonSolvers extends Feature {
 	constructor() {
 		super();
+	}
+
+	isInDungeon() {
+		if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false
+		return this.FeatureManager.features["dataLoader"].class.isInDungeon
 	}
 
 	onEnable() {
@@ -163,12 +167,12 @@ class DungeonSolvers extends Feature {
 			7: 360,
 		};
 
-		this.registerStep(true, 2, this.step);
-		this.registerStep(true, 10, this.step2);
+		this.registerStep(true, 2, this.step).registeredWhen(() => this.isInDungeon());
+		this.registerStep(true, 10, this.step2).registeredWhen(() => this.isInDungeon());
 		this.registerEvent("worldLoad", this.onWorldLoad);
 
-		this.registerEvent("renderOverlay", this.renderHud);
-		this.registerEvent("renderWorld", this.renderWorld);
+		this.registerEvent("renderOverlay", this.renderHud).registeredWhen(() => this.isInDungeon());
+		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInDungeon());
 
 		this.bloodOpenedBonus = false;
 		this.goneInBonus = false;
@@ -196,7 +200,7 @@ class DungeonSolvers extends Feature {
 					}
 				}
 			}
-		})
+		}).registeredWhen(() => this.isInDungeon())
 		let mimicDeadMessages = ["$SKYTILS-DUNGEON-SCORE-MIMIC$", "Mimic Killed!", "Mimic Dead!", "Mimic dead!"]
 		this.registerChat("&r&9Party &8> ${msg}", (msg) => {
 			mimicDeadMessages.forEach(dmsg => {
@@ -238,7 +242,7 @@ class DungeonSolvers extends Feature {
 			}
 		});
 
-		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent);
+		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDungeon());
 		// this.registerEvent("renderEntity", this.renderEntity)
 		this.renderEntityEvent = undefined;
 
@@ -403,7 +407,7 @@ class DungeonSolvers extends Feature {
 		}
 
 		if (this.bloodCampAssist.getValue()) {
-			this.skulls.forEach((skull) => {
+			for (let skull of this.skulls) {
 				let skullE = skull.getEntity();
 				// renderUtils.drawBoxAtEntity(skull, 255, 0, 0, 0.5, 0.5, ticks)
 
@@ -435,19 +439,23 @@ class DungeonSolvers extends Feature {
 					//     Tessellator.drawString((time/1000).toFixed(3)+"s", endPoint[0], endPoint[1]+2, endPoint[2])
 					// }
 				}
-			});
+			}
 		}
 
 		if (this.blazeX !== -1 && this.blazes.length > 0 && this.blazeSolver.getValue()) {
 			renderUtils.drawBoxAtEntity(this.blazes[0], 255, 0, 0, 1, 2, ticks, 2);
 
 			let lastLoc = [this.blazes[0].getX(), this.blazes[0].getY() + 1.5, this.blazes[0].getZ()];
-			this.blazes.forEach((blaze, i) => {
+			// this.blazes.forEach((blaze, i) => {
+			for (let i = 0, blaze = this.blazes[0]; i < this.blazes.length; i++, blaze = this.blazes[i]) {
 				if (i < 3 && i !== 0) {
 					renderUtils.drawLineWithDepth(lastLoc[0], lastLoc[1], lastLoc[2], blaze.getX(), blaze.getY() + 1.5, blaze.getZ(), i === 1 ? 0 : 255, i === 1 ? 255 : 0, 0, 3 / i);
-					lastLoc = [blaze.getX(), blaze.getY() + 1.5, blaze.getZ()];
+
+					lastLoc[0] = blaze.getX();
+					lastLoc[1] = blaze.getY() + 1.5;
+					lastLoc[2] = blaze.getZ();
 				}
-			});
+			}
 		}
 	}
 
@@ -760,7 +768,7 @@ class DungeonSolvers extends Feature {
 			}
 		} else {
 			if (this.renderEntityEvent) {
-				this.unregisterEvent(this.renderEntityEvent);
+				this.renderEntityEvent.unregister()
 				this.renderEntityEvent = undefined;
 			}
 		}

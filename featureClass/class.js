@@ -8,6 +8,7 @@ class Feature {
         this.customEvents = {}
         this.forgeEvents = {}
         this.soopyEvents = {}
+        this.dynamicEvents = new Set()
 
         this.id = undefined
 
@@ -32,12 +33,18 @@ class Feature {
         this.events = {}
         this.customEvents = {}
         this.enabled = false
+
+        this.stepEvent.unregister()
     }
 
     _onEnable(parent) {
         this.FeatureManager = parent
 
         this.enabled = true
+
+        this.stepEvent = this.registerStep(false, 5, () => {
+            this.dynamicEvents.forEach(e => e.update())
+        })
 
         this.onEnable()
     }
@@ -50,7 +57,7 @@ class Feature {
 
         this.events[theEvent.id] = theEvent
 
-        return theEvent
+        return new CtEvent(theEvent, undefined, [event, func], this)
     }
 
     unregisterEvent(event) {
@@ -63,7 +70,7 @@ class Feature {
 
         this.soopyEvents[theEvent.id] = theEvent
 
-        return theEvent
+        return new SoopyEvent(theEvent, undefined, [event, func], this)
     }
 
     unregisterSoopy(event) {
@@ -82,7 +89,7 @@ class Feature {
         }
         if (theEvent) this.forgeEvents[theEvent.id] = theEvent
 
-        return theEvent
+        return new ForgeEvent(theEvent, theEvent.trigger, [event, func, messageIfError], this)
     }
 
     unregisterForge(event) {
@@ -98,21 +105,21 @@ class Feature {
 
         this.customEvents[theEvent.id] = theEvent
 
-        return theEvent
+        return new CustomEvent(theEvent, theEvent.trigger, [criteria, func], this)
     }
     registerActionBar(criteria, func) {
         let theEvent = this.FeatureManager.registerActionBar(criteria, func, this)
 
         this.customEvents[theEvent.id] = theEvent
 
-        return theEvent
+        return new CustomEvent(theEvent, theEvent.trigger, [criteria, func], this)
     }
     registerStep(isFps, interval, func) {
         let theEvent = this.FeatureManager.registerStep(isFps, interval, func, this)
 
         this.customEvents[theEvent.id] = theEvent
 
-        return theEvent
+        return new CustomEvent(theEvent, theEvent.trigger, [isFps, interval, func], this)
     }
 
     registerCustom(event, func) {
@@ -120,7 +127,7 @@ class Feature {
 
         this.customEvents[theEvent.id] = theEvent
 
-        return theEvent
+        return new CustomEvent(theEvent, theEvent.trigger, [event, func], this)
     }
 
     registerCommand(name, func) {
@@ -133,6 +140,8 @@ class Feature {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "This command is not available atm")
             }
         }, this)
+
+        return new CommandEvent(name, undefined, [name, func], this)
     }
     unregisterCommand(name) {
         delete this.FeatureManager.commandFuncs[name]
@@ -150,3 +159,119 @@ class Feature {
 }
 
 export default Feature
+
+class Event {
+    constructor(data, trigger, registerArgs = [], parent) {
+        this.data = data
+        this.trigger = trigger
+        this.registerArgs = registerArgs
+        this.parent = parent
+
+        this.enabled = true
+
+        this.when = undefined
+    }
+
+    update() {
+        if (this.enabled === this.when()) return
+
+        if (this.enabled) {
+            this.unregister()
+        } else {
+            this.register()
+        }
+    }
+
+    /**
+     * Runs the function given as the argument every 5seconds
+     * And will make sure that the event is only registered when the condition is true
+     */
+    registeredWhen(fun) {
+        this.when = fun
+
+        if (!fun()) {
+            this.unregister()
+        }
+
+        this.parent.dynamicEvents.add(this)
+
+        return this
+    }
+
+    register() {
+        if (this.enabled) return
+
+        this.enabled = true
+        this.actuallyRegister()
+    }
+
+    unregister() {
+        if (!this.enabled) return
+
+        this.enabled = false
+        this.actuallyUnregister()
+    }
+
+    actuallyRegister() { }
+
+    actuallyUnregister() { }
+}
+
+class CtEvent extends Event {
+    actuallyRegister() {
+        let newEvent = this.parent.registerEvent(...this.registerArgs)
+        this.data = newEvent.data
+        this.trigger = newEvent.trigger
+    }
+
+    actuallyUnregister() {
+        this.parent.unregisterEvent(this.data)
+    }
+}
+class SoopyEvent extends Event {
+    actuallyRegister() {
+        let newEvent = this.parent.registerSoopy(...this.registerArgs)
+        this.data = newEvent.data
+        this.trigger = newEvent.trigger
+    }
+
+    actuallyUnregister() {
+        this.parent.unregisterSoopy(this.data)
+    }
+}
+
+class CommandEvent extends Event {
+    actuallyRegister() {
+        let newEvent = this.parent.registerCommand(...this.registerArgs)
+        this.data = newEvent.data
+        this.trigger = newEvent.trigger
+    }
+
+    actuallyUnregister() {
+        this.parent.unregisterCommand(this.data)
+    }
+}
+
+class ForgeEvent extends Event {
+    actuallyRegister() {
+        let newEvent = this.parent.registerForge(...this.registerArgs)
+        this.data = newEvent.data
+        this.trigger = newEvent.trigger
+    }
+
+    actuallyUnregister() {
+        this.parent.unregisterForge(this.data)
+    }
+}
+
+class CustomEvent extends Event {
+    actuallyRegister() {
+        let newEvent = this.trigger.register()
+        this.data = newEvent.data
+        this.trigger = newEvent.trigger
+    }
+
+    actuallyUnregister() {
+        this.trigger.unregister()
+    }
+}

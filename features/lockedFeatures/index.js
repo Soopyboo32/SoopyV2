@@ -13,12 +13,12 @@ class LockedFeatures extends Feature {
         super()
     }
 
-    onEnable(){
+    onEnable() {
         this.initVariables()
 
         this.guildEventLbPossible = new FakeRequireToggle(false)
         this.guildEventLb = new ToggleSetting("Guild event leaderboard", "A gui element for guild leaderboard progress", true, "guild_event_lb", this).requires(this.guildEventLbPossible)
-        
+
         this.hudElements = []
         this.guildLbElement = new HudTextElement()
             .setToggleSetting(this.guildEventLb)
@@ -29,59 +29,59 @@ class LockedFeatures extends Feature {
         this.eventCommand = undefined
 
         this.registerStep(true, 1, this.step)
-        this.registerEvent("renderOverlay", this.renderOverlay)
+        this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.guildEventLb.getValue())
     }
 
-    step(){
-        if(!SoopyV2Server.lbdatathing){
+    step() {
+        if (!SoopyV2Server.lbdatathing) {
             this.guildEventLbPossible.set(false)
-            if(this.eventCommand){
-                this.unregisterCommand("eventlb")
+            if (this.eventCommand) {
+                this.eventCommand.unregister()
                 this.eventCommand = undefined
             }
             return;
         }
-        
+
         this.guildEventLbPossible.set(true)
 
-        if(!this.eventCommand){
-            this.eventCommand = this.registerCommand("eventlb", ()=>{
-                SoopyV2Server.lbdatathing.forEach((u, i)=>{
+        if (!this.eventCommand) {
+            this.eventCommand = this.registerCommand("eventlb", () => {
+                SoopyV2Server.lbdatathing.forEach((u, i) => {
                     let text = ""
-                    text += "§6#" + (i+1)
+                    text += "§6#" + (i + 1)
                     text += "§7 - "
-                    text += "§e"+u.username
-                    text += "&7: §r"+numberWithCommas(Math.round(parseFloat(u.startingAmount)))
-                    if(u.progress) text += " §7("+ (u.progress>0?"+":"-")+Math.abs(Math.round(u.progress)) + "/h)"
+                    text += "§e" + u.username
+                    text += "&7: §r" + numberWithCommas(Math.round(parseFloat(u.startingAmount)))
+                    if (u.progress) text += " §7(" + (u.progress > 0 ? "+" : "-") + Math.abs(Math.round(u.progress)) + "/h)"
                     ChatLib.chat(text)
                 })
             })
         }
 
-        if(!this.guildEventLb.getValue()) return
+        if (!this.guildEventLb.getValue()) return
 
         let text = ""
 
         let playerPos = 0
 
-        SoopyV2Server.lbdatathing.forEach((u, i)=>{
-            if(u.uuid === Player.getUUID().toString().replace(/-/g, "")) playerPos = i
+        SoopyV2Server.lbdatathing.forEach((u, i) => {
+            if (u.uuid === Player.getUUID().toString().replace(/-/g, "")) playerPos = i
         })
 
         let prevProgress
         let playerProgress
         let nextProgress
 
-        SoopyV2Server.lbdatathing.forEach((u, i)=>{
-            if(i === playerPos-1) nextProgress = [parseFloat(u.startingAmount), u.progress]
-            if(i === playerPos) playerProgress = [parseFloat(u.startingAmount), u.progress]
-            if(i === playerPos+1) prevProgress = [parseFloat(u.startingAmount), u.progress]
-            if(i === playerPos-1 || i === playerPos || i === playerPos+1 || (playerPos === 0 && i===playerPos+2)){
-                text += "§6#" + (i+1)
+        SoopyV2Server.lbdatathing.forEach((u, i) => {
+            if (i === playerPos - 1) nextProgress = [parseFloat(u.startingAmount), u.progress]
+            if (i === playerPos) playerProgress = [parseFloat(u.startingAmount), u.progress]
+            if (i === playerPos + 1) prevProgress = [parseFloat(u.startingAmount), u.progress]
+            if (i === playerPos - 1 || i === playerPos || i === playerPos + 1 || (playerPos === 0 && i === playerPos + 2)) {
+                text += "§6#" + (i + 1)
                 text += "§7 - "
-                text += "§e"+u.username
-                text += "&7: §r"+numberWithCommas(Math.round(parseFloat(u.startingAmount)))
-                if(u.progress) text += " §7("+ (u.progress>0?"+":"-")+Math.abs(Math.round(u.progress)) + "/h)"
+                text += "§e" + u.username
+                text += "&7: §r" + numberWithCommas(Math.round(parseFloat(u.startingAmount)))
+                if (u.progress) text += " §7(" + (u.progress > 0 ? "+" : "-") + Math.abs(Math.round(u.progress)) + "/h)"
                 text += "\n"
             }
         })
@@ -90,32 +90,32 @@ class LockedFeatures extends Feature {
 
         let timeTillIncrease = Infinity
         let timeTillDecrease = Infinity
-        if(nextProgress && nextProgress[1]-playerProgress[1] < 0){
-            timeTillIncrease = ((nextProgress[0]-playerProgress[0])/(playerProgress[1]-nextProgress[1])*60*60*1000)
+        if (nextProgress && nextProgress[1] - playerProgress[1] < 0) {
+            timeTillIncrease = ((nextProgress[0] - playerProgress[0]) / (playerProgress[1] - nextProgress[1]) * 60 * 60 * 1000)
         }
-        if(prevProgress && prevProgress[1]-playerProgress[1] < 0){
-            timeTillDecrease = ((playerProgress[0]-prevProgress[0])/(prevProgress[1]-playerProgress[1])*60*60*1000)
+        if (prevProgress && prevProgress[1] - playerProgress[1] < 0) {
+            timeTillDecrease = ((playerProgress[0] - prevProgress[0]) / (prevProgress[1] - playerProgress[1]) * 60 * 60 * 1000)
         }
 
-        if((timeTillIncrease < timeTillDecrease || (timeTillIncrease > 0)) && timeTillDecrease < 0 && timeTillIncrease < 10000000000){
-            text = "&d  ^ in " + timeNumber2(timeTillIncrease) + "\n"+text
+        if ((timeTillIncrease < timeTillDecrease || (timeTillIncrease > 0)) && timeTillDecrease < 0 && timeTillIncrease < 10000000000) {
+            text = "&d  ^ in " + timeNumber2(timeTillIncrease) + "\n" + text
         }
-        if((timeTillIncrease > timeTillDecrease || (timeTillDecrease>0))&&timeTillIncrease<0 && timeTillDecrease < 10000000000){
-            text = "&d  v in " + timeNumber2(timeTillDecrease) + "\n"+text
+        if ((timeTillIncrease > timeTillDecrease || (timeTillDecrease > 0)) && timeTillIncrease < 0 && timeTillDecrease < 10000000000) {
+            text = "&d  v in " + timeNumber2(timeTillDecrease) + "\n" + text
         }
 
         this.guildLbElement.setText(text)
     }
 
-    renderOverlay(){
-        this.hudElements.forEach(a=>a.render())
+    renderOverlay() {
+        this.hudElements.forEach(a => a.render())
     }
 
-    initVariables(){
+    initVariables() {
 
     }
 
-    onDisable(){
+    onDisable() {
         this.initVariables()
     }
 }

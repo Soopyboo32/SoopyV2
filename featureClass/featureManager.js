@@ -304,6 +304,7 @@ class FeatureManager {
                 }
             } catch (e) {
                 logger.logMessage("Error in " + event + " event: " + JSON.stringify(e, undefined, 2), 2)
+                console.log(e.stack)
 
                 soopyV2Server.reportError(e, "Error in " + event + " event.")
             }
@@ -326,6 +327,7 @@ class FeatureManager {
                 }
             } catch (e) {
                 logger.logMessage("Error in soopy " + event + " event: " + JSON.stringify(e, undefined, 2), 2)
+                console.log(e.stack)
                 soopyV2Server.reportError(e, "Error in soopy " + event + " event.")
             }
         }
@@ -424,6 +426,7 @@ class FeatureManager {
                     }
                 } catch (e) {
                     logger.logMessage("Error in " + type + " event: " + JSON.stringify(e, undefined, 2), 2)
+                    console.log(e.stack)
 
                     soopyV2Server.reportError(e, "Error in " + type + " event.")
                 }
@@ -454,6 +457,7 @@ class FeatureManager {
                     }
                 } catch (e) {
                     logger.logMessage("Error in " + event.class.toString() + " (forge) event: " + JSON.stringify(e, undefined, 2), 2)
+                    console.log(e.stack)
 
                     soopyV2Server.reportError(e, "Error in " + event.class.toString() + " (forge) event.")
                 }

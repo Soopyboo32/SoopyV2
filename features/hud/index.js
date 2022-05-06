@@ -225,7 +225,7 @@ class Hud extends Feature {
         this.registerEvent("renderOverlay", this.renderHud)
         this.registerStep(true, 5, this.step)
         this.registerStep(false, 5, this.step_5second)
-        this.registerEvent("renderWorld", this.renderWorld)
+        this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.fpsEnabledSetting.getValue() && this.fpsFastSetting.getValue())
         this.registerEvent("worldLoad", this.worldLoad)
 
         this.petLevels = {}
@@ -378,7 +378,6 @@ class Hud extends Feature {
     }
 
     renderWorld() {
-        if (!this.fpsEnabledSetting.getValue() || !this.fpsFastSetting.getValue()) return
         this.framesSince++
 
         let instant = this.Instant.now()

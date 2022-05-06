@@ -1,8 +1,8 @@
 {
     "name": "Nether",
-    "description": "May cause some lag if enabled when not in nether",
+    "description": "",
     "isHidden": false,
     "isTogglable": true,
-    "defaultEnabled": false,
+    "defaultEnabled": true,
     "sortA": 1
 }

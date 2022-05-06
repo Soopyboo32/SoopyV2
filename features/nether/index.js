@@ -28,6 +28,16 @@ class Nether extends Feature {
 		super();
 	}
 
+	isInDojo() {
+		if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false
+		return this.FeatureManager.features["dataLoader"].class.areaFine === "Dojo" || this.FeatureManager.features["dataLoader"].class.areaFine === "Dojo Arena"
+	}
+
+	isInNether() {
+		if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false
+		return this.FeatureManager.features["dataLoader"].class.area === "Crimson Isle"
+	}
+
 	onEnable() {
 		this.initVariables();
 
@@ -35,12 +45,11 @@ class Nether extends Feature {
 		this.speedNextBlock = new ToggleSetting("Show next block to stand on for dojo swiftness", "", true, "dojo_swiftness", this)
 		this.tenacityLine = new ToggleSetting("Show line for fireball in dojo tenacity", "This may help you to dodge the fireballs", false, "dojo_tanacity", this)
 
-		this.registerCustom("packetReceived", this.packetReceived)
+		this.registerCustom("packetReceived", this.packetReceived).registeredWhen(() => this.isInDojo())
+		this.registerStep(true, 1, this.step1S).registeredWhen(() => this.isInDojo())
+		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInNether())
 
-		this.registerStep(true, 1, this.step1S)
-		this.registerEvent("renderWorld", this.renderWorld)
-
-		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent);
+		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDojo());
 		this.registerEvent("tick", this.tick)
 
 		this.todoE = []
@@ -61,12 +70,6 @@ class Nether extends Feature {
 			this.inSwiftness = false
 			this.lastBlock = undefined
 		})
-		//&e[NPC] &eRescue Recruiter&f: &rPerfect! Go see our &eUndercover Agent &rat the &5Cathedral &rarea in &5Mage &rterritory to get started.&r
-		this.registerChat("&e[NPC] &eRescue Recruiter&f: &rPerfect! Go see our &eUndercover Agent &rat the ${*} in ${type} &rterritory to get started.&r", (type) => {
-			// console.log(type)
-			this.rescueMissionType = ChatLib.removeFormatting(type) === "Mage" ? "barbarian" : "mage"
-			// console.log(this.rescueMissionDifficulty, this.rescueMissionType)
-		})
 
 		this.registerChat("You completed your rescue quest! Visit the Town Board to claim the rewards,", () => {
 			this.rescueMissionDifficulty = this.rescueMissionType = undefined
@@ -77,12 +80,17 @@ class Nether extends Feature {
 	}
 
 	tick() {
-		if (Player.getContainer().getName() === "Rescue") {
+		if (Player.getContainer().getName() === "Rescue" && Player.getContainer().getStackInSlot(22)) {
 			let difficulty = ChatLib.removeFormatting(Player.getContainer().getStackInSlot(22).getName()).trim()[0]
 
 			this.rescueMissionDifficulty = difficulty
-			// console.log(this.rescueMissionDifficulty, this.rescueMissionType)
+			TabList.getNames().forEach(n => {
+				if (n.toLowerCase().includes("barbarian rep")) this.rescueMissionType = "barbarian"// : "mage"
+				if (n.toLowerCase().includes("mage rep")) this.rescueMissionType = "mage"// : "mage"
+			})
 		}
+
+
 
 		this.todoE2.forEach(e => {
 			let item = e[m.getHeldItem]()

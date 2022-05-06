@@ -25,7 +25,6 @@ class Events extends Feature {
         this.showingWaypoints = false
         this.lastPath = []
         this.updatingPath = false
-        this.hudElements = []
         this.lastPathCords = undefined
 
 
@@ -48,22 +47,15 @@ class Events extends Feature {
         this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 
         this.registerEvent("worldLoad", this.worldLoad)
-        this.registerEvent("spawnParticle", this.spawnParticle)
-        this.registerEvent("renderWorld", this.renderWorld)
-        this.registerEvent("renderOverlay", this.renderOverlay)
+        this.registerEvent("spawnParticle", this.spawnParticle).registeredWhen(() => this.showingWaypoints)
+        this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.showingWaypoints || this.shinyBlockOverlayEnabled.getValue())
         this.registerStep(true, 2, this.step)
         this.registerStep(false, 5, this.step_5s)
 
-        this.registerEvent("soundPlay", this.playSound)
+        this.registerEvent("soundPlay", this.playSound).registeredWhen(() => this.showingWaypoints)
 
         this.registerChat("&r&eYou dug out a Griffin Burrow! &r&7(${*}/4)&r", this.burrialClicked)
         this.registerChat("&r&eYou finished the Griffin burrow chain! &r&7(4/4)&r", this.burrialClicked)
-    }
-
-    renderOverlay() {
-        for (let element of this.hudElements) {
-            element.render()
-        }
     }
 
     renderWorld(ticks) {

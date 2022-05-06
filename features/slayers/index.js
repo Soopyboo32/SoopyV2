@@ -90,7 +90,7 @@ class Slayers extends Feature {
 		this.lastBossNotSpawnedTime = 0;
 		this.lastBossSpawned = 0;
 
-		this.registerEvent("renderOverlay", this.renderOverlay);
+		this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.spawnAlert.getValue() || this.slainAlert.getValue());
 
 		this.registerSoopy("apiLoad", this.apiLoad);
 		if (this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock) {
@@ -114,11 +114,12 @@ class Slayers extends Feature {
 		this.lastServer = undefined
 		this.lastSentServer = 0
 		this.slayerLocationDataH = {}
+		this.hasQuest = false
 
 		this.entityAttackEventLoaded = false;
 		this.entityAttackEventE = undefined;
 
-		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent);
+		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.hasQuest);
 		this.registerEvent("tick", this.tick);
 		this.registerEvent("renderWorld", this.renderWorld);
 		this.registerEvent("worldLoad", this.worldLoad);
@@ -224,7 +225,7 @@ class Slayers extends Feature {
 		} else {
 			if (this.entityAttackEventLoaded) {
 				this.entityAttackEventLoaded = false;
-				this.unregisterForge(this.entityAttackEventE);
+				this.entityAttackEventE.unregister()
 			}
 		}
 
@@ -237,10 +238,12 @@ class Slayers extends Feature {
 
 		let lastBossSlainMessage = this.bossSlainMessage
 		this.bossSlainMessage = false;
+		this.hasQuest = false
 		let dis1 = false;
 		this.dulkirThingElement.setText("")
 		Scoreboard.getLines().forEach((line, i) => {
 			if (ChatLib.removeFormatting(line.getName()).includes("Slayer Quest")) {
+				this.hasQuest = true
 				let slayerInfo = ChatLib.removeFormatting(Scoreboard.getLines()[i - 1].getName().replace(/§/g, "&"));
 				let levelString = slayerInfo.split(" ").pop().trim();
 				let slayerLevelToExp = {
