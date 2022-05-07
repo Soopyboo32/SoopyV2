@@ -153,7 +153,7 @@ class ChangelogPage extends GuiPage {
         })
         this.updateTitle.setText("§0Update to SoopyV2 " + version)
 
-        this.updateButton.location.location.y.set(0.3 + this.warningMessage.getHeight(), 0)
+        this.updateButton.location.location.y.set(0.3, 0)
 
         this.openSidebarPage(this.updatingSidebar)
     }
