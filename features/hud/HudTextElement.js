@@ -114,7 +114,7 @@ class HudTextElement {
     renderRaw() {
         let text = this.getText()
 
-        text.forEach((line, i) => {
+        for (let i = 0, line = text[0]; i < text.length; i++, line = text[i]) {
             Renderer.scale(this.locationSetting.scale, this.locationSetting.scale)
             switch (this.locationSetting.shadowType) {
                 case 0:
@@ -133,7 +133,7 @@ class HudTextElement {
                     Renderer.drawString(line, this.locationSetting.x / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
                     break;
             }
-        })
+        }
     }
 }
 

@@ -82,7 +82,7 @@ class Slayers extends Feature {
 		});
 
 		this.registerChat("&r  &r&c&lSLAYER QUEST FAILED!&r", () => {
-			socketConnection.sendSlayerSpawnData({ loc: null, lobby: this.FeatureManager.features["dataLoader"].class.stats.Server });
+			socketConnection.sendSlayerSpawnData({ loc: null });
 		})
 
 		this.bossSlainMessage = false;
@@ -111,8 +111,6 @@ class Slayers extends Feature {
 		this.emanStartedSittingTime = -1
 		this.pillerE = undefined
 		this.lastPillerDink = 0
-		this.lastServer = undefined
-		this.lastSentServer = 0
 		this.slayerLocationDataH = {}
 		this.hasQuest = false
 
@@ -128,7 +126,6 @@ class Slayers extends Feature {
 	}
 
 	slayerLocationData(loc, user) {
-		console.log(user + " : " + JSON.stringify(loc))
 		if (!loc) {
 			delete this.slayerLocationDataH[user]
 			return
@@ -205,7 +202,7 @@ class Slayers extends Feature {
 
 			drawBoxAtBlock(x - 0.5, y + 0.7, z - 0.5, 255, 0, 0);
 		});
-		if (this.otherSlayerWaypoints) {
+		if (this.otherSlayerWaypoints.getValue()) {
 			Object.keys(this.slayerLocationDataH).forEach(key => {
 				drawCoolWaypoint(this.slayerLocationDataH[key][0][0], this.slayerLocationDataH[key][0][1], this.slayerLocationDataH[key][0][2], 255, 0, 0, { name: key + "'s boss" })
 			})
@@ -227,76 +224,6 @@ class Slayers extends Feature {
 				this.entityAttackEventLoaded = false;
 				this.entityAttackEventE.unregister()
 			}
-		}
-
-		if (this.lastServer !== this.FeatureManager.features["dataLoader"].class.stats.Server || Date.now() - this.lastSentServer > 60000 * 5) {
-			this.lastServer = this.FeatureManager.features["dataLoader"].class.stats.Server;
-			this.lastSentServer = Date.now()
-
-			socketConnection.setSlayerServer(this.FeatureManager.features["dataLoader"].class.stats.Server);
-		}
-
-		let lastBossSlainMessage = this.bossSlainMessage
-		this.bossSlainMessage = false;
-		this.hasQuest = false
-		let dis1 = false;
-		this.dulkirThingElement.setText("")
-		Scoreboard.getLines().forEach((line, i) => {
-			if (ChatLib.removeFormatting(line.getName()).includes("Slayer Quest")) {
-				this.hasQuest = true
-				let slayerInfo = ChatLib.removeFormatting(Scoreboard.getLines()[i - 1].getName().replace(/§/g, "&"));
-				let levelString = slayerInfo.split(" ").pop().trim();
-				let slayerLevelToExp = {
-					I: 5,
-					II: 25,
-					III: 100,
-					IV: 500,
-					V: 1500,
-				};
-				this.lastSlayerExp = slayerLevelToExp[levelString];
-				let slayerStrToType = {
-					revenant: "zombie",
-					tarantula: "spider",
-					sven: "wolf",
-					voidgloom: "enderman",
-					inferno: "blaze"
-				}
-				this.lastSlayerType = slayerStrToType[slayerInfo.split(" ")[0].toLowerCase()];
-				//slayerExp[lastSlayerType] += lastSlayerExp
-			}
-			if (line.getName().includes("Boss slain!")) {
-				if (!lastBossSlainMessage) {
-					socketConnection.sendSlayerSpawnData({ loc: null, lobby: this.FeatureManager.features["dataLoader"].class.stats.Server });
-				}
-				this.bossSlainMessage = true;
-			}
-
-			if (line.getName().includes("Slay the boss!")) {
-				if (!this.bossSpawnedMessage) {
-					socketConnection.sendSlayerSpawnData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())], lobby: this.FeatureManager.features["dataLoader"].class.stats.Server });
-				}
-				if (!this.bossSpawnedMessage && !this.emanBoss) {
-					this.nextIsBoss = Date.now();
-				}
-
-				dis1 = true;
-				this.bossSpawnedMessage = true;
-			}
-			let lineSplitThing = ChatLib.removeFormatting(line.getName()).replace(/[^a-z/0-9 ]/gi, "").trim().split(" ")
-			// ChatLib.chat(ChatLib.removeFormatting(line.getName()).replace(/[^a-z/0-9 ]+/gi, "").trim())
-
-			if (this.slayerProgressAlert.getValue() && lineSplitThing[0]
-				&& lineSplitThing[0].split("/").length === 2
-				&& lineSplitThing[1] === "Kills") {
-				let kills = lineSplitThing[0].split("/").map(a => parseInt(a))
-				if (kills[0] / kills[1] >= 0.9) {
-					this.dulkirThingElement.setText(line.getName())
-				}
-			}
-		});
-		if (!dis1) {
-			this.lastBossNotSpawnedTime = Date.now();
-			this.bossSpawnedMessage = false;
 		}
 
 		this.todoE.forEach((e) => {
@@ -526,6 +453,70 @@ class Slayers extends Feature {
 				delete this.slayerLocationDataH[n]
 			}
 		})
+
+
+		let lastBossSlainMessage = this.bossSlainMessage
+		this.bossSlainMessage = false;
+		this.hasQuest = false
+		let dis1 = false;
+		this.dulkirThingElement.setText("")
+		Scoreboard.getLines().forEach((line, i) => {
+			if (ChatLib.removeFormatting(line.getName()).includes("Slayer Quest")) {
+				this.hasQuest = true
+				let slayerInfo = ChatLib.removeFormatting(Scoreboard.getLines()[i - 1].getName().replace(/§/g, "&"));
+				let levelString = slayerInfo.split(" ").pop().trim();
+				let slayerLevelToExp = {
+					I: 5,
+					II: 25,
+					III: 100,
+					IV: 500,
+					V: 1500,
+				};
+				this.lastSlayerExp = slayerLevelToExp[levelString];
+				let slayerStrToType = {
+					revenant: "zombie",
+					tarantula: "spider",
+					sven: "wolf",
+					voidgloom: "enderman",
+					inferno: "blaze"
+				}
+				this.lastSlayerType = slayerStrToType[slayerInfo.split(" ")[0].toLowerCase()];
+				//slayerExp[lastSlayerType] += lastSlayerExp
+			}
+			if (line.getName().includes("Boss slain!")) {
+				if (!lastBossSlainMessage) {
+					socketConnection.sendSlayerSpawnData({ loc: null });
+				}
+				this.bossSlainMessage = true;
+			}
+
+			if (line.getName().includes("Slay the boss!")) {
+				if (!this.bossSpawnedMessage) {
+					socketConnection.sendSlayerSpawnData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
+				}
+				if (!this.bossSpawnedMessage && !this.emanBoss) {
+					this.nextIsBoss = Date.now();
+				}
+
+				dis1 = true;
+				this.bossSpawnedMessage = true;
+			}
+			let lineSplitThing = ChatLib.removeFormatting(line.getName()).replace(/[^a-z/0-9 ]/gi, "").trim().split(" ")
+			// ChatLib.chat(ChatLib.removeFormatting(line.getName()).replace(/[^a-z/0-9 ]+/gi, "").trim())
+
+			if (this.slayerProgressAlert.getValue() && lineSplitThing[0]
+				&& lineSplitThing[0].split("/").length === 2
+				&& lineSplitThing[1] === "Kills") {
+				let kills = lineSplitThing[0].split("/").map(a => parseInt(a))
+				if (kills[0] / kills[1] >= 0.9) {
+					this.dulkirThingElement.setText(line.getName())
+				}
+			}
+		});
+		if (!dis1) {
+			this.lastBossNotSpawnedTime = Date.now();
+			this.bossSpawnedMessage = false;
+		}
 	}
 
 	initVariables() {

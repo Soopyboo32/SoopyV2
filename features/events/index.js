@@ -32,6 +32,8 @@ class Events extends Feature {
         this.showBurrialGuess = new ToggleSetting("Estimate burrial location from ability", "Will show a line + box where it thinks the burrial is", true, "burrial_guess", this)
         new SettingBase("NOTE: You must have music disabled for burrial guessess to work", "/togglemusic", false, "burrial_guess_into", this).requires(this.showBurrialGuess)
 
+        this.otherInquisWaypoints = new ToggleSetting("Show other users inquis locations", "May be usefull for loot share", true, "inquis_location_other", this)
+
         this.shinyBlocks = []
 
         this.lastDing = 0
@@ -43,6 +45,8 @@ class Events extends Feature {
         this.guessPoint = undefined
         this.guessPoint2 = undefined
         this.dingIndex = 0
+
+        this.slayerLocationDataH = {}
 
         this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 
@@ -56,6 +60,21 @@ class Events extends Feature {
 
         this.registerChat("&r&eYou dug out a Griffin Burrow! &r&7(${*}/4)&r", this.burrialClicked)
         this.registerChat("&r&eYou finished the Griffin burrow chain! &r&7(4/4)&r", this.burrialClicked)
+        this.inquisWaypointSpawned = false
+        this.registerChat("${a}You dug out a ${thing}!", (a, thing) => {
+            if (a.includes(":") || a.length === 0 || a.length > 50) return
+            if (!thing.toLowerCase().includes("inquis")) return
+            this.inquisWaypointSpawned = true
+            socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
+        })
+    }
+
+    inquisData(loc, user) {
+        if (!loc) {
+            delete this.slayerLocationDataH[user]
+            return
+        }
+        this.slayerLocationDataH[user] = [loc, Date.now()]
     }
 
     renderWorld(ticks) {
@@ -64,8 +83,8 @@ class Events extends Feature {
         })
         if (this.showingWaypoints) {
             if (this.guessPoint && this.showBurrialGuess.getValue()) {
-                drawCoolWaypoint(this.guessPoint[0] - 0.5, this.guessPoint[1] - 0.5, this.guessPoint[2] - 0.5, 0, 255, 0, { name: "Guess" })
-                drawLine(this.guessPoint1[0], this.guessPoint1[1], this.guessPoint1[2], this.guessPoint2[0], this.guessPoint2[1], this.guessPoint2[2], 0, 255, 0)
+                drawCoolWaypoint(this.guessPoint[0] - 0.5, this.guessPoint[1] - 0.5, this.guessPoint[2] - 0.5, 255, 255, 0, { name: "§eGuess" })
+                drawLine(this.guessPoint1[0], this.guessPoint1[1], this.guessPoint1[2], this.guessPoint2[0], this.guessPoint2[1], this.guessPoint2[2], 255, 255, 0)
             }
             this.burrialData.locations.forEach((loc, i) => {
 
@@ -92,6 +111,12 @@ class Events extends Feature {
 
                     drawCoolWaypoint(loc.x, loc.y, loc.z, 0, blue ? 100 : 255, blue ? 255 : 0, { name: name })
                 }
+            })
+        }
+
+        if (this.otherInquisWaypoints.getValue()) {
+            Object.keys(this.slayerLocationDataH).forEach(key => {
+                drawCoolWaypoint(this.slayerLocationDataH[key][0][0], this.slayerLocationDataH[key][0][1], this.slayerLocationDataH[key][0][2], 255, 0, 0, { name: key + "'s inquis" })
             })
         }
     }
@@ -152,6 +177,13 @@ class Events extends Feature {
 
             if (this.showingWaypoints) Client.showTitle("&cGo!", "", 0, 20, 20)
         }
+
+
+        Object.keys(this.slayerLocationDataH).forEach(n => {
+            if (this.slayerLocationDataH[n][1] + 60000 * 3 < Date.now()) {
+                delete this.slayerLocationDataH[n]
+            }
+        })
     }
 
     step_5s() {
@@ -340,6 +372,9 @@ class Events extends Feature {
     }
 
     burrialClicked() {
+        if (this.inquisWaypointSpawned) {
+            socketConnection.sendInquisData({ loc: null });
+        }
         if (!this.showingWaypoints) return
 
         let nearestBurriali = undefined

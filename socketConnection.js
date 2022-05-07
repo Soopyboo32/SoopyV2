@@ -45,6 +45,9 @@ class SoopyV2Server extends WebsiteCommunicator {
         if (data.type === "slayerSpawnData") {
             if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.slayers) global.soopyv2featuremanagerthing.features.slayers.class.slayerLocationData(data.location, data.user)
         }
+        if (data.type === "inquisData") {
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.events) global.soopyv2featuremanagerthing.features.events.class.inquisData(data.location, data.user)
+        }
     }
 
     onConnect() {
@@ -127,10 +130,23 @@ class SoopyV2Server extends WebsiteCommunicator {
             data: data
         })
     }
-
-    setSlayerServer(server) {
+    sendInquisData(data) {
         this.sendData({
-            type: "slayerServer",
+            type: "inquisData",
+            data: data
+        })
+    }
+
+    sendVancData(data) {
+        this.sendData({
+            type: "vancData",
+            data: data
+        })
+    }
+
+    setServer(server) {
+        this.sendData({
+            type: "server",
             server: server
         })
     }

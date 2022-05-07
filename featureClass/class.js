@@ -173,7 +173,8 @@ class Event {
     }
 
     update() {
-        if (this.enabled === this.when()) return
+        let shouldBeEnabled = !!this.when()
+        if (this.enabled === shouldBeEnabled) return
 
         if (this.enabled) {
             this.unregister()

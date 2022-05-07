@@ -1,6 +1,7 @@
 /// <reference types="../CTAutocomplete" />
 /// <reference lib="es2015" />
 
+const File = Java.type("java.io.File")
 class SoopyAddons {
     constructor() {
         this.FeatureManager = require("./featureClass/featureManager.js")
@@ -11,7 +12,6 @@ class SoopyAddons {
 if (FileLib.read("soopyAddonsData", "deletesoopyv1please.txt") === "true") {
     new Thread(() => {
         Thread.sleep(2000)
-        const File = Java.type("java.io.File")
         FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/soopyAddons"))
 
         FileLib.write("soopyAddonsData", "deletesoopyv1please.txt", "false")
@@ -25,7 +25,6 @@ if (FileLib.read("soopyAddonsData", "deletesoopyv1please.txt") === "true") {
             FileLib.write("soopyAddonsData", "firstload.txt", "true")
             Thread.sleep(2000)
 
-
             ChatLib.command("ct reload", true)
         }).start()
     } else {
@@ -35,4 +34,10 @@ if (FileLib.read("soopyAddonsData", "deletesoopyv1please.txt") === "true") {
             a.unregister()
         })
     }
+}
+if (new File("./config/ChatTriggers/modules/SoopyV2UpdateButtonPatcher").exists()) {
+    new Thread(() => {
+        ChatLib.chat("&7Deleting SoopyV2UpdateButtonPatcher as its no longer needed")
+        FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/SoopyV2UpdateButtonPatcher"))
+    }).start()
 }
