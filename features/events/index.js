@@ -1,6 +1,7 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
+import socketConnection from "../../socketConnection";
 import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
 import { calculateDistanceQuick } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
@@ -62,8 +63,13 @@ class Events extends Feature {
         this.registerChat("&r&eYou finished the Griffin burrow chain! &r&7(4/4)&r", this.burrialClicked)
         this.inquisWaypointSpawned = false
         this.registerChat("${a}You dug out a ${thing}!", (a, thing) => {
+            console.log(a, thing)
             if (a.includes(":") || a.length === 0 || a.length > 50) return
             if (!thing.toLowerCase().includes("inquis")) return
+            this.inquisWaypointSpawned = true
+            socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
+        })
+        this.registerCommand("fakeinquis", () => {
             this.inquisWaypointSpawned = true
             socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
         })

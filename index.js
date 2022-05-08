@@ -37,6 +37,7 @@ if (FileLib.read("soopyAddonsData", "deletesoopyv1please.txt") === "true") {
 }
 if (new File("./config/ChatTriggers/modules/SoopyV2UpdateButtonPatcher").exists()) {
     new Thread(() => {
+        Thread.sleep(2000)
         ChatLib.chat("&7Deleting SoopyV2UpdateButtonPatcher as its no longer needed")
         FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/SoopyV2UpdateButtonPatcher"))
     }).start()

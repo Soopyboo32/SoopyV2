@@ -4,6 +4,7 @@ import { m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import { drawCoolWaypoint } from "../../utils/renderUtils";
 import SettingBase from "../settings/settingThings/settingBase";
+import ToggleSetting from "../settings/settingThings/toggle";
 
 
 class Waypoints extends Feature {
@@ -20,12 +21,16 @@ class Waypoints extends Feature {
         new SettingBase("/savewaypoints", "Copys the waypoints to your clipboard", undefined, "save_waypoints", this)
         new SettingBase("/loadwaypoints", "Loads waypoints from your clipboard", undefined, "load_waypoints", this)
 
+        this.loadWaypointsFromSendCoords = new ToggleSetting("Load waypoints from /patcher sendcoords messages", "Will dissapear after 1min", true, "load_waypoints_from_sendcoords", this)
+
         this.userWaypoints = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2userwaypoints.json") || "{}")
         this.userWaypointsHash = {}
         this.userWaypointsAll = []
         this.userWaypointsArr = Object.values(this.userWaypoints)
         this.updateWaypointsHashes()
         this.waypointsChanged = false
+
+        this.patcherWaypoints = []
 
         this.registerEvent("renderWorld", this.renderWorld)
 
@@ -92,6 +97,26 @@ class Waypoints extends Feature {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
             }
         })
+        //&r&9Party &8> &6[MVP&4++&6] Soopyboo32&f: &rx: -150, y: 73, z: -97 &r
+        //&r&6[MVP&r&4++&r&6] Soopyboo32&r&f: x: 23, y: 100, z: -2&r
+        //&r&6[MVP&r&4++&r&6] Soopyboo32&r&f: x: -22, y: 100, z: 7&r
+        this.registerChat("&r${*} &8> ${player}&f: &rx: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
+            if (this.loadWaypointsFromSendCoords.getValue()) {
+                this.patcherWaypoints.push([Date.now(), parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)])
+            }
+        })
+        this.registerChat("${player}&r&f: x: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
+            if (player.includes(">")) return
+            if (this.loadWaypointsFromSendCoords.getValue()) {
+                this.patcherWaypoints.push([Date.now(), parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)])
+            }
+        })
+
+        this.registerStep(false, 5, () => {
+            while (this.patcherWaypoints[0]?.[0] < Date.now() - 60000) {
+                this.patcherWaypoints.shift()
+            }
+        })
     }
 
     updateWaypointsHashes() {
@@ -115,6 +140,9 @@ class Waypoints extends Feature {
             for (let waypoint of this.userWaypointsHash[this.FeatureManager.features["dataLoader"].class.area]) {
                 drawCoolWaypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, waypoint.options)
             }
+        }
+        for (let waypoint of this.patcherWaypoints) {
+            drawCoolWaypoint(waypoint[1], waypoint[2], waypoint[3], 0, 255, 0, { name: waypoint[4] })
         }
     }
 
