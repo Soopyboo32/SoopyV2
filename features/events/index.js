@@ -48,6 +48,7 @@ class Events extends Feature {
         this.dingIndex = 0
 
         this.slayerLocationDataH = {}
+        this.todoE = []
 
         this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 
@@ -58,21 +59,15 @@ class Events extends Feature {
         this.registerStep(false, 5, this.step_5s)
 
         this.registerEvent("soundPlay", this.playSound).registeredWhen(() => this.showingWaypoints)
+        this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.showingWaypoints);
 
         this.registerChat("&r&eYou dug out a Griffin Burrow! &r&7(${*}/4)&r", this.burrialClicked)
         this.registerChat("&r&eYou finished the Griffin burrow chain! &r&7(4/4)&r", this.burrialClicked)
         this.inquisWaypointSpawned = false
-        this.registerChat("${a}You dug out a ${thing}!", (a, thing) => {
-            console.log(a, thing)
-            if (a.includes(":") || a.length === 0 || a.length > 50) return
-            if (!thing.toLowerCase().includes("inquis")) return
-            this.inquisWaypointSpawned = true
-            socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
-        })
-        this.registerCommand("fakeinquis", () => {
-            this.inquisWaypointSpawned = true
-            socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
-        })
+    }
+
+    entityJoinWorldEvent(e) {
+        this.todoE.push(e.entity);
     }
 
     inquisData(loc, user) {
@@ -190,6 +185,14 @@ class Events extends Feature {
                 delete this.slayerLocationDataH[n]
             }
         })
+
+        this.todoE.forEach(e => {
+            e = new Entity(e)
+            if (e.getName().toLowerCase().includes("inquis") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
+                socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
+            }
+        })
+        this.todoE = []
     }
 
     step_5s() {
