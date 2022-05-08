@@ -190,6 +190,7 @@ class Events extends Feature {
             e = new Entity(e)
             if (e.getName().toLowerCase().includes("inquis") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
                 socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
+                this.inquisWaypointSpawned = true
             }
         })
         this.todoE = []
@@ -383,6 +384,7 @@ class Events extends Feature {
     burrialClicked() {
         if (this.inquisWaypointSpawned) {
             socketConnection.sendInquisData({ loc: null });
+            this.inquisWaypointSpawned = false
         }
         if (!this.showingWaypoints) return
 

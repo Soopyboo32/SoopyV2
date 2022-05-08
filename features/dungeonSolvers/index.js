@@ -167,12 +167,12 @@ class DungeonSolvers extends Feature {
 			7: 360,
 		};
 
-		this.registerStep(true, 2, this.step).registeredWhen(()=>this.isInDungeon());
-		this.registerStep(true, 10, this.step2).registeredWhen(()=>this.isInDungeon());
+		this.registerStep(true, 2, this.step).registeredWhen(() => this.isInDungeon());
+		this.registerStep(true, 10, this.step2).registeredWhen(() => this.isInDungeon());
 		this.registerEvent("worldLoad", this.onWorldLoad);
 
-		this.registerEvent("renderOverlay", this.renderHud).registeredWhen(()=>this.isInDungeon());
-		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(()=>this.isInDungeon());
+		this.registerEvent("renderOverlay", this.renderHud).registeredWhen(() => this.isInDungeon());
+		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInDungeon());
 
 		this.bloodOpenedBonus = false;
 		this.goneInBonus = false;
@@ -200,7 +200,7 @@ class DungeonSolvers extends Feature {
 					}
 				}
 			}
-		}).registeredWhen(()=>this.isInDungeon())
+		}).registeredWhen(() => this.isInDungeon())
 		let mimicDeadMessages = ["$SKYTILS-DUNGEON-SCORE-MIMIC$", "Mimic Killed!", "Mimic Dead!", "Mimic dead!"]
 		this.registerChat("&r&9Party &8> ${msg}", (msg) => {
 			mimicDeadMessages.forEach(dmsg => {
@@ -242,7 +242,7 @@ class DungeonSolvers extends Feature {
 			}
 		});
 
-		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(()=>this.isInDungeon());
+		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDungeon());
 		// this.registerEvent("renderEntity", this.renderEntity)
 		this.renderEntityEvent = undefined;
 
@@ -711,7 +711,7 @@ class DungeonSolvers extends Feature {
 	}
 
 	step() {
-		if (!TabList || !TabList.getNames()) return
+		if (!Player.getX()) return
 		World.getAllPlayers().forEach((p) => {
 			this.nameToUuid[p.getName().toLowerCase()] = p.getUUID().toString()
 		})
