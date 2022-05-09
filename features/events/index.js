@@ -150,7 +150,7 @@ class Events extends Feature {
 			}
 		})
 
-		let showingWaypointsNew = (this.lastWorldChange + 5000 < Date.now() ? hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.loadFromParticles.getValue() : this.showingWaypoints || (hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && this.loadFromParticles.getValue()))
+		let showingWaypointsNew = (this.lastWorldChange + 5000 < Date.now() ? hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && (this.loadFromParticles.getValue() || this.showBurrialGuess.getValue()) : this.showingWaypoints || (hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && (this.loadFromParticles.getValue() || this.showBurrialGuess.getValue())))
 
 		this.showingWaypoints = showingWaypointsNew
 
