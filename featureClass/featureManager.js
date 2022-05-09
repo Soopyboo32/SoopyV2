@@ -469,6 +469,7 @@ class FeatureManager {
     }
 
     unregisterForge(event) {
+        if (!this.forgeEvents[event.id]) return
         unregisterForgeBase(this.forgeEvents[event.id].trigger)
         delete this.forgeEvents[event.id]
     }

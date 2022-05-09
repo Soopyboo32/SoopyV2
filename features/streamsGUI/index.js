@@ -18,27 +18,27 @@ class StreamsGui extends Feature {
         super()
     }
 
-    onEnable(){
+    onEnable() {
         this.initVariables()
 
         this.GuiPage = new StreamPage()
 
     }
 
-    initVariables(){
+    initVariables() {
         this.GuiPage = undefined
     }
 
-    onDisable(){
+    onDisable() {
         this.initVariables()
     }
 }
 
 
 class StreamPage extends GuiPage {
-    constructor(){
+    constructor() {
         super(7)
-        
+
         this.name = "Skyblock Streams"
 
         this.pages = [this.newPage()]
@@ -49,10 +49,10 @@ class StreamPage extends GuiPage {
         let button = new ButtonWithArrow().setText("§0Open in browser").setLocation(0.7, 0.05, 0.2, 0.1)
         this.pages[0].addChild(button)
 
-        button.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+        button.addEvent(new SoopyMouseClickEvent().setHandler(() => {
             java.awt.Desktop.getDesktop().browse(
                 new java.net.URI("https://soopymc.my.to/skyblockstreams")
-              );
+            );
         }))
 
         this.streamsBox = new SoopyGuiElement().setLocation(0.1, 0.15, 0.8, 0.85)
@@ -64,102 +64,101 @@ class StreamPage extends GuiPage {
         this.finaliseLoading()
     }
 
-    updateStreams(){
-        fetch("http://soopymc.my.to/api/skyblockstreams").json(streams=>{
+    updateStreams() {
+        fetch("http://soopymc.my.to/api/skyblockstreams").json(streams => {
             this.streamsBox.clearChildren()
-    
+
             let y = 0
-    
-            Object.keys(streams.twitch).forEach((channel, i)=>{
+
+            Object.keys(streams.twitch).forEach((channel, i) => {
                 let stream = streams.twitch[channel]
-    
-                if(i%2===0){
+
+                if (i % 2 === 0) {
                     this.streamsBox.addChild(new StreamElement().setStream(stream, true).setLocation(0, y, 0.45, 0.55).setStreamPage(this))
                 }
-                if(i%2===1){
+                if (i % 2 === 1) {
                     this.streamsBox.addChild(new StreamElement().setStream(stream, true).setLocation(0.55, y, 0.45, 0.55).setStreamPage(this))
-                    y+= 0.6
+                    y += 0.6
                 }
             })
         })
     }
 
-    openStreamSidebar(data){
-        let sidebar = new SoopyGuiElement().setLocation(0,0,1,1)
+    openStreamSidebar(data) {
+        let sidebar = new SoopyGuiElement().setLocation(0, 0, 1, 1)
 
         this.openSidebarPage(sidebar)
 
-        sidebar.addChild(new SoopyTextElement().setText("§0"+data.user_name).setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1))
+        sidebar.addChild(new SoopyTextElement().setText("§0" + data.user_name).setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1))
 
         let title = new SoopyMarkdownElement().setText(data.title).setLocation(0.1, 0.15, 0.8, 0.1)
         sidebar.addChild(title)
 
-        let image = new SoopyImageElement().setImage(data.image).setLocation(0.1, 0.15+title.getHeight(), 0.8, 0.4)
+        let image = new SoopyImageElement().setImage(data.image).setLocation(0.1, 0.15 + title.getHeight(), 0.8, 0.4)
         sidebar.addChild(image)
         image.loadHeightFromImage()
 
-        let button = new ButtonWithArrow().setText("§0Watch on Twitch").setLocation(0.1, 0.15+image.location.size.y.get()+title.getHeight(), 0.8, 0.1)
+        let button = new ButtonWithArrow().setText("§0Watch on Twitch").setLocation(0.1, 0.15 + image.location.size.y.get() + title.getHeight(), 0.8, 0.1)
         sidebar.addChild(button)
 
-        button.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+        button.addEvent(new SoopyMouseClickEvent().setHandler(() => {
             java.awt.Desktop.getDesktop().browse(
                 new java.net.URI("https://twitch.tv/" + data.user_login)
-              );
+            );
         }))
 
         let language
-        if(data.language){
-            language = new BoxWithText().setText("§0Language: "+data.language).setLocation(0.3, 0.25+image.location.size.y.get()+title.getHeight(), 0.4, 0.1)
+        if (data.language) {
+            language = new BoxWithText().setText("§0Language: " + data.language).setLocation(0.3, 0.25 + image.location.size.y.get() + title.getHeight(), 0.4, 0.1)
 
             sidebar.addChild(language)
         }
-        
-        image.onImageHeightChange(()=>{
-            button.location.location.y.set(0.15+image.location.size.y.get()+title.getHeight())
-            if(language) language.location.location.y.set(0.25+image.location.size.y.get()+title.getHeight())
+
+        image.onImageHeightChange(() => {
+            button.location.location.y.set(0.15 + image.location.size.y.get() + title.getHeight())
+            if (language) language.location.location.y.set(0.25 + image.location.size.y.get() + title.getHeight())
         }, this)
     }
 
-    onOpen(){
+    onOpen() {
         this.updateStreams()
     }
 }
 
 class StreamElement extends SoopyBoxElement {
-    constructor(){
+    constructor() {
         super()
 
         this.streamData = undefined
 
-        this.channelElement = new SoopyTextElement().setLocation(0.1,0.025,0.8,0.1).setMaxTextScale(10)
+        this.channelElement = new SoopyTextElement().setLocation(0.1, 0.025, 0.8, 0.1).setMaxTextScale(10)
 
-        this.channelImg = new SoopyImageElement().setLocation(0.1,0.125,0.8,0.2)
+        this.channelImg = new SoopyImageElement().setLocation(0.1, 0.125, 0.8, 0.2)
 
-        this.titleElement = new SoopyMarkdownElement().setLocation(0.1,0.45,0.8,0.1)
+        this.titleElement = new SoopyMarkdownElement().setLocation(0.1, 0.45, 0.8, 0.1)
 
-        this.channelImg.onImageHeightChange(()=>{
-            this.titleElement.location.location.y.set(0.15+this.channelImg.location.size.y.get())
-        },this)
+        this.channelImg.onImageHeightChange(() => {
+            this.titleElement.location.location.y.set(0.15 + this.channelImg.location.size.y.get())
+        }, this)
 
         this.streamPage = undefined
 
-        this.addEvent(new SoopyMouseClickEvent().setHandler(()=>{
+        this.addEvent(new SoopyMouseClickEvent().setHandler(() => {
             this.streamPage.openStreamSidebar(this.streamData)
         }))
 
         this.addChild(this.channelElement)
         this.addChild(this.titleElement)
         this.addChild(this.channelImg)
-        this.channelImg.loadHeightFromImage()
     }
 
-    setStream(stream, twitch){
+    setStream(stream, twitch) {
         this.streamData = stream
 
         this.titleElement.setText(stream.title)
 
-        this.channelElement.setText((twitch ? "§0"+stream.user_name : "§0"+stream.channelTitle) + (twitch?"&7 - " + stream.viewer_count + " viewer"+(stream.viewer_count!==1?"s":""):""))
-        
+        this.channelElement.setText((twitch ? "§0" + stream.user_name : "§0" + stream.channelTitle) + (twitch ? "&7 - " + stream.viewer_count + " viewer" + (stream.viewer_count !== 1 ? "s" : "") : ""))
+
         this.streamData.image = twitch ? `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.user_login}-640x360.jpg` : stream.thumbnails.high.url
         this.channelImg.setImage(this.streamData.image)
         this.channelImg.loadHeightFromImage()
@@ -167,9 +166,9 @@ class StreamElement extends SoopyBoxElement {
         return this
     }
 
-    setStreamPage(page){
+    setStreamPage(page) {
         this.streamPage = page
-        
+
         return this
     }
 }

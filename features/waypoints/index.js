@@ -97,18 +97,18 @@ class Waypoints extends Feature {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
             }
         })
-        //&r&9Party &8> &6[MVP&4++&6] Soopyboo32&f: &rx: -150, y: 73, z: -97 &r
-        //&r&6[MVP&r&4++&r&6] Soopyboo32&r&f: x: 23, y: 100, z: -2&r
-        //&r&6[MVP&r&4++&r&6] Soopyboo32&r&f: x: -22, y: 100, z: 7&r
+
         this.registerChat("&r${*} &8> ${player}&f: &rx: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
             if (this.loadWaypointsFromSendCoords.getValue()) {
                 this.patcherWaypoints.push([Date.now(), parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)])
+                if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()
             }
         })
         this.registerChat("${player}&r&f: x: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
             if (player.includes(">")) return
             if (this.loadWaypointsFromSendCoords.getValue()) {
                 this.patcherWaypoints.push([Date.now(), parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)])
+                if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()
             }
         })
 
