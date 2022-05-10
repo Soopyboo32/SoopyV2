@@ -409,6 +409,8 @@ class FeatureManager {
     registerCustom(type, func, context) {
         let id = this.lastChatEventId++
 
+        if (!func) throw new Error("Function must not be null")
+
         this.customEvents[id] = {
             func: func,
             context: context,

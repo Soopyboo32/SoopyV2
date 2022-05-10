@@ -7,6 +7,7 @@ import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLi
 import { calculateDistanceQuick } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
+import { fetch } from "../../utils/networkUtils"
 
 class Events extends Feature {
 	constructor() {
@@ -38,8 +39,6 @@ class Events extends Feature {
 
 		this.shinyBlocks = []
 
-		this.particleColorAverages = [0, 0, 0, 0]
-
 		this.lastDing = 0
 		this.lastDingPitch = 0
 		this.firstPitch = 0
@@ -47,13 +46,13 @@ class Events extends Feature {
 		this.firstParticlePoint = undefined
 		this.particlePoint = undefined
 		this.guessPoint = undefined
-		this.particleC = 0
 		this.distance = undefined
 		this.dingIndex = 0
 		this.dingSlope = []
 
 		this.slayerLocationDataH = {}
 		this.todoE = []
+
 
 		this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 
@@ -89,7 +88,7 @@ class Events extends Feature {
 		})
 		if (this.showingWaypoints) {
 			if (this.guessPoint && this.showBurrialGuess.getValue()) {
-				drawCoolWaypoint(this.guessPoint[0] - 0.5, this.guessPoint[1] - 0.5, this.guessPoint[2] - 0.5, 255, 255, 0, { name: "§eGuess" })
+				drawCoolWaypoint(this.guessPoint[0], this.guessPoint[1], this.guessPoint[2], 255, 255, 0, { name: "§eGuess" })
 			}
 			this.burrialData.locations.forEach((loc, i) => {
 
@@ -188,11 +187,10 @@ class Events extends Feature {
 		this.firstPitch = 0
 		this.lastParticlePoint = undefined
 		this.lastParticlePoint2 = undefined
-		this.lastParticlePoint3 = undefined
+		this.lastSoundPoint = undefined
 		this.firstParticlePoint = undefined
 		this.particlePoint = undefined
 		this.guessPoint = undefined
-		this.particleC = 0
 		this.distance = undefined
 		this.dingIndex = 0
 		this.dingSlope = []
@@ -219,65 +217,58 @@ class Events extends Feature {
 			this.lastDingPitch = pitch
 			this.lastParticlePoint = undefined
 			this.lastParticlePoint2 = undefined
-			this.lastParticlePoint3 = undefined
+			this.lastSoundPoint = undefined
 			this.firstParticlePoint = undefined
-			this.particleC = 0
 		}
 		if (this.lastDingPitch === 0) {
 			this.lastDingPitch = pitch
 			this.lastParticlePoint = undefined
 			this.lastParticlePoint2 = undefined
-			this.lastParticlePoint3 = undefined
+			this.lastSoundPoint = undefined
 			this.firstParticlePoint = undefined
-			this.particleC = 0
 			return
 		}
-		if (this.dingSlope.length > 15) return
-
 		this.dingIndex++
-		if (this.dingIndex > 3) this.dingSlope.push(pitch - this.lastDingPitch)
+		if (this.dingIndex > 1) this.dingSlope.push(pitch - this.lastDingPitch)
+		if (this.dingSlope.length > 15) this.dingSlope.shift()
 		let slope = this.dingSlope.reduce((a, b) => a + b, 0) / this.dingSlope.length
-		// console.log(slope)
-		this.distance = Math.E / slope
+		// console.log(this.dingSlope.join(","))
+		this.lastSoundPoint = [pos.getX(), pos.getY(), pos.getZ()]
+		this.lastDingPitch = pitch
+
+		if (!this.lastParticlePoint2 || !this.particlePoint || !this.firstParticlePoint) return
+		this.distance = Math.E / slope - Math.hypot(this.firstParticlePoint[0] - pos.getX(), this.firstParticlePoint[1] - pos.getY(), this.firstParticlePoint[2] - pos.getZ())
 		// console.log(this.dingIndex + "	" + this.dingSlope / this.dingIndex + "	" + pitch + "	" + (pitch - this.lastDingPitch))
 
-		this.lastDingPitch = pitch
-		if (!this.lastParticlePoint3 || !this.particlePoint || !this.firstParticlePoint) return
 
-		let lineDist = Math.hypot(this.lastParticlePoint3[0] - this.particlePoint[0], this.lastParticlePoint3[1] - this.particlePoint[1], this.lastParticlePoint3[2] - this.particlePoint[2])
-		let distance = this.distance - Math.hypot(this.firstParticlePoint[0] - this.particlePoint[0], this.firstParticlePoint[2] - this.particlePoint[2])
-		let changes = [this.particlePoint[0] - this.lastParticlePoint3[0], this.particlePoint[1] - this.lastParticlePoint3[1], this.particlePoint[2] - this.lastParticlePoint3[2]]
+		let lineDist = Math.hypot(this.lastParticlePoint2[0] - this.particlePoint[0], this.lastParticlePoint2[1] - this.particlePoint[1], this.lastParticlePoint2[2] - this.particlePoint[2])
+		let distance = this.distance
+		let changes = [this.particlePoint[0] - this.lastParticlePoint2[0], this.particlePoint[1] - this.lastParticlePoint2[1], this.particlePoint[2] - this.lastParticlePoint2[2]]
 		changes = changes.map(a => a / lineDist)
-		this.guessPoint = [this.particlePoint[0] + changes[0] * distance, this.particlePoint[1] + changes[1] * distance, this.particlePoint[2] + changes[2] * distance]
+		this.guessPoint = [this.lastSoundPoint[0] + changes[0] * distance, this.lastSoundPoint[1] + changes[1] * distance, this.lastSoundPoint[2] + changes[2] * distance]
 	}
 
 	spawnParticle(particle, type, event) {
-		if (this.showingWaypoints && this.showBurrialGuess.getValue() && particle.toString().startsWith("SparkFX,")) {
+		if (this.showingWaypoints && this.showBurrialGuess.getValue() && particle.toString().startsWith("EntityDropParticleFX,")) {
 			let run = false
-			if (Math.abs(particle.getX() - Player.getX()) < 3 && Math.abs(particle.getY() - Player.getY()) < 3 && Math.abs(particle.getZ() - Player.getZ()) < 3) {
-				run = true
-			}
-			if (this.particlePoint && !run && Math.abs(particle.getX() - this.particlePoint[0]) < 2 && Math.abs(particle.getY() - this.particlePoint[1]) < 0.5 && Math.abs(particle.getZ() - this.particlePoint[2]) < 2) {
+			if (this.lastSoundPoint && !run && Math.abs(particle.getX() - this.lastSoundPoint[0]) < 2 && Math.abs(particle.getY() - this.lastSoundPoint[1]) < 0.5 && Math.abs(particle.getZ() - this.lastSoundPoint[2]) < 2) {
 				run = true
 			}
 			if (run) {
-				this.particleC++
-				if (this.particleC > 15) return
 				if (this.lastParticlePoint === undefined) {
 					this.firstParticlePoint = [particle.getX(), particle.getY(), particle.getZ()]
 				}
-				this.lastParticlePoint3 = this.lastParticlePoint2
 				this.lastParticlePoint2 = this.lastParticlePoint
 				this.lastParticlePoint = this.particlePoint
 				this.particlePoint = [particle.getX(), particle.getY(), particle.getZ()]
 
-				if (!this.lastParticlePoint3 || !this.particlePoint || !this.firstParticlePoint || !this.distance) return
+				if (!this.lastParticlePoint2 || !this.particlePoint || !this.firstParticlePoint || !this.distance || !this.lastSoundPoint) return
 
-				let lineDist = Math.hypot(this.lastParticlePoint3[0] - this.particlePoint[0], this.lastParticlePoint3[1] - this.particlePoint[1], this.lastParticlePoint3[2] - this.particlePoint[2])
-				let distance = this.distance - Math.hypot(this.firstParticlePoint[0] - this.particlePoint[0], this.firstParticlePoint[2] - this.particlePoint[2])
-				let changes = [this.particlePoint[0] - this.lastParticlePoint3[0], this.particlePoint[1] - this.lastParticlePoint3[1], this.particlePoint[2] - this.lastParticlePoint3[2]]
+				let lineDist = Math.hypot(this.lastParticlePoint2[0] - this.particlePoint[0], this.lastParticlePoint2[1] - this.particlePoint[1], this.lastParticlePoint2[2] - this.particlePoint[2])
+				let distance = this.distance
+				let changes = [this.particlePoint[0] - this.lastParticlePoint2[0], this.particlePoint[1] - this.lastParticlePoint2[1], this.particlePoint[2] - this.lastParticlePoint2[2]]
 				changes = changes.map(a => a / lineDist)
-				this.guessPoint = [this.particlePoint[0] + changes[0] * distance, this.particlePoint[1] + changes[1] * distance, this.particlePoint[2] + changes[2] * distance]
+				this.guessPoint = [this.lastSoundPoint[0] + changes[0] * distance, this.lastSoundPoint[1] + changes[1] * distance, this.lastSoundPoint[2] + changes[2] * distance]
 			}
 		}
 		if (this.shinyBlockOverlayEnabled.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "The End") {
@@ -404,11 +395,6 @@ class Events extends Feature {
 			if (this.potentialParticleLocs[locstr].enchant >= 1 && this.potentialParticleLocs[locstr].step >= 2) {
 				if (found) {
 					found.type = this.potentialParticleLocs[locstr].isMob >= 1 ? 1 : (this.potentialParticleLocs[locstr].crit > this.potentialParticleLocs[locstr].enchant / 20 ? 0 : 2)
-
-					if (this.potentialParticleLocs[locstr].step === 10) {
-						this.potentialParticleLocs[locstr].step++
-						socketConnection.burrialSpawned(locstr)
-					}
 					return
 				}
 				this.burrialData.locations.push({
@@ -426,7 +412,6 @@ class Events extends Feature {
 	}
 
 	burrialClicked() {
-		this.particleColorAverages = [0, 0, 0, 0]
 		if (this.inquisWaypointSpawned) {
 			socketConnection.sendInquisData({ loc: null });
 			this.inquisWaypointSpawned = false
