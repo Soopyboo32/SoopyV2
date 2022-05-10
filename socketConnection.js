@@ -150,6 +150,13 @@ class SoopyV2Server extends WebsiteCommunicator {
             server: server
         })
     }
+
+    burrialSpawned(loc) {
+        this.sendData({
+            type: "burrial",
+            loc: loc
+        })
+    }
 }
 
 if (!global.soopyV2Server) {

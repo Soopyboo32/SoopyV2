@@ -334,6 +334,12 @@ class Events extends Feature {
 
 			if (!foundEnchant && !foundCrit && !foundStep) return;
 
+			if (Math.abs(particle.getY() % 1) > 0.1) return
+			if (Math.abs(particle.getX() % 1) < 0.1) return
+			if (Math.abs(particle.getX() % 1) > 0.9) return
+			if (Math.abs(particle.getZ() % 1) < 0.1) return
+			if (Math.abs(particle.getZ() % 1) > 0.9) return
+
 			let locstr = Math.floor(particle.getX()) + "," + Math.floor(particle.getY() - 1) + "," + Math.floor(particle.getZ())
 			let locarr = [Math.floor(particle.getX()), Math.floor(particle.getY() - 1), Math.floor(particle.getZ())]
 
@@ -341,52 +347,49 @@ class Events extends Feature {
 
 			this.burrialData.locations.forEach((loc) => {
 				if (loc.x + "," + loc.y + "," + loc.z === locstr) {
-					found = true
+					found = loc
 					loc.lastPing = Date.now()
 				}
 				if ((loc.x + 1) + "," + loc.y + "," + loc.z === locstr) {
-					found = true
+					found = loc
 					loc.lastPing = Date.now()
 				}
 				if ((loc.x + 1) + "," + (loc.y + 1) + "," + loc.z === locstr) {
-					found = true
+					found = loc
 					loc.lastPing = Date.now()
 				}
 				if ((loc.x + 1) + "," + (loc.y - 1) + "," + loc.z === locstr) {
-					found = true
+					found = loc
 					loc.lastPing = Date.now()
 				}
 				if ((loc.x - 1) + "," + (loc.y + 1) + "," + loc.z === locstr) {
-					found = true
+					found = loc
 					loc.lastPing = Date.now()
 				}
 				if ((loc.x - 1) + "," + (loc.y - 1) + "," + loc.z === locstr) {
-					found = true
+					found = loc
 					loc.lastPing = Date.now()
 				}
 				if ((loc.x - 1) + "," + loc.y + "," + loc.z === locstr) {
-					found = true
+					found = loc
 					loc.lastPing = Date.now()
 				}
 				if (loc.x + "," + loc.y + "," + (loc.z + 1) === locstr) {
-					found = true
+					found = loc
 					loc.lastPing = Date.now()
 				}
 				if (loc.x + "," + loc.y + "," + (loc.z - 1) === locstr) {
-					found = true
+					found = loc
 					loc.lastPing = Date.now()
 				}
 			})
 			if (this.burrialData.historicalLocations) {
 				this.burrialData.historicalLocations.forEach((loc) => {
 					if (loc.x + "," + loc.y + "," + loc.z === locstr) {
-						found = true
+						found = loc
 					}
 				})
 			}
-
-			if (found) return;
-
 
 			if (!this.potentialParticleLocs[locstr]) this.potentialParticleLocs[locstr] = { enchant: 0, crit: 0, step: 0, isMob: 0, timestamp: Date.now() }
 
@@ -398,12 +401,21 @@ class Events extends Feature {
 
 			this.potentialParticleLocs[locstr].timestamp = Date.now()
 
-			if (this.potentialParticleLocs[locstr].enchant > 1 && this.potentialParticleLocs[locstr].step > 3) {
+			if (this.potentialParticleLocs[locstr].enchant >= 1 && this.potentialParticleLocs[locstr].step >= 2) {
+				if (found) {
+					found.type = this.potentialParticleLocs[locstr].isMob >= 1 ? 1 : (this.potentialParticleLocs[locstr].crit > this.potentialParticleLocs[locstr].enchant / 20 ? 0 : 2)
+
+					if (this.potentialParticleLocs[locstr].step === 10) {
+						this.potentialParticleLocs[locstr].step++
+						socketConnection.burrialSpawned(locstr)
+					}
+					return
+				}
 				this.burrialData.locations.push({
 					"x": locarr[0],
 					"y": locarr[1],
 					"z": locarr[2],
-					"type": this.potentialParticleLocs[locstr].isMob > 1 ? 1 : (this.potentialParticleLocs[locstr].crit > this.potentialParticleLocs[locstr].enchant / 20 ? 0 : 2),
+					"type": this.potentialParticleLocs[locstr].isMob >= 1 ? 1 : (this.potentialParticleLocs[locstr].crit > this.potentialParticleLocs[locstr].enchant / 20 ? 0 : 2),
 					"tier": -1,
 					"chain": -1,
 					"fromApi": false
