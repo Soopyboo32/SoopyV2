@@ -490,12 +490,11 @@ class Hud extends Feature {
             this.petElement.setText(this.petText)
         }
 
-        if (Date.now() - this.lastUpdatedStatData > 5 * 60000 && this.soulflowEnabledSetting.getValue()) {
+        if (Date.now() - this.lastUpdatedStatData > 5 * 60000) {
 
             this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
 
             this.lastUpdatedStatData = Date.now()
-            return
         }
 
         let soulflowCount = 0
