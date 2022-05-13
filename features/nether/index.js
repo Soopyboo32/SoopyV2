@@ -44,7 +44,8 @@ class Nether extends Feature {
 		this.masteryTimer = new ToggleSetting("Mastery Timer", "Countdown untill a block will turn red", true, "nether_mastery_timer", this)
 		this.speedNextBlock = new ToggleSetting("Show next block to stand on for dojo swiftness", "", true, "dojo_swiftness", this)
 		this.tenacityLine = new ToggleSetting("Show line for fireball in dojo tenacity", "This may help you to dodge the fireballs", false, "dojo_tanacity", this)
-
+		//TODO: Vanquisher waypoints (&r&aA &r&cVanquisher &r&ais spawning nearby!&r)
+		//TODO: add toggle setting for hostage waypoint
 		this.registerCustom("packetReceived", this.packetReceived).registeredWhen(() => this.isInDojo())
 		this.registerStep(true, 1, this.step1S).registeredWhen(() => this.isInDojo())
 		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInNether())

@@ -19,6 +19,17 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.onPlayerStatsLoaded = undefined
 
         this.userCosmeticPermissions = undefined
+
+        this.cookieCount = 0
+        this.cookieData = undefined
+        this.cookieDataUpdated = 0
+
+        register("step", () => {
+            if (this.cookieDataUpdated && Date.now() - this.cookieDataUpdated > 60000) {
+                this.cookieData = 0
+                this.cookieDataUpdated = 0
+            }
+        }).setDelay(60)
     }
 
     onData(data) {
@@ -47,6 +58,17 @@ class SoopyV2Server extends WebsiteCommunicator {
         }
         if (data.type === "inquisData") {
             if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.events) global.soopyv2featuremanagerthing.features.events.class.inquisData(data.location, data.user)
+        }
+        if (data.type === "cookies") {
+            this.cookieCount = data.cookies
+        }
+        if (data.type === "cookieLbData") {
+            this.cookieData = {
+                cookieLeaderboard: data.cookieLeaderboard,
+                clickingNow: data.clickingNow
+            }
+
+            this.cookieDataUpdated = Date.now()
         }
     }
 
@@ -148,6 +170,15 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.sendData({
             type: "server",
             server: server
+        })
+    }
+
+    cookiesGained(amount) {
+        this.cookieCount += amount
+
+        this.sendData({
+            type: "cookies",
+            amount: amount
         })
     }
 }

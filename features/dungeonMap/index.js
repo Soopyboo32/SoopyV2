@@ -79,13 +79,13 @@ class DungeonMap extends Feature {
         }
 
         this.dungeonBossImages = {
-            // "F1":[
+            // "F1": [
             //     {
             //         image: new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/dungeonBossImages/f1.png"))),
-            //         bounds: [[-65,70,-3],[-19,90,45]],
+            //         bounds: [[-65, 70, -3], [-19, 90, 45]],
             //         widthInWorld: 46,
             //         heightInWorld: 48,
-            //         topLeftLocation: [-64,-2]
+            //         topLeftLocation: [-64, -2]
             //     }
             // ]
         }
@@ -788,7 +788,7 @@ class SpiritLeapOverlay {
                 this.buttonsContainer.clearChildren()
 
                 Object.keys(this.items).forEach((name, i) => {
-                    let button = new ButtonWithArrow().setText((ChatLib.removeFormatting(name) === this.parent.lastDoorOpener ? "&4" : "&2") + "[" + this.players[ChatLib.removeFormatting(name)] + "] " + ChatLib.removeFormatting(name)).addEvent(new SoopyMouseClickEvent().setHandler(() => {
+                    let button = new ButtonWithArrow().setText((ChatLib.removeFormatting(name) === this.parent.lastDoorOpener ? "&4" : "&2") + "[" + (this.players[ChatLib.removeFormatting(name)] || "?") + "] " + ChatLib.removeFormatting(name)).addEvent(new SoopyMouseClickEvent().setHandler(() => {
                         Player.getContainer().click(itemsNew[name])
                         ChatLib.chat("Leaping to " + name)
                     })).setLocation((i % 2) * 0.5, Math.floor(i / 2) * 0.5, 0.5, 0.5)
@@ -847,7 +847,7 @@ class soopyGuiMapRendererThing extends SoopyGuiElement {
                 let renderY = player.y / this.parentE.parent.mapScale / 128 * size//*16/this.roomWidth
 
                 Renderer.translate(renderX + x + this.parentE.parent.offset[0] / 128 * size, renderY + y + this.parentE.parent.offset[1] / 128 * size, 1000)
-                renderLibs.drawStringCenteredShadow((player.uuid === closestPlayer?.uuid ? "&c" : "&a") + "[" + this.parentE.players[player.username] + "] " + player.username, 0, -7 * scale * 3, 2)
+                renderLibs.drawStringCenteredShadow((player.uuid === closestPlayer?.uuid ? "&c" : "&a") + "[" + (this.parentE.players[player.username] || "?") + "] " + player.username, 0, -7 * scale * 3, 2)
                 /*
                 {
                     x: player.getX(),
@@ -864,7 +864,7 @@ class soopyGuiMapRendererThing extends SoopyGuiElement {
                 let renderY = closestPlayer.y / this.parentE.parent.mapScale / 128 * size//*16/this.roomWidth
 
                 Renderer.translate(renderX + x + this.parentE.parent.offset[0] / 128 * size, renderY + y + this.parentE.parent.offset[1] / 128 * size)
-                renderLibs.drawStringCenteredShadow("&c" + "[" + this.parentE.players[closestPlayer.username] + "] " + closestPlayer.username, 0, -7 * scale * 3, 2)
+                renderLibs.drawStringCenteredShadow("&c" + "[" + (this.parentE.players[closestPlayer.username] || "?") + "] " + closestPlayer.username, 0, -7 * scale * 3, 2)
             }
         }))
         this.addEvent(new SoopyMouseClickEvent().setHandler((mouseX, mouseY) => {

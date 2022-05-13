@@ -142,6 +142,7 @@ class DungeonSolvers extends Feature {
 		this.lastPings = [undefined, undefined, undefined];
 		this.ping = 0;
 		this.pingI = 0;
+		this.ezpz = false
 
 		this.arrows = [];
 		this.blazes = [];
@@ -169,6 +170,7 @@ class DungeonSolvers extends Feature {
 
 		this.registerStep(true, 2, this.step).registeredWhen(() => this.isInDungeon());
 		this.registerStep(true, 10, this.step2).registeredWhen(() => this.isInDungeon());
+		this.registerStep(false, 60 * 5, this.step_5min)
 		this.registerEvent("worldLoad", this.onWorldLoad);
 
 		this.registerEvent("renderOverlay", this.renderHud).registeredWhen(() => this.isInDungeon());
@@ -249,6 +251,18 @@ class DungeonSolvers extends Feature {
 		this.onWorldLoad();
 	}
 
+	step_5min() {
+		fetch("http://soopymc.my.to/api/v2/mayor").json(data => {
+			this.ezpz = false
+			if (!data.success) return
+			if (data.data.mayor.name === "Paul") {
+				if (data.data.mayor.perks.some(a => a.name === "EZPZ")) {
+					this.ezpz = true
+				}
+			}
+		})
+	}
+
 	calculateDungeonScore() {
 		if (!this.FeatureManager.features["dataLoader"].class.dungeonFloor) {
 			this.scoreElement.setText("");
@@ -283,8 +297,6 @@ class DungeonSolvers extends Feature {
 
 		let crypts = parseInt(this.FeatureManager.features["dataLoader"].class.stats["Crypts"]);
 
-		let ezpz = false;
-
 		let maxSecrets = currentSecretsFound / currentSecretPercent || 50;
 
 		//Actual Score Calculation
@@ -304,7 +316,7 @@ class DungeonSolvers extends Feature {
 		} else {
 			speedScore = 0;
 		}
-		let bonus = Math.min(5, crypts) + this.mimicDead * 2 + ezpz * 10;
+		let bonus = Math.min(5, crypts) + this.mimicDead * 2 + this.ezpz * 10;
 
 		//Calculating secrets for s/s+
 
@@ -312,7 +324,7 @@ class DungeonSolvers extends Feature {
 		let hypotheticalSpeedScore = speedScore
 
 		//Calculating for S
-		let hypotheticalBonusScoreS = Math.min(5, crypts) + this.mimicDead * 2 + ezpz * 10;
+		let hypotheticalBonusScoreS = Math.min(5, crypts) + this.mimicDead * 2 + this.ezpz * 10;
 
 		let sNeededSecrets = Math.min(maxSecrets * secretPercentRequired, Math.ceil((270 - hypotheticalSkillScore - hypotheticalBonusScoreS - hypotheticalSpeedScore - 60) * maxSecrets * secretPercentRequired / 40));
 
@@ -321,13 +333,13 @@ class DungeonSolvers extends Feature {
 		let hypotheticalScoreGottenS = hypotheticalSkillScore + hypotheticalSpeedScore + hypotheticalBonusScoreS + 60 + Math.floor(Math.min(40, (40 * sNeededSecrets) / secretPercentRequired / maxSecrets));
 		let sCryptsNeeded = Math.max(crypts, Math.min(5, (270 - hypotheticalScoreGottenS)))
 		hypotheticalScoreGottenS -= hypotheticalBonusScoreS
-		hypotheticalBonusScoreS = sCryptsNeeded + this.mimicDead * 2 + ezpz * 10
+		hypotheticalBonusScoreS = sCryptsNeeded + this.mimicDead * 2 + this.ezpz * 10
 		hypotheticalScoreGottenS += hypotheticalBonusScoreS
 
 		let sPossible = hypotheticalScoreGottenS >= 270
 
 		//Calculating for S+
-		let hypotheticalBonusScoreSplus = 5 + this.mimicDead * 2 + ezpz * 10;
+		let hypotheticalBonusScoreSplus = 5 + this.mimicDead * 2 + this.ezpz * 10;
 
 		let splusNeededSecrets = Math.ceil((300 - hypotheticalSkillScore - hypotheticalBonusScoreSplus - hypotheticalSpeedScore - 60) * maxSecrets * secretPercentRequired / 40);
 
@@ -338,7 +350,7 @@ class DungeonSolvers extends Feature {
 		let hypotheticalScoreGottenSPlus = hypotheticalSkillScore + hypotheticalSpeedScore + hypotheticalBonusScoreSplus + 60 + Math.floor(Math.min(40, (40 * splusNeededSecrets) / secretPercentRequired / maxSecrets));
 		let splusCryptsNeeded = Math.max(crypts, 5 - (hypotheticalScoreGottenSPlus - 300))
 		hypotheticalScoreGottenSPlus -= hypotheticalBonusScoreSplus
-		hypotheticalBonusScoreSplus = splusCryptsNeeded + this.mimicDead * 2 + ezpz * 10
+		hypotheticalBonusScoreSplus = splusCryptsNeeded + this.mimicDead * 2 + this.ezpz * 10
 		hypotheticalScoreGottenSPlus += hypotheticalBonusScoreSplus
 
 		//Setting hud element

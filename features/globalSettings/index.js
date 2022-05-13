@@ -13,12 +13,15 @@ import soopyV2Server from "../../socketConnection";
 import { numberWithCommas } from "../../utils/numberUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
 import { fetch } from "../../utils/networkUtils";
+import socketConnection from "../../socketConnection";
+import renderLibs from "../../../guimanager/renderLibs";
+import { f } from "../../../mappings/mappings";
 const Files = Java.type("java.nio.file.Files")
 const Paths = Java.type("java.nio.file.Paths")
 const JavaString = Java.type("java.lang.String")
 const JavaLong = Java.type("java.lang.Long")
 
-class Hud extends Feature {
+class GlobalSettings extends Feature {
     constructor() {
         super()
 
@@ -75,6 +78,82 @@ class Hud extends Feature {
         this.registerCommand("sweight", (user = Player.getName()) => {
             this.soopyWeight(user)
         })
+
+        this.lastCookies = 0
+
+        this.registerEvent("postGuiRender", () => {
+            if (Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.renderCookie()
+        })
+        this.registerStep(false, 1, () => {
+            if (Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.tickCookie()
+        })
+
+        this.registerEvent("guiMouseClick", this.guiClicked)
+    }
+
+    guiClicked(mouseX, mouseY, button, gui, event) {
+        if (gui.class.toString() === "class net.minecraft.client.gui.inventory.GuiChest" && Player.getContainer().getName() === "Cookie Clicker v0.01") {
+
+            let hoveredSlot = gui.getSlotUnderMouse()
+            if (!hoveredSlot) return
+
+            let hoveredSlotId = hoveredSlot[f.slotNumber]
+
+            // logger.logMessage(hoveredSlotId, 4)
+
+            Player.getContainer().click(hoveredSlotId, false, "MIDDLE")
+            cancel(event)
+        }
+    }
+
+    tickCookie() {
+        let cookies = parseInt(ChatLib.removeFormatting(Player.getContainer().getStackInSlot(13).getName().split(" ")[0]))
+
+        let cookiesGained = cookies - this.lastCookies
+        this.lastCookies = cookies
+        if (cookiesGained > 50) cookiesGained = 0
+        if (cookiesGained < 1) cookiesGained = 0
+        if (!cookiesGained) cookiesGained = 0
+
+        socketConnection.cookiesGained(cookiesGained)
+    }
+
+    renderCookie() {
+        let cookies = parseInt(ChatLib.removeFormatting(Player.getContainer().getStackInSlot(13).getName().split(" ")[0]))
+
+        let cookiesGained = cookies - this.lastCookies
+        let cookieCount = socketConnection.cookieCount + ((cookiesGained < 50 && cookiesGained > 0) ? cookiesGained : 0)
+
+        renderLibs.drawString("Lifetime Cookies: " + numberWithCommas(cookieCount), 10, 10, 1)
+
+        if (socketConnection.cookieData) {
+            // this.cookieData = {
+            //     cookieLeaderboard: data.cookieLeaderboard,
+            //     clickingNow: data.clickingNow
+            // }
+
+            let linesOfText = []
+
+            linesOfText.push("---- CURRENTLY CLICKING ----")
+            for (let data of socketConnection.cookieData.clickingNow) {
+                linesOfText.push(data[0] + ": " + numberWithCommas(data[1]))
+
+                if (linesOfText.length * 10 > Renderer.screen.getHeight() / 2) break
+            }
+            linesOfText.push("------- LEADERBOARD -------")
+            let i = 0
+            for (let data of socketConnection.cookieData.cookieLeaderboard) {
+                i++
+
+                linesOfText.push("#" + i + " " + data[0] + ": " + numberWithCommas(data[1]))
+
+                if (linesOfText.length * 10 > Renderer.screen.getHeight()) break
+            }
+
+            for (let i = 0; i < linesOfText.length; i++) {
+                renderLibs.drawString(linesOfText[i], 10, 20 + 10 * i, 1)
+            }
+        }
     }
 
     fixNEU() {
@@ -405,5 +484,5 @@ class FirstLoadingPage extends GuiPage {
 }
 
 module.exports = {
-    class: new Hud()
+    class: new GlobalSettings()
 }
