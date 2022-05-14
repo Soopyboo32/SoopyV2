@@ -263,10 +263,10 @@ class DungeonMap extends Feature {
             renderLibs.scizzor(x + 2, y + 2, size - 4, size - 4)
 
             if (this.currDungeonBossImage) {
-                this.currDungeonBossImage.image.draw(x, y, size, size)
+                this.currDungeonBossImage.image.draw(x + xOff, y + yOff, size, size)
             } else {
                 GlStateManager.func_179094_E(); //GlStateManager.push()
-                Renderer.translate(x, y, 1)
+                Renderer.translate(x + xOff, y + yOff, 1)
                 GlStateManager.func_179152_a(size / 128, size / 128, 1); //GlStateManager.scale()
                 GlStateManager.func_179131_c(1.0, 1.0, 1.0, 1.0); // GlStateManager.color()
                 Client.getMinecraft().field_71460_t.func_147701_i().func_148250_a(this.mapData, true);
