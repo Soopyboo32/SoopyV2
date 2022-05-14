@@ -43,7 +43,7 @@ class DungeonMap extends Feature {
         this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this)
         // this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this).requires(this.spiritLeapOverlay)
 
-        this.MAP_QUALITY_SCALE = 2
+        this.MAP_QUALITY_SCALE = 1
         this.IMAGE_SIZE = 128 * this.MAP_QUALITY_SCALE
 
         this.defaultPlayerImage = renderLibs.getImage("https://crafatar.com/avatars/dc8c39647b294e03ae9ed13ebd65dd29?size=8", true)
@@ -59,9 +59,9 @@ class DungeonMap extends Feature {
         this.mortLocationOnMap = undefined
         this.brBoxLoc = undefined
         this.keys = 0
-        this.invMapImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB)
-        this.renderImage = new BufferedImage(this.IMAGE_SIZE, this.IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB)
-        this.mapImage = new Image(this.renderImage)
+        // this.invMapImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB)
+        // this.renderImage = new BufferedImage(this.IMAGE_SIZE, this.IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB)
+        this.mapData = undefined
 
         this.barrier_block_item = new Item("minecraft:barrier")
         this.puzzleItems = {
@@ -121,6 +121,10 @@ class DungeonMap extends Feature {
         this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.isInDungeon())
         this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInDungeon())
         this.registerEvent("worldLoad", this.worldLoad)
+        this.renderingPlayerList = false
+        this.registerEvent("renderPlayerList", () => {
+            this.renderingPlayerList = true
+        })
 
         this.registerEvent("guiOpened", (event) => {
             if (this.spiritLeapOverlay.getValue()) this.spiritLeapOverlayGui.guiOpened.call(this.spiritLeapOverlayGui, event)
@@ -148,9 +152,7 @@ class DungeonMap extends Feature {
         this.registerStep(true, 3, () => {
             if (!this.isInDungeon()) return
 
-            new Thread(() => {
-                this.updateMapImage()
-            }).start()
+            this.updateMapImage()
         }).registeredWhen(() => this.isInDungeon())
 
         this.registerChat("&r&r&r                     &r&cThe Catacombs &r&8- &r&eFloor ${*} Stats&r", () => {
@@ -180,23 +182,33 @@ class DungeonMap extends Feature {
     }
 
     renderOverlay() {
-        if (this.isInDungeon() && this.renderMap.getValue() && !this.spiritLeapOverlayGui.soopyGui.ctGui.isOpen()) {
+        if (!this.renderingPlayerList && this.isInDungeon() && this.renderMap.getValue() && !this.spiritLeapOverlayGui.soopyGui.ctGui.isOpen()) {
             this.drawMap(this.mapLocation.getValue()[0], this.mapLocation.getValue()[1], 100 * this.mapLocation.getValue()[2], 0.5 * this.mapLocation.getValue()[2])
         }
+        this.renderingPlayerList = false
     }
 
     drawMap(x, y, size, scale) {
-        if (this.mapImage) {
+        if (this.mapData) {
             if (this.FeatureManager.features["dataLoader"].class.stats.Time === "Soon!" && Player.getInventory().getStackInSlot(8).getID() !== 358) return
             if (this.boringMap) {
                 if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0, 100), x, y, size, size)
-
-                this.mapImage.draw(x, y, size, size)
 
                 if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y, size, 2)
                 if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y, 2, size)
                 if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x + size - 2, y, 2, size)
                 if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y + size - 2, size, 2)
+                if (this.currDungeonBossImage) {
+                    this.currDungeonBossImage.image.draw(x, y, size, size)
+                } else {
+                    GlStateManager.func_179094_E(); //GlStateManager.push()
+                    Renderer.translate(x, y, 1)
+                    GlStateManager.func_179152_a(size / 128, size / 128, 1); //GlStateManager.scale()
+                    GlStateManager.func_179131_c(1.0, 1.0, 1.0, 1.0); // GlStateManager.color()
+                    Client.getMinecraft().field_71460_t.func_147701_i().func_148250_a(this.mapData, true);
+                    GlStateManager.func_179121_F(); //GlStateManager.pop()
+                }
+
                 return
             }
 
@@ -248,8 +260,18 @@ class DungeonMap extends Feature {
             if (disableMap) return
 
             if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0, 100), x, y, size, size)
-            renderLibs.scizzor(x, y, size, size)
-            this.mapImage.draw(x + xOff, y + yOff, size, size)
+            renderLibs.scizzor(x + 2, y + 2, size - 4, size - 4)
+
+            if (this.currDungeonBossImage) {
+                this.currDungeonBossImage.image.draw(x, y, size, size)
+            } else {
+                GlStateManager.func_179094_E(); //GlStateManager.push()
+                Renderer.translate(x, y, 1)
+                GlStateManager.func_179152_a(size / 128, size / 128, 1); //GlStateManager.scale()
+                GlStateManager.func_179131_c(1.0, 1.0, 1.0, 1.0); // GlStateManager.color()
+                Client.getMinecraft().field_71460_t.func_147701_i().func_148250_a(this.mapData, true);
+                GlStateManager.func_179121_F(); //GlStateManager.pop()
+            }
 
             this.drawOtherMisc(x + xOff, y + yOff, size, scale)
 
@@ -257,11 +279,11 @@ class DungeonMap extends Feature {
 
             renderLibs.stopScizzor()
 
-
             if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y, size, 2)
             if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y, 2, size)
             if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x + size - 2, y, 2, size)
             if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y + size - 2, size, 2)
+
         }
     }
 
@@ -391,21 +413,6 @@ class DungeonMap extends Feature {
     }
 
     updateMapImage() {
-        try {
-            World.getAllPlayers().forEach(player => {
-                if (player.getPing() === -1) return
-                if (!this.people.includes(player.getName())) return
-                this.mapDataPlayers[Player.getUUID().toString()] = {
-                    x: player.getX(),
-                    y: player.getZ(),
-                    rot: player.getYaw() + 180,
-                    username: player.getName(),
-                    uuid: player.getUUID().toString()
-                }
-
-                this.nameToUUID[player.getName().toLowerCase()] = player.getUUID().toString()
-            })
-        } catch (_) { }//cocurrent modification
         if (!this.mortLocation) {
             try {
                 World.getAllEntities().forEach(entity => {
@@ -419,11 +426,11 @@ class DungeonMap extends Feature {
             } catch (e) { }
         }
 
-        let graphics = this.renderImage.getGraphics()
+        // let graphics = this.renderImage.getGraphics()
 
-        graphics.setComposite(AlphaComposite.Clear);
-        graphics.fillRect(0, 0, this.IMAGE_SIZE, this.IMAGE_SIZE)
-        graphics.setComposite(AlphaComposite.SrcOver);
+        // graphics.setComposite(AlphaComposite.Clear);
+        // graphics.fillRect(0, 0, this.IMAGE_SIZE, this.IMAGE_SIZE)
+        // graphics.setComposite(AlphaComposite.SrcOver);
 
         let mapData
         try {
@@ -432,32 +439,33 @@ class DungeonMap extends Feature {
         } catch (error) {
         }
         if (mapData) {
+            this.mapData = mapData
+
 
             // console.log("has map data poggies")
             let bytes = mapData[f.colors.MapData]
 
-            let x = 0
-            let y = 0
-            for (let i = 0; i < bytes.length; i++) {
-                // console.log(bytes[i]/4)
+            // let newArr = java.lang.reflect.Array.newInstance(java.lang.Integer.TYPE, bytes.length)
+            // for (let i = 0; i < bytes.length; i++) {
+            //     // console.log(bytes[i]/4)
 
-                if (bytes[i] !== 0) {
-                    let j = bytes[i] & 255
-                    let color = new Color(net.minecraft.block.material.MapColor[f.mapColorArray][j >> 2][m.getMapColor.MapColor](j & 3))
-                    // this.invMapImage.setRGB(x, y, color)
-                    graphics.setColor(color)
-                    graphics.fillRect(x * this.MAP_QUALITY_SCALE, y * this.MAP_QUALITY_SCALE, this.MAP_QUALITY_SCALE, this.MAP_QUALITY_SCALE)
-                }
-                x++
-                if (x >= 128) {
-                    x = 0
-                    y++
+            //     if (bytes[i] !== 0) {
+            //         let j = bytes[i] & 255
+            //         newArr[i] = net.minecraft.block.material.MapColor[f.mapColorArray][j >> 2][m.getMapColor.MapColor](j & 3)
+            //         // graphics.setColor(color)
+            //         // graphics.fillRect(x * this.MAP_QUALITY_SCALE, y * this.MAP_QUALITY_SCALE, this.MAP_QUALITY_SCALE, this.MAP_QUALITY_SCALE)
+            //     }
+            //     // x++
+            //     // if (x >= 128) {
+            //     //     x = 0
+            //     //     y++
 
-                    if (y > 128) break
-                }
+            //     //     if (y > 128) break
+            //     // }
 
-                // mapImage.getRGB()
-            }
+            //     // mapImage.getRGB()
+            // }
+            // this.renderImage.setRGB(0, 0, 128, 128, newArr, 0, 128)
 
             // newImage.setRGB(0,0,128,128, ints, 0, 1)
 
@@ -470,69 +478,71 @@ class DungeonMap extends Feature {
             let roomOffsets
             let roomWidth1 = 0
             let roomWidth2 = 0
-            for (let x = 0; x < 128; x++) {
-                for (let y = 0; y < 128; y++) {
-                    if (bytes[x + y * 128] === 30 && bytes[(x - 1) + (y) * 128] === 0) {
-                        roomWidth1++
+            let rx = 0
+            let ry = 0
+            for (let x = 0; x < 128; x += 5) {
+                for (let y = 0; y < 128; y += 5) {
+                    if (bytes[x + y * 128] === 30) {
+                        rx = x
+                        ry = y
+                        while (bytes[(rx - 1) + ry * 128] === 30) {
+                            rx--
+                        }
+                        while (bytes[(rx) + (ry - 1) * 128] === 30) {
+                            ry--
+                        }
+                        break;
                     }
                 }
-                if (roomWidth1 > 0) break;
-            }
-            for (let x = 0; x < 128; x++) {
-                for (let y = 0; y < 128; y++) {
-                    if (bytes[y + x * 128] === 30 && bytes[(y) + (x - 1) * 128] === 0) {
-                        roomWidth2++
-                    }
-                }
-                if (roomWidth2 > 0) break;
+                if (rx) break;
             }
 
+            let x = rx
+            while (bytes[x + ry * 128] === 30) {
+                x++
+                roomWidth2++
+            }
+            let y = ry
+            while (bytes[rx + y * 128] === 30) {
+                y++
+                roomWidth1++
+            }
             let roomWidth = Math.floor(Math.max(roomWidth1, roomWidth2) * 5 / 4)
             this.mapScale = 32 / roomWidth
             let mortLocationOnMap
-            for (let x = 0; x < 128; x++) {
-                for (let y = 0; y < 128; y++) {
-                    if (bytes[x + y * 128] === 30 && bytes[(x - 1) + (y - 1) * 128] === 0) {
-                        if (roomOffsets) break;
-                        roomOffsets = [x % roomWidth - 3, y % roomWidth - 3]
+            roomOffsets = [rx % roomWidth - 3, ry % roomWidth - 3]
 
-                        let dir = roomWidth / 2 - 5 / this.mapScale
+            let dir = roomWidth / 2 - 5 / this.mapScale
 
-                        //top
-                        for (let i = 0; i < roomWidth; i++) {
-                            if (bytes[(i + x - 3) + (y - 3) * 128] !== 0) {
-                                mortLocationOnMap = [x - 2 + roomWidth / 2, y - 2 + roomWidth / 2 - dir]
-                                break
-                            }
-                        }
-                        // if(mortLocationOnMap) break
-                        //bottom
-                        for (let i = 0; i < roomWidth; i++) {
-                            if (bytes[(i + x - 3) + (y + roomWidth - 3) * 128] !== 0) {
-                                mortLocationOnMap = [x - 2 + roomWidth / 2, y - 2 + roomWidth / 2 + dir]
-                                break
-                            }
-                        }
-                        //left
-                        for (let i = 0; i < roomWidth; i++) {
-                            if (bytes[(x - 3) + (i + y - 3) * 128] !== 0) {
-                                mortLocationOnMap = [x - 2 + roomWidth / 2 - dir, y - 2 + roomWidth / 2]
-                                break
-                            }
-                        }
-                        //right
-                        for (let i = 0; i < roomWidth; i++) {
-                            if (bytes[(x + roomWidth - 3) + (i + y - 3) * 128] !== 0) {
-                                mortLocationOnMap = [x - 2 + roomWidth / 2 + dir, y - 2 + roomWidth / 2]
-                            }
-                        }
-
-                        break
-                    }
-
+            //top
+            for (let i = 0; i < roomWidth; i++) {
+                if (bytes[(i + rx - 3) + (ry - 3) * 128] !== 0) {
+                    mortLocationOnMap = [rx - 2 + roomWidth / 2, ry - 2 + roomWidth / 2 - dir]
+                    break
                 }
-
             }
+            // if(mortLocationOnMap) break
+            //bottom
+            for (let i = 0; i < roomWidth; i++) {
+                if (bytes[(i + rx - 3) + (ry + roomWidth - 3) * 128] !== 0) {
+                    mortLocationOnMap = [rx - 2 + roomWidth / 2, ry - 2 + roomWidth / 2 + dir]
+                    break
+                }
+            }
+            //left
+            for (let i = 0; i < roomWidth; i++) {
+                if (bytes[(rx - 3) + (i + ry - 3) * 128] !== 0) {
+                    mortLocationOnMap = [rx - 2 + roomWidth / 2 - dir, ry - 2 + roomWidth / 2]
+                    break
+                }
+            }
+            //right
+            for (let i = 0; i < roomWidth; i++) {
+                if (bytes[(rx + roomWidth - 3) + (i + ry - 3) * 128] !== 0) {
+                    mortLocationOnMap = [rx - 2 + roomWidth / 2 + dir, ry - 2 + roomWidth / 2]
+                }
+            }
+
             if (mortLocationOnMap && this.mortLocation) {
 
                 for (let x = roomOffsets[0]; x < 128; x += roomWidth) {
@@ -578,7 +588,7 @@ class DungeonMap extends Feature {
 
             this.brBoxLoc = brBoxTemp
 
-            if (roomOffsets && this.renderImage) {
+            if (roomOffsets) {
                 // for(let x = 0;x<128;x++){
                 //     for(let y = 0;y<128;y++){
                 //         if((x-roomOffsets[0])%roomWidth===0 || (y-roomOffsets[1])%roomWidth===0){
@@ -652,10 +662,9 @@ class DungeonMap extends Feature {
                     });
                 } catch (e) { }
             }
-            if (!this.renderImage) return
+            // if (!this.renderImage) return
 
-            let newMapImageThing = new Image(this.renderImage)
-            this.mapImage = newMapImageThing
+            // let newMapImageThing = new Image(this.renderImage)
             this.currDungeonBossImage = undefined
         } else {
             //no map data, check to see if should render boss image
@@ -663,7 +672,6 @@ class DungeonMap extends Feature {
             if (this.dungeonBossImages[this.FeatureManager.features["dataLoader"].class.dungeonFloor]) this.dungeonBossImages[this.FeatureManager.features["dataLoader"].class.dungeonFloor].forEach(data => {
                 if (data.bounds[0][0] <= Player.getX() && data.bounds[0][1] <= Player.getY() && data.bounds[0][2] <= Player.getZ() && data.bounds[1][0] >= Player.getX() && data.bounds[1][1] >= Player.getY() && data.bounds[1][2] >= Player.getZ()) {
                     this.currDungeonBossImage = data
-                    this.mapImage = data.image
                 }
             })
         }

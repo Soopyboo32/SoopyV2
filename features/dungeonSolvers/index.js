@@ -269,6 +269,8 @@ class DungeonSolvers extends Feature {
 			return;
 		}
 
+		if (!this.FeatureManager.features["dataLoader"].class.stats.Deaths) return
+
 		// Information about the dungeon
 		let deaths = parseInt(this.FeatureManager.features["dataLoader"].class.stats.Deaths.replace("(", "").replace(")", ""));
 
@@ -420,10 +422,8 @@ class DungeonSolvers extends Feature {
 
 		if (this.bloodCampAssist.getValue()) {
 			for (let skull of this.skulls) {
-				let skullE = skull.getEntity();
-				// renderUtils.drawBoxAtEntity(skull, 255, 0, 0, 0.5, 0.5, ticks)
-
 				if (this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook) {
+					let skullE = skull.getEntity();
 					let startPoint = [skullE[f.posX.Entity], skullE[f.posY.Entity], skullE[f.posZ.Entity]];
 
 					let xSpeed2 = (startPoint[0] - this.eMovingThing[skull.getUUID().toString()].startX) / this.eMovingThing[skull.getUUID().toString()].timeTook;
