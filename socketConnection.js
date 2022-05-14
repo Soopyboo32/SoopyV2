@@ -59,6 +59,9 @@ class SoopyV2Server extends WebsiteCommunicator {
         if (data.type === "inquisData") {
             if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.events) global.soopyv2featuremanagerthing.features.events.class.inquisData(data.location, data.user)
         }
+        if (data.type === "vancData") {
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.nether) global.soopyv2featuremanagerthing.features.nether.class.vanqData(data.location, data.user)
+        }
         if (data.type === "cookies") {
             this.cookieCount = data.cookies
         }

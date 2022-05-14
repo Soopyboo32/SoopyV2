@@ -2,6 +2,7 @@
 /// <reference lib="es2015" />
 import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
+import socketConnection from "../../socketConnection";
 import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawLine, drawLineWithDepth, renderBeaconBeam } from "../../utils/renderUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 const MCBlock = Java.type("net.minecraft.block.Block");
@@ -46,8 +47,10 @@ class Nether extends Feature {
 		this.tenacityLine = new ToggleSetting("Show line for fireball in dojo tenacity", "This may help you to dodge the fireballs", false, "dojo_tanacity", this)
 		//TODO: Vanquisher waypoints (&r&aA &r&cVanquisher &r&ais spawning nearby!&r)
 		//TODO: add toggle setting for hostage waypoint
+		this.hostageWaypoints = new ToggleSetting("Show hostage waypoints", "Waypoint for location of hostage in rescue missions", true, "hostage_waypoint", this)
+		this.vaniquisherWaypoints = new ToggleSetting("Show vaniqusher waypoints", "Shows the locations of other player's vanquishers", true, "vanquisher_waypoint", this)
 		this.registerCustom("packetReceived", this.packetReceived).registeredWhen(() => this.isInDojo())
-		this.registerStep(true, 1, this.step1S).registeredWhen(() => this.isInDojo())
+		this.registerStep(true, 1, this.step1S).registeredWhen(() => this.isInNether())
 		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInNether())
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDojo());
@@ -78,6 +81,16 @@ class Nether extends Feature {
 		this.registerEvent("worldLoad", () => {
 			this.rescueMissionDifficulty = this.rescueMissionType = undefined
 		})
+
+		this.registerChat("&r&aA ${*}Vanquisher &r&ais spawning nearby!&r", () => {
+			socketConnection.sendVancData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
+		})
+
+		this.spawnedVanqs = []
+	}
+
+	vanqData(loc) {
+		this.spawnedVanqs.push([...loc, Date.now()])
 	}
 
 	tick() {
@@ -184,15 +197,22 @@ class Nether extends Feature {
 			drawLineWithDepth(entitylocation[0] + change[0] * 100 + offset[0], entitylocation[1] + change[1] * 100 + offset[1], entitylocation[2] + change[2] * 100 + offset[2], entitylocation[0] + offset[0], entitylocation[1] + offset[1], entitylocation[2] + offset[2], 255, 0, 0, 2)
 		})
 
-		if (this.rescueMissionDifficulty && this.rescueMissionType) {
+		if (this.rescueMissionDifficulty && this.rescueMissionType && this.hostageWaypoints.getValue()) {
 			let location = locationData[this.rescueMissionType][this.rescueMissionDifficulty]
 			drawCoolWaypoint(location[0], location[1], location[2], 255, 0, 0, { name: "Hostage" })
+		}
+
+		if (this.vaniquisherWaypoints.getValue()) {
+			Object.keys(this.spawnedVanqs).forEach(key => {
+				drawCoolWaypoint(this.spawnedVanqs[key][0], this.spawnedVanqs[key][1], this.spawnedVanqs[key][2], 255, 0, 0, { name: key + "'s vanquisher (" + Math.floor((Date.now() - this.spawnedVanqs[key][2]) / 1000) + "s)" })
+			})
 		}
 	}
 
 	step1S() {
 		if (this.blocks) this.blocks = this.blocks.filter(state => Date.now() < state.time)
 		if (this.dojoFireBalls) this.dojoFireBalls = this.dojoFireBalls.filter(e => !e[f.isDead])
+		if (this.spawnedVanqs) this.spawnedVanqs = this.spawnedVanqs.filter(a => Date.now() - a[3] < 60000)
 	}
 
 	getBlockIdFromState(state) {
