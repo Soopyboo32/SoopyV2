@@ -154,6 +154,8 @@ class Hud extends Feature {
             "experience_skill_taming": 50,
         };
 
+        this.spotifyProcessId = -1
+
         Object.keys(this.skillLevelCaps).forEach(skill => {
             hudStatTypes[skill] = firstLetterCapital(skill.split("_").pop()) + " level + Exp"
         })
@@ -573,6 +575,35 @@ class Hud extends Feature {
         if (!this.showSpotifyPlaying.getValue()) return
 
         let currentSong = "&cNot open"
+
+        if (this.spotifyProcessId !== -1) {
+            let pid = this.spotifyProcessId
+
+            let process = new ProcessBuilder("tasklist.exe", "/FO", "csv", "/V", "/FI", "\"PID eq " + pid + "\"").start();
+            let sc = new Scanner(process.getInputStream());
+            if (sc.hasNextLine()) sc.nextLine();
+            while (sc.hasNextLine()) {
+                let line = sc.nextLine();
+                let parts = line.replace("\"", "").split("\",\"");
+                let song = parts[parts.length - 1].substr(0, parts[parts.length - 1].length - 1)
+                if (song === "N/A") continue
+
+                if (song === "Spotify Free" || song === "Spotify Premium" || song === "AngleHiddenWindow") {
+                    currentSong = "&cPaused"
+                } else {
+                    if (song === "Spotify") song = "Advertisement"
+                    currentSong = "&a" + song.replace(/&/g, "&⭍").replace(" - ", " &7-&b ")
+                }
+
+            }
+            process.waitFor();
+
+            this.spotifyElement2.setText(currentSong.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
+        }
+
+        if (currentSong !== "&cNot open") return
+
+        this.spotifyProcessId = -1
         let spotifyProcesses = []
         let process = new ProcessBuilder("tasklist.exe", "/fo", "csv", "/nh").start();
         let sc = new Scanner(process.getInputStream());
@@ -600,6 +631,8 @@ class Hud extends Feature {
                 let parts = line.replace("\"", "").split("\",\"");
                 let song = parts[parts.length - 1].substr(0, parts[parts.length - 1].length - 1)
                 if (song === "N/A") continue
+
+                this.spotifyProcessId = pid
 
                 if (song === "Spotify Free" || song === "Spotify Premium" || song === "AngleHiddenWindow") {
                     currentSong = "&cPaused"

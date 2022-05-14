@@ -82,10 +82,10 @@ class GlobalSettings extends Feature {
         this.lastCookies = 0
 
         this.registerEvent("postGuiRender", () => {
-            if (Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.renderCookie()
+            if (Player.getContainer() && Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.renderCookie()
         })
         this.registerStep(false, 1, () => {
-            if (Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.tickCookie()
+            if (Player.getContainer() && Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.tickCookie()
         })
 
         this.registerEvent("guiMouseClick", this.guiClicked)
