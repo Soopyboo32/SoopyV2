@@ -47,8 +47,6 @@ class DataLoader extends Feature {
     worldLoad() {
         this.area = undefined
         this.areaFine = undefined
-
-        this.worldLoaded = true
     }
 
     loadApi() {
@@ -69,9 +67,8 @@ class DataLoader extends Feature {
         if (!key) return
 
         if (this.loadedApiDatas[type] !== undefined) {
-            if (Date.now() - this.loadedApiDatas[type] < 5000 && !this.worldLoaded) return
+            if (Date.now() - this.loadedApiDatas[type] < 5000) return
         }
-        this.worldLoaded = false
 
         this.loadedApiDatas[type] = Date.now()
 

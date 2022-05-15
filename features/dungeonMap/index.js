@@ -482,7 +482,10 @@ class DungeonMap extends Feature {
             let ry = 0
             for (let x = 0; x < 128; x += 5) {
                 for (let y = 0; y < 128; y += 5) {
-                    if (bytes[x + y * 128] === 30) {
+                    if (bytes[x + y * 128] === 30
+                        && bytes[x + 1 + y * 128] === 30
+                        && bytes[x + 2 + y * 128] === 30
+                        && bytes[x + 3 + y * 128] === 30) {
                         rx = x
                         ry = y
                         while (bytes[(rx - 1) + ry * 128] === 30) {
@@ -508,6 +511,7 @@ class DungeonMap extends Feature {
                 roomWidth1++
             }
             let roomWidth = Math.floor(Math.max(roomWidth1, roomWidth2) * 5 / 4)
+            console.log(roomWidth)
             this.mapScale = 32 / roomWidth
             let mortLocationOnMap
             roomOffsets = [rx % roomWidth - 3, ry % roomWidth - 3]
@@ -582,7 +586,6 @@ class DungeonMap extends Feature {
                             }
                         }
                     }
-
                 }
             }
 

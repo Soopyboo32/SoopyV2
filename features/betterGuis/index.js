@@ -6,6 +6,8 @@ import { f } from "../../../mappings/mappings";
 import ToggleSetting from "../settings/settingThings/toggle";
 import MuseumGui from "./museumGui.js";
 import DungeonReadyGui from "./dungeonReadyGui";
+import { SoopyGui } from "../../../guimanager";
+import TextBox from "../../../guimanager/GuiElement/TextBox";
 
 class BetterGuis extends Feature {
     constructor() {
@@ -23,6 +25,8 @@ class BetterGuis extends Feature {
 
         this.museumGuiEnabled = new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this)
         this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI (UNFINISHED)", "Custom gui for the dungeon ready up menu", false, "custom_dungeon_ready_enabled", this)
+
+        this.chestSearchBar = new ToggleSetting("Inventory Search Bar", "u can use '&' to make it filter buy stuff that contains multiple things", false, "inv_search", this)
 
         this.lastWindowId = 0
         this.shouldHold = 10
@@ -121,6 +125,79 @@ class BetterGuis extends Feature {
         this.registerStep(true, 10, this.step)
         this.registerEvent("worldUnload", () => { this.museumGui.saveMuseumCache.call(this.museumGui) })
         this.registerStep(false, 30, () => { this.museumGui.saveMuseumCache.call(this.museumGui) })
+
+
+        this.invSearchSoopyGui = new SoopyGui()
+        this.invSearchSoopyGui._renderBackground = () => { }
+
+        this.invSearchTextBox = new TextBox().setPlaceholder("Click to search").setLocation(0.4, 0.05, 0.2, 0.05)
+        this.invSearchSoopyGui.element.addChild(this.invSearchTextBox)
+
+        this.slotMatches = new Map()
+
+        this.registerEvent("guiRender", this.postGuiRender).registeredWhen(() => this.chestSearchBar.getValue())
+        this.registerEvent("guiMouseClick", this.guiMouseClick).registeredWhen(() => this.chestSearchBar.getValue())
+        this.registerEvent("guiKey", this.guiKey).registeredWhen(() => this.chestSearchBar.getValue())
+        this.registerEvent("renderSlot", this.renderSlot).registeredWhen(() => this.chestSearchBar.getValue())
+        this.registerEvent("guiOpened", this.guiOpened).registeredWhen(() => this.chestSearchBar.getValue())
+    }
+
+    postGuiRender(x, y, gui) {
+        if (gui.class.toString() !== "class net.minecraft.client.gui.inventory.GuiChest") return
+
+        this.invSearchSoopyGui._render(x, y, 0)
+    }
+    guiMouseClick(x, y, button, gui) {
+        if (gui.class.toString() !== "class net.minecraft.client.gui.inventory.GuiChest") return
+
+        this.invSearchSoopyGui._onClick(x, y, button)
+    }
+    guiKey(char, code, gui, event) {
+        if (gui.class.toString() !== "class net.minecraft.client.gui.inventory.GuiChest") return
+
+        this.invSearchSoopyGui._onKeyPress(char, code)
+
+        if (this.invSearchTextBox.text.selected) {
+            cancel(event)
+            this.slotMatches.clear()
+        }
+    }
+    guiOpened() {
+        this.slotMatches.clear()
+    }
+
+    renderSlot(slot, gui, event) {
+        if (gui.class.toString() !== "class net.minecraft.client.gui.inventory.GuiChest") return
+        if (!this.invSearchTextBox.getText()) return
+
+        let searchText = this.invSearchTextBox.getText().toLowerCase()
+
+        let isMatching = false
+        let slotMatches = this.slotMatches.get(slot.getIndex())
+        if (slotMatches && Date.now() - slotMatches.timestamp < 500) {
+            if (!slotMatches.isMatching) {
+                Renderer.translate(0, 0, 100)
+                Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 8 * Renderer.screen.getScale(), 8 * Renderer.screen.getScale())
+            }
+            return
+        }
+        let item = slot.getItem()
+        if (item) {
+            isMatching = !searchText.split("&").map(a => {
+                a = a.trim()
+                let isMatching2 = false
+                if (ChatLib.removeFormatting(item.getName()).toLowerCase().includes(a)) isMatching2 = true
+                if (!isMatching2 && item.getLore().some(b => ChatLib.removeFormatting(b).toLowerCase().includes(a))) isMatching2 = true
+                return isMatching2
+            }).includes(false)
+        }
+
+        this.slotMatches.set(slot.getIndex(), { isMatching, timestamp: Date.now() })
+
+        if (!isMatching) {
+            Renderer.translate(0, 0, 100)
+            Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 8 * Renderer.screen.getScale(), 8 * Renderer.screen.getScale())
+        }
     }
 
     guiClicked(mouseX, mouseY, button, gui, event) {
@@ -228,6 +305,8 @@ class BetterGuis extends Feature {
 
     onDisable() {
         this.initVariables()
+
+        this.invSearchSoopyGui.delete()
     }
 }
 
