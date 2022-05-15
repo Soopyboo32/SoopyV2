@@ -577,7 +577,7 @@ class DungeonMap extends Feature {
 
                         if (bytes[tx + ty * 128] === 66) {
 
-                            if (!this.puzzles[(tx) * 128 + ty]) {
+                            if (!this.puzzles[(tx) * 128 + ty] && Object.keys(this.puzzles).length < 10) {
                                 this.puzzles[(tx) * 128 + ty] = ["Loading", false]
                             }
                         }
