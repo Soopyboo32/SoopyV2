@@ -40,6 +40,7 @@ class GlobalSettings extends Feature {
         this.findApiKey = new ButtonSetting("Attempt to load api key from other mods", "This will scan other mods configs to attempt to find your key", "find_key", this, "Click!", () => { this.findKey() }, undefined)
 
         this.fixNeuNetworth = new ToggleSetting("Change networth in NEU pv to soopynw", "This should make it a lot more accurate", true, "neu_nw_override", this)
+        this.darkTheme = new ToggleSetting("Dark theme", "This might be scuffed because guis are still made in light theme", false, "dark_theme", this)
 
         this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
 
@@ -86,6 +87,8 @@ class GlobalSettings extends Feature {
         })
         this.registerStep(false, 1, () => {
             if (Player.getContainer() && Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.tickCookie()
+
+            global.guiManagerSoopyGuisSetDarkThemeEnabled(this.darkTheme.getValue())
         })
 
         this.registerEvent("guiMouseClick", this.guiClicked)
