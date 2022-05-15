@@ -558,7 +558,7 @@ class Hud extends Feature {
                     this.lastStatData._soulflow += parseInt(ChatLib.removeFormatting(line.split(` `)[0]).replace(/[^0-9]/g, ""))
                     isSoulflowCounting = !line.endsWith(`Soulflow"`)
                 }
-                if (line.startsWith(`display:{Lore:[0:"§7Internalized:`)) {
+                if (line.startsWith(`display:{Lore:[0:"§7Internalized:`) || line.startsWith(`4:"§7Internalized:`)) {
                     isSoulflowCounting = !line.endsWith(`Soulflow"`)
                     this.lastStatData._soulflow = parseInt(ChatLib.removeFormatting(line.split(`"§7Internalized: `)[1]))
 

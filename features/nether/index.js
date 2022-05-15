@@ -45,10 +45,9 @@ class Nether extends Feature {
 		this.masteryTimer = new ToggleSetting("Mastery Timer", "Countdown untill a block will turn red", true, "nether_mastery_timer", this)
 		this.speedNextBlock = new ToggleSetting("Show next block to stand on for dojo swiftness", "", true, "dojo_swiftness", this)
 		this.tenacityLine = new ToggleSetting("Show line for fireball in dojo tenacity", "This may help you to dodge the fireballs", false, "dojo_tanacity", this)
-		//TODO: Vanquisher waypoints (&r&aA &r&cVanquisher &r&ais spawning nearby!&r)
-		//TODO: add toggle setting for hostage waypoint
 		this.hostageWaypoints = new ToggleSetting("Show hostage waypoints", "Waypoint for location of hostage in rescue missions", true, "hostage_waypoint", this)
 		this.vaniquisherWaypoints = new ToggleSetting("Show vaniqusher waypoints", "Shows the locations of other player's vanquishers", true, "vanquisher_waypoint", this)
+		this.slugfishTimer = new ToggleSetting("Show timer over rod", "This may help with fishing slugfish", false, "slugfish_timer", this)
 		this.registerCustom("packetReceived", this.packetReceived).registeredWhen(() => this.isInDojo())
 		this.registerStep(true, 1, this.step1S).registeredWhen(() => this.isInNether())
 		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInNether())
@@ -64,6 +63,9 @@ class Nether extends Feature {
 		this.rescueMissionDifficulty = undefined
 		this.rescueMissionType = undefined
 		this.lastBlock = undefined
+		this.hookThrown = 0
+
+		this.spawnedVanqs = []
 		this.registerChat("&r&r&r                    &r&aTest of Swiftness &r&e&lOBJECTIVES&r", () => {
 			if (this.speedNextBlock.getValue()) {
 				this.inSwiftness = true
@@ -85,8 +87,6 @@ class Nether extends Feature {
 		this.registerChat("&r&aA ${*}Vanquisher &r&ais spawning nearby!&r", () => {
 			socketConnection.sendVancData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
 		})
-
-		this.spawnedVanqs = []
 	}
 
 	vanqData(loc) {
@@ -94,6 +94,15 @@ class Nether extends Feature {
 	}
 
 	tick() {
+
+		let fishHook = Player.getPlayer()[f.fishEntity]
+
+		if (fishHook) {
+			if (!this.hookThrown) this.hookThrown = Date.now()
+		} else {
+			this.hookThrown = 0
+		}
+
 		if (Player.getContainer().getName() === "Rescue" && Player.getContainer().getStackInSlot(22)) {
 			let difficulty = ChatLib.removeFormatting(Player.getContainer().getStackInSlot(22).getName()).trim()[0]
 
@@ -207,6 +216,17 @@ class Nether extends Feature {
 				drawCoolWaypoint(this.spawnedVanqs[key][0], this.spawnedVanqs[key][1], this.spawnedVanqs[key][2], 255, 0, 0, { name: key + "'s vanquisher (" + Math.floor((Date.now() - this.spawnedVanqs[key][2]) / 1000) + "s)" })
 			})
 		}
+
+		if (this.slugfishTimer.getValue()) {
+			let hook = Player.getPlayer()[f.fishEntity]
+			if (hook && this.hookThrown) {
+				let x = hook[f.posX.Entity]
+				let y = hook[f.posY.Entity]
+				let z = hook[f.posZ.Entity]
+
+				Tessellator.drawString(((Date.now() - this.hookThrown) / 1000).toFixed(1) + "s", x, y + 0.5, z, Renderer.color(0, 255, 50), false, 0.025, false)
+			}
+		}
 	}
 
 	step1S() {
@@ -231,3 +251,12 @@ let nether = new Nether()
 module.exports = {
 	class: nether,
 };
+
+function getField(e, field) {
+
+	let field2 = e.class.getDeclaredField(field);
+
+	field2.setAccessible(true)
+
+	return field2.get(e)
+}

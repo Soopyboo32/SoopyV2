@@ -11,6 +11,7 @@ import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseCl
 import ProgressBar from "../../../guimanager/GuiElement/ProgressBar"
 import SoopyRenderEvent from "../../../guimanager/EventListener/SoopyRenderEvent"
 import { fetch } from "../../utils/networkUtils";
+import { numberWithCommas } from "../../utils/numberUtils";
 const File = Java.type("java.io.File")
 const URL = Java.type("java.net.URL");
 const PrintStream = Java.type("java.io.PrintStream");
@@ -232,7 +233,7 @@ class ChangelogPage extends GuiPage {
 
             this.changelogArea.addChild(changes)
 
-            changes.setText("# __" + data.version + "__" + (data.versionId === this.currVersionId ? " §7Current" : "") + "\n" + data.description)
+            changes.setText("# __" + data.version + "__" + (data.versionId === this.currVersionId ? " §7Current (" : " §7(") + numberWithCommas(data.users || 0) + " using)" + "\n" + data.description)
 
             height += changes.getHeight()
 
