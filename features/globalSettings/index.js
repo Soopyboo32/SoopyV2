@@ -6,7 +6,6 @@ import TextSetting from "../settings/settingThings/textSetting";
 import ToggleSetting from "../settings/settingThings/toggle";
 import firstLoadPages from "./firstLoadPages";
 import GuiPage from "../soopyGui/GuiPage"
-import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement";
 import Notification from "../../../guimanager/Notification";
 import logger from "../../logger";
 import soopyV2Server from "../../socketConnection";
@@ -41,6 +40,7 @@ class GlobalSettings extends Feature {
 
         this.fixNeuNetworth = new ToggleSetting("Change networth in NEU pv to soopynw", "This should make it a lot more accurate", true, "neu_nw_override", this)
         this.darkTheme = new ToggleSetting("Dark theme", "This might be scuffed because guis are still made in light theme", false, "dark_theme", this)
+        this.linkPreview = new ToggleSetting("Link preview", "Shows a preview of where a link will take you", true, "link_preview", this)
 
         this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
 
@@ -84,6 +84,7 @@ class GlobalSettings extends Feature {
 
         this.registerEvent("postGuiRender", () => {
             if (Player.getContainer() && Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.renderCookie()
+            if (this.linkPreview.getValue() && Client.currentGui && Client.currentGui.get() && Client.currentGui.get().toString().startsWith("net.minecraft.client.gui.GuiConfirmOpenLink")) this.renderWebpage()
         })
         this.registerStep(false, 1, () => {
             if (Player.getContainer() && Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.tickCookie()
@@ -92,6 +93,19 @@ class GlobalSettings extends Feature {
         })
 
         this.registerEvent("guiMouseClick", this.guiClicked)
+    }
+
+    renderWebpage() {
+        let url = this.getField(Client.currentGui.get(), f.linkText)
+
+        let image = renderLibs.getImage("https://soopymc.my.to/api/soopyv2/webpage?webpage=" + url)
+
+        if (image) {
+            let scale = Renderer.screen.getHeight() * 0.5 / image.getTextureHeight()
+            image.draw(Renderer.screen.getWidth() / 2 - image.getTextureWidth() * scale / 2, Renderer.screen.getHeight() / 2, scale * image.getTextureWidth(), scale * image.getTextureHeight())
+        } else {
+            Renderer.drawString("Loading website preview...", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth("Loading website preview...") / 2, Renderer.screen.getHeight() * 3 / 4)
+        }
     }
 
     guiClicked(mouseX, mouseY, button, gui, event) {
@@ -150,7 +164,7 @@ class GlobalSettings extends Feature {
 
                 linesOfText.push("#" + i + " " + data[0] + ": " + numberWithCommas(data[1]))
 
-                if (linesOfText.length * 10 > Renderer.screen.getHeight()) break
+                if (linesOfText.length * 10 > Renderer.screen.getHeight() - 50) break
             }
 
             for (let i = 0; i < linesOfText.length; i++) {
@@ -160,7 +174,7 @@ class GlobalSettings extends Feature {
     }
 
     fixNEU() {
-        if (Client.currentGui.get() instanceof (this.GuiProfileViewer) && this.fixNeuNetworth.getValue()) {
+        if (Client.currentGui && Client.currentGui.get() instanceof (this.GuiProfileViewer) && this.fixNeuNetworth.getValue()) {
             let guiProfileViewer = Client.currentGui.get()
             if (!guiProfileViewer.profile || !guiProfileViewer.profile.getHypixelProfile()) return
             let uuid = guiProfileViewer.profile.getHypixelProfile().get("uuid").getAsString().replace(/-/g, "")
