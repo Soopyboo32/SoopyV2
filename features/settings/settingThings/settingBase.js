@@ -143,6 +143,7 @@ class SettingBase {
 
     contributor(name) {
         //TODO: this entire function
+        return this
     }
 
     delete() {
