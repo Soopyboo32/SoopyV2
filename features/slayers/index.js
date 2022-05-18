@@ -22,7 +22,7 @@ class Slayers extends Feature {
 		this.slainAlert = new ToggleSetting("Show boss slain alert", "This helps you to not kill mobs for ages with an inactive quest", true, "boss_slain_alert", this);
 		this.spawnAlert = new ToggleSetting("Show boss spawned alert", "This helps you to not miss your boss when you spawn it", true, "boss_spawn_alert", this);
 
-		this.boxAroundEmanBoss = new ToggleSetting("Box around enderman slayer boss", "This helps to know what boss it yours", true, "eman_box", this);
+		this.boxAroundEmanBoss = new ToggleSetting("Box around enderman slayer boss", "This helps to know which boss is yours", true, "eman_box", this);
 		this.boxToEmanBeacon = new ToggleSetting("Box and line to the enderman beacon", "This will help to find the beacon when the boss throws it", true, "eman_beacon", this);
 		this.emanBeaconDinkDonk = new ToggleSetting("DinkDonk when beacon is spawned", "This will help to notice when the beacon is spawned", true, "eman_beacon_dinkdink", this);
 		this.emanEyeThings = new ToggleSetting("Put box around the enderman eye things", "This will help to find them", true, "eman_eye_thing", this);
@@ -33,6 +33,8 @@ class Slayers extends Feature {
 
 		this.rcmDaeAxeSupport = new ToggleSetting("Eman Hyp hits before Dae axe swapping", "This will tell u how many clicks with hyp is needed before swapping to dae axe", true, "eman_rcm_support", this).requires(this.emanHpGuiElement).contributor("EmeraldMerchant");
 		this.rcmDamagePerHit = new TextSetting("Hyperion damage", "Your hyp's single hit damage w/o thunderlord/thunderbolt", "", "hyp_dmg", this, "Enter your hyp dmg (Unit: M)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
+		this.whenToShowHitsLeft = new TextSetting("Show hits left timing", "At how much hp should the hits left thing be visible", "", "eman_hp_left", this, "Enter how much hp (Unit: M, enter a valid value 0-300)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
+		this.thunderLevel = new TextSetting("Thunderlord Level", "What thunderlord level you have on your hyperion", "", "thunderlord_level", this, "Enter thunderlord level (only supports 5/6/7)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
 
 		this.emanLazerTimer = new ToggleSetting("Adds a timer for the boss lazer phase", "The timer will be inside the boss's body during the phase", true, "eman_lazer_timer", this);
 
@@ -390,10 +392,17 @@ class Slayers extends Feature {
 
 				if (emanHealth.includes("k")) {
 					emanText += " &c0 Hits"
-				} else if (emanHealth.includes("M")) {
-					let hits = parseInt(emanHealth) / (this.rcmDamagePerHit.getValue() * 1.6); //1.6 is factoring in thunderlord + fire veil
+				} else if (emanHealth.includes("M") && parseInt(emanHealth) <= this.whenToShowHitsLeft.getValue()) {
+					let thunderMultiplier = this.thunderLevel.getValue();
 
-					emanText += ` &c${Math.max(0, Math.floor(hits - 0.5))} Hits`
+					if (thunderMultiplier >= 5 || thunderMultiplier <= 7) {
+						thunderMultiplier = 1 + ((thunderMultiplier - 1) / 10);
+					} else {
+						thunderMultiplier = 1.4; //assume thunderlord 5
+					}
+					let hits = parseInt(emanHealth) / (this.rcmDamagePerHit.getValue() * thunderMultiplier);
+					
+					emanText += ` &c${Math.max(0, Math.floor(hits - 0.75))} Hits`
 				}
 			}
 
