@@ -8,6 +8,7 @@ import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import socketConnection from "../../socketConnection";
+import TextSetting from "../settings/settingThings/textSetting";
 
 class Slayers extends Feature {
 	constructor() {
@@ -29,6 +30,9 @@ class Slayers extends Feature {
 
 		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
 		this.hudElements.push(this.emanHpElement);
+
+		this.rcmDaeAxeSupport = new ToggleSetting("Hyp hits before Dae axe swapping", "This will tell u how many clicks with hyp is needed before swapping to dae axe", true, "eman_rcm_support", this);
+		this.rcmDamagePerHit = new TextSetting("Hyperion damage", "Your hyp's single hit damage w/o thunderlord/thunderbolt", "", "hyp_dmg", this, "Enter your hyp dmg (Unit: M)", false);
 
 		this.emanLazerTimer = new ToggleSetting("Adds a timer for the boss lazer phase", "The timer will be inside the boss's body during the phase", true, "eman_lazer_timer", this);
 
@@ -377,8 +381,16 @@ class Slayers extends Feature {
 			return true;
 		});
 
+
 		if (this.emanBoss) {
-			this.emanHpElement.setText("&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim());
+			if (this.rcmDaeAxeSupport && this.emanBoss.getName().split("Voidgloom Seraph")[1].split("").includes("k")) {
+				this.emanHpElement.setText("&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim() + " &c0 Hits");
+			} else if (this.rcmDaeAxeSupport && this.emanBoss.getName().split("Voidgloom Seraph")[1].split("").includes("M") && parseInt(this.emanBoss.getName().removeFormatting().split("Voidgloom Seraph")[1]) <= 50) {
+				let hits = parseInt(this.emanBoss.getName().removeFormatting().split("Voidgloom Seraph")[1]) / (this.rcmDamagePerHit.getValue() * 1.6);
+				this.emanHpElement.setText("&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim() + " &c" + parseInt(hits - 0.5) + " Hits");
+		} else {
+				this.emanHpElement.setText("&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim());
+			}
 		} else {
 			this.emanHpElement.setText("");
 		}
