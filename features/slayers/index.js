@@ -393,7 +393,7 @@ class Slayers extends Feature {
 				} else if (emanHealth.includes("M")) {
 					let hits = parseInt(emanHealth) / (this.rcmDamagePerHit.getValue() * 1.6); //1.6 is factoring in thunderlord + fire veil
 
-					emanText += ` &c${Math.max(1, Math.floor(hits - 0.5))} Hits`
+					emanText += ` &c${Math.max(0, Math.floor(hits - 0.5))} Hits`
 				}
 			}
 
