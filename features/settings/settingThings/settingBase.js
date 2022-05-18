@@ -141,6 +141,10 @@ class SettingBase {
         return this
     }
 
+    contributor(name) {
+        //TODO: this entire function
+    }
+
     delete() {
         settingsCommunicator.removeSetting(this.module, this.settingId)
     }
