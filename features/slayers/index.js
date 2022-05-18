@@ -393,15 +393,12 @@ class Slayers extends Feature {
 				if (emanHealth.includes("k")) {
 					emanText += " &c0 Hits"
 				} else if (emanHealth.includes("M") && parseInt(emanHealth) <= this.whenToShowHitsLeft.getValue()) {
-					let thunderMultiplier = this.thunderLevel.getValue();
+					let thunderLevel = MathLib.clamp(parseInt(this.thunderLevel.getValue()), 5, 7)
 
-					if (thunderMultiplier >= 5 || thunderMultiplier <= 7) {
-						thunderMultiplier = 1 + ((thunderMultiplier - 1) / 10);
-					} else {
-						thunderMultiplier = 1.4; //assume thunderlord 5
-					}
+					let thunderMultiplier = 1 + ((thunderLevel - 1) / 10);
+
 					let hits = parseInt(emanHealth) / (this.rcmDamagePerHit.getValue() * thunderMultiplier);
-					
+
 					emanText += ` &c${Math.max(0, Math.floor(hits - 0.75))} Hits`
 				}
 			}
