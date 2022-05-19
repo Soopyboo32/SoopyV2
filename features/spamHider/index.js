@@ -32,6 +32,9 @@ class SpamHider extends Feature {
         this.textShadowSetting = new ToggleSetting("Spam Hider Text Shadow", "Whether to give the spam hider text shadow", true, "spam_text_shadow", this)
         this.showFriendMessages = new ToggleSetting("Show friend message", "should it show friend join/leave message", false, "spam_text_friend", this)
         this.showGuildMessages = new ToggleSetting("Show guild message", "should it show guild mate join/leave message", false, "spam_text_guild", this)
+        this.showPetLevelUpMessage = new ToggleSetting("Show pet level message", "should it show pet level up message", false, "spam_text_pet_level", this)
+        this.removeBlocksInTheWay = new ToggleSetting("Remove limited tp msg", "completely erases 'There are blocks in the way!' message from gui", false, "limited_tp_msg", this)
+        this.showAutoPetRule = new ToggleSetting("Show autopet rule", "Should it show autopet rule messages", false, "autopet_msg", this)
 
         this.SpamHiderMessagesRenderer = new SpamHiderMessagesRenderer()
         this.textShadowSetting.toggleObject.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun) => {
@@ -72,10 +75,23 @@ class SpamHider extends Feature {
         if (msg.length > 1000) return //performance
 
         //&r&aFriend > &r&6Soopyboo32 &r&ejoined.&r
-        if (this.showFriendMessages && msg.includes("&aFriend")) return
+        if (this.showFriendMessages.getValue() && msg.includes("&aFriend")) return
 
         //&r&2Guild > &r&6Soopyboo32 &r&ejoined.&r
-        if (this.showGuildMessages && msg.includes("&2Guild")) return
+        if (this.showGuildMessages.getValue() && msg.includes("&2Guild")) return
+
+        //&r&aYour &r&6Golden Dragon &r&alevelled up to level &r&9200&r&a!&r
+        if (this.showPetLevelUpMessage.getValue() && msg.includes("&alevelled up")) return
+
+        //&r&cThere are blocks in the way!&r
+        //completely erases this
+        if (this.removeBlocksInTheWay.getValue() && msg.includes("There are blocks in the way!")) {
+            cancel(e)
+            return
+        }
+
+        //&cAutopet &eequipped your &7[Lvl 200] &6Golden Dragon&e! &a&lVIEW RULE&r
+        if (this.showAutoPetRule.getValue() && msg.includes("&cAutopet")) return
 
         if (this.hideMessagesSetting.getValue()) {
             // console.log("testing " + (this.hideMessagesDict[msg.substring(0,5)]?.length || 0) + this.hideMessagesDict.all.length + " hide messages")
