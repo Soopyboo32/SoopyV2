@@ -65,9 +65,7 @@ class Waypoints extends Feature {
             this.userWaypointsArr = Object.values(this.userWaypoints)
             this.waypointsChanged = true
             this.updateWaypointsHashes()
-            if (this.showInfoInChat.getValue()) {
-                ChatLib.chat(this.FeatureManager.messagePrefix + "Added waypoint " + name + "!")
-            }
+            if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Added waypoint " + name + "!")
         })
 
         this.registerCommand("delwaypoint", (name) => {
@@ -75,18 +73,14 @@ class Waypoints extends Feature {
             this.userWaypointsArr = Object.values(this.userWaypoints)
             this.waypointsChanged = true
             this.updateWaypointsHashes()
-            if (this.showInfoInChat.getValue()) {
-                ChatLib.chat(this.FeatureManager.messagePrefix + "Deleted waypoint " + name + "!")
-            }
+            if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Deleted waypoint " + name + "!")
         })
         this.registerCommand("clearwaypoints", () => {
             this.userWaypoints = {}
             this.userWaypointsArr = []
             this.waypointsChanged = true
             this.updateWaypointsHashes()
-            if (this.showInfoInChat.getValue()) {
-                ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared waypoints!")
-            }
+            if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared waypoints!")
         })
         this.registerCommand("savewaypoints", () => {
             Java.type("net.minecraft.client.gui.GuiScreen")[m.setClipboardString](JSON.stringify(this.userWaypoints))
@@ -99,13 +93,9 @@ class Waypoints extends Feature {
                 this.userWaypointsArr = Object.values(this.userWaypoints)
                 this.waypointsChanged = true
                 this.updateWaypointsHashes()
-                if (this.showInfoInChat.getValue()) {
-                    ChatLib.chat(this.FeatureManager.messagePrefix + "Loaded waypoints from clipboard!")
-                }
+                if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Loaded waypoints from clipboard!")
             } catch (e) {
-                if (this.showInfoInChat.getValue()) {
-                    ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
-                }
+                if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
             }
         })
 
