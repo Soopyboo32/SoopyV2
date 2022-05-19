@@ -30,6 +30,8 @@ class SpamHider extends Feature {
         this.moveMessagesSetting = new ToggleSetting("Move some messages to spam hider", "This will move some (potentially) usefull messages into a 'second chat'", true, "move_spam", this)
         this.moveChatMessages = new ToggleSetting("Move spammed chat messages to spam hider", "This will move messages spammed in hubs to spam hider\n(eg the website advertisment bots)", true, "move_spam_chat", this)
         this.textShadowSetting = new ToggleSetting("Spam Hider Text Shadow", "Whether to give the spam hider text shadow", true, "spam_text_shadow", this)
+        this.showFriendMessages = new ToggleSetting("Show friend message", "should it show friend join/leave message", false, "spam_text_friend", this)
+        this.showGuildMessages = new ToggleSetting("Show guild message", "should it show guild mate join/leave message", false, "spam_text_guild", this)
 
         this.SpamHiderMessagesRenderer = new SpamHiderMessagesRenderer()
         this.textShadowSetting.toggleObject.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun) => {
@@ -68,6 +70,12 @@ class SpamHider extends Feature {
     onChat(e) {
         let msg = ChatLib.getChatMessage(e, true).replace(/§/g, "&").replace(/(?:^&r)|(?:&r$)/g, "")
         if (msg.length > 1000) return //performance
+
+        //&r&aFriend > &r&6Soopyboo32 &r&ejoined.&r
+        if (this.showFriendMessages && msg.includes("&aFriend")) return
+
+        //&r&2Guild > &r&6Soopyboo32 &r&ejoined.&r
+        if (this.showGuildMessages && msg.includes("&2Guild")) return
 
         if (this.hideMessagesSetting.getValue()) {
             // console.log("testing " + (this.hideMessagesDict[msg.substring(0,5)]?.length || 0) + this.hideMessagesDict.all.length + " hide messages")
