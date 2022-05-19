@@ -20,6 +20,7 @@ class Waypoints extends Feature {
         new SettingBase("/clearwaypoints", "Allows you to clear all the waypoints", undefined, "clear_waypoints", this)
         new SettingBase("/savewaypoints", "Copys the waypoints to your clipboard", undefined, "save_waypoints", this)
         new SettingBase("/loadwaypoints", "Loads waypoints from your clipboard", undefined, "load_waypoints", this)
+        this.showInfoInChat = new ToggleSetting("Show info in chat", "Should chat msg be sent when theres waypoint added/cleared/removed", true, "waypoints_send_message", this);
 
         this.loadWaypointsFromSendCoords = new ToggleSetting("Load waypoints from /patcher sendcoords messages", "Will dissapear after 1min", true, "load_waypoints_from_sendcoords", this)
 
@@ -64,7 +65,9 @@ class Waypoints extends Feature {
             this.userWaypointsArr = Object.values(this.userWaypoints)
             this.waypointsChanged = true
             this.updateWaypointsHashes()
-            ChatLib.chat(this.FeatureManager.messagePrefix + "Added waypoint " + name + "!")
+            if (this.showInfoInChat.getValue()) {
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Added waypoint " + name + "!")
+            }
         })
 
         this.registerCommand("delwaypoint", (name) => {
@@ -72,14 +75,18 @@ class Waypoints extends Feature {
             this.userWaypointsArr = Object.values(this.userWaypoints)
             this.waypointsChanged = true
             this.updateWaypointsHashes()
-            ChatLib.chat(this.FeatureManager.messagePrefix + "Deleted waypoint " + name + "!")
+            if (this.showInfoInChat.getValue()) {
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Deleted waypoint " + name + "!")
+            }
         })
         this.registerCommand("clearwaypoints", () => {
             this.userWaypoints = {}
             this.userWaypointsArr = []
             this.waypointsChanged = true
             this.updateWaypointsHashes()
-            ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared waypoints!")
+            if (this.showInfoInChat.getValue()) {
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared waypoints!")
+            }
         })
         this.registerCommand("savewaypoints", () => {
             Java.type("net.minecraft.client.gui.GuiScreen")[m.setClipboardString](JSON.stringify(this.userWaypoints))
@@ -92,9 +99,13 @@ class Waypoints extends Feature {
                 this.userWaypointsArr = Object.values(this.userWaypoints)
                 this.waypointsChanged = true
                 this.updateWaypointsHashes()
-                ChatLib.chat(this.FeatureManager.messagePrefix + "Loaded waypoints from clipboard!")
+                if (this.showInfoInChat.getValue()) {
+                    ChatLib.chat(this.FeatureManager.messagePrefix + "Loaded waypoints from clipboard!")
+                }
             } catch (e) {
-                ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
+                if (this.showInfoInChat.getValue()) {
+                    ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
+                }
             }
         })
 
