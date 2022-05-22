@@ -19,7 +19,13 @@ class GuiPage {
     }
 
     getSoopyGui() {
-        return global.soopyv2featuremanagerthing.features["soopyGui"].class
+        if (global.soopyv2featuremanagerthing.features["soopyGui"]) return global.soopyv2featuremanagerthing.features["soopyGui"].class;
+    }
+
+    isOpen() {
+        if (!this.getSoopyGui()?.gui?.ctGui?.isOpen()) return false
+
+        return this.getSoopyGui()?.currCategory === this
     }
 
     newPage() {

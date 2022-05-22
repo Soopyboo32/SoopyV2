@@ -20,6 +20,8 @@ class SoopyV2Server extends WebsiteCommunicator {
 
         this.userCosmeticPermissions = undefined
 
+        this.eventData = undefined
+
         this.cookieCount = 0
         this.cookieData = undefined
         this.cookieDataUpdated = 0
@@ -74,11 +76,16 @@ class SoopyV2Server extends WebsiteCommunicator {
             this.cookieDataUpdated = Date.now()
         }
         if (data.type === "joinEventResult") {
-            console.log(JSON.stringify(data, undefined, 2))
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.eventsGUI) global.soopyv2featuremanagerthing.features.eventsGUI.class.joinEventResult(data.response)
         }
         if (data.type === "eventData") {
-            console.log(JSON.stringify(data, undefined, 2))
+            this.eventData = data
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.eventsGUI) global.soopyv2featuremanagerthing.features.eventsGUI.class.eventsDataUpdated(data)
         }
+        if (data.type === "pollEvent") {
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.eventsGUI) global.soopyv2featuremanagerthing.features.eventsGUI.class.pollEventData(data.admin)
+        }
+
     }
 
     onConnect() {
@@ -204,6 +211,13 @@ class SoopyV2Server extends WebsiteCommunicator {
     pollEventData() {
         this.sendData({
             type: "eventData"
+        })
+    }
+
+    pollEventCode(code) {
+        this.sendData({
+            type: "pollEvent",
+            code
         })
     }
 }
