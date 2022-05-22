@@ -73,6 +73,12 @@ class SoopyV2Server extends WebsiteCommunicator {
 
             this.cookieDataUpdated = Date.now()
         }
+        if (data.type === "joinEventResult") {
+            console.log(JSON.stringify(data, undefined, 2))
+        }
+        if (data.type === "eventData") {
+            console.log(JSON.stringify(data, undefined, 2))
+        }
     }
 
     onConnect() {
@@ -152,20 +158,23 @@ class SoopyV2Server extends WebsiteCommunicator {
     sendSlayerSpawnData(data) {
         this.sendData({
             type: "slayerSpawnData",
-            data: data
+            data: data,
+            name: Player.getDisplayName().text
         })
     }
     sendInquisData(data) {
         this.sendData({
             type: "inquisData",
-            data: data
+            data: data,
+            name: Player.getDisplayName().text
         })
     }
 
     sendVancData(data) {
         this.sendData({
             type: "vancData",
-            data: data
+            data: data,
+            name: Player.getDisplayName().text
         })
     }
 
@@ -182,6 +191,19 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.sendData({
             type: "cookies",
             amount: amount
+        })
+    }
+
+    joinEvent(code) {
+        this.sendData({
+            type: "joinEvent",
+            code
+        })
+    }
+
+    pollEventData() {
+        this.sendData({
+            type: "eventData"
         })
     }
 }

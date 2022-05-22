@@ -1,0 +1,8 @@
+{
+    "name": "Bestiary",
+    "description": "Bestiary trackers",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 0
+}

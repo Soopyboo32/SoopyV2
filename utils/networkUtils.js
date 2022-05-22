@@ -174,6 +174,7 @@ if (!global.networkUtilsThingSoopy) {
             }
         } catch (e) {
             console.log(JSON.stringify(e, undefined, 2))
+            console.log(e.stack)
         }
 
         if (pendingRequests.length > 0 && !runningThread) {

@@ -9,7 +9,7 @@ class Performance extends Feature {
         super()
     }
 
-    onEnable(){
+    onEnable() {
         return;
         new SettingBase("NOTE: If you dont use any of the features, disable this", "Having performance enabled will decrease performance if no features are used\n(this is due to it using the render entity event)", true, "hide_performance_description", this)
 
@@ -46,17 +46,17 @@ class Performance extends Feature {
     //     }
     // }
 
-    renderWorld(){
-        if(!this.armourStandCapSetting.getValue()) return
+    renderWorld() {
+        if (!this.armourStandCapSetting.getValue()) return
         this.entitysRendering = {}
-        Object.keys(this.entitysRenderingTemp).forEach(a=>{
+        Object.keys(this.entitysRenderingTemp).forEach(a => {
             this.entitysRendering[a] = true
         })
         this.entitysRenderingTemp = {}
     }
 
-    updateDontRender(){
-        if(!this.armourStandCapSetting.getValue()) return
+    updateDontRender() {
+        if (!this.armourStandCapSetting.getValue()) return
 
         // this.removeHiddenEnts = this.removeHiddenEnts.filter(([uuid, time])=>{
         //     if(Date.now()<time) return true
@@ -65,18 +65,18 @@ class Performance extends Feature {
         // })
         // try{
         let start = Date.now()
-        if(start < this.nextUpdateDontRender) return
+        if (start < this.nextUpdateDontRender) return
         let entities = World.getAllEntitiesOfType(this.armourstandClass)
         let Ents = new Array(100)
-        for(let i = 0; i < entities.length; i++){
+        for (let i = 0; i < entities.length; i++) {
             // if(this.dontRender[entities[i].getUUID().toString()] === "hit") continue
-            if(!this.entitysRendering[entities[i].getUUID().toString()]){
+            if (!this.entitysRendering[entities[i].getUUID().toString()]) {
                 delete this.dontRender[entities[i].getUUID().toString()]
                 continue //not rendering
             }
 
-            let dist = (Player.getX()-entities[i].getX())**2+(Player.getY()-entities[i].getY())**2+(Player.getZ()-entities[i].getZ())**2
-            if(dist > 100**2){
+            let dist = (Player.getX() - entities[i].getX()) ** 2 + (Player.getY() - entities[i].getY()) ** 2 + (Player.getZ() - entities[i].getZ()) ** 2
+            if (dist > 100 ** 2) {
                 this.dontRender[entities[i].getUUID().toString()] = true
                 continue
             }
@@ -86,12 +86,12 @@ class Performance extends Feature {
         }
 
         let entsNumber = 0
-        for(let i = 0; i < Ents.length; i++){
+        for (let i = 0; i < Ents.length; i++) {
             let entsNumberTemp = entsNumber
-            while(Ents[i]){
-                if(entsNumber > this.maxEntsRender){
+            while (Ents[i]) {
+                if (entsNumber > this.maxEntsRender) {
                     this.dontRender[Ents[i][0].getUUID().toString()] = true
-                }else{
+                } else {
                     delete this.dontRender[Ents[i][0].getUUID().toString()]
                 }
 
@@ -100,25 +100,25 @@ class Performance extends Feature {
             }
             entsNumber = entsNumberTemp
         }
-        let timeTook = Date.now()-start
+        let timeTook = Date.now() - start
         // console.log(`Update took ${timeTook}ms | ${entsNumber} ents`)
-        this.nextUpdateDontRender = Date.now()+100+10*timeTook
-    // }catch(e){
-    //     //cucurrent modification
-    // }
+        this.nextUpdateDontRender = Date.now() + 100 + 10 * timeTook
+        // }catch(e){
+        //     //cucurrent modification
+        // }
     }
 
-    renderEntity(e, pos, ticks, event){
-        if(!this.armourStandCapSetting.getValue()) return
-        if(!e.getEntity().class.toString()===this.armourstandClassString) return
+    renderEntity(e, pos, ticks, event) {
+        if (!this.armourStandCapSetting.getValue()) return
+        if (!e.getEntity().class.toString() === this.armourstandClassString) return
         this.entitysRenderingTemp[e.getUUID().toString()] = true
-        if(this.dontRender[e.getUUID().toString()]){
+        if (this.dontRender[e.getUUID().toString()]) {
             cancel(event)
             return
         }
     }
 
-    onDisable(){
+    onDisable() {
         this.running = false
     }
 }
