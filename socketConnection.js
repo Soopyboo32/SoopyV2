@@ -227,7 +227,7 @@ class SoopyV2Server extends WebsiteCommunicator {
 
     sendCHEventData(event, started) {
         this.sendData({
-            type: "chEvent",
+            type: "chEvent2",
             event,
             started
         })

@@ -16,6 +16,11 @@ class Mining extends Feature {
         super()
     }
 
+    isInCH() {
+        if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false
+        return this.FeatureManager.features["dataLoader"].class.area === "Crystal Hollows"
+    }
+
     onEnable() {
         this.initVariables()
 
@@ -142,17 +147,22 @@ class Mining extends Feature {
             this.nextChEventElement.setText("&6Event&7> &f" + socketConnection.chEvent.join(" &7->&f "))
         })
 
-        //                           2X POWDER ENDED!
-        //                           Passive Active Event
-        //                          2X POWDER STARTED!
-        //&r&r&r                     &r&9&lGONE WITH THE WIND ENDED!&r
-        //§r§r§r                           §r§b§l2X POWDER ENDED!§r
-        //§r§r§r                          §r§b§l2X POWDER STARTED!§r
+        let lastWorldChange = 0
+
+        this.registerEvent("worldLoad", () => {
+            lastWorldChange = Date.now()
+        })
 
         this.registerChat("&r&r&r        ${spaces}&r&${color}&l${event} ENDED!&r", (spaces, color, event) => {
+            if (Date.now() - lastWorldChange < 5000) return
+            if (!this.isInCH()) return
+
             socketConnection.sendCHEventData(event.trim(), false)
         })
         this.registerChat("&r&r&r        ${spaces}&r&${color}&l${event} STARTED!&r", (spaces, color, event) => {
+            if (Date.now() - lastWorldChange < 5000) return
+            if (!this.isInCH()) return
+
             socketConnection.sendCHEventData(event.trim(), true)
         })
     }
