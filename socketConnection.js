@@ -26,6 +26,8 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.cookieData = undefined
         this.cookieDataUpdated = 0
 
+        this.chEvent = ["???", "???"]
+
         register("step", () => {
             if (this.cookieDataUpdated && Date.now() - this.cookieDataUpdated > 60000) {
                 this.cookieData = 0
@@ -85,7 +87,9 @@ class SoopyV2Server extends WebsiteCommunicator {
         if (data.type === "pollEvent") {
             if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.eventsGUI) global.soopyv2featuremanagerthing.features.eventsGUI.class.pollEventData(data.admin)
         }
-
+        if (data.type === "chEvent") {
+            this.chEvent = data.event
+        }
     }
 
     onConnect() {
@@ -218,6 +222,14 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.sendData({
             type: "pollEvent",
             code
+        })
+    }
+
+    sendCHEventData(event, started) {
+        this.sendData({
+            type: "chEvent",
+            event,
+            started
         })
     }
 }

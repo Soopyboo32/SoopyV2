@@ -9,6 +9,7 @@ import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import { numberWithCommas, timeSince } from "../../utils/numberUtils";
 import { fetch } from "../../utils/networkUtils";
+import socketConnection from "../../socketConnection";
 
 class Mining extends Feature {
     constructor() {
@@ -50,6 +51,14 @@ class Mining extends Feature {
                 .requires(this.gemstoneMoneyHud)
                 .editTempText("&6$/h&7> &f$12,345,678\n&6$ made&7> &f$123,456,789\n&6Time tracked&7> &f123m"))
         this.hudElements.push(this.gemstoneMoneyHudElement)
+
+        this.nextChEvent = new ToggleSetting("Show the current and next crystal hollows event", "(syncs the data between all users in ch)", true, "chevent_hud", this)
+        this.nextChEventElement = new HudTextElement()
+            .setToggleSetting(this.nextChEvent)
+            .setLocationSetting(new LocationSetting("HUD Location", "Allows you to edit the location of the hud element", "chevent_hud_location", this, [10, 70, 1, 1])
+                .requires(this.nextChEvent)
+                .editTempText("&6Event&7> &fGONE WITH THE WIND &7->&f 2X POWDER"))
+        this.hudElements.push(this.nextChEventElement)
 
         this.seenBalDamages = []
         this.balHP = 250
@@ -116,7 +125,6 @@ class Mining extends Feature {
 
             money += gemstoneCosts[id] * number
 
-            console.log(money)
             let moneyPerHour = Math.floor(money / ((Date.now() - startingTime) / (1000 * 60 * 60)))
             let moneyMade = Math.floor(money)
             let timeTracked = timeSince(startingTime)
@@ -128,8 +136,24 @@ class Mining extends Feature {
                 money = 0
                 startingTime = -1
                 lastMined = 0
-                this.gemstoneMoneyHudElement.setText("")
+                this.gemstoneMoneyHudElement.setText("&6Event&7> &f" + socketConnection.chEvent.join(" &7->&f "))
             }
+
+            this.nextChEventElement.setText()
+        })
+
+        //                           2X POWDER ENDED!
+        //                           Passive Active Event
+        //                          2X POWDER STARTED!
+        //&r&r&r                     &r&9&lGONE WITH THE WIND ENDED!&r
+        //§r§r§r                           §r§b§l2X POWDER ENDED!§r
+        //§r§r§r                          §r§b§l2X POWDER STARTED!§r
+
+        this.registerChat("&r&r&r        ${spaces}&r&${color}&l${event} ENDED!&r", (spaces, color, event) => {
+            socketConnection.sendCHEventData(event.trim(), false)
+        })
+        this.registerChat("&r&r&r        ${spaces}&r&${color}&l${event} STARTED!&r", (spaces, color, event) => {
+            socketConnection.sendCHEventData(event.trim(), true)
         })
     }
 
