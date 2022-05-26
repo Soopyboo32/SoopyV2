@@ -89,8 +89,8 @@ class Nether extends Feature {
 		})
 	}
 
-	vanqData(loc) {
-		this.spawnedVanqs.push([...loc, Date.now()])
+	vanqData(loc, name) {
+		this.spawnedVanqs.push([loc, name, Date.now()])
 	}
 
 	tick() {
@@ -212,8 +212,8 @@ class Nether extends Feature {
 		}
 
 		if (this.vaniquisherWaypoints.getValue()) {
-			Object.keys(this.spawnedVanqs).forEach(key => {
-				drawCoolWaypoint(this.spawnedVanqs[key][0], this.spawnedVanqs[key][1], this.spawnedVanqs[key][2], 255, 0, 0, { name: key + "'s vanquisher (" + Math.floor((Date.now() - this.spawnedVanqs[key][2]) / 1000) + "s)" })
+			this.spawnedVanqs.forEach(vanq => {
+				drawCoolWaypoint(vanq[0][0], vanq[0][1], vanq[0][2], 255, 0, 0, { name: vanq[1] + "'s vanquisher (" + Math.floor((Date.now() - vanq[2]) / 1000) + "s)" })
 			})
 		}
 
@@ -232,7 +232,7 @@ class Nether extends Feature {
 	step1S() {
 		if (this.blocks) this.blocks = this.blocks.filter(state => Date.now() < state.time)
 		if (this.dojoFireBalls) this.dojoFireBalls = this.dojoFireBalls.filter(e => !e[f.isDead])
-		if (this.spawnedVanqs) this.spawnedVanqs = this.spawnedVanqs.filter(a => Date.now() - a[3] < 60000)
+		if (this.spawnedVanqs) this.spawnedVanqs = this.spawnedVanqs.filter(a => Date.now() - a[2] < 60000)
 	}
 
 	getBlockIdFromState(state) {
