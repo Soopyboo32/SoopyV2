@@ -95,6 +95,7 @@ class DungeonMap extends Feature {
         this.bloodOpened = false
         this.registerChat("&r&cThe &r&c&lBLOOD DOOR&r&c has been opened!&r", () => {
             this.bloodOpened = true
+            this.keys--
         })
 
         this.registerChat("&r${*}&r&f &r&ehas obtained &r&a&r&${*} Key&r&e!&r", () => {

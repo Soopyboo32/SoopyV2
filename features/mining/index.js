@@ -76,7 +76,7 @@ class Mining extends Feature {
 
         this.armourstandClass = Java.type("net.minecraft.entity.item.EntityArmorStand").class
 
-        this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.balRespawnHud.getValue() || this.compactProgressHud.getValue())
+        this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.balRespawnHud.getValue() || this.compactProgressHud.getValue() || this.gemstoneMoneyHud.getValue())
         this.registerEvent("tick", this.tick)
         this.registerEvent("itemTooltip", this.itemTooltipEvent).registeredWhen(() => this.showContainedGemstoneSlots.getValue() || this.showUnlockedGemstoneSlots.getValue())
         this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.guessBalHp.getValue())
@@ -104,7 +104,8 @@ class Mining extends Feature {
         let money = 0
         let gemstoneCosts = {}
         let lastMined = 0
-        this.registerChat("&r&d&lPRISTINE! &r&fYou found &r${*} &r&aFlawed ${type} Gemstone &r&8x${num}&r&f!&r", (type, num) => {
+        this.registerChat("&r&d&lPRISTINE! &r&fYou found &r${*} &r&aFlawed ${type} Gemstone &r&8x${num}&r&f!&r", (type, num, event) => {
+
             let id = "FLAWED_" + type.toUpperCase() + "_GEM"
             let number = parseInt(num)
 
@@ -136,7 +137,7 @@ class Mining extends Feature {
 
             this.gemstoneMoneyHudElement.setText("&6$/h&7> &f$" + numberWithCommas(moneyPerHour) + "\n&6$ made&7> &f$" + numberWithCommas(moneyMade) + "\n&6Time tracked&7> &f" + timeTracked)
         })
-        this.registerStep(false, 30, () => {
+        this.registerStep(false, 10, () => {
             if (lastMined && Date.now() - lastMined > 60000) {
                 money = 0
                 startingTime = -1

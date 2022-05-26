@@ -458,7 +458,7 @@ class Hud extends Feature {
 
                     if (Date.now() - this.lastSwappedPet > 1000) {
                         inv[i].getLore().forEach(line => {
-                            if (line.includes("Click to despawn.")) {
+                            if (line.includes("Click to despawn!")) {
                                 this.petElement.setText("&6Pet&7> &7" + inv[i].getName().split("(")[0])
                                 this.petText = "&6Pet&7> &7" + inv[i].getName().split("(")[0]
                             }
