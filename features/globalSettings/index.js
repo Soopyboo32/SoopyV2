@@ -73,9 +73,30 @@ class GlobalSettings extends Feature {
             this.registerEvent("tick", this.fixNEU)
         }
 
-        if (net.minecraftforge.fml.common.Loader.isModLoaded("SoopyV2")) {
+        // if (net.minecraftforge.fml.common.Loader.isModLoaded("SoopyV2")) {
+        //TODO: stuff here
+        // }
 
-        }
+        try { //This enables links from soopymc.my.to to be shown in patcher image preview
+            let hasHost = false
+
+            for (let host of Java.type("gg.essential.util.TrustedHostsUtil").INSTANCE.getTrustedHosts()) {
+                if (host.getName() === "soopymc") {
+                    hasHost = true
+                }
+            }
+
+            if (!hasHost) {
+                let TrustedHost = Java.type("gg.essential.api.utils.TrustedHostsUtil").TrustedHost
+                let TreeSet = Java.type("java.util.TreeSet")
+                let hosts = new TreeSet()
+                hosts.add("soopymc.my.to")
+
+                let host = new TrustedHost(124123, "soopymc", hosts)
+
+                Java.type("gg.essential.util.TrustedHostsUtil").INSTANCE.addTrustedHost(host)
+            }
+        } catch (e) { }
 
         this.registerCommand("soopyweight", (user = Player.getName()) => {
             this.soopyWeight(user)

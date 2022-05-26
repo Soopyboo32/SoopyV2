@@ -13,22 +13,14 @@ class Waypoints extends Feature {
     }
 
     onEnable() {
-        this.initVariables()
-
         this.bestiaryData = JSON.parse(FileLib.read("soopyAddonsData", "bestiaryData.json") || "{}")
         this.bestiaryChanged = false
-    }
-
-    initVariables() {
-
     }
 
     onDisable() {
         if (this.bestiaryChanged) {
             FileLib.write("soopyAddonsData", "bestiaryData.json", JSON.stringify(this.bestiaryData))
         }
-
-        this.initVariables()
     }
 }
 
