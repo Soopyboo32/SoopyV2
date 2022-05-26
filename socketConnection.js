@@ -189,10 +189,12 @@ class SoopyV2Server extends WebsiteCommunicator {
         })
     }
 
-    setServer(server) {
+    setServer(server, area, areaFine) {
         this.sendData({
             type: "server",
-            server: server
+            server,
+            area,
+            areaFine
         })
     }
 

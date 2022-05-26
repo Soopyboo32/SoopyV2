@@ -76,7 +76,7 @@ class Mining extends Feature {
 
         this.armourstandClass = Java.type("net.minecraft.entity.item.EntityArmorStand").class
 
-        this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.balRespawnHud.getValue() || this.compactProgressHud.getValue() || this.gemstoneMoneyHud.getValue())
+        this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.balRespawnHud.getValue() || this.compactProgressHud.getValue() || this.gemstoneMoneyHud.getValue() || this.nextChEvent.getValue())
         this.registerEvent("tick", this.tick)
         this.registerEvent("itemTooltip", this.itemTooltipEvent).registeredWhen(() => this.showContainedGemstoneSlots.getValue() || this.showUnlockedGemstoneSlots.getValue())
         this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.guessBalHp.getValue())
@@ -133,12 +133,12 @@ class Mining extends Feature {
 
             let moneyPerHour = Math.floor(money / ((Date.now() - startingTime) / (1000 * 60 * 60)))
             let moneyMade = Math.floor(money)
-            let timeTracked = timeSince(startingTime)
+            let timeTracked = timeSince2(startingTime)
 
             this.gemstoneMoneyHudElement.setText("&6$/h&7> &f$" + numberWithCommas(moneyPerHour) + "\n&6$ made&7> &f$" + numberWithCommas(moneyMade) + "\n&6Time tracked&7> &f" + timeTracked)
         })
         this.registerStep(false, 10, () => {
-            if (lastMined && Date.now() - lastMined > 60000) {
+            if (lastMined && Date.now() - lastMined > 2 * 60000) {
                 money = 0
                 startingTime = -1
                 lastMined = 0

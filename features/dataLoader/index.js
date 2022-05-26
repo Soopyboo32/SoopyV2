@@ -151,11 +151,11 @@ class DataLoader extends Feature {
         this.area = this.stats["Area"]
 
 
-        if (this.lastServer !== this.FeatureManager.features["dataLoader"].class.stats.Server || Date.now() - this.lastSentServer > 60000 * 5) {
-            this.lastServer = this.FeatureManager.features["dataLoader"].class.stats.Server;
+        if (this.lastServer !== this.stats.Server || Date.now() - this.lastSentServer > 60000 * 5) {
+            this.lastServer = this.stats.Server;
             this.lastSentServer = Date.now()
 
-            socketConnection.setServer(this.FeatureManager.features["dataLoader"].class.stats.Server);
+            socketConnection.setServer(this.stats.Server, this.area, this.areaFine);
         }
     }
 
