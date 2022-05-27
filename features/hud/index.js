@@ -492,13 +492,6 @@ class Hud extends Feature {
             this.petElement.setText(this.petText)
         }
 
-        if (Date.now() - this.lastUpdatedStatData > 5 * 60000) {
-
-            this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
-
-            this.lastUpdatedStatData = Date.now()
-        }
-
         let soulflowCount = 0
         let hasSoulflowItem = false
         Player.getInventory().getItems().forEach(i => {
@@ -650,13 +643,6 @@ class Hud extends Feature {
 
     updateHudThingos() {
         let insb = this.FeatureManager.features["dataLoader"].class.isInSkyblock
-        if (Date.now() - this.lastUpdatedStatData > 5 * 60000 && this.hudStat[0].enabled.getValue() && (!this.lastStatData || insb || this.hudStat.map(a => (!a.enabled.getValue() || a.onlySb.getValue())).includes(false))) {
-
-            this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
-
-            this.lastUpdatedStatData = Date.now()
-            return
-        }
 
         this.hudStat.forEach(stat => {
             if (stat.enabled.getValue()) {

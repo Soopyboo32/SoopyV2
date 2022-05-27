@@ -512,7 +512,7 @@ class DungeonMap extends Feature {
                 roomWidth1++
             }
             let roomWidth = Math.floor(Math.max(roomWidth1, roomWidth2) * 5 / 4)
-            console.log(roomWidth)
+            // console.log(roomWidth)
             this.mapScale = 32 / roomWidth
             let mortLocationOnMap
             roomOffsets = [rx % roomWidth - 3, ry % roomWidth - 3]
