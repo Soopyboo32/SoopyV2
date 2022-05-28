@@ -7,7 +7,7 @@ import * as utils from "../../utils/utils"
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
-import { numberWithCommas, timeSince } from "../../utils/numberUtils";
+import { numberWithCommas, timeSince2 } from "../../utils/numberUtils";
 import { fetch } from "../../utils/networkUtils";
 import socketConnection from "../../socketConnection";
 

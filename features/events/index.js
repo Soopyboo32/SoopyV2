@@ -382,7 +382,7 @@ class Events extends Feature {
 				})
 			}
 
-			if (!this.potentialParticleLocs[locstr]) this.potentialParticleLocs[locstr] = { enchant: 0, crit: 0, step: 0, isMob: 0, timestamp: Date.now() }
+			if (!this.potentialParticleLocs[locstr] || Date.now() - this.potentialParticleLocs[locstr].timestamp > 30000) this.potentialParticleLocs[locstr] = { enchant: 0, crit: 0, step: 0, isMob: 0, timestamp: Date.now() }
 
 			if (foundEnchant) this.potentialParticleLocs[locstr].enchant++
 			if (foundCrit) this.potentialParticleLocs[locstr].crit++

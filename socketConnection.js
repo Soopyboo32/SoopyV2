@@ -170,14 +170,14 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.sendData({
             type: "slayerSpawnData",
             data: data,
-            name: Player.getDisplayName().text
+            name: ChatLib.removeFormatting(Player.getDisplayName().text)
         })
     }
     sendInquisData(data) {
         this.sendData({
             type: "inquisData",
             data: data,
-            name: Player.getDisplayName().text
+            name: ChatLib.removeFormatting(Player.getDisplayName().text)
         })
     }
 
@@ -185,7 +185,7 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.sendData({
             type: "vancData",
             data: data,
-            name: Player.getDisplayName().text
+            name: ChatLib.removeFormatting(Player.getDisplayName().text)
         })
     }
 

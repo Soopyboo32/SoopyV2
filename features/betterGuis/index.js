@@ -24,7 +24,7 @@ class BetterGuis extends Feature {
         this.reliableSbMenuClicks = { getValue: () => false }//removed because hypixel fixed, code kept incase hypixel adds back bug later //new ToggleSetting("Make SBMENU clicks reliable", "This will delay clicks on sbmenu to time them so they dont get canceled", true, "sbmenu_time", this)
 
         this.museumGuiEnabled = new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this)
-        this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI (UNFINISHED)", "Custom gui for the dungeon ready up menu", false, "custom_dungeon_ready_enabled", this)
+        this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI", "Custom gui for the dungeon ready up menu", false, "custom_dungeon_ready_enabled", this)
 
         this.chestSearchBar = new ToggleSetting("Inventory Search Bar", "u can use '&' to make it filter buy stuff that contains multiple things", false, "inv_search", this)
 
