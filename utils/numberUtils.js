@@ -1,4 +1,4 @@
-module.exports = {
+let utils = {
     numberWithCommas: function (x) {
         if (x === undefined) { return "" }
         var parts = x.toString().split(".");
@@ -76,22 +76,22 @@ module.exports = {
 
         return interval + '' + intervalType;
     },
-    timeSince2: function (date) {
+    timeSince2: (date) => {
         let time = Date.now() - date
 
         if (time > 30 * 60000) {
-            return this.timeNumber2(time)
+            return utils.timeNumber2(time)
         }
-        return this.timeNumber(time)
+        return utils.timeNumber(time)
     },
-    timeNumber: function (time) {
+    timeNumber: (time) => {
         let mins = Math.floor(time / 1000 / 60)
         let secs = Math.floor(time / 1000) % 60
 
         if (mins === 0) return secs + "s"
         return `${mins}m ${secs}s`
     },
-    timeNumber2: function (time) {
+    timeNumber2: (time) => {
         let hours = Math.floor(time / 1000 / 60 / 60)
         let mins = Math.floor(time / 1000 / 60) % 60
 
@@ -99,3 +99,4 @@ module.exports = {
         return `${hours}h ${mins}m`
     }
 }
+module.exports = utils

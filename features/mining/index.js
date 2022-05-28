@@ -122,7 +122,7 @@ class Mining extends Feature {
                     Object.keys(data.products).forEach(id => {
                         if (id.startsWith("FLAWED_")) {
                             gemstoneCosts[id] = Math.max(240, data.products[id].quick_status.sellPrice)
-                            console.log(id + ": " + gemstoneCosts[id])
+                            // console.log(id + ": " + gemstoneCosts[id])
                         }
                     })
                 })
