@@ -9,10 +9,15 @@ const L = s => `L${s};`
 
 const LoadedInsts = []
 
-function defineClassBytes(name, bytes) {
+function defineClassBytes(name, bytes) { //should support multymc? ty dawjaw https://canary.discord.com/channels/119493402902528000/688773480954855537/979959207124168744
   const classLoader = Packages.com.chattriggers.ctjs.CTJS.class.getClassLoader()
 
-  const defClass = ClassLoader.class.getDeclaredMethods()[23] // defineClass()
+  let defClass;
+  ClassLoader.class.getDeclaredMethods().forEach(m => {
+    if (m.toString() === "protected final java.lang.Class java.lang.ClassLoader.defineClass(java.lang.String,byte[],int,int) throws java.lang.ClassFormatError") {
+      defClass = m;
+    }
+  })
 
   defClass.setAccessible(true)
 
@@ -44,7 +49,7 @@ const registerForge = (e, cb) => {
     con.visitCode()
     con.visitVarInsn(Opcodes.ALOAD, 0)
     con.visitMethodInsn(Opcodes.INVOKESPECIAL, obj, "<init>", "()V", false)
-    
+
     con.visitVarInsn(Opcodes.ALOAD, 0)
     con.visitVarInsn(Opcodes.ALOAD, 1)
     con.visitFieldInsn(Opcodes.PUTFIELD, name, "callback", L(consumer))
@@ -75,7 +80,7 @@ const registerForge = (e, cb) => {
   const inst = defineClassBytes(name, cw.toByteArray())
     .getDeclaredConstructor(Consumer.class)
     .newInstance(new java.util.function.Consumer({
-      accept: function (t) { cb(t) } 
+      accept: function (t) { cb(t) }
     }))
   LoadedInsts.push(inst)
   return inst;
@@ -86,7 +91,7 @@ const unregisterForge = inst => {
 }
 
 register("gameUnload", () => {
-  LoadedInsts.forEach(unregisterForge) 
+  LoadedInsts.forEach(unregisterForge)
   LoadedInsts.length = 0
 })
 

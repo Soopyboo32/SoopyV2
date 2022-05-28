@@ -439,7 +439,7 @@ class DungeonMap extends Feature {
             mapData = item.getItem()[m.getMapData](item.getItemStack(), World.getWorld()); // ItemStack.getItem().getMapData()
         } catch (error) {
         }
-        if (mapData) {
+        if (mapData && !this.boringMap) {
             this.mapData = mapData
 
 
