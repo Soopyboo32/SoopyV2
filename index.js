@@ -1,6 +1,10 @@
 /// <reference types="../CTAutocomplete" />
 /// <reference lib="es2015" />
 
+if (net.minecraftforge.fml.common.Loader.isModLoaded("soopyv2forge")) {
+    Java.type("me.soopyboo32.soopyv2forge.SoopyV2Forge").INSTANCE.soopyIsInstalled()
+}
+
 const File = Java.type("java.io.File")
 class SoopyAddons {
     constructor() {
@@ -43,5 +47,3 @@ if (new File("./config/ChatTriggers/modules/SoopyV2UpdateButtonPatcher").exists(
         FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/SoopyV2UpdateButtonPatcher"))
     }).start()
 }
-
-require("./utils/renderJavaUtils.js")

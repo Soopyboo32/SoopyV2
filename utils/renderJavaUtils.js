@@ -264,9 +264,6 @@ export class HudText extends RenderHudAble {
     }
 }
 
-new Box([128, 72, 58], [1, 1, 1], 1, 0, 0, 1, 1, true).startRender()
-new FilledBox([128, 72, 58], [1, 1, 1], 1, 0, 0, 0.25, 1, true).startRender()
-
 // let data = []
 
 // data.push(createPoints([[108, 70, 63], [108, 71, 63], [108, 70, 67], [108, 70, 63]], 1, 0, 0, 1, 2, true))
