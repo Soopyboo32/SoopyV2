@@ -137,6 +137,7 @@ class Hud extends Feature {
             scale: this.spotifyElement.locationSetting.scale,
             shadowType: this.spotifyElement.locationSetting.shadowType
         })
+        this.spotifyElement2.renderElm.stopRender()
 
         let hudStatTypes = {
             "cata": "Catacombs level + Exp",
@@ -312,6 +313,14 @@ class Hud extends Feature {
     }
 
     tick() {
+        if (this.fpsFastSetting.getValue()) {
+            if (this.fpsLowSetting.getValue()) {
+                this.fpsElement.setText("&6Fps&7> &f" + Math.round(this.fps.get()) + "&7/" + Math.round(this.lowFps.get()))
+            } else {
+                this.fpsElement.setText("&6Fps&7> &f" + Math.round(this.fps.get()))
+            }
+        }
+
         if (!this.lagEnabled.getValue()) return
         if (this.packetMoves > 0) {
             this.secondPackets++
@@ -330,22 +339,9 @@ class Hud extends Feature {
     }
 
     renderHud() {
-        if (this.fpsFastSetting.getValue()) {
-            if (this.fpsLowSetting.getValue()) {
-                this.fpsElement.setText("&6Fps&7> &f" + Math.round(this.fps.get()) + "&7/" + Math.round(this.lowFps.get()))
-            } else {
-                this.fpsElement.setText("&6Fps&7> &f" + Math.round(this.fps.get()))
-            }
-        }
-
-        for (let element of this.hudElements) {
-            element.render()
-        }
-
         if (this.showSpotifyPlaying.getValue() && Date.now() - this.spotifyElement.tempDisableTime > 100) {
             let scale = this.spotifyElement.locationSetting.scale
             let spotifyWidth1 = this.spotifyElement.getWidth() * scale
-            this.spotifyElement.render()
             this.spotifyElement2.locationSetting.x = this.spotifyElement.locationSetting.x + spotifyWidth1
             this.spotifyElement2.locationSetting.y = this.spotifyElement.locationSetting.y
             this.spotifyElement2.locationSetting.scale = scale
@@ -373,10 +369,6 @@ class Hud extends Feature {
 
         if (this.witherImpactCooldownSetting.getValue() && Date.now() - this.lastWitherImpact < 10000) {
             Renderer.drawString(Math.max(0, Math.ceil((5000 - (Date.now() - this.lastWitherImpact)) / 1000)) + "s", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth(Math.max(0, Math.ceil((5000 - (Date.now() - this.lastWitherImpact)) / 1000)) + "s") / 2, Renderer.screen.getHeight() / 2 - 15)
-        }
-
-        for (let stat of this.hudStat) {
-            stat.textElement.render()
         }
     }
 
@@ -485,7 +477,7 @@ class Hud extends Feature {
         if (!Player.getPlayer()) return
         if (!Player.getInventory()) return
 
-        if (!this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
+        if (this.FeatureManager.features["dataLoader"] && !this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
             this.soulflowElement.setText("")
             this.petElement.setText("")
             return

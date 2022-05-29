@@ -73,10 +73,6 @@ class GlobalSettings extends Feature {
             this.registerEvent("tick", this.fixNEU)
         }
 
-        // if (net.minecraftforge.fml.common.Loader.isModLoaded("SoopyV2")) {
-        //TODO: stuff here
-        // }
-
         try { //This enables links from soopymc.my.to to be shown in patcher image preview
             let hasHost = false
 

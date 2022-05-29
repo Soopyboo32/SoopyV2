@@ -4,12 +4,12 @@ importPackage(org.objectweb.asm)
 importClass(java.lang.ClassLoader)
 importClass(org.apache.commons.lang3.RandomStringUtils)
 importClass(java.util.function.Consumer)
+importClass(net.minecraftforge.fml.common.eventhandler.EventPriority)
 
 const L = s => `L${s};`
-
 const LoadedInsts = []
 
-function defineClassBytes(name, bytes) { //should support multymc? ty dawjaw https://canary.discord.com/channels/119493402902528000/688773480954855537/979959207124168744
+function defineClassBytes(name, bytes) {//should support multymc? ty dawjaw https://canary.discord.com/channels/119493402902528000/688773480954855537/979959207124168744
   const classLoader = Packages.com.chattriggers.ctjs.CTJS.class.getClassLoader()
 
   let defClass;
@@ -27,7 +27,7 @@ function defineClassBytes(name, bytes) { //should support multymc? ty dawjaw htt
   return defClass.invoke(classLoader, n, bytes, o, s)
 }
 
-const registerForge = (e, cb) => {
+const registerForge = (e, priority = EventPriority.NORMAL, cb) => {
   const cw = new ClassWriter(0)
 
   const event = Type.getType(e.class).internalName
@@ -40,7 +40,7 @@ const registerForge = (e, cb) => {
   const obj = Type.getType(java.lang.Object.class).internalName
 
   cw.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, name, null, obj, null)
-  // cw.visitInnerClass("net/minecraftforge/event/entity/player/PlayerEvent$BreakSpeed", "net/minecraftforge/event/entity/player/PlayerEvent", "BreakSpeed", ACC_PUBLIC + ACC_STATIC);
+  //cw.visitInnerClass("net/minecraftforge/event/entity/player/PlayerEvent$BreakSpeed","net/minecraftforge/event/entity/player/PlayerEvent","BreakSpeed",ACC_PUBLIC+ACC_STATIC);
   {
     cw.visitField(Opcodes.ACC_PRIVATE + Opcodes.ACC_FINAL, "callback", L(consumer), L(consumer + "<" + L(event) + ">"), null).visitEnd()
   }
@@ -64,6 +64,7 @@ const registerForge = (e, cb) => {
     const mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "on", "(" + L(event) + ")V", null, null)
     {
       const av = mv.visitAnnotation(L(subscribeEvent), true)
+      av.visitEnum("priority", "Lnet/minecraftforge/fml/common/eventhandler/EventPriority;", priority.name());
       av.visitEnd()
     }
     mv.visitCode()

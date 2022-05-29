@@ -127,7 +127,6 @@ class Slayers extends Feature {
 		this.registerEvent("tick", this.tick);
 		this.registerEvent("renderWorld", this.renderWorld);
 		this.registerEvent("worldLoad", this.worldLoad);
-		this.registerEvent("renderOverlay", this.renderHud);
 		this.registerStep(true, 2, this.step);
 	}
 
@@ -137,12 +136,6 @@ class Slayers extends Feature {
 			return
 		}
 		this.slayerLocationDataH[user] = [loc, Date.now()]
-	}
-
-	renderHud() {
-		for (let element of this.hudElements) {
-			element.render();
-		}
 	}
 
 	worldLoad() {

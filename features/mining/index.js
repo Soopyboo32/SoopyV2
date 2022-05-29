@@ -76,7 +76,6 @@ class Mining extends Feature {
 
         this.armourstandClass = Java.type("net.minecraft.entity.item.EntityArmorStand").class
 
-        this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.balRespawnHud.getValue() || this.compactProgressHud.getValue() || this.gemstoneMoneyHud.getValue() || this.nextChEvent.getValue())
         this.registerEvent("tick", this.tick)
         this.registerEvent("itemTooltip", this.itemTooltipEvent).registeredWhen(() => this.showContainedGemstoneSlots.getValue() || this.showUnlockedGemstoneSlots.getValue())
         this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.guessBalHp.getValue())
@@ -305,12 +304,6 @@ class Mining extends Feature {
             }
         } else {
             this.balHudElement.setText("")
-        }
-    }
-
-    renderOverlay() {
-        for (let element of this.hudElements) {
-            element.render()
         }
     }
 
