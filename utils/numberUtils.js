@@ -1,11 +1,11 @@
-module.exports = {
-    numberWithCommas: function(x){
+let utils = {
+    numberWithCommas: function (x) {
         if (x === undefined) { return "" }
         var parts = x.toString().split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         return parts.join(".");
     },
-    addNotation: function(type, value) {
+    addNotation: function (type, value) {
         let returnVal = value;
         let notList = [];
         if (type === "shortScale") {
@@ -47,14 +47,14 @@ module.exports = {
 
         return returnVal;
     },
-    timeSince:function (date) {
+    timeSince: function (date) {
         if (typeof date !== 'object') {
             date = new Date(date);
         }
-    
-        var seconds = Math.floor((new Date()-date) / 1000);
+
+        var seconds = Math.floor((new Date() - date) / 1000);
         var intervalType;
-    
+
         var interval = Math.floor(seconds / 31536000);
         interval = Math.floor(seconds / 86400);
         if (interval >= 1) {
@@ -73,21 +73,30 @@ module.exports = {
                 }
             }
         }
-    
+
         return interval + '' + intervalType;
     },
-    timeNumber: function(time){
-        let mins = Math.floor(time/1000/60)
-        let secs = Math.floor(time/1000)%60
-    
-        if(mins === 0) return secs + "s"
+    timeSince2: (date) => {
+        let time = Date.now() - date
+
+        if (time > 30 * 60000) {
+            return utils.timeNumber2(time)
+        }
+        return utils.timeNumber(time)
+    },
+    timeNumber: (time) => {
+        let mins = Math.floor(time / 1000 / 60)
+        let secs = Math.floor(time / 1000) % 60
+
+        if (mins === 0) return secs + "s"
         return `${mins}m ${secs}s`
     },
-    timeNumber2: function(time){
-        let hours = Math.floor(time/1000/60/60)
-        let mins = Math.floor(time/1000/60)%60
-    
-        if(hours === 0) return mins + "m"
+    timeNumber2: (time) => {
+        let hours = Math.floor(time / 1000 / 60 / 60)
+        let mins = Math.floor(time / 1000 / 60) % 60
+
+        if (hours === 0) return mins + "m"
         return `${hours}h ${mins}m`
     }
 }
+module.exports = utils

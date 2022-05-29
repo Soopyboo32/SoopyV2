@@ -253,10 +253,11 @@ class Hud extends Feature {
             this.lastSwappedPet = Date.now()
         })
         this.registerChat("&r&aYour &r${pet} &r&alevelled up to level &r&9${level}&r&a!&r", (pet, level) => {
-            this.petElement.setText("&6Pet&7> &7[Lvl " + (level || "??") + "] " + pet)
-            this.petText = "&6Pet&7> &7[Lvl " + (level || "??") + "] " + pet
-
-            this.lastSwappedPet = Date.now()
+            if (this.petText.split("] ")[1] === pet) {
+                this.petElement.setText("&6Pet&7> &7[Lvl " + (level || "??") + "] " + pet)
+                this.petText = "&6Pet&7> &7[Lvl " + (level || "??") + "] " + pet
+                this.lastSwappedPet = Date.now()
+            }
         })
 
         this.registerSoopy("apiLoad", this.apiLoad)
@@ -450,7 +451,7 @@ class Hud extends Feature {
 
                     if (Date.now() - this.lastSwappedPet > 1000) {
                         inv[i].getLore().forEach(line => {
-                            if (line.includes("Click to despawn.")) {
+                            if (line.includes("Click to despawn!")) {
                                 this.petElement.setText("&6Pet&7> &7" + inv[i].getName().split("(")[0])
                                 this.petText = "&6Pet&7> &7" + inv[i].getName().split("(")[0]
                             }
@@ -482,13 +483,6 @@ class Hud extends Feature {
             return
         } else {
             this.petElement.setText(this.petText)
-        }
-
-        if (Date.now() - this.lastUpdatedStatData > 5 * 60000) {
-
-            this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
-
-            this.lastUpdatedStatData = Date.now()
         }
 
         let soulflowCount = 0
@@ -642,13 +636,6 @@ class Hud extends Feature {
 
     updateHudThingos() {
         let insb = this.FeatureManager.features["dataLoader"].class.isInSkyblock
-        if (Date.now() - this.lastUpdatedStatData > 5 * 60000 && this.hudStat[0].enabled.getValue() && (!this.lastStatData || insb || this.hudStat.map(a => (!a.enabled.getValue() || a.onlySb.getValue())).includes(false))) {
-
-            this.FeatureManager.features["dataLoader"].class.loadApiData("skyblock", false)
-
-            this.lastUpdatedStatData = Date.now()
-            return
-        }
 
         this.hudStat.forEach(stat => {
             if (stat.enabled.getValue()) {

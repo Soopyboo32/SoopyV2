@@ -23,6 +23,8 @@ class DataLoader extends Feature {
 
         this.registerStep(true, 2, this.step)
 
+        this.registerStep(false, 170, this.loadApiStepThing)
+
         this.registerEvent("worldLoad", this.worldLoad)
 
         this.api_loaded_event = this.createCustomEvent("apiLoad")
@@ -42,13 +44,19 @@ class DataLoader extends Feature {
         this.worldLoaded = true
 
         this.loadApi()
+
+        this.firstLoaded = false
     }
 
     worldLoad() {
         this.area = undefined
         this.areaFine = undefined
+        this.loadApiData("skyblock", false)
     }
 
+    loadApiStepThing() {
+        this.loadApiData("skyblock", false)
+    }
     loadApi() {
         fetch("http://soopymc.my.to/api/v2/player_skyblock/" + Player.getUUID().replace(/-/g, "")).json(data => {
 
@@ -87,6 +95,12 @@ class DataLoader extends Feature {
     }
 
     step() { //2fps
+        if (!this.firstLoaded) {
+            if (!(this.FeatureManager.features["globalSettings"] === undefined || this.FeatureManager.features["globalSettings"].class.apiKeySetting === undefined)) {
+                this.loadApiData("skyblock", false)
+                this.firstLoaded = true
+            }
+        }
         this.isInSkyblock = Scoreboard.getTitle()?.removeFormatting().includes("SKYBLOCK")
 
         if (!this.isInSkyblock) {
@@ -151,11 +165,11 @@ class DataLoader extends Feature {
         this.area = this.stats["Area"]
 
 
-        if (this.lastServer !== this.FeatureManager.features["dataLoader"].class.stats.Server || Date.now() - this.lastSentServer > 60000 * 5) {
-            this.lastServer = this.FeatureManager.features["dataLoader"].class.stats.Server;
+        if (this.lastServer !== this.stats.Server || Date.now() - this.lastSentServer > 60000 * 5) {
+            this.lastServer = this.stats.Server;
             this.lastSentServer = Date.now()
 
-            socketConnection.setServer(this.FeatureManager.features["dataLoader"].class.stats.Server);
+            socketConnection.setServer(this.stats.Server, this.area, this.areaFine);
         }
     }
 

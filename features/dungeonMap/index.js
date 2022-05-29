@@ -95,6 +95,7 @@ class DungeonMap extends Feature {
         this.bloodOpened = false
         this.registerChat("&r&cThe &r&c&lBLOOD DOOR&r&c has been opened!&r", () => {
             this.bloodOpened = true
+            this.keys--
         })
 
         this.registerChat("&r${*}&r&f &r&ehas obtained &r&a&r&${*} Key&r&e!&r", () => {
@@ -438,7 +439,7 @@ class DungeonMap extends Feature {
             mapData = item.getItem()[m.getMapData](item.getItemStack(), World.getWorld()); // ItemStack.getItem().getMapData()
         } catch (error) {
         }
-        if (mapData) {
+        if (mapData && !this.boringMap) {
             this.mapData = mapData
 
 
@@ -511,7 +512,7 @@ class DungeonMap extends Feature {
                 roomWidth1++
             }
             let roomWidth = Math.floor(Math.max(roomWidth1, roomWidth2) * 5 / 4)
-            console.log(roomWidth)
+            // console.log(roomWidth)
             this.mapScale = 32 / roomWidth
             let mortLocationOnMap
             roomOffsets = [rx % roomWidth - 3, ry % roomWidth - 3]

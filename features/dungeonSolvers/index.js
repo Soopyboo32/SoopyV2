@@ -70,7 +70,7 @@ class DungeonSolvers extends Feature {
 			.setToggleSetting(this.runSpeedRates)
 			.setLocationSetting(new LocationSetting("Run speed and exp rates location", "Allows you to edit the location of the information", "run_speed_rates_location", this, [10, 100, 1, 1]).requires(this.runSpeedRates).editTempText("&6Run speed&7> &f4:30\n&6Exp/hour&7> &f1,234,567\n&6Runs/hour&7> &f17"));
 
-		this.scoreCalculation = new ToggleSetting("Show score calculation", "NOTE: doesent include mimic or spirit pet yet", true, "run_score_calc", this);
+		this.scoreCalculation = new ToggleSetting("Show score calculation", "", true, "run_score_calc", this);
 		this.scoreElement = new HudTextElement().setToggleSetting(this.scoreCalculation).setLocationSetting(new LocationSetting("Score calculation location", "Allows you to edit the location of the score calc", "score_calc_location", this, [10, 130, 1, 1]).requires(this.scoreCalculation).editTempText("&dScore: 120\n&aS+ ??\n&aS  ??"));
 
 		this.hudElements.push(this.runSpeedRatesElement);
@@ -249,6 +249,68 @@ class DungeonSolvers extends Feature {
 		this.renderEntityEvent = undefined;
 
 		this.onWorldLoad();
+
+
+		//TODO: finish this
+		// let saidLocations = new Set()
+		// let data = []
+		// let area = 0
+		// this.registerChat("", () => {
+		// 	area++
+		// })
+		// this.registerStep(false, 3, () => {
+		// 	World.getAllEntities().forEach(e => {
+		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive device")) {
+		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "device")
+		// 		}
+		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive terminal")) {
+		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "terminal")
+		// 		}
+		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("not activated")) {
+		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "lever")
+		// 		}
+		// 	})
+		// })
+
+		// function addThing(location, type) {
+		// 	if (saidLocations.has(location.join(","))) return
+
+		// 	saidLocations.add(location.join(","))
+
+		// 	if (type === "lever") {
+		// 		let finalLoc = undefined
+		// 		for (let i = 5; i > -5; i--) {
+		// 			if (World.getBlockAt(location[0], location[1] + i, location[2])?.getType()?.getID() === 69) {
+		// 				finalLoc = [location[0], location[1] + i, location[2]]
+		// 			}
+		// 		}
+		// 		data.push({ type: "lever", location: finalLoc, phase: area })
+		// 		return
+		// 	}
+		// 	if (type === "terminal") {
+		// 		let finalLoc = undefined
+		// 		for (let x = 5; x > -5; x--) {
+		// 			for (let y = 5; y > -5; y--) {
+		// 				for (let z = 5; z > -5; z--) {
+		// 					if (World.getBlockAt(location[0] + x, location[1] + y, location[2] + x)?.getType()?.getID() === 137) {
+		// 						finalLoc = [location[0] + x, location[1] + y, location[2] + x]
+		// 					}
+		// 				}
+		// 			}
+		// 		}
+		// 		data.push({ type: "terminal", location: finalLoc, phase: area })
+		// 		return
+		// 	}
+		// 	data.push({ type: type, location: location, phase: area })
+		// }
+
+		// this.registerCommand("getdata", () => {
+		// 	ChatLib.chat(JSON.stringify(data))
+		// })
+
+		//§r§6Soopyboo32§r§a activated a lever! (§r§c8§r§a/8)§r
+		//§r§6Soopyboo32§r§a completed a device! (§r§c3§r§a/8)§r
+		//§r§bBossmanLeo§r§a activated a terminal! (§r§c2§r§a/8)§r
 	}
 
 	step_5min() {

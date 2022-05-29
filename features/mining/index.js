@@ -7,11 +7,18 @@ import * as utils from "../../utils/utils"
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
-import { numberWithCommas } from "../../utils/numberUtils";
+import { numberWithCommas, timeSince2 } from "../../utils/numberUtils";
+import { fetch } from "../../utils/networkUtils";
+import socketConnection from "../../socketConnection";
 
 class Mining extends Feature {
     constructor() {
         super()
+    }
+
+    isInCH() {
+        if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false
+        return this.FeatureManager.features["dataLoader"].class.area === "Crystal Hollows"
     }
 
     onEnable() {
@@ -41,6 +48,22 @@ class Mining extends Feature {
                 .editTempText("&6Compact Session&7> &f12,345"))
         this.hudElements.push(this.compactHudElement)
         this.compactProgressHudOnlyWhenMoreThan0 = new ToggleSetting("Only show compact progress when it is above 0", "So that you dont need to disable it when you start doing something else", true, "compact_progress_disable_0", this).requires(this.compactProgressHud)
+
+        this.gemstoneMoneyHud = new ToggleSetting("Show $/h made from gemstone mining", "This will add a HUD element with the gemstone $/h", true, "gemstone_money_hud", this)
+        this.gemstoneMoneyHudElement = new HudTextElement()
+            .setToggleSetting(this.gemstoneMoneyHud)
+            .setLocationSetting(new LocationSetting("HUD Location", "Allows you to edit the location of the gemstone $/h", "gemstone_money_location", this, [10, 60, 1, 1])
+                .requires(this.gemstoneMoneyHud)
+                .editTempText("&6$/h&7> &f$12,345,678\n&6$ made&7> &f$123,456,789\n&6Time tracked&7> &f123m"))
+        this.hudElements.push(this.gemstoneMoneyHudElement)
+
+        this.nextChEvent = new ToggleSetting("Show the current and next crystal hollows event", "(syncs the data between all users in ch)", true, "chevent_hud", this)
+        this.nextChEventElement = new HudTextElement()
+            .setToggleSetting(this.nextChEvent)
+            .setLocationSetting(new LocationSetting("HUD Location", "Allows you to edit the location of the hud element", "chevent_hud_location", this, [10, 70, 1, 1])
+                .requires(this.nextChEvent)
+                .editTempText("&6Event&7> &fGONE WITH THE WIND &7->&f 2X POWDER"))
+        this.hudElements.push(this.nextChEventElement)
 
         this.seenBalDamages = []
         this.balHP = 250
@@ -74,6 +97,73 @@ class Mining extends Feature {
         })
         this.registerChat("&r&c&oThe boss looks weak and tired and retreats into the lava...&r", () => {
             this.balHP = 0
+        })
+
+        let startingTime = -1
+        let money = 0
+        let gemstoneCosts = {}
+        let lastMined = 0
+        this.registerChat("&r&d&lPRISTINE! &r&fYou found &r${*} &r&aFlawed ${type} Gemstone &r&8x${num}&r&f!&r", (type, num, event) => {
+
+            let id = "FLAWED_" + type.toUpperCase() + "_GEM"
+            let number = parseInt(num)
+
+            lastMined = Date.now()
+
+            if (!this.gemstoneMoneyHud.getValue()) return
+
+            if (startingTime === 0) return
+            if (startingTime === -1) {
+                startingTime = 0
+                fetch("https://api.hypixel.net/skyblock/bazaar").json(data => {
+                    startingTime = Date.now()
+
+                    Object.keys(data.products).forEach(id => {
+                        if (id.startsWith("FLAWED_")) {
+                            gemstoneCosts[id] = Math.max(240, data.products[id].quick_status.sellPrice)
+                            // console.log(id + ": " + gemstoneCosts[id])
+                        }
+                    })
+                })
+                return
+            }
+
+            money += gemstoneCosts[id] * number
+
+            let moneyPerHour = Math.floor(money / ((Date.now() - startingTime) / (1000 * 60 * 60)))
+            let moneyMade = Math.floor(money)
+            let timeTracked = timeSince2(startingTime)
+
+            this.gemstoneMoneyHudElement.setText("&6$/h&7> &f$" + numberWithCommas(moneyPerHour) + "\n&6$ made&7> &f$" + numberWithCommas(moneyMade) + "\n&6Time tracked&7> &f" + timeTracked)
+        })
+        this.registerStep(false, 10, () => {
+            if (lastMined && Date.now() - lastMined > 2 * 60000) {
+                money = 0
+                startingTime = -1
+                lastMined = 0
+                this.gemstoneMoneyHudElement.setText("")
+            }
+
+            this.nextChEventElement.setText("&6Event&7> &f" + socketConnection.chEvent.join(" &7->&f "))
+        })
+
+        let lastWorldChange = 0
+
+        this.registerEvent("worldLoad", () => {
+            lastWorldChange = Date.now()
+        })
+
+        this.registerChat("&r&r&r        ${spaces}&r&${color}&l${event} ENDED!&r", (spaces, color, event) => {
+            if (Date.now() - lastWorldChange < 5000) return
+            if (!this.isInCH()) return
+
+            socketConnection.sendCHEventData(event.trim(), false)
+        })
+        this.registerChat("&r&r&r        ${spaces}&r&${color}&l${event} STARTED!&r", (spaces, color, event) => {
+            if (Date.now() - lastWorldChange < 5000) return
+            if (!this.isInCH()) return
+
+            socketConnection.sendCHEventData(event.trim(), true)
         })
     }
 

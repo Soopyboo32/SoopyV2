@@ -1,8 +1,0 @@
-{
-    "name": "Agentlai Settings",
-    "description": "Settings only avalible to agentlai",
-    "isHidden": "hiddenRequirement.js",
-    "isTogglable": true,
-    "defaultEnabled": false,
-    "sortA": 0
-}
