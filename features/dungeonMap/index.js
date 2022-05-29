@@ -16,6 +16,7 @@ import ImageLocationSetting from "../settings/settingThings/imageLocation";
 import socketConnection from "../../socketConnection";
 import SoopyKeyPressEvent from "../../../guimanager/EventListener/SoopyKeyPressEvent";
 import SettingBase from "../settings/settingThings/settingBase";
+import { Box } from "../../utils/renderJavaUtils";
 const BufferedImage = Java.type("java.awt.image.BufferedImage")
 const AlphaComposite = Java.type("java.awt.AlphaComposite")
 
@@ -39,7 +40,6 @@ class DungeonMap extends Feature {
         this.showMapInBoss = new ToggleSetting("Keep showing the map in the dungeon boss room", "This will center the map when in boss to still be usefull", true, "dmap_enable_boss", this)
         this.borderedHeads = new ToggleSetting("Add a black border around heads on map", "", false, "dmap_border_head", this)
         this.brBox = new ToggleSetting("Box around doors in br", "In map category because it uses map to find location (no esp)", true, "dmap_door", this)
-        this.brBoxDisableWhenBloodOpened = new ToggleSetting("Disable blood rush box when blood open", "", true, "dmap_door_disable", this).requires(this.brBox)
         this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this)
         // this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this).requires(this.spiritLeapOverlay)
 
@@ -91,24 +91,30 @@ class DungeonMap extends Feature {
         }
 
         this.currDungeonBossImage = undefined
+        this.dungeonBrBoxElm = new Box([0, 0, 0], [3, 4, 3], 1, 0, 0, 1, 3, false)
 
         this.bloodOpened = false
         this.registerChat("&r&cThe &r&c&lBLOOD DOOR&r&c has been opened!&r", () => {
             this.bloodOpened = true
             this.keys--
+            this.dungeonBrBoxElm.setRGBA(1, 0, 0, 1)
+            this.dungeonBrBoxElm.stopRender()
         })
 
         this.registerChat("&r${*}&r&f &r&ehas obtained &r&a&r&${*} Key&r&e!&r", () => {
             this.keys++
+            this.dungeonBrBoxElm.setRGBA(0, 1, 0, 1)
         })
         this.registerChat("&r&eA &r&a&r&${*} Key&r&e was picked up!&r", () => {
             this.keys++
+            this.dungeonBrBoxElm.setRGBA(0, 1, 0, 1)
         })
 
         this.lastDoorOpener = undefined
         this.registerChat("&r&a${player}&r&a opened a &r&8&lWITHER &r&adoor!&r", (player) => {
             this.lastDoorOpener = ChatLib.removeFormatting(player)
             this.keys--
+            this.dungeonBrBoxElm.setRGBA(1, 0, 0, 1)
         })
 
         this.spiritLeapOverlayGui = new SpiritLeapOverlay(this)
@@ -120,7 +126,6 @@ class DungeonMap extends Feature {
         }).registeredWhen(() => this.isInDungeon())
         this.registerStep(false, 5, this.step5s).registeredWhen(() => this.isInDungeon())
         this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.isInDungeon())
-        this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInDungeon())
         this.registerEvent("worldLoad", this.worldLoad)
         this.renderingPlayerList = false
         this.registerEvent("renderPlayerList", () => {
@@ -162,6 +167,7 @@ class DungeonMap extends Feature {
     }
 
     worldLoad() {
+        this.dungeonBrBoxElm.stopRender()
         this.mortLocation = undefined
         this.mapDataPlayers = {}
         this.offset = []
@@ -172,14 +178,6 @@ class DungeonMap extends Feature {
         this.mortLocationOnMap = undefined
         this.bloodOpened = false
         this.keys = 0
-    }
-
-    renderWorld() {
-        if (this.isInDungeon() && this.brBox.getValue()) {
-            if (this.brBoxLoc && (!this.bloodOpened || !this.brBoxDisableWhenBloodOpened.getValue())) {
-                drawBoxAtBlock(this.brBoxLoc[0] - 1.5, 69, this.brBoxLoc[1] - 1.5, this.keys === 0 ? 255 : 0, this.keys === 0 ? 0 : 255, 0, 3, 4)
-            }
-        }
     }
 
     renderOverlay() {
@@ -592,6 +590,11 @@ class DungeonMap extends Feature {
 
             this.brBoxLoc = brBoxTemp
 
+
+            if (this.brBox.getValue() && !this.bloodOpened) this.dungeonBrBoxElm.startRender()
+
+            this.dungeonBrBoxElm.setLocationSize([this.brBoxLoc[0] - 1.5, 69, this.brBoxLoc[1] - 1.5], [3, 4, 3])
+
             if (roomOffsets) {
                 // for(let x = 0;x<128;x++){
                 //     for(let y = 0;y<128;y++){
@@ -731,6 +734,7 @@ class DungeonMap extends Feature {
     }
 
     onDisable() {
+        this.dungeonBrBoxElm.stopRender()
         this.initVariables()
         this.running = false
     }

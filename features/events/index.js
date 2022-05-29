@@ -450,7 +450,6 @@ class Events extends Feature {
 		this.showingWaypoints = undefined
 		this.lastPath = undefined
 		this.updatingPath = undefined
-		this.hudElements = undefined
 		this.lastPathCords = undefined
 	}
 

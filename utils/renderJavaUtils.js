@@ -1,6 +1,10 @@
+import { m } from "../../mappings/mappings"
+import { numberWithCommas } from "./numberUtils"
+
 let SoopyV2Forge = Java.type("me.soopyboo32.soopyv2forge.SoopyV2Forge").INSTANCE
 
 let LASTEST_SOOPYFORGE_VER = "1.0"
+let canUseForgeRendering = net.minecraftforge.fml.common.Loader.isModLoaded("soopyv2forge") && SoopyV2Forge.getVersion() === LASTEST_SOOPYFORGE_VER
 
 let ArrayList = Java.type("java.util.ArrayList")
 
@@ -15,25 +19,40 @@ let HudTextC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.HudText")
 let RenderWorldThings = new Set()
 let RenderHudThings = new Set()
 
+register("gameUnload", () => {
+    RenderWorldThings.clear()
+    SoopyV2Forge.setRenderWorldList(new ArrayList([]))
+    RenderHudThings.clear()
+    SoopyV2Forge.setRenderHudList(new ArrayList([]))
+})
+
 class RenderWorldAble {
-    startRender() {
+    startRender(isBatched) {
+        if (!canUseForgeRendering) return
+        if (RenderWorldThings.has(this.javaObj)) return this
         RenderWorldThings.add(this.javaObj)
-        SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
+        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
         return this
     }
-    stopRender() {
+    stopRender(isBatched) {
+        if (!canUseForgeRendering) return
+        if (!RenderWorldThings.has(this.javaObj)) return this
         RenderWorldThings.delete(this.javaObj)
-        SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
+        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
         return this
     }
 }
 class RenderHudAble {
     startRender() {
+        if (!canUseForgeRendering) return
+        if (RenderHudThings.has(this.javaObj)) return this
         RenderHudThings.add(this.javaObj)
         SoopyV2Forge.setRenderHudList(new ArrayList([...RenderHudThings]))
         return this
     }
     stopRender() {
+        if (!canUseForgeRendering) return
+        if (!RenderHudThings.has(this.javaObj)) return this
         RenderHudThings.delete(this.javaObj)
         SoopyV2Forge.setRenderHudList(new ArrayList([...RenderHudThings]))
         return this
@@ -169,7 +188,7 @@ export class WorldText extends RenderWorldAble {
     }
 
     setLocation(location) {
-        this.javaObj.location = location
+        this.javaObj.location = new Vec3(...location)
         return this
     }
     setText(text) {
@@ -196,7 +215,7 @@ export class Beacon extends RenderWorldAble {
     }
 
     setLocation(location) {
-        this.javaObj.location = location
+        this.javaObj.location = new Vec3(...location)
         return this
     }
     setRGBA(r, g, b, a) {
@@ -264,53 +283,98 @@ export class HudText extends RenderHudAble {
     }
 }
 
-// let data = []
+export class Waypoint extends FilledBox {
+    constructor(x, y, z, r, g, b, { name = "", showDist = !!name, phase = false }) {
+        this.rendering = false
 
-// data.push(createPoints([[108, 70, 63], [108, 71, 63], [108, 70, 67], [108, 70, 63]], 1, 0, 0, 1, 2, true))
-// data.push(createWorldText([115, 73, 63], "Text §dWOW §6YEP", true, 1))
-// data.push(createBeacon([115, 75, 63], 0, 1, 0, 1, true))
+        let distToPlayerSq = (x - Player.getRenderX()) ** 2 + (y - (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]())) ** 2 + (z - Player.getRenderZ()) ** 2
 
-// SoopyV2Forge.setRenderWorldList(new ArrayList(data))
+        let alpha = Math.min(1, Math.max(0, 1 - (distToPlayerSq - 10000) / 12500))
 
-// let data2 = []
+        super([x - 0.001, y - 0.001, z - 0.001], [1.002, 1.002, 1.002], r, g, b, 0.25 * alpha, 1, !phase)
 
-// data2.push(createHudPoints([[10, 10], [50, 10], [50, 20], [10, 10]], 0, 0, 1, 1, 5))
-// data2[data2.length - 1].glmode = 5
-// data2.push(createHudText("Text §dWOW §6YEP", 10, 30, true))
+        this.params = { x, y, z, r, g, b, name, showDist, phase }
 
-// SoopyV2Forge.setRenderHudList(new ArrayList(data2))
+        this.outLine = new Box([x - 0.002, y - 0.002, z - 0.002], [1.004, 1.004, 1.004], r, g, b, alpha, 3, !phase)
+        this.beam = new Beacon([x, y + 1, z], r, g, b, Math.min(1, Math.max(0, (distToPlayerSq - 25) / 100)) * alpha, true)
+
+        let distToPlayer = Math.sqrt(distToPlayerSq)
+
+        let distRender = Math.min(distToPlayer, 50)
+
+        let loc5 = [Player.getRenderX() + (x + 0.5 - Player.getRenderX()) / (distToPlayer / distRender), (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]()) + (y + 2 + 20 * distToPlayer / 300 - (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]())) / (distToPlayer / distRender), Player.getRenderZ() + (z + 0.5 - Player.getRenderZ()) / (distToPlayer / distRender)]
+        let loc6 = [Player.getRenderX() + (x + 0.5 - Player.getRenderX()) / (distToPlayer / distRender), (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]()) + (y + 2 + 20 * distToPlayer / 300 - 10 * distToPlayer / 300 - (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]())) / (distToPlayer / distRender), Player.getRenderZ() + (z + 0.5 - Player.getRenderZ()) / (distToPlayer / distRender)]
+
+        this.textLine1 = new WorldText([loc5[0], loc5[1], loc5[2]], "§a" + name, false, distRender / 12)
+        this.textLine2 = new WorldText([(name ? loc6[0] : loc5[0]), (name ? loc6[1] : loc5[1]), (name ? loc6[2] : loc5[2])], "§b(" + numberWithCommas(Math.round(distToPlayer)) + "m)", false, distRender / 12)
+    }
+
+    update() {
+        let { x, y, z, r, g, b, name, showDist } = this.params
+
+        let distToPlayerSq = (x - Player.getRenderX()) ** 2 + (y - (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]())) ** 2 + (z - Player.getRenderZ()) ** 2
+
+        let alpha = Math.min(1, Math.max(0, 1 - (distToPlayerSq - 10000) / 12500))
+
+        this.setRGBA(r, g, b, 0.25 * alpha)
+        this.outLine.setRGBA(r, g, b, alpha)
+        this.beam.setRGBA(r, g, b, Math.min(1, Math.max(0, (distToPlayerSq - 25) / 100)) * alpha)
+
+        if (name || showDist) {
+            let distToPlayer = Math.sqrt(distToPlayerSq)
+
+            let distRender = Math.min(distToPlayer, 100)
+
+            let loc5 = [Player.getRenderX() + (x + 0.5 - Player.getRenderX()) / (distToPlayer / distRender), (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]()) + (y + 2 + 20 * distToPlayer / 300 - (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]())) / (distToPlayer / distRender), Player.getRenderZ() + (z + 0.5 - Player.getRenderZ()) / (distToPlayer / distRender)]
+            let loc6 = [Player.getRenderX() + (x + 0.5 - Player.getRenderX()) / (distToPlayer / distRender), (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]()) + (y + 2 + 20 * distToPlayer / 300 - 10 * distToPlayer / 300 - (Player.getRenderY() + Player.getPlayer()[m.getEyeHeight]())) / (distToPlayer / distRender), Player.getRenderZ() + (z + 0.5 - Player.getRenderZ()) / (distToPlayer / distRender)]
+
+            this.textLine1.setLocation([loc5[0], loc5[1], loc5[2]]).setScale(distRender / 12)
+            this.textLine2.setLocation([(name ? loc6[0] : loc5[0]), (name ? loc6[1] : loc5[1]), (name ? loc6[2] : loc5[2])]).setScale(distRender / 12).setText("§b(" + numberWithCommas(Math.round(distToPlayer)) + "m)")
+        }
+    }
+
+    startRender(isBatched) {
+        if (this.rendering) return this
+        this.rendering = true
+
+        super.startRender(true)
+        this.outLine.startRender(true)
+        this.beam.startRender(true)
+        if (this.params.name) this.textLine1.startRender(true)
+        if (this.params.showDist) this.textLine2.startRender(true)
+
+        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
+        return this
+    }
+
+    stopRender(isBatched) {
+        if (!this.rendering) return this
+        this.rendering = false
+
+        super.stopRender(true)
+        this.outLine.stopRender(true)
+        this.beam.stopRender(true)
+        this.textLine1.stopRender(true)
+        this.textLine2.stopRender(true)
+
+        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
+        return this
+    }
+}
 
 register("worldLoad", () => {
     if (!net.minecraftforge.fml.common.Loader.isModLoaded("soopyv2forge")) {
         ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
         ChatLib.chat("§cWARNING: You dont have the forge mod for soopyv2 installed")
-        ChatLib.chat("§cWARNING: If you have the mod installed it will take over rendering")
-        ChatLib.chat("§cWARNING: And improve performance quite a bit")
+        ChatLib.chat("§cWARNING: -> almost nothing can be rendered")
         new TextComponent(" &e[CLICK] &7- Download").setHover("show_text", "&2Download").setClick("open_url", "https://github.com/Soopyboo32/SoopyV2Forge/releases").chat()
         ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
     }
     if (SoopyV2Forge.getVersion() !== LASTEST_SOOPYFORGE_VER) {
         ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
         ChatLib.chat("§cWARNING: Your forge version of soopyv2 is outdated")
-        ChatLib.chat("§cWARNING: Chattriggers will take over rendering")
-        ChatLib.chat("§cWARNING: This will hurt performance quite a bit")
+        ChatLib.chat("§cWARNING: -> almost nothing can be rendered")
         new TextComponent(" &e[CLICK] &7- Download").setHover("show_text", "&2Download update").setClick("open_url", "https://github.com/Soopyboo32/SoopyV2Forge/releases").chat()
         ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
     }
 })
-
-let renderWorldList
-let renderHudList
-
-let shouldUseForgeRendering = net.minecraftforge.fml.common.Loader.isModLoaded("soopyv2forge") && SoopyV2Forge.getVersion() === LASTEST_SOOPYFORGE_VER
-
-if (!shouldUseForgeRendering) {
-    renderWorldList = []
-    renderHudList = []
-    register("renderOverlay", (ticks) => {
-
-    })
-    register("renderWorld", (ticks) => {
-
-    })
-}

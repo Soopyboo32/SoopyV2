@@ -2,6 +2,7 @@
 /// <reference lib="es2015" />
 import { m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
+import { Waypoint } from "../../utils/renderJavaUtils";
 import { drawCoolWaypoint } from "../../utils/renderUtils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
@@ -27,13 +28,12 @@ class Waypoints extends Feature {
         this.userWaypoints = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2userwaypoints.json") || "{}")
         this.userWaypointsHash = {}
         this.userWaypointsAll = []
+        this.lastArea = undefined
         this.userWaypointsArr = Object.values(this.userWaypoints)
         this.updateWaypointsHashes()
         this.waypointsChanged = false
 
         this.patcherWaypoints = []
-
-        this.registerEvent("renderWorld", this.renderWorld)
 
         this.registerCommand("addwaypoint", (name, x = Math.floor(Player.getX()).toString(), y = Math.floor(Player.getY()).toString(), z = Math.floor(Player.getZ()).toString(), r = "0", g = "255", b = "0", area = "") => {
             let lx = 0
@@ -96,54 +96,89 @@ class Waypoints extends Feature {
                 if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Loaded waypoints from clipboard!")
             } catch (e) {
                 if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
+                console.log(JSON.stringify(e, undefined, 2))
+                console.log(e.stack)
             }
         })
 
         this.registerChat("&r${*} &8> ${player}&f: &rx: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
             if (this.loadWaypointsFromSendCoords.getValue()) {
-                this.patcherWaypoints.push([Date.now(), parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)])
+                this.patcherWaypoints.push([Date.now(), new Waypoint(parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), 0, 0, 1, { name: ChatLib.addColor(player), showDist: true }).startRender()])
                 if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()
             }
         })
         this.registerChat("${player}&r&f: x: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
             if (player.includes(">")) return
-            if (this.loadWaypointsFromSendCoords.getValue()) {
-                this.patcherWaypoints.push([Date.now(), parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)])
+            if (this.loadWaypointsFromSendCoords.getValue()) {//parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)
+                this.patcherWaypoints.push([Date.now(), new Waypoint(parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), 0, 0, 1, { name: ChatLib.addColor(player), showDist: true }).startRender()])
                 if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()
             }
         })
 
         this.registerStep(false, 5, () => {
             while (this.patcherWaypoints[0]?.[0] < Date.now() - 60000) {
-                this.patcherWaypoints.shift()
+                this.patcherWaypoints.shift()[1].stopRender()
+            }
+        })
+
+        let lastX = 0
+        let lastY = 0
+        let lastZ = 0
+        let lastTick = 0
+        this.registerEvent("renderWorld", () => {
+            if (Math.round(Player.getX()) !== lastX
+                || Math.round(Player.getY()) !== lastY
+                || Math.round(Player.getZ()) !== lastZ
+                || Date.now() - lastTick > 500) {
+                lastX = Math.round(Player.getX())
+                lastY = Math.round(Player.getY())
+                lastZ = Math.round(Player.getZ())
+                lastTick = Date.now()
+
+                this.tickWaypoints()
             }
         })
     }
 
-    updateWaypointsHashes() {
-        this.userWaypointsAll = []
-        this.userWaypointsHash = {}
-        for (let waypoint of this.userWaypointsArr) {
-            if (!waypoint.area) {
-                this.userWaypointsAll.push(waypoint)
-            } else {
-                if (!this.userWaypointsHash[waypoint.area]) this.userWaypointsHash[waypoint.area] = []
-                this.userWaypointsHash[waypoint.area].push(waypoint)
+    tickWaypoints() {
+        for (let waypoint of this.userWaypointsAll) {
+            waypoint.update()
+        }
+        for (let waypoint of this.patcherWaypoints) {
+            waypoint[1].update()
+        }
+        let area = this.FeatureManager.features["dataLoader"] ? this.FeatureManager.features["dataLoader"].class.area : "NONE"
+        if (this.lastArea && this.lastArea !== area) {
+            if (this.userWaypointsHash[lastArea]) {
+                for (let waypoint of this.userWaypointsHash[lastArea]) {
+                    waypoint.stopRender()
+                }
+
+            }
+        }
+        this.lastArea = area
+
+        if (this.userWaypointsHash[area]) {
+            for (let waypoint of this.userWaypointsHash[area]) {
+                waypoint.update()
+                waypoint.startRender()
             }
         }
     }
 
-    renderWorld() {
-        for (let waypoint of this.userWaypointsAll) {
-            drawCoolWaypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, waypoint.options)
-        }
-        if (this.userWaypointsHash[this.FeatureManager.features["dataLoader"].class.area]) {
-            for (let waypoint of this.userWaypointsHash[this.FeatureManager.features["dataLoader"].class.area]) {
-                drawCoolWaypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, waypoint.options)
+    updateWaypointsHashes() {
+        this.userWaypointsAll.forEach(w => w.stopRender())
+        Object.values(this.userWaypointsHash).forEach(a => a.forEach(w => w.stopRender()))
+
+        this.userWaypointsAll = []
+        this.userWaypointsHash = {}
+        for (let waypoint of this.userWaypointsArr) {
+            if (!waypoint.area) {
+                this.userWaypointsAll.push(new Waypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, waypoint.options).startRender())
+            } else {
+                if (!this.userWaypointsHash[waypoint.area]) this.userWaypointsHash[waypoint.area] = []
+                this.userWaypointsHash[waypoint.area].push(new Waypoint(waypoint.x, waypoint.y, waypoint.z, waypoint.r, waypoint.g, waypoint.b, waypoint.options))
             }
-        }
-        for (let waypoint of this.patcherWaypoints) {
-            drawCoolWaypoint(waypoint[1], waypoint[2], waypoint[3], 0, 255, 0, { name: waypoint[4] })
         }
     }
 
@@ -152,6 +187,10 @@ class Waypoints extends Feature {
     }
 
     onDisable() {
+        this.userWaypointsAll.forEach(w => w.stopRender())
+        Object.values(this.userWaypointsHash).forEach(a => a.forEach(w => w.stopRender()))
+        this.patcherWaypoints.forEach(p => p[1].stopRender())
+
         if (this.waypointsChanged) {
             FileLib.write("soopyAddonsData", "soopyv2userwaypoints.json", JSON.stringify(this.userWaypoints))
         }

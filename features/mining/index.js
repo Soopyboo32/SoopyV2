@@ -322,6 +322,7 @@ class Mining extends Feature {
     }
 
     onDisable() {
+        this.hudElements.forEach(h => h.delete())
         this.initVariables()
     }
 }

@@ -59,10 +59,6 @@ class Bestiary extends Feature {
         }
 
         this.registerStep(false, 5, this.updateHudElements)
-        this.registerEvent("renderOverlay", this.renderHUD)
-        // TODO
-        // dragon
-        // headless_horseman
         let lastThing = undefined
         let lastThingTime = 0
         this.registerChat("${chat}", (chat) => {
@@ -120,12 +116,6 @@ class Bestiary extends Feature {
         }
     }
 
-    renderHUD() {
-        for (let stat of this.hudStat) {
-            stat.textElement.render()
-        }
-    }
-
     getBestiaryCount(id) {
         if (!this.bestiaryData[id]) return "???"
         let count = this.bestiaryData[id].count
@@ -156,6 +146,8 @@ class Bestiary extends Feature {
                 let type = stat.type.getValue()
 
                 stat.textElement.setText(`&6${this.bestiaryData[type]?.guiName}&7> &f${numberWithCommas(this.getBestiaryCount(type))}`)
+            } else {
+                stat.textElement.setText("")
             }
         })
     }
@@ -248,6 +240,7 @@ class Bestiary extends Feature {
     }
 
     onDisable() {
+        this.hudStat.forEach(h => h.textElement.delete())
         this.saveData()
     }
 

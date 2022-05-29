@@ -130,6 +130,7 @@ class Hud extends Feature {
             .setLocationSetting(new LocationSetting("Spotify Location", "Allows you to edit the location of the spotify text", "spotify_now_playing_location", this, [10, 80, 1, 1])
                 .requires(this.showSpotifyPlaying)
                 .editTempText("&6Spotify&7> &cNot open"))
+        this.hudElements.push(this.spotifyElement)
         this.spotifyElement2 = new HudTextElement().setToggleSetting(this.showSpotifyPlaying).setLocationSetting({
             setParent: () => { },
             x: this.spotifyElement.locationSetting.x + this.spotifyElement.getWidth(),
@@ -197,6 +198,7 @@ class Hud extends Feature {
         //         .editTempText("Test Line 1\nTest line 2\nTest line 3\nTest line 4 (longer KEKW)"))
         // this.hudElements.push(this.dragonDamageElement)
 
+
         this.step_5second()
 
         this.lastTickTime = 0
@@ -225,7 +227,7 @@ class Hud extends Feature {
         this.fps = new SoopyNumber(0)
         this.lowFps = new SoopyNumber(0)
 
-        this.registerEvent("renderOverlay", this.renderHud)
+        this.registerEvent("renderOverlay", this.renderHud).registeredWhen(() => this.showSpotifyPlaying.getValue() || this.witherImpactCooldownSetting.getValue())
         this.registerStep(true, 5, this.step)
         this.registerStep(false, 5, this.step_5second)
         this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.fpsEnabledSetting.getValue() && this.fpsFastSetting.getValue())
@@ -332,6 +334,9 @@ class Hud extends Feature {
         this.fpsEnabledSetting.delete()
         this.fpsFastSetting.delete()
         this.cpsEnabledSetting.delete()
+
+        this.hudStat.forEach(h => h.textElement.delete())
+        this.hudElements.forEach(h => h.delete())
 
         this.initVariables()
 
@@ -640,6 +645,8 @@ class Hud extends Feature {
         this.hudStat.forEach(stat => {
             if (stat.enabled.getValue()) {
                 this.updateHudThing(stat, insb)
+            } else {
+                stat.textElement.setText("")
             }
         })
     }

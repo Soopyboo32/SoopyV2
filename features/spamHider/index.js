@@ -127,7 +127,7 @@ class SpamHider extends Feature {
             })
         }
     }
-    renderOverlay() {
+    renderOverlay() { //TODO: move this to java
         this.SpamHiderMessagesRenderer.render(100, 100, 1, 1)
     }
 

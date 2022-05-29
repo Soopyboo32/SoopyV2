@@ -169,11 +169,11 @@ class DungeonSolvers extends Feature {
 		};
 
 		this.registerStep(true, 2, this.step).registeredWhen(() => this.isInDungeon());
+		this.registerStep(false, 60, this.step)
 		this.registerStep(true, 10, this.step2).registeredWhen(() => this.isInDungeon());
 		this.registerStep(false, 60 * 5, this.step_5min)
 		this.registerEvent("worldLoad", this.onWorldLoad);
 
-		this.registerEvent("renderOverlay", this.renderHud).registeredWhen(() => this.isInDungeon());
 		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInDungeon());
 
 		this.bloodOpenedBonus = false;
@@ -543,14 +543,6 @@ class DungeonSolvers extends Feature {
 		}
 	}
 
-	renderHud() {
-		if (this.bearSpawning && this.bearSpawning > 0) {
-			this.spiritBearSpawnElement.setText("&dBear spawned in: &c" + (Math.max(0, this.bearSpawning - Date.now()) / 1000).toFixed(2) + "s");
-		} else {
-			this.spiritBearSpawnElement.setText("");
-		}
-	}
-
 	onWorldLoad() {
 		this.goneInBonus = false;
 		this.bloodOpenedBonus = false;
@@ -589,6 +581,11 @@ class DungeonSolvers extends Feature {
 	}
 
 	step2() {
+		if (this.bearSpawning && this.bearSpawning > 0) {
+			this.spiritBearSpawnElement.setText("&dBear spawned in: &c" + (Math.max(0, this.bearSpawning - Date.now()) / 1000).toFixed(2) + "s");
+		} else {
+			this.spiritBearSpawnElement.setText("");
+		}
 		if (this.scoreCalculation.getValue()) this.calculateDungeonScore();
 		if (this.bloodCampAssist.getValue()) {
 			this.skulls.forEach((skull) => {
@@ -891,6 +888,8 @@ class DungeonSolvers extends Feature {
 	}
 
 	onDisable() {
+		this.hudElements.forEach(h => h.delete())
+
 		this.initVariables();
 	}
 }

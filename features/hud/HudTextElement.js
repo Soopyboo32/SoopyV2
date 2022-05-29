@@ -21,6 +21,10 @@ class HudTextElement {
         this.renderElm = new HudText([""], 0, 0, true).startRender()
     }
 
+    delete() {
+        this.renderElm.stopRender()
+    }
+
     setBaseEditWidth(width) {
         this.editBaseWidth = width
         return this
@@ -48,6 +52,11 @@ class HudTextElement {
             } else {
                 this.renderElm.stopRender()
             }
+        }
+        if (this.toggleSetting.getValue()) {
+            this.renderElm.startRender()
+        } else {
+            this.renderElm.stopRender()
         }
         return this
     }
