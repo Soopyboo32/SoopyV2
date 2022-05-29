@@ -79,17 +79,16 @@ class Feature {
         delete this.soopyEvents[event.id]
     }
 
-    registerForge(event, func, messageIfError) {
+    registerForge(event, func, priority) {
         let theEvent
         try {
-            theEvent = this.FeatureManager.registerForge(event, func, this)
-        } catch (e) { //TODO: option to disable this chat message + fallback register for some that support (eg fallback of RenderWorldLastEvent to ct 'renderWorld')
-            if (!messageIfError) messageIfError = "An error occured while registering the event " + event.class.toString().split(".").pop() + ", this may cause " + this.constructor.name + " to not work properly."
-            ChatLib.chat(this.FeatureManager.messagePrefix + messageIfError)
+            theEvent = this.FeatureManager.registerForge(event, func, priority, this)
+        } catch (e) {
+            ChatLib.chat(this.FeatureManager.messagePrefix + "An error occured while registering the event " + event.class.toString().split(".").pop() + ", this may cause " + this.constructor.name + " to not work properly.")
         }
         if (theEvent) this.forgeEvents[theEvent.id] = theEvent
 
-        return new ForgeEvent(theEvent, theEvent.trigger, [event, func, messageIfError], this)
+        return new ForgeEvent(theEvent, theEvent.trigger, [event, func, priority], this)
     }
 
     unregisterForge(event) {

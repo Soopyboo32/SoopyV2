@@ -26,6 +26,8 @@ class LocationSetting extends ButtonSetting {
         this.resizePoint = 0
         this.resizeInitialPos = [0, 0, 0, 0, 0, 0]
 
+        this.onChange = undefined
+
         this.parent = undefined
 
         this.soopyGui = new SoopyGui()
@@ -146,6 +148,7 @@ class LocationSetting extends ButtonSetting {
 
     _updateValue() {
         this.setValue([this.x, this.y, this.scale, this.shadowType])
+        if (this.onChange) this.onChange()
     }
 
     editTempText(text) {

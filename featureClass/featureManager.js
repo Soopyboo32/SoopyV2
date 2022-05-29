@@ -439,13 +439,13 @@ class FeatureManager {
         return this.customEvents[id]
     }
 
-    registerForge(event, func, context) {
+    registerForge(event, func, priority, context) {
         let id = this.lastForgeEventId++
 
         this.forgeEvents[id] = {
             func: func,
             context: context,
-            trigger: registerForgeBase(event, (...args) => {
+            trigger: registerForgeBase(event, priority, (...args) => {
                 try {
                     if (context.enabled) {
                         if (this.recordingPerformanceUsage) this.startRecordingPerformance(context.constructor.name, event.class.name)

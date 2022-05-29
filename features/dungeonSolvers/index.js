@@ -487,10 +487,6 @@ class DungeonSolvers extends Feature {
 		} else {
 			this.spiritBearSpawnElement.setText("");
 		}
-
-		for (let element of this.hudElements) {
-			element.render();
-		}
 	}
 
 	onWorldLoad() {

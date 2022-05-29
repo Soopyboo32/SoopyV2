@@ -73,10 +73,6 @@ class GlobalSettings extends Feature {
             this.registerEvent("tick", this.fixNEU)
         }
 
-        if (net.minecraftforge.fml.common.Loader.isModLoaded("SoopyV2")) {
-
-        }
-
         this.registerCommand("soopyweight", (user = Player.getName()) => {
             this.soopyWeight(user)
         })

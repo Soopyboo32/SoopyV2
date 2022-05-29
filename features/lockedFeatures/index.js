@@ -29,7 +29,6 @@ class LockedFeatures extends Feature {
         this.eventCommand = undefined
 
         this.registerStep(true, 1, this.step)
-        this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.guildEventLb.getValue())
     }
 
     step() {
@@ -105,10 +104,6 @@ class LockedFeatures extends Feature {
         }
 
         this.guildLbElement.setText(text)
-    }
-
-    renderOverlay() {
-        this.hudElements.forEach(a => a.render())
     }
 
     initVariables() {

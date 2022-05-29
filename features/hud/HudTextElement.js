@@ -1,11 +1,11 @@
+import { HudText } from "../../utils/renderJavaUtils"
+
 class HudTextElement {
     constructor() {
         this.text = ""
 
         this.toggleSetting = undefined
         this.locationSetting = undefined
-
-        this.blackText = "&0" + ChatLib.removeFormatting(this.text)
 
         this.editTempTimeV = 0
         this.editTempTextV = undefined
@@ -16,8 +16,9 @@ class HudTextElement {
         this.tempDisableTime = 0
 
         this.renderTextCache = [""]
-        this.renderBlackTextCache = [""]
         this.textChanged = false
+
+        this.renderElm = new HudText([""], 0, 0, true).startRender()
     }
 
     setBaseEditWidth(width) {
@@ -34,25 +35,30 @@ class HudTextElement {
         if (text === this.text) return this
         this.text = text
 
-        if (this.locationSetting && this.locationSetting.shadowType === 2) {
-            this.blackText = "&0" + ChatLib.removeFormatting(text)
-        }
+        this.renderTextCache = ChatLib.addColor(this.text).split("\n")
 
-        this.renderTextCache = this.text.split("\n")
-        this.renderBlackTextCache = this.blackText.split("\n")
+        this.renderElm.setText(this.renderTextCache)
         return this
     }
     setToggleSetting(setting) {
         this.toggleSetting = setting
+        setting.onChange = () => {
+            if (this.toggleSetting.getValue()) {
+                this.renderElm.startRender()
+            } else {
+                this.renderElm.stopRender()
+            }
+        }
         return this
     }
     setLocationSetting(setting) {
         this.locationSetting = setting
         setting.setParent(this)
 
-        if (this.locationSetting.shadowType === 2) {
-            this.blackText = "&0" + ChatLib.removeFormatting(text)
+        setting.onChange = () => {
+            this.renderElm.setX(this.locationSetting.x).setY(this.locationSetting.y).setScale(this.locationSetting.scale)
         }
+        this.renderElm.setX(this.locationSetting.x).setY(this.locationSetting.y).setScale(this.locationSetting.scale)
         return this
     }
 
@@ -93,24 +99,6 @@ class HudTextElement {
         return this.renderTextCache
     }
 
-    getBlackText() {
-        if (Date.now() - this.editTempTimeV < 100) {
-            let text = this.text
-            let blackText = this.blackText
-            if (this.editTempTextV) {
-                text = this.editTempTextV
-                blackText = "&0" + ChatLib.removeFormatting(text)
-            }
-
-            if (ChatLib.removeFormatting(text) === "") {
-                blackText = "&0Empty string"
-            }
-
-            return blackText.split("\n")
-        }
-        return this.renderBlackTextCache
-    }
-
     renderRaw() {
         let text = this.getText()
 
@@ -122,15 +110,6 @@ class HudTextElement {
                     break;
                 case 1:
                     Renderer.drawStringWithShadow(line, this.locationSetting.x / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
-                    break;
-                case 2:
-                    let blackText = this.getBlackText()
-                    Renderer.drawString(blackText[i], (this.locationSetting.x + 1) / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
-                    Renderer.drawString(blackText[i], (this.locationSetting.x - 1) / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
-                    Renderer.drawString(blackText[i], this.locationSetting.x / this.locationSetting.scale, (this.locationSetting.y + 1) / this.locationSetting.scale + 9 * i)
-                    Renderer.drawString(blackText[i], this.locationSetting.x / this.locationSetting.scale, (this.locationSetting.y - 1) / this.locationSetting.scale + 9 * i)
-
-                    Renderer.drawString(line, this.locationSetting.x / this.locationSetting.scale, this.locationSetting.y / this.locationSetting.scale + 9 * i)
                     break;
             }
         }

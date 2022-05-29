@@ -42,3 +42,5 @@ if (new File("./config/ChatTriggers/modules/SoopyV2UpdateButtonPatcher").exists(
         FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/SoopyV2UpdateButtonPatcher"))
     }).start()
 }
+
+require("./utils/renderJavaUtils.js")
