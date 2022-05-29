@@ -113,7 +113,7 @@ class Hud extends Feature {
         this.lagEnabled = new ToggleSetting("Show Lobby TPS", "Calculates the TPS of your current lobby (20=no lag)", true, "lobby_lag", this)
         this.lagElement = new HudTextElement()
             .setToggleSetting(this.lagEnabled)
-            .setLocationSetting(new LocationSetting("Lobby TPS Location", "Allows you to edit the location of the TPS", "lobby_lag_location", this, [10, 70, 1, 1])
+            .setLocationSetting(new LocationSetting("Lobby TPS Location", "Allows you to edit the location of the TPS", "lobby_lag_location", this, [10, 60, 1, 1])
                 .requires(this.lagEnabled)
                 .editTempText("&6Tps&7> &f20.0"))
         this.hudElements.push(this.lagElement)
