@@ -101,7 +101,7 @@ class DungeonMap extends Feature {
             this.dungeonBrBoxElm.stopRender()
         })
 
-        this.registerChat("&r${*}&r&f &r&ehas obtained &r&a&r&${*} Key&r&e!&r", () => {
+        this.registerChat("${*} &r&ehas obtained &r&a&r&${*} Key&r&e!&r", () => {
             this.keys++
             this.dungeonBrBoxElm.setRGBA(0, 1, 0, 1)
         })

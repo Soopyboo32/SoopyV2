@@ -10,6 +10,7 @@ import DropdownSetting from "../settings/settingThings/dropdownSetting";
 import { getLevelByXp } from "../../utils/statUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
 import renderLibs from "../../../guimanager/renderLibs";
+import { numberWithCommas } from "../../utils/numberUtils.js";
 
 const ProcessBuilder = Java.type("java.lang.ProcessBuilder")
 const Scanner = Java.type("java.util.Scanner")
@@ -172,6 +173,10 @@ class Hud extends Feature {
         for (let i = 1; i < 8; i++) {
             hudStatTypes["completions_dungeon_" + i] = "Dungeon " + i + " completions"
         }
+
+
+        hudStatTypes["mythril_powder"] = "Mithril Powder"
+        hudStatTypes["gemstone_powder"] = "Gemstone Powder"
 
         this.hudStat = []
         for (let i = 0; i < 5; i++) {
@@ -405,7 +410,6 @@ class Hud extends Feature {
 
     step() {
         if (!Player.getPlayer()) return
-        this.updateHudThingos()
         let fps = 0
 
         if (this.fpsEnabledSetting.getValue() && this.fpsFastSetting.getValue()) {
@@ -478,6 +482,7 @@ class Hud extends Feature {
     }
 
     step_5second() {
+        this.updateHudThingos()
         if (!this.soulflowEnabledSetting.getValue()) return
         if (!Player.getPlayer()) return
         if (!Player.getInventory()) return
@@ -668,6 +673,12 @@ class Hud extends Feature {
         if (type === "cata") {
             let cataData = getLevelByXp(this.lastStatData.dungeons.dungeon_types.catacombs.experience, 2, Infinity)
             string = "&6Cata&7> &f" + (~~((cataData.level + cataData.progress) * 100) / 100).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(cataData.xpCurrent) + (cataData.level === 50 ? "" : "/" + this.numberUtils.numberWithCommas(cataData.xpForNext)) + ")"
+        }
+        if (type === "mythril_powder") {
+            string = "&6Mithril Powder&7> &f" + numberWithCommas(this.lastStatData.mining_core.powder_mithril_total)
+        }
+        if (type === "gemstone_powder") {
+            string = "&6Gemstone Powder&7> &f" + numberWithCommas(this.lastStatData.mining_core.powder_gemstone_total)
         }
 
         Object.keys(this.skillLevelCaps).forEach(skill => {
