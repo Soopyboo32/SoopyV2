@@ -149,7 +149,7 @@ class Waypoints extends Feature {
         }
         let area = this.FeatureManager.features["dataLoader"] ? this.FeatureManager.features["dataLoader"].class.area : "NONE"
         if (this.lastArea && this.lastArea !== area) {
-            if (this.userWaypointsHash[lastArea]) {
+            if (this.userWaypointsHash[this.lastArea]) {
                 for (let waypoint of this.userWaypointsHash[lastArea]) {
                     waypoint.stopRender()
                 }
