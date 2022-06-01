@@ -2,7 +2,11 @@
 /// <reference lib="es2015" />
 
 if (net.minecraftforge.fml.common.Loader.isModLoaded("soopyv2forge")) {
-    Java.type("me.soopyboo32.soopyv2forge.SoopyV2Forge").INSTANCE.soopyIsInstalled()
+    new Thread(() => {
+        while (!Java.type("me.soopyboo32.soopyv2forge.SoopyV2Forge").INSTANCE) { }
+
+        Java.type("me.soopyboo32.soopyv2forge.SoopyV2Forge").INSTANCE.soopyIsInstalled()
+    }).start()
 }
 
 const File = Java.type("java.io.File")
