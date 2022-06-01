@@ -581,7 +581,7 @@ class DungeonSolvers extends Feature {
 	}
 
 	step2() {
-		if (this.bearSpawning && this.bearSpawning > 0) {
+		if (this.bearSpawning && this.bearSpawning > 0 && this.isInDungeon()) {
 			this.spiritBearSpawnElement.setText("&dBear spawned in: &c" + (Math.max(0, this.bearSpawning - Date.now()) / 1000).toFixed(2) + "s");
 		} else {
 			this.spiritBearSpawnElement.setText("");
