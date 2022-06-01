@@ -10,7 +10,6 @@ import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import BoxWithText from "../../../guimanager/GuiElement/BoxWithText";
-import { drawBoxAtBlock } from "../../utils/renderUtils";
 import { fetch } from "../../utils/networkUtils";
 
 class StreamsGui extends Feature {
@@ -94,9 +93,9 @@ class StreamPage extends GuiPage {
         let title = new SoopyMarkdownElement().setText(data.title).setLocation(0.1, 0.15, 0.8, 0.1)
         sidebar.addChild(title)
 
-        let image = new SoopyImageElement().setImage(data.image).setLocation(0.1, 0.15 + title.getHeight(), 0.8, 0.4)
+        let image = new SoopyImageElement().setLocation(0.1, 0.15 + title.getHeight(), 0.8, 0.4).setImage(data.image)
         sidebar.addChild(image)
-        image.loadHeightFromImage()
+
 
         let button = new ButtonWithArrow().setText("§0Watch on Twitch").setLocation(0.1, 0.15 + image.location.size.y.get() + title.getHeight(), 0.8, 0.1)
         sidebar.addChild(button)
@@ -118,6 +117,7 @@ class StreamPage extends GuiPage {
             button.location.location.y.set(0.15 + image.location.size.y.get() + title.getHeight())
             if (language) language.location.location.y.set(0.25 + image.location.size.y.get() + title.getHeight())
         }, this)
+        image.loadHeightFromImage()
     }
 
     onOpen() {

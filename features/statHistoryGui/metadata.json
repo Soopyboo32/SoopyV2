@@ -1,0 +1,8 @@
+{
+    "name": "Stat History GUI",
+    "description": "Gui for Stat History",
+    "isHidden": true,
+    "isTogglable": false,
+    "defaultEnabled": true,
+    "sortA": 0
+}
