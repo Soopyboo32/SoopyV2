@@ -3,7 +3,9 @@
 
 if (net.minecraftforge.fml.common.Loader.isModLoaded("soopyv2forge")) {
     new Thread(() => {
-        while (!Java.type("me.soopyboo32.soopyv2forge.SoopyV2Forge").INSTANCE) { }
+        while (!Java.type("me.soopyboo32.soopyv2forge.SoopyV2Forge").INSTANCE) {
+            Thread.sleep(1000)
+        }
 
         Java.type("me.soopyboo32.soopyv2forge.SoopyV2Forge").INSTANCE.soopyIsInstalled()
     }).start()
