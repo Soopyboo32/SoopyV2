@@ -183,7 +183,7 @@ class DungeonSolvers extends Feature {
 			this.bloodOpenedBonus = true;
 			this.goneInBonus = true;
 		});
-		this.registerChat("&r&c[BOSS] The Watcher&r&f: You have proven yourself. You may pass.&r", () => {
+		this.registerChat("[BOSS] The Watcher: You have proven yourself. You may pass.", () => {
 			this.bloodOpenedBonus = false; //TODO: add 5second delay
 			this.goneInBonus = true;
 		});
@@ -252,61 +252,64 @@ class DungeonSolvers extends Feature {
 
 
 		//TODO: finish this
-		// let saidLocations = new Set()
-		// let data = []
-		// let area = 0
-		// this.registerChat("", () => {
-		// 	area++
-		// })
-		// this.registerStep(false, 3, () => {
-		// 	World.getAllEntities().forEach(e => {
-		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive device")) {
-		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "device")
-		// 		}
-		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive terminal")) {
-		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "terminal")
-		// 		}
-		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("not activated")) {
-		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "lever")
-		// 		}
-		// 	})
-		// })
+		let saidLocations = new Set()
+		let data = []
+		let area = 0
+		this.registerChat("", () => {
+			area++
+		})
+		this.registerStep(false, 3, () => {
+			World.getAllEntities().forEach(e => {
+				if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive device")) {
+					addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "device")
+				}
+				if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive terminal")) {
+					addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "terminal")
+				}
+				if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("not activated")) {
+					addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "lever")
+				}
+			})
+		})
 
-		// function addThing(location, type) {
-		// 	if (saidLocations.has(location.join(","))) return
+		function addThing(location, type) {
+			if (saidLocations.has(location.join(","))) return
 
-		// 	saidLocations.add(location.join(","))
+			saidLocations.add(location.join(","))
 
-		// 	if (type === "lever") {
-		// 		let finalLoc = undefined
-		// 		for (let i = 5; i > -5; i--) {
-		// 			if (World.getBlockAt(location[0], location[1] + i, location[2])?.getType()?.getID() === 69) {
-		// 				finalLoc = [location[0], location[1] + i, location[2]]
-		// 			}
-		// 		}
-		// 		data.push({ type: "lever", location: finalLoc, phase: area })
-		// 		return
-		// 	}
-		// 	if (type === "terminal") {
-		// 		let finalLoc = undefined
-		// 		for (let x = 5; x > -5; x--) {
-		// 			for (let y = 5; y > -5; y--) {
-		// 				for (let z = 5; z > -5; z--) {
-		// 					if (World.getBlockAt(location[0] + x, location[1] + y, location[2] + x)?.getType()?.getID() === 137) {
-		// 						finalLoc = [location[0] + x, location[1] + y, location[2] + x]
-		// 					}
-		// 				}
-		// 			}
-		// 		}
-		// 		data.push({ type: "terminal", location: finalLoc, phase: area })
-		// 		return
-		// 	}
-		// 	data.push({ type: type, location: location, phase: area })
-		// }
+			if (type === "lever") {
+				let finalLoc = undefined
+				for (let i = 5; i > -5; i--) {
+					if (World.getBlockAt(location[0], location[1] + i, location[2])?.getType()?.getID() === 69) {
+						finalLoc = [location[0], location[1] + i, location[2]]
+					}
+				}
+				ChatLib.chat("Loaded " + type)
+				data.push({ type: "lever", location: finalLoc, phase: area })
+				return
+			}
+			if (type === "terminal") {
+				let finalLoc = undefined
+				for (let x = 5; x > -5; x--) {
+					for (let y = 5; y > -5; y--) {
+						for (let z = 5; z > -5; z--) {
+							if (World.getBlockAt(location[0] + x, location[1] + y, location[2] + x)?.getType()?.getID() === 137) {
+								finalLoc = [location[0] + x, location[1] + y, location[2] + x]
+							}
+						}
+					}
+				}
+				ChatLib.chat("Loaded " + type)
+				data.push({ type: "terminal", location: finalLoc, phase: area })
+				return
+			}
+			ChatLib.chat("Loaded " + type)
+			data.push({ type: type, location: location, phase: area })
+		}
 
-		// this.registerCommand("getdata", () => {
-		// 	ChatLib.chat(JSON.stringify(data))
-		// })
+		this.registerCommand("getdata", () => {
+			ChatLib.chat(JSON.stringify(data))
+		})
 
 		//§r§6Soopyboo32§r§a activated a lever! (§r§c8§r§a/8)§r
 		//§r§6Soopyboo32§r§a completed a device! (§r§c3§r§a/8)§r
@@ -778,6 +781,11 @@ class DungeonSolvers extends Feature {
 	}
 
 	step() {
+		if (this.bearSpawning && this.bearSpawning > 0) {
+			this.spiritBearSpawnElement.setText("&dBear spawned in: &c" + (Math.max(0, this.bearSpawning - Date.now()) / 1000).toFixed(2) + "s");
+		} else {
+			this.spiritBearSpawnElement.setText("");
+		}
 		if (!Player.getX()) return
 		World.getAllPlayers().forEach((p) => {
 			this.nameToUuid[p.getName().toLowerCase()] = p.getUUID().toString()

@@ -57,7 +57,7 @@ class Events extends Feature {
 		this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 
 		this.registerEvent("worldLoad", this.worldLoad)
-		this.registerEvent("spawnParticle", this.spawnParticle).registeredWhen(() => this.showingWaypoints)
+		this.registerEvent("spawnParticle", this.spawnParticle).registeredWhen(() => this.showingWaypoints || this.shinyBlockOverlayEnabled.getValue())
 		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.showingWaypoints || this.shinyBlockOverlayEnabled.getValue())
 		this.registerStep(true, 2, this.step)
 		this.registerStep(false, 5, this.step_5s)

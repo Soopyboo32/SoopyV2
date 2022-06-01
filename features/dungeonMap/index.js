@@ -55,6 +55,7 @@ class DungeonMap extends Feature {
         this.puzzlesTab = []
         this.roomWidth = 1
         this.nameToUUID = {}
+        this.deadPlayers = new Set()
         this.newPuzzlesTab = []
         this.mortLocationOnMap = undefined
         this.brBoxLoc = undefined
@@ -62,6 +63,7 @@ class DungeonMap extends Feature {
         // this.invMapImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB)
         // this.renderImage = new BufferedImage(this.IMAGE_SIZE, this.IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB)
         this.mapData = undefined
+        this.idToPlayer = {}
 
         this.barrier_block_item = new Item("minecraft:barrier")
         this.puzzleItems = {
@@ -120,7 +122,7 @@ class DungeonMap extends Feature {
         this.spiritLeapOverlayGui = new SpiritLeapOverlay(this)
 
         // this.registerEvent("tick", this.tick)
-        this.registerStep(true, 3, this.step).registeredWhen(() => this.isInDungeon())
+        this.registerStep(true, 3, this.step)
         this.registerStep(true, 10, () => {
             this.spiritLeapOverlayGui.tick()
         }).registeredWhen(() => this.isInDungeon())
@@ -154,6 +156,16 @@ class DungeonMap extends Feature {
         this.registerEvent("gameUnload", () => {
             this.running = false
         })
+        this.registerChat("&r&c ☠ ${info} and became a ghost&r&7.&r", (info, e) => {
+            let player = ChatLib.removeFormatting(info.split(" ")[0])
+
+            this.deadPlayers.add(this.nameToUUID[player])
+        });
+        this.registerChat("&r&a ❣ &r${info} was revived${*}!&r", (info, e) => {
+            let player = ChatLib.removeFormatting(info.split(" ")[0])
+
+            this.deadPlayers.delete(this.nameToUUID[player])
+        });
 
         this.registerStep(true, 3, () => {
             if (!this.isInDungeon()) return
@@ -178,6 +190,7 @@ class DungeonMap extends Feature {
         this.mortLocationOnMap = undefined
         this.bloodOpened = false
         this.keys = 0
+        this.idToPlayer = {}
     }
 
     renderOverlay() {
@@ -314,6 +327,7 @@ class DungeonMap extends Feature {
         })
 
         Object.keys(this.mapDataPlayers).forEach((uuid) => {
+            if (this.deadPlayers.has(uuid)) return
             if (uuid === Player.getUUID().toString()) return
             let renderX
             let renderY
@@ -366,6 +380,22 @@ class DungeonMap extends Feature {
 
     step() {
         if (!World.getWorld()) return
+        if (!this.isInDungeon()) return
+        if (Player.getContainer().getName().startsWith("Catacombs - Floor ")) {
+            this.nameToUUID = {}
+            World.getAllPlayers().forEach(p => {
+                this.nameToUUID[p.getName()] = p.getUUID().toString()
+            })
+            let playerI = 0
+            for (let i = 0; i < 5; i++) {
+                let name = ChatLib.removeFormatting(Player.getContainer().getStackInSlot(3 + i)?.getName()?.split(" ")?.pop() || "")
+                if (this.nameToUUID[name]) {
+                    this.idToPlayer[playerI] = this.nameToUUID[name]
+                }
+                if (name) playerI++
+            }
+            if (playerI !== World.getAllPlayers().filter(p => p.getPing() === 1).length) this.idToPlayer = {}
+        }
         // console.log("asjbfoasbgp")
         this.people = []
         this.puzzlesTab = []
@@ -389,7 +419,6 @@ class DungeonMap extends Feature {
             // console.log(name)
         })
         let puzzlesTab2 = this.puzzlesTab.map(a => a)
-
         // console.log(this.puzzlesTab.length)
         // Object.keys(this.puzzles).forEach(key=>{
         //     let y = (key%128)
@@ -593,7 +622,7 @@ class DungeonMap extends Feature {
 
             if (this.brBox.getValue() && !this.bloodOpened) this.dungeonBrBoxElm.startRender()
 
-            this.dungeonBrBoxElm.setLocationSize([this.brBoxLoc[0] - 1.5, 69, this.brBoxLoc[1] - 1.5], [3, 4, 3])
+            if (this.brBoxLoc) this.dungeonBrBoxElm.setLocationSize([this.brBoxLoc[0] - 1.5, 69, this.brBoxLoc[1] - 1.5], [3, 4, 3])
 
             if (roomOffsets) {
                 // for(let x = 0;x<128;x++){
@@ -634,6 +663,7 @@ class DungeonMap extends Feature {
                 let deco = mapData[f.mapDecorations]
                 this.extraDeco = []
                 try {
+                    let i = 0
                     deco.forEach((icon, vec4b) => {
                         let x = vec4b.func_176112_b()
                         let y = vec4b.func_176113_c()
@@ -660,12 +690,15 @@ class DungeonMap extends Feature {
                                 closestP = uuid
                             }
                         })
+                        while (this.idToPlayer[i] && this.deadPlayers.has(this.idToPlayer[i])) i++
+                        if (this.idToPlayer[i]) closestP = this.idToPlayer[i]
                         if (closestP) {
                             // console.log(closestP, x, y)
                             this.mapDataPlayers[closestP].x = x
                             this.mapDataPlayers[closestP].y = y
                             this.mapDataPlayers[closestP].rot = rot
                         }
+                        i++
                     });
                 } catch (e) { }
             }
@@ -703,6 +736,7 @@ class DungeonMap extends Feature {
                 username: player.getName(),
                 uuid: player.getUUID().toString()
             })
+            this.nameToUUID[player.getName()] = player.getUUID().toString()
         })
         // console.log("Sending: " + JSON.stringify(this.people, undefined, 2)+JSON.stringify(data, undefined, 2))
         socketConnection.sendDungeonData(this.people, data)
