@@ -24,6 +24,13 @@ let locationData = {
 	}
 }
 
+let disciplineColors = {
+	"Wood": [196, 100, 0],
+	"Iron": [194, 194, 194],
+	"Gold": [235, 182, 0],
+	"Diamond": [0, 198, 229]
+}
+
 class Nether extends Feature {
 	constructor() {
 		super();
@@ -45,6 +52,7 @@ class Nether extends Feature {
 		this.masteryTimer = new ToggleSetting("Mastery Timer", "Countdown untill a block will turn red", true, "nether_mastery_timer", this)
 		this.speedNextBlock = new ToggleSetting("Show next block to stand on for dojo swiftness", "", true, "dojo_swiftness", this)
 		this.tenacityLine = new ToggleSetting("Show line for fireball in dojo tenacity", "This may help you to dodge the fireballs", false, "dojo_tanacity", this)
+		this.disciplineOverlay = new ToggleSetting("Show overlay for zombies in dojo discipline", "", true, "dojo_discipline", this).contributor("Empa")
 		this.hostageWaypoints = new ToggleSetting("Show hostage waypoints", "Waypoint for location of hostage in rescue missions", true, "hostage_waypoint", this)
 		this.vaniquisherWaypoints = new ToggleSetting("Show vaniqusher waypoints", "Shows the locations of other player's vanquishers", true, "vanquisher_waypoint", this)
 		this.slugfishTimer = new ToggleSetting("Show timer over rod", "This may help with fishing slugfish", false, "slugfish_timer", this)
@@ -58,6 +66,17 @@ class Nether extends Feature {
 		this.todoE = []
 		this.todoE2 = []
 		this.blocks = []
+
+		this.todoF = []
+		this.todoF2 = []
+		this.disciplineZombies = {
+			"Wood": [],
+			"Iron": [],
+			"Gold": [],
+			"Diamond": []
+		}
+		this.inDiscipline = false
+
 		this.dojoFireBalls = []
 		this.inSwiftness = false
 		this.rescueMissionDifficulty = undefined
@@ -72,9 +91,19 @@ class Nether extends Feature {
 				this.lastBlock = [Math.floor(Player.getX()), Math.floor(Player.getY()) - 1, Math.floor(Player.getZ())]
 			}
 		})
+
+		this.registerChat("&r&r&r                     &r&cTest of Discipline &r&e&lOBJECTIVES&r", () => {
+			if (this.disciplineOverlay.getValue()) {
+				this.inDiscipline = true
+				this.todoE = []
+				this.todoE2 = []
+			}
+		})
+
 		this.registerChat("&r&r&r           ${*}&r&6Your Rank: &r${*}&r", () => {
 			this.inSwiftness = false
 			this.lastBlock = undefined
+			this.inDiscipline = false
 		})
 
 		this.registerChat("You completed your rescue quest! Visit the Town Board to claim the rewards,", () => {
@@ -114,6 +143,16 @@ class Nether extends Feature {
 		}
 
 
+		this.todoF2.forEach(e => {
+			let name = ChatLib.removeFormatting(e.getName())
+			if (!name) return
+			if (!disciplineColors[name]) return
+
+			this.disciplineZombies[name].push(e)
+		})
+
+		this.todoF2 = this.todoF
+		this.todoF = []
 
 		this.todoE2.forEach(e => {
 			let item = e[m.getHeldItem]()
@@ -129,6 +168,7 @@ class Nether extends Feature {
 
 	entityJoinWorldEvent(event) {
 		if (this.tenacityLine.getValue() && event.entity instanceof ArmorStand) this.todoE.push(event.entity)
+		if (this.disciplineOverlay.getValue() && this.inDiscipline && event.entity instanceof ArmorStand) this.todoF.push(new Entity(event.entity))
 	}
 
 	packetReceived(packet, event) {
@@ -188,8 +228,8 @@ class Nether extends Feature {
 		}
 	}
 
-	renderWorld(event) {
-		if (this.masteryTimer.getValue()) {
+	renderWorld(ticks) {
+		if (this.masteryTimer.getValue() && this.blocks) {
 			this.blocks.forEach((data, i) => {
 				Tessellator.drawString((i === 0 ? "§1" : "§0") + Math.max(0, (data.time - Date.now()) / 1000).toFixed(1) + "s", data.loc.getX() + 0.5, data.loc.getY() + 0.5, data.loc.getZ() + 0.5, 0, false, 0.05, false)
 			})
@@ -204,6 +244,12 @@ class Nether extends Feature {
 			let lastLocation = [e[f.prevPosX], e[f.prevPosY], e[f.prevPosZ]]
 			let change = [entitylocation[0] - lastLocation[0], entitylocation[1] - lastLocation[1], entitylocation[2] - lastLocation[2]]
 			drawLineWithDepth(entitylocation[0] + change[0] * 100 + offset[0], entitylocation[1] + change[1] * 100 + offset[1], entitylocation[2] + change[2] * 100 + offset[2], entitylocation[0] + offset[0], entitylocation[1] + offset[1], entitylocation[2] + offset[2], 255, 0, 0, 2)
+		})
+
+		if (this.disciplineOverlay.getValue() && Player.getHeldItem() && this.disciplineZombies[ChatLib.removeFormatting(Player.getHeldItem().getName().split(" ")[0].replace("en", ""))]) this.disciplineZombies[ChatLib.removeFormatting(Player.getHeldItem().getName().split(" ")[0].replace("en", ""))].forEach(e => {
+			let color = disciplineColors[ChatLib.removeFormatting(e.getName())]
+
+			drawBoxAtEntity(e, color[0] / 255, color[1] / 255, color[2] / 255, 0.7, -2, ticks, 4, false);
 		})
 
 		if (this.rescueMissionDifficulty && this.rescueMissionType && this.hostageWaypoints.getValue()) {
@@ -231,6 +277,9 @@ class Nether extends Feature {
 
 	step1S() {
 		if (this.blocks) this.blocks = this.blocks.filter(state => Date.now() < state.time)
+		if (this.disciplineZombies) Object.keys(this.disciplineZombies).forEach(k => {
+			this.disciplineZombies[k] = this.disciplineZombies[k].filter(e => !e.getEntity()[f.isDead])
+		})
 		if (this.dojoFireBalls) this.dojoFireBalls = this.dojoFireBalls.filter(e => !e[f.isDead])
 		if (this.spawnedVanqs) this.spawnedVanqs = this.spawnedVanqs.filter(a => Date.now() - a[2] < 60000)
 	}

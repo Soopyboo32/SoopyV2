@@ -8,6 +8,7 @@ import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import { fetch } from "../../utils/networkUtils";
+import { Waypoint } from "../../utils/renderJavaUtils";
 
 const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze");
 let translate;
@@ -252,64 +253,69 @@ class DungeonSolvers extends Feature {
 
 
 		//TODO: finish this
-		let saidLocations = new Set()
-		let data = []
-		let area = 0
-		this.registerChat("", () => {
-			area++
-		})
-		this.registerStep(false, 3, () => {
-			World.getAllEntities().forEach(e => {
-				if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive device")) {
-					addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "device")
-				}
-				if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive terminal")) {
-					addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "terminal")
-				}
-				if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("not activated")) {
-					addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "lever")
-				}
-			})
-		})
+		// let saidLocations = new Set()
+		// let waypoints = []
+		// let data = []
+		// let area = 0
+		// this.registerChat("", () => {
+		// 	area++
+		// })
+		// this.registerStep(false, 3, () => {
+		// 	World.getAllEntities().forEach(e => {
+		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive device")) {
+		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "device")
+		// 		}
+		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive terminal")) {
+		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "terminal")
+		// 		}
+		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("not activated")) {
+		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "lever")
+		// 		}
+		// 	})
+		// 	waypoints.forEach(w => w.update())
+		// })
 
-		function addThing(location, type) {
-			if (saidLocations.has(location.join(","))) return
+		// function addThing(location, type) {
+		// 	if (saidLocations.has(location.join(","))) return
 
-			saidLocations.add(location.join(","))
+		// 	saidLocations.add(location.join(","))
 
-			if (type === "lever") {
-				let finalLoc = undefined
-				for (let i = 5; i > -5; i--) {
-					if (World.getBlockAt(location[0], location[1] + i, location[2])?.getType()?.getID() === 69) {
-						finalLoc = [location[0], location[1] + i, location[2]]
-					}
-				}
-				ChatLib.chat("Loaded " + type)
-				data.push({ type: "lever", location: finalLoc, phase: area })
-				return
-			}
-			if (type === "terminal") {
-				let finalLoc = undefined
-				for (let x = 5; x > -5; x--) {
-					for (let y = 5; y > -5; y--) {
-						for (let z = 5; z > -5; z--) {
-							if (World.getBlockAt(location[0] + x, location[1] + y, location[2] + x)?.getType()?.getID() === 137) {
-								finalLoc = [location[0] + x, location[1] + y, location[2] + x]
-							}
-						}
-					}
-				}
-				ChatLib.chat("Loaded " + type)
-				data.push({ type: "terminal", location: finalLoc, phase: area })
-				return
-			}
-			ChatLib.chat("Loaded " + type)
-			data.push({ type: type, location: location, phase: area })
-		}
+		// 	if (type === "lever") {
+		// 		let finalLoc = undefined
+		// 		for (let i = 5; i > -5; i--) {
+		// 			if (World.getBlockAt(location[0], location[1] + i, location[2])?.getType()?.getID() === 69) {
+		// 				finalLoc = [location[0], location[1] + i, location[2]]
+		// 			}
+		// 		}
+		// 		ChatLib.chat("Loaded " + type)
+		// 		data.push({ type: "lever", location: finalLoc, phase: area })
+		// 		waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }))
+		// 		return
+		// 	}
+		// 	if (type === "terminal") {
+		// 		let finalLoc = undefined
+		// 		for (let x = 5; x > -5; x--) {
+		// 			for (let y = 5; y > -5; y--) {
+		// 				for (let z = 5; z > -5; z--) {
+		// 					if (World.getBlockAt(location[0] + x, location[1] + y, location[2] + x)?.getType()?.getID() === 137) {
+		// 						finalLoc = [location[0] + x, location[1] + y, location[2] + x]
+		// 					}
+		// 				}
+		// 			}
+		// 		}
+		// 		ChatLib.chat("Loaded " + type)
+		// 		data.push({ type: "terminal", location: finalLoc, phase: area })
+		// 		waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }))
+		// 		return
+		// 	}
+		// 	ChatLib.chat("Loaded " + type)
+		// 	waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }))
+		// 	data.push({ type: type, location: location, phase: area })
+		// }
 
-		this.registerCommand("getdata", () => {
-			ChatLib.chat(JSON.stringify(data))
-		})
+		// this.registerCommand("getdata", () => {
+		// 	ChatLib.chat(JSON.stringify(data))
+		// })
 
 		//§r§6Soopyboo32§r§a activated a lever! (§r§c8§r§a/8)§r
 		//§r§6Soopyboo32§r§a completed a device! (§r§c3§r§a/8)§r
@@ -849,7 +855,7 @@ class DungeonSolvers extends Feature {
 		}
 
 		this.spiritBowPickUps = this.spiritBowPickUps.filter((pickUp) => Date.now() - pickUp < 20000);
-		if (this.spiritBowPickUps[0]) {
+		if (this.spiritBowPickUps[0] && this.isInDungeon()) {
 			this.spiritBowDestroyElement.setText("&dBow Destroyed in: &c" + Math.round((this.spiritBowPickUps[0] + 20000 - Date.now()) / 1000) + "s");
 		} else {
 			this.spiritBowDestroyElement.setText("");

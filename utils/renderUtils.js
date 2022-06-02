@@ -233,7 +233,7 @@ let ret = {
         GlStateManager.func_179094_E();
 
 
-        Tessellator.begin(2).colorize(colorR, colorG, colorB);
+        Tessellator.begin(2).colorize(colorR, colorG, colorB, 1);
 
         Tessellator.pos(x + width, y + height, z + width);
         Tessellator.pos(x + width, y + height, z - width);
