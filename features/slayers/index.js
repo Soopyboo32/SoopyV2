@@ -26,10 +26,17 @@ class Slayers extends Feature {
 		this.boxToEmanBeacon = new ToggleSetting("Box and line to the enderman beacon", "This will help to find the beacon when the boss throws it", true, "eman_beacon", this);
 		this.emanBeaconDinkDonk = new ToggleSetting("DinkDonk when beacon is spawned", "This will help to notice when the beacon is spawned", true, "eman_beacon_dinkdink", this);
 		this.emanEyeThings = new ToggleSetting("Put box around the enderman eye things", "This will help to find them", true, "eman_eye_thing", this);
-		this.emanHpGuiElement = new ToggleSetting("Render the enderman hp on your screen", "This will help you to know what stage u are in ect", true, "eman_hp", this);
+		this.emanHpGuiElement = new ToggleSetting("Render the enderman hp on your screen", "This will help you to know what stage u are in etc.", true, "eman_hp", this);
 
 		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
 		this.hudElements.push(this.emanHpElement);
+
+		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this);
+		this.slayerXpElement = new HudTextElement()
+			.setText("&aSlayer&7> &fLoading...")
+			.setToggleSetting(this.slayerXpGuiElement)
+			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of you current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&aEnderman&7> &d&l2,147,483,647 XP"));
+		this.hudElements.push(this.slayerXpElement);
 
 		this.rcmDaeAxeSupport = new ToggleSetting("Eman Hyp hits before Dae axe swapping", "This will tell u how many clicks with hyp is needed before swapping to dae axe", true, "eman_rcm_support", this).requires(this.emanHpGuiElement).contributor("EmeraldMerchant");
 		this.rcmDamagePerHit = new TextSetting("Hyperion damage", "Your hyp's single hit damage w/o thunderlord/thunderbolt", "", "hyp_dmg", this, "Enter your hyp dmg (Unit: M)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
@@ -285,6 +292,10 @@ class Slayers extends Feature {
 		});
 		this.todoE = this.todoE2;
 		this.todoE2 = [];
+
+		if (this.slayerXpGuiElement.getValue()) {
+			this.slayerXpElement.setText(`&a${this.lastSlayerType}&7> &d${numberWithCommas(this.slayerExp[this.lastSlayerType])} XP`);
+		}
 
 		if (this.emanBoss && this.emanBoss.getEntity()[f.isDead]) {
 			this.emanBoss = undefined
