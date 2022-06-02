@@ -31,17 +31,17 @@ class Slayers extends Feature {
 		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
 		this.hudElements.push(this.emanHpElement);
 
-		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this);
+		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
 			.setText("&aSlayer&7> &fLoading...")
 			.setToggleSetting(this.slayerXpGuiElement)
-			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of you current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&aEnderman&7> &d&l2,147,483,647 XP"));
+			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of you current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&aEnderman&7> &d&l2,147,483,647 XP").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.slayerXpElement);
 
 		this.rcmDaeAxeSupport = new ToggleSetting("Eman Hyp hits before Dae axe swapping", "This will tell u how many clicks with hyp is needed before swapping to dae axe", true, "eman_rcm_support", this).requires(this.emanHpGuiElement).contributor("EmeraldMerchant");
-		this.rcmDamagePerHit = new TextSetting("Hyperion damage", "Your hyp's single hit damage w/o thunderlord/thunderbolt", "", "hyp_dmg", this, "Enter your hyp dmg (Unit: M)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
-		this.whenToShowHitsLeft = new TextSetting("Show hits left timing", "At how much hp should the hits left thing be visible", "", "eman_hp_left", this, "Enter how much hp (Unit: M, enter a valid value 0-300)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
-		this.thunderLevel = new TextSetting("Thunderlord Level", "What thunderlord level you have on your hyperion", "", "thunderlord_level", this, "Enter thunderlord level (only supports 5/6/7)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
+		this.rcmDamagePerHit = new TextSetting("Hyperion damage", "Your hyp's single hit damage w/o thunderlord/thunderbolt", "", "hyp_dmg", this, "Your hyp dmg (Unit: M)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
+		this.whenToShowHitsLeft = new TextSetting("Show hits left timing", "At how much hp should the hits left thing be visible", "", "eman_hp_left", this, "How much hp (Unit: M, enter a valid value 0-300)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
+		this.thunderLevel = new TextSetting("Thunderlord Level", "What thunderlord level you have on your hyperion", "", "thunderlord_level", this, "Thunderlord level (only supports 5/6/7)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
 
 		this.emanLazerTimer = new ToggleSetting("Adds a timer for the boss lazer phase", "The timer will be inside the boss's body during the phase", true, "eman_lazer_timer", this);
 

@@ -17,6 +17,8 @@ class SettingBase {
         this.module = module
         this.moduleId = module.getId()
 
+        this.contributorVal = undefined
+
         this.val = defaultVal;
 
         this.guiObject = new BoxWithTextAndDescription().setDesc("§0" + this.description.replace(/\n/g, "\n§0")).setText("§0" + this.name).setLocation(0, 0, 1, 0.175)
@@ -142,6 +144,7 @@ class SettingBase {
     }
 
     contributor(name) {
+        this.contributorVal = name
         //TODO: this entire function
         return this
     }
