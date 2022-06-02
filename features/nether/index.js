@@ -95,8 +95,8 @@ class Nether extends Feature {
 		this.registerChat("&r&r&r                     &r&cTest of Discipline &r&e&lOBJECTIVES&r", () => {
 			if (this.disciplineOverlay.getValue()) {
 				this.inDiscipline = true
-				this.todoE = []
-				this.todoE2 = []
+				this.todoF = []
+				this.todoF2 = []
 			}
 		})
 

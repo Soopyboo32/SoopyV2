@@ -295,6 +295,8 @@ class Slayers extends Feature {
 
 		if (this.slayerXpGuiElement.getValue() && this.lastSlayerType) {
 			this.slayerXpElement.setText(`&6${this.lastSlayerType}&7> &f${numberWithCommas(this.slayerExp[this.lastSlayerType])} XP`);
+		} else {
+			this.slayerXpElement.setText(``);
 		}
 
 		if (this.emanBoss && this.emanBoss.getEntity()[f.isDead]) {
