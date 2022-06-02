@@ -24,6 +24,7 @@ class DataLoader extends Feature {
         this.registerStep(true, 2, this.step)
 
         this.registerStep(false, 170, this.loadApiStepThing)
+        this.registerStep(false, 60 * 5, this.step_5min)
 
         this.registerEvent("worldLoad", this.worldLoad)
 
@@ -31,6 +32,8 @@ class DataLoader extends Feature {
 
         this.lastServer = undefined
         this.lastSentServer = 0
+
+        this.currentMayorPerks = new Set()
 
         this.loadedApiDatas = {}
 
@@ -45,7 +48,17 @@ class DataLoader extends Feature {
 
         this.loadApi()
 
+        this.step_5min()
+
         this.firstLoaded = false
+    }
+
+    step_5min() {
+        fetch("http://soopymc.my.to/api/v2/mayor").json(data => {
+            if (!data.success) return
+            this.mayorData = data.data
+            this.currentMayorPerks = new Set(data.data.mayor.perks.map(a => a.name))
+        })
     }
 
     worldLoad() {

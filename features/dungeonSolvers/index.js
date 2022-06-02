@@ -323,15 +323,13 @@ class DungeonSolvers extends Feature {
 	}
 
 	step_5min() {
-		fetch("http://soopymc.my.to/api/v2/mayor").json(data => {
-			this.ezpz = false
-			if (!data.success) return
-			if (data.data.mayor.name === "Paul") {
-				if (data.data.mayor.perks.some(a => a.name === "EZPZ")) {
-					this.ezpz = true
-				}
+		this.ezpz = false
+		if (!data.success) return
+		if (this.FeatureManager.features["dataLoader"].class.mayorData.mayor.name === "Paul") {
+			if (this.FeatureManager.features["dataLoader"].class.currentMayorPerks.has("EZPZ")) {
+				this.ezpz = true
 			}
-		})
+		}
 	}
 
 	calculateDungeonScore() {
