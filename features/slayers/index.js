@@ -33,7 +33,7 @@ class Slayers extends Feature {
 
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
-			.setText("&aSlayer&7> &fLoading...")
+			.setText("&6Slayer&7> &fLoading...")
 			.setToggleSetting(this.slayerXpGuiElement)
 			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of you current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&aEnderman&7> &d&l2,147,483,647 XP").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.slayerXpElement);
@@ -293,8 +293,8 @@ class Slayers extends Feature {
 		this.todoE = this.todoE2;
 		this.todoE2 = [];
 
-		if (this.slayerXpGuiElement.getValue()) {
-			this.slayerXpElement.setText(`&a${this.lastSlayerType}&7> &d${numberWithCommas(this.slayerExp[this.lastSlayerType])} XP`);
+		if (this.slayerXpGuiElement.getValue() && this.lastSlayerType) {
+			this.slayerXpElement.setText(`&6${this.lastSlayerType}&7> &f${numberWithCommas(this.slayerExp[this.lastSlayerType])} XP`);
 		}
 
 		if (this.emanBoss && this.emanBoss.getEntity()[f.isDead]) {
