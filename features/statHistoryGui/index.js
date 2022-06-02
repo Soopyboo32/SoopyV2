@@ -14,6 +14,7 @@ import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import { fetch } from "../../utils/networkUtils";
 import SoopyImageElement from "../../../guimanager/GuiElement/SoopyImageElement";
 import renderLibs from "../../../guimanager/renderLibs";
+import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";
 
 class StatHistoryGUI extends Feature {
     constructor() {
@@ -79,6 +80,8 @@ class StatGraphPage extends GuiPage {
     }
 
     updateData(player) {
+        this.closeSidebarPage()
+
         this.playerLoad = player
 
         this.statArea._scrollAmount = 0
@@ -124,28 +127,40 @@ class StatGraphPage extends GuiPage {
                             let typeElm = new SoopyTextElement().setText("§0" + firstLetterWordCapital(type.replace("total", ""))).setMaxTextScale(2).setLocation(0.1, y, 0.8, 0.1)
                             this.statArea.addChild(typeElm)
                             y += 0.15
-                            let x = 0.05
-                            Object.keys(graphData[type]).forEach((graph, i) => {
-                                renderLibs.getImage(graphData[type][graph], true) //load image synchronously into cache so it knows the height
-                                console.log(graphData[type][graph])
-                                let graphElm = new SoopyImageElement()
-                                this.statArea.addChild(graphElm)
-                                graphElm.setImage(graphData[type][graph])
+                            let graph = Object.keys(graphData[type])[0]
+                            renderLibs.getImage(graphData[type][graph], true) //load image synchronously into cache so it knows the height
+                            let graphElm = new SoopyImageElement()
+                            this.statArea.addChild(graphElm)
+                            graphElm.setImage(graphData[type][graph])
 
-                                if (i === 0) {
-                                    graphElm.setLocation(0.1, y, 0.8, 0.25)
-                                    graphElm.loadHeightFromImage()
-                                    y += graphElm.location.size.y.get() + 0.05
-                                } else {
-                                    graphElm.setLocation(x, y, 0.4, 0.25)
-                                    graphElm.loadHeightFromImage()
-                                    x += 0.5
-                                    if (x > 0.7 || i === Object.keys(graphData[type]).length - 1) {
-                                        x = 0.05
-                                        y += graphElm.location.size.y.get() + 0.05
-                                    }
-                                }
-                            })
+                            graphElm.setLocation(0.1, y, 0.8, 0.25)
+                            graphElm.loadHeightFromImage()
+                            y += graphElm.location.size.y.get() + 0.05
+
+                            if (Object.keys(graphData[type]).length > 1) {
+                                graphElm.setLore(["Click to show more graphs"])
+                                graphElm.addEvent(new SoopyMouseClickEvent().setHandler(() => {
+                                    let sideBarElm = new SoopyGuiElement().setLocation(0, 0, 1, 1)
+                                    sideBarElm.scrollable = true
+                                    this.openSidebarPage(sideBarElm)
+                                    let y2 = 0.05
+                                    new Thread(() => {
+                                        Object.keys(graphData[type]).forEach((graph, i) => {
+                                            if (i === 0) return
+                                            renderLibs.getImage(graphData[type][graph], true) //load image synchronously into cache so it knows the height
+                                            let graphElm = new SoopyImageElement()
+                                            sideBarElm.addChild(graphElm)
+                                            graphElm.setImage(graphData[type][graph])
+
+                                            graphElm.setLocation(0.1, y2, 0.8, 0.25)
+                                            graphElm.loadHeightFromImage()
+                                            y2 += graphElm.location.size.y.get() + 0.05
+                                        })
+                                    }).start()
+
+                                }))
+                            }
+
                         })
                     }).start()
                 })

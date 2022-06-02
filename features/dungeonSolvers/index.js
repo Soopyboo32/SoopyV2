@@ -324,7 +324,7 @@ class DungeonSolvers extends Feature {
 
 	step_5min() {
 		this.ezpz = false
-		if (!data.success) return
+		if (!this.FeatureManager.features["dataLoader"].class.mayorData) return
 		if (this.FeatureManager.features["dataLoader"].class.mayorData.mayor.name === "Paul") {
 			if (this.FeatureManager.features["dataLoader"].class.currentMayorPerks.has("EZPZ")) {
 				this.ezpz = true
