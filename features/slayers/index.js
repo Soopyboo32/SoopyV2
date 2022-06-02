@@ -246,7 +246,7 @@ class Slayers extends Feature {
 								}
 							}
 						});
-						if (closestEIsGaming && closestDist < 10) {
+						if (closestEIsGaming && closestDist < 100) {
 							this.beaconE.push(e);
 						}
 					}
