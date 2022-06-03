@@ -76,6 +76,8 @@ class Waypoints extends Feature {
             if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Deleted waypoint " + name + "!")
         })
         this.registerCommand("clearwaypoints", () => {
+            this.userWaypointsAll.forEach(w => w.stopRender())
+            Object.values(this.userWaypointsHash).forEach(a => a.forEach(w => w.stopRender()))
             this.userWaypoints = {}
             this.userWaypointsArr = []
             this.waypointsChanged = true
@@ -104,14 +106,14 @@ class Waypoints extends Feature {
         this.registerChat("&r${*} &8> ${player}&f: &rx: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
             if (this.loadWaypointsFromSendCoords.getValue()) {
                 this.patcherWaypoints.push([Date.now(), new Waypoint(parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), 0, 0, 1, { name: ChatLib.addColor(player), showDist: true }).startRender()])
-                if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()
+                if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()[1].stopRender()
             }
         })
         this.registerChat("${player}&r&f: x: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
             if (player.includes(">")) return
             if (this.loadWaypointsFromSendCoords.getValue()) {//parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)
                 this.patcherWaypoints.push([Date.now(), new Waypoint(parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), 0, 0, 1, { name: ChatLib.addColor(player), showDist: true }).startRender()])
-                if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()
+                if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()[1].stopRender()
             }
         })
 
