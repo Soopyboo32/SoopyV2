@@ -23,6 +23,7 @@ class HudTextElement {
 
     delete() {
         this.renderElm.stopRender()
+        if (this.locationSetting) this.locationSetting.delete()
     }
 
     setBaseEditWidth(width) {

@@ -146,6 +146,10 @@ class LocationSetting extends ButtonSetting {
         return this
     }
 
+    delete() {
+        locationSettingHolder.removeLocationSetting(this)
+    }
+
     _updateValue() {
         this.setValue([this.x, this.y, this.scale, this.shadowType])
         if (this.onChange) this.onChange()

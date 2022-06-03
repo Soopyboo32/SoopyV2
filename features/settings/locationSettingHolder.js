@@ -1,21 +1,25 @@
 class LocationSettingHolder {
     constructor() {
-        this.data = [];
+        this.data = new Set();
     }
 
-    addLocationSetting(setting){
-        this.data.push(setting)
+    addLocationSetting(setting) {
+        this.data.add(setting)
     }
 
-    getData(){
-        return this.data
+    removeLocationSetting(setting) {
+        this.data.delete(setting)
+    }
+
+    getData() {
+        return [...this.data]
     }
 }
 
-if(!global.LocationSettingHolder){
+if (!global.LocationSettingHolder) {
     global.LocationSettingHolder = new LocationSettingHolder();
-    
-    register("gameUnload", ()=>{
+
+    register("gameUnload", () => {
         global.LocationSettingHolder = undefined
     })
 }

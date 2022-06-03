@@ -35,7 +35,7 @@ class Slayers extends Feature {
 		this.slayerXpElement = new HudTextElement()
 			.setText("&6Slayer&7> &fLoading...")
 			.setToggleSetting(this.slayerXpGuiElement)
-			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of you current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&aEnderman&7> &d&l2,147,483,647 XP").contributor("EmeraldMerchant"));
+			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of you current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&6Enderman&7> &d&l2,147,483,647 XP").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.slayerXpElement);
 
 		this.rcmDaeAxeSupport = new ToggleSetting("Eman Hyp hits before Dae axe swapping", "This will tell u how many clicks with hyp is needed before swapping to dae axe", true, "eman_rcm_support", this).requires(this.emanHpGuiElement).contributor("EmeraldMerchant");
@@ -294,7 +294,7 @@ class Slayers extends Feature {
 		this.todoE2 = [];
 
 		if (this.slayerXpGuiElement.getValue() && this.lastSlayerType) {
-			this.slayerXpElement.setText(`&6${this.lastSlayerType}&7> &f${numberWithCommas(this.slayerExp[this.lastSlayerType])} XP`);
+			this.slayerXpElement.setText(`&6${this.lastSlayerType}&7> &d&l${numberWithCommas(this.slayerExp[this.lastSlayerType])} XP`);
 		} else {
 			this.slayerXpElement.setText(``);
 		}
