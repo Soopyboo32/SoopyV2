@@ -110,7 +110,7 @@ class GlobalSettings extends Feature {
             this.soopyWeight(user)
         })
         this.registerCommand("lobbyday", () => {
-            ChatLib.chat(this.FeatureManager.messagePrefix + "Current lobby is day " + (World.getTime() / 20 / 60 / 20).toFixed(1))
+            ChatLib.chat(this.FeatureManager.messagePrefix + "Current lobby is day " + (World.getTime() / 20 / 60 / 20).toFixed(2))
         })
 
         this.lastCookies = 0

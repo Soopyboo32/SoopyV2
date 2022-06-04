@@ -304,7 +304,7 @@ class Hud extends Feature {
     }
 
     step_1second() {
-        if (World.getTime() !== 0) this.lobbyDayElement.setText("&6Day&7> &f" + (World.getTime() / 20 / 60 / 20).toFixed(1))
+        if (World.getTime() !== 0) this.lobbyDayElement.setText("&6Day&7> &f" + (World.getTime() / 20 / 60 / 20).toFixed(2))
 
         if (!this.lagEnabled.getValue()) {
             if (this.packetReceived) this.packetReceived.unregister()
