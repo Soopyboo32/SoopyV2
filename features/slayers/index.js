@@ -9,6 +9,7 @@ import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import socketConnection from "../../socketConnection";
 import TextSetting from "../settings/settingThings/textSetting";
+import { firstLetterCapital } from "../../utils/stringUtils";
 
 class Slayers extends Feature {
 	constructor() {
@@ -294,7 +295,7 @@ class Slayers extends Feature {
 		this.todoE2 = [];
 
 		if (this.slayerXpGuiElement.getValue() && this.lastSlayerType) {
-			this.slayerXpElement.setText(`&6${this.lastSlayerType}&7> &d&l${numberWithCommas(this.slayerExp[this.lastSlayerType])} XP`);
+			this.slayerXpElement.setText(`&6${firstLetterCapital(this.lastSlayerType)}&7> &d&l${numberWithCommas(this.slayerExp[this.lastSlayerType])} XP`);
 		} else {
 			this.slayerXpElement.setText(``);
 		}
