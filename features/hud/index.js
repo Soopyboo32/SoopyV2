@@ -141,6 +141,14 @@ class Hud extends Feature {
         })
         this.spotifyElement2.renderElm.stopRender()
 
+        this.showLobbyDay = new ToggleSetting("Show Current Lobby Day", "", true, "lobby_day", this)
+        this.lobbyDayElement = new HudTextElement()
+            .setText("&6Day&7> &fLoading...")
+            .setToggleSetting(this.showLobbyDay)
+            .setLocationSetting(new LocationSetting("Lobby Day Location", "Allows you to edit the location of the lobby day", "lobby_day_location", this, [10, 90, 1, 1])
+                .requires(this.showLobbyDay))
+        this.hudElements.push(this.lobbyDayElement)
+
         let hudStatTypes = {
             "cata": "Catacombs level + Exp",
             "totaldeaths": "Total deaths"
@@ -296,6 +304,8 @@ class Hud extends Feature {
     }
 
     step_1second() {
+        if (World.getTime() !== 0) this.lobbyDayElement.setText("&6Day&7> &f" + (World.getTime() / 20 / 60 / 20).toFixed(1))
+
         if (!this.lagEnabled.getValue()) {
             if (this.packetReceived) this.packetReceived.unregister()
             return

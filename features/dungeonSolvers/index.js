@@ -289,7 +289,7 @@ class DungeonSolvers extends Feature {
 		// 		}
 		// 		ChatLib.chat("Loaded " + type)
 		// 		data.push({ type: "lever", location: finalLoc, phase: area })
-		// 		waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }))
+		// 		waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }).startRender())
 		// 		return
 		// 	}
 		// 	if (type === "terminal") {
@@ -305,11 +305,11 @@ class DungeonSolvers extends Feature {
 		// 		}
 		// 		ChatLib.chat("Loaded " + type)
 		// 		data.push({ type: "terminal", location: finalLoc, phase: area })
-		// 		waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }))
+		// 		waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }).startRender())
 		// 		return
 		// 	}
 		// 	ChatLib.chat("Loaded " + type)
-		// 	waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }))
+		// 	waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }).startRender())
 		// 	data.push({ type: type, location: location, phase: area })
 		// }
 
