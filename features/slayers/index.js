@@ -84,7 +84,15 @@ class Slayers extends Feature {
 				this.lastSlayerFinishes.shift();
 			}
 
-			this.slayerExp[this.lastSlayerType] = this.lastSlayerExp + (this.slayerExp[this.lastSlayerType] || 0);
+			let multiplier = 1
+			if (this.FeatureManager.features["dataLoader"].class.mayorData.mayor.name === "Aatrox") {
+				if (this.FeatureManager.features["dataLoader"].class.currentMayorPerks.has("Slayer XP Buff")) {
+					multiplier += 0.25
+				}
+			}
+
+			this.slayerExp[this.lastSlayerType] = this.lastSlayerExp + (this.slayerExp[this.lastSlayerType] || 0) * multiplier;
+
 			if (this.expOnKill.getValue()) {
 				cancel(e);
 				ChatLib.chat("&r  &r&a&lSLAYER QUEST COMPLETE!&a&r");
