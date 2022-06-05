@@ -203,7 +203,7 @@ class DungeonSolvers extends Feature {
 					}
 				}
 			}
-		}).registeredWhen(() => this.isInDungeon())
+		})
 		let mimicDeadMessages = ["$SKYTILS-DUNGEON-SCORE-MIMIC$", "Mimic Killed!", "Mimic Dead!", "Mimic dead!"]
 		this.registerChat("&r&9Party &8> ${msg}", (msg) => {
 			mimicDeadMessages.forEach(dmsg => {

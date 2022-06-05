@@ -49,7 +49,7 @@ let ret = {
         GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
 
-        Tessellator.begin(2).colorize(r, g, b);
+        Tessellator.begin(GL11.GL_LINE_STRIP).colorize(r, g, b);
 
         Tessellator.pos(x, y, z);
         Tessellator.pos(x2, y2, z2);
@@ -72,7 +72,7 @@ let ret = {
         GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
 
-        Tessellator.begin(2).colorize(r, g, b);
+        Tessellator.begin(GL11.GL_LINE_STRIP).colorize(r, g, b);
 
         Tessellator.pos(x, y, z);
         Tessellator.pos(x2, y2, z2);
@@ -101,22 +101,22 @@ let ret = {
     },
     drawLineSmall: function (x, y, z, x2, y2, z2, r, g, b) {
 
-        Tessellator.begin(2).colorize(r, g, b);
+        Tessellator.begin(GL11.GL_LINE_STRIP).colorize(r, g, b);
 
         Tessellator.pos(x, y, z);
         Tessellator.pos(x2, y2, z2);
 
         Tessellator.draw();
     },
-    drawLinePoints: function (locations, r, g, b, thickness = 1) {
+    drawLinePoints: function (locations, r, g, b, thickness = 1, phase = false) {
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(thickness);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glDepthMask(false);
+        if (!phase) GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
 
-        Tessellator.begin(2).colorize(r, g, b);
+        Tessellator.begin(GL11.GL_LINE_STRIP).colorize(r, g, b);
 
         locations.forEach(loc => {
             Tessellator.pos(...loc);
@@ -127,7 +127,7 @@ let ret = {
 
         GlStateManager.func_179121_F();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glDepthMask(true);
+        if (!phase) GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
     drawBoxAtBlockNotVisThruWalls: function (x, y, z, colorR, colorG, colorB, w = 1, h = 1, a = 1) {
@@ -143,7 +143,7 @@ let ret = {
         w += 0.01
         h += 0.01
 
-        Tessellator.begin(2).colorize(colorR, colorG, colorB, a);
+        Tessellator.begin(GL11.GL_LINE_STRIP).colorize(colorR, colorG, colorB, a);
 
         Tessellator.pos(x + w, y + h, z + w);
         Tessellator.pos(x + w, y + h, z);
@@ -182,7 +182,7 @@ let ret = {
         GlStateManager[m.pushMatrix]()
 
 
-        Tessellator.begin(2).colorize(colorR, colorG, colorB, a);
+        Tessellator.begin(GL11.GL_LINE_STRIP).colorize(colorR, colorG, colorB, a);
 
         Tessellator.pos(x + w, y + h, z + w);
         Tessellator.pos(x + w, y + h, z);
@@ -233,7 +233,7 @@ let ret = {
         GlStateManager.func_179094_E();
 
 
-        Tessellator.begin(2).colorize(colorR, colorG, colorB, 1);
+        Tessellator.begin(GL11.GL_LINE_STRIP).colorize(colorR, colorG, colorB, 1);
 
         Tessellator.pos(x + width, y + height, z + width);
         Tessellator.pos(x + width, y + height, z - width);
