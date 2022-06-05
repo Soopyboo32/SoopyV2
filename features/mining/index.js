@@ -69,6 +69,7 @@ class Mining extends Feature {
 
 
         this.metalDetectorSolver = new ToggleSetting("Metal detector solver", "", true, "metal_detector_solver", this)
+        this.alertTools = new ToggleSetting("Alert when all 4 tools in inventory", "", true, "alert_tools", this)
 
         this.seenBalDamages = []
         this.balHP = 250
@@ -187,6 +188,28 @@ class Mining extends Feature {
         let ignoreLocation = undefined
 
         let registerActionBar = this.registerCustom("actionbar", (dist) => {
+
+            let lapis = false
+            let diamond = false
+            let emerald = false
+            let gold = false
+            Player.getInventory().getItems().forEach(i => {
+                if (i && i.getName().includes("Scavenged Lapis")) {
+                    lapis = true
+                }
+                if (i && i.getName().includes("Scavenged Diamond")) {
+                    diamond = true
+                }
+                if (i && i.getName().includes("Scavenged Emerald")) {
+                    emerald = true
+                }
+                if (i && i.getName().includes("Scavenged Golden")) {
+                    gold = true
+                }
+            })
+
+            if (this.alertTools.getValue() && lapis && diamond && gold && emerald) Client.showTitle("§cALL TOOLS", "", 10, 40, 20)
+
             if (!this.metalDetectorSolver.getValue()) return
             let distance = parseFloat(dist)
             if (!this.baseCoordinates) this.findBaseCoordinates();
@@ -195,8 +218,6 @@ class Mining extends Feature {
                 lastLoc = [Player.getX(), Player.getY(), Player.getZ()]
                 return
             }
-
-            let lastLocation = this.predictedChestLocations[0]
 
             this.predictedChestLocations = []
 
