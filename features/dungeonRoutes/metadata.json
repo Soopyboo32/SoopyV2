@@ -1,0 +1,8 @@
+{
+    "name": "Dungeon Routes",
+    "description": "Routes for dungeons (Coming soontm maby)",
+    "isHidden": true,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 0
+}

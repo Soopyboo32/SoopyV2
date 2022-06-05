@@ -146,7 +146,9 @@ class Hud extends Feature {
             .setText("&6Day&7> &fLoading...")
             .setToggleSetting(this.showLobbyDay)
             .setLocationSetting(new LocationSetting("Lobby Day Location", "Allows you to edit the location of the lobby day", "lobby_day_location", this, [10, 90, 1, 1])
-                .requires(this.showLobbyDay))
+                .requires(this.showLobbyDay)
+                .editTempText("&6Day&7> &f5.15"))
+        this.showLobbyDayOnlyUnder30 = new ToggleSetting("Show Current Lobby Day ONLY WHEN under day 30", "", true, "lobby_day_30", this)
         this.hudElements.push(this.lobbyDayElement)
 
         let hudStatTypes = {
@@ -304,7 +306,11 @@ class Hud extends Feature {
     }
 
     step_1second() {
-        if (World.getTime() !== 0) this.lobbyDayElement.setText("&6Day&7> &f" + (World.getTime() / 20 / 60 / 20).toFixed(2))
+        if (World.getTime() / 20 / 60 / 20 > 30 && this.showLobbyDayOnlyUnder30.getValue()) {
+            this.lobbyDayElement.setText("")
+        } else {
+            if (World.getTime() !== 0) this.lobbyDayElement.setText("&6Day&7> &f" + (World.getTime() / 20 / 60 / 20).toFixed(2))
+        }
 
         if (!this.lagEnabled.getValue()) {
             if (this.packetReceived) this.packetReceived.unregister()

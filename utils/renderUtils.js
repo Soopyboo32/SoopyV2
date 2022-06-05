@@ -342,7 +342,7 @@ let ret = {
 
         ret[phase ? "drawBoxAtBlock" : "drawBoxAtBlockNotVisThruWalls"](x - 0.005, y - 0.005, z - 0.005, r, g, b, 1.01, 1.01, alpha)
         ret.drawFilledBox(x + 0.5, y, z + 0.5, 1.02, 1.01, r, g, b, 0.25 * alpha, phase)
-        renderBeaconBeam2(x, y + 1, z, r, g, b, Math.min(1, Math.max(0, (distToPlayerSq - 25) / 100)) * alpha, true)
+        renderBeaconBeam2(x, y + 1, z, r, g, b, Math.min(1, Math.max(0, (distToPlayerSq - 25) / 100)) * alpha, !phase)
 
         if (name || showDist) {
             let distToPlayer = Math.sqrt(distToPlayerSq)

@@ -10,6 +10,7 @@ import ToggleSetting from "../settings/settingThings/toggle";
 import { numberWithCommas, timeSince2 } from "../../utils/numberUtils";
 import { fetch } from "../../utils/networkUtils";
 import socketConnection from "../../socketConnection";
+import { drawCoolWaypoint } from "../../utils/renderUtils";
 
 class Mining extends Feature {
     constructor() {
@@ -65,6 +66,9 @@ class Mining extends Feature {
                 .requires(this.nextChEvent)
                 .editTempText("&6Event&7> &fGONE WITH THE WIND &7->&f 2X POWDER"))
         this.hudElements.push(this.nextChEventElement)
+
+
+        this.metalDetectorSolver = new ToggleSetting("Metal detector solver", "", true, "metal_detector_solver", this)
 
         this.seenBalDamages = []
         this.balHP = 250
@@ -169,6 +173,95 @@ class Mining extends Feature {
 
             socketConnection.sendCHEventData(event.trim(), true)
         })
+
+        this.chestCoords = JSON.parse(FileLib.read("SoopyV2", "features/mining/coords.json"))
+
+        let lastLoc = [0, 0, 0]
+
+        this.baseCoordinates = undefined
+
+        this.lastSearchedForBase = 0
+
+        this.predictedChestLocations = []
+
+        let ignoreLocation = undefined
+
+        let registerActionBar = this.registerCustom("actionbar", (dist) => {
+            if (!this.metalDetectorSolver.getValue()) return
+            let distance = parseFloat(dist)
+            if (!this.baseCoordinates) this.findBaseCoordinates();
+
+            if (lastLoc[0] !== Player.getX() || lastLoc[1] !== Player.getY() || lastLoc[2] !== Player.getZ()) {
+                lastLoc = [Player.getX(), Player.getY(), Player.getZ()]
+                return
+            }
+
+            let lastLocation = this.predictedChestLocations[0]
+
+            this.predictedChestLocations = []
+
+            this.chestCoords.forEach((coordinates) => {
+                let currentDistance = Math.hypot(Player.getX() - (this.baseCoordinates[0] - coordinates[0]), Player.getY() - (this.baseCoordinates[1] - coordinates[1] + 1), Player.getZ() - (this.baseCoordinates[2] - coordinates[2]))
+
+                if (Math.round(currentDistance * 10) / 10 === distance) {
+
+                    if ([this.baseCoordinates[0] - coordinates[0], this.baseCoordinates[1] - coordinates[1], this.baseCoordinates[2] - coordinates[2]].join(",") === ignoreLocation) {
+                        ignoreLocation = undefined
+                        return
+                    }
+
+                    this.predictedChestLocations.push([this.baseCoordinates[0] - coordinates[0], this.baseCoordinates[1] - coordinates[1], this.baseCoordinates[2] - coordinates[2]])
+                }
+            });
+        })
+        registerActionBar.trigger.setCriteria('TREASURE: ${rest}').setParameter('contains');
+
+        this.registerChat("&r&aYou found${*}with your &r&cMetal Detector&r&a!&r", () => {
+            if (this.predictedChestLocations[0]) ignoreLocation = this.predictedChestLocations[0].join(",")
+            this.predictedChestLocations = []
+        })
+    }
+
+    findBaseCoordinates() {
+        if (Date.now() - this.lastSearchedForBase < 15000) return;
+        let x = ~~Player.getX();
+        let y = ~~Player.getY();
+        let z = ~~Player.getZ();
+        for (let i = x - 50; i < x + 50; i++) {
+            for (let j = y + 30; j >= y - 30; j--) {
+                for (let k = z - 50; k < z + 50; k++) {
+                    if (World.getBlockAt(i, j, k).getType().getID() === 156 && World.getBlockAt(i, j + 13, k).getType().getID() === 166) {
+                        this.baseCoordinates = this.getBaseCoordinates(i, j + 13, k);
+                        return;
+                    }
+                }
+            }
+        }
+        this.lastSearchedForBase = Date.now();
+    }
+
+    getBaseCoordinates(x, y, z) {
+        let loop = true;
+        let posX = x;
+        let posY = y;
+        let posZ = z;
+        if (World.getBlockAt(x, y, z).getType().getID() !== 166) return [x, y, z];
+        while (loop) {
+            loop = false;
+            if (World.getBlockAt(posX + 1, posY, posZ).getType().getID() == 166) {
+                posX++;
+                loop = true;
+            }
+            if (World.getBlockAt(posX, posY - 1, posZ).getType().getID() == 166) {
+                posY--;
+                loop = true;
+            }
+            if (World.getBlockAt(posX, posY, posZ + 1).getType().getID() == 166) {
+                posZ++;
+                loop = true;
+            }
+        }
+        return [posX, posY, posZ];
     }
 
     itemTooltipEvent(lore, item, event) {
@@ -235,6 +328,10 @@ class Mining extends Feature {
         if (this.guessBalHp.getValue()) {
             if (this.balEntity) Tessellator.drawString(this.balHP + "/250", this.balEntity.getX(), this.balEntity.getY() + 12, this.balEntity.getZ())
         }
+        if (!this.metalDetectorSolver.getValue()) return
+        this.predictedChestLocations.forEach(loc => {
+            drawCoolWaypoint(loc[0], loc[1], loc[2], 0, 255, 0, { name: "TREASURE", phase: true })
+        })
     }
 
     tick() {
