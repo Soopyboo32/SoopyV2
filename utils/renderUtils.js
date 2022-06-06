@@ -113,7 +113,8 @@ let ret = {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(thickness);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
-        if (!phase) GL11.glDepthMask(false);
+        if (phase) GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(false);
         GlStateManager.func_179094_E();
 
         Tessellator.begin(GL11.GL_LINE_STRIP).colorize(r, g, b);
@@ -127,7 +128,8 @@ let ret = {
 
         GlStateManager.func_179121_F();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-        if (!phase) GL11.glDepthMask(true);
+        GL11.glDepthMask(true);
+        if (phase) GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDisable(GL11.GL_BLEND);
     },
     drawBoxAtBlockNotVisThruWalls: function (x, y, z, colorR, colorG, colorB, w = 1, h = 1, a = 1) {

@@ -145,7 +145,7 @@ class DragonWings extends Cosmetic {
         if (!this.player.getPlayer()[m.isPlayerSleeping]()) {  //dont rotate when in bed
             Tessellator.rotate((180 - rotation), 0, 1, 0)
 
-            Tessellator.translate(0, 1.2, 0.1)
+            Tessellator.translate(0, 1.2, 0.13)
 
             if (this.player.getPlayer()[m.isSneaking.Entity]()) { //isSneaking
                 Tessellator.translate(0, -0.125, 0)
@@ -224,7 +224,7 @@ class DragonWings extends Cosmetic {
                 // console.log(World.getBlockAt(this.player.getX(), this.player.getY(), this.player.getZ()).getState().func_177229_b(FACING))
                 Tessellator.rotate(rotation, 0, 1, 0)
             } catch (e) { }
-            Tessellator.translate(0, -this.settings.scale * 25, 0)
+            Tessellator.translate(0, - this.settings.scale * 25, 0)
 
             wing[f.rotateAngleX] = 0; //rotateAngleX
 

@@ -21,6 +21,7 @@ class DungeonRoutes extends Feature {
         this.recentEtherwarps = []
         this.recentMines = []
         this.recentLocations = []
+        this.recentTnts = []
         this.lastLocationUpdatedTime = Date.now()
 
         this.registerEvent("soundPlay", this.playSound)
@@ -28,13 +29,13 @@ class DungeonRoutes extends Feature {
 
         this.registerStep(true, 5, () => {
             if (this.recentLocations.length === 0
-                || Math.trunc(Player.getX()) !== this.recentLocations[this.recentLocations.length - 1].loc[0]
-                || Math.trunc(Player.getY()) !== this.recentLocations[this.recentLocations.length - 1].loc[1]
-                || Math.trunc(Player.getZ()) !== this.recentLocations[this.recentLocations.length - 1].loc[2]) {
+                || Math.ceil(Player.getX()) !== this.recentLocations[this.recentLocations.length - 1].loc[0]
+                || Math.ceil(Player.getY()) !== this.recentLocations[this.recentLocations.length - 1].loc[1]
+                || Math.ceil(Player.getZ()) !== this.recentLocations[this.recentLocations.length - 1].loc[2]) {
 
-                this.recentLocations.push({ loc: [Math.trunc(Player.getX()), Math.trunc(Player.getY()), Math.trunc(Player.getZ())], id: this.actionId++ })
+                this.recentLocations.push({ loc: [Math.ceil(Player.getX()), Math.ceil(Player.getY()), Math.ceil(Player.getZ())], id: this.actionId++ })
 
-                if (this.recentLocations.length > 50) this.recentLocations.shift()
+                this.checkForRemove()
             }
         })
 
@@ -53,13 +54,39 @@ class DungeonRoutes extends Feature {
     worldLoad() {
         this.recentEtherwarps = []
         this.recentMines = []
+        this.recentLocations = []
+        this.recentTnts = []
+    }
+
+    checkForRemove() {
+        if (this.recentLocations.length + this.recentMines.length + this.recentEtherwarps.length + this.recentTnts.length > 50) {
+            let arrs = [this.recentLocations, this.recentMines, this.recentEtherwarps, this.recentTnts]
+            let smallestArr = undefined
+            
+            if (this.recentLocations[0].id < this.recentMines[0].id && this.recentLocations[0].id < this.recentEtherwarps[0].id) {
+                this.recentLocations.shift()
+                return
+            }
+            if (this.recentMines[0].id < this.recentLocations[0].id && this.recentMines[0].id < this.recentEtherwarps[0].id) {
+                this.recentMines.shift()
+                return
+            }
+            if (this.recentEtherwarps[0].id < this.recentMines[0].id && this.recentEtherwarps[0].id < this.recentLocations[0].id) {
+                this.recentEtherwarps.shift()
+                return
+            }
+        }
     }
 
     playSound(pos, name, volume, pitch, categoryName, event) {
         let nameSplitted = name.split(".")
         if (name === "mob.enderdragon.hit") { //etherwarp
             this.recentEtherwarps.push({ loc: pos, id: this.actionId++ })
-            if (this.recentEtherwarps.length > 10) this.recentEtherwarps.shift()
+            this.checkForRemove()
+        }
+        if (name === "random.explode") { //etherwarp
+            this.recentTnts.push({ loc: pos, id: this.actionId++ })
+            this.checkForRemove()
         }
         if (nameSplitted[0] === "dig") { //mining block
             if (!this.recentMines.some(a =>
@@ -68,7 +95,7 @@ class DungeonRoutes extends Feature {
                 && a.loc.z === pos.z
             )) {
                 this.recentMines.push({ loc: pos, id: this.actionId++ })
-                if (this.recentMines.length > 10) this.recentMines.shift()
+                this.checkForRemove()
             }
         }
     }
