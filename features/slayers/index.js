@@ -91,7 +91,7 @@ class Slayers extends Feature {
 				}
 			}
 
-			this.slayerExp[this.lastSlayerType] = this.lastSlayerExp* multiplier + (this.slayerExp[this.lastSlayerType] || 0) ;
+			this.slayerExp[this.lastSlayerType] = this.lastSlayerExp * multiplier + (this.slayerExp[this.lastSlayerType] || 0);
 
 			if (this.expOnKill.getValue()) {
 				cancel(e);
@@ -407,12 +407,12 @@ class Slayers extends Feature {
 
 				if (emanHealth.includes("k")) {
 					emanText += " &c0 Hits"
-				} else if (emanHealth.includes("M") && parseInt(emanHealth) <= this.whenToShowHitsLeft.getValue()) {
+				} else if (emanHealth.includes("M") && parseInt(emanHealth) <= parseFloat(this.whenToShowHitsLeft.getValue())) {
 					let thunderLevel = MathLib.clamp(parseInt(this.thunderLevel.getValue()), 5, 7)
 
 					let thunderMultiplier = 1 + ((thunderLevel - 1) / 10);
 
-					let hits = parseInt(emanHealth) / (this.rcmDamagePerHit.getValue() * thunderMultiplier);
+					let hits = parseInt(emanHealth) / (parseFloat(this.rcmDamagePerHit.getValue()) * thunderMultiplier);
 
 					emanText += ` &c${Math.max(0, Math.floor(hits - 0.75))} Hits`
 				}
