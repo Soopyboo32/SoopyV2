@@ -91,7 +91,7 @@ class Slayers extends Feature {
 				}
 			}
 
-			this.slayerExp[this.lastSlayerType] = this.lastSlayerExp * multiplier + (this.slayerExp[this.lastSlayerType] || 0);
+			this.slayerExp[this.lastSlayerType] = Math.round(this.lastSlayerExp * multiplier) + (this.slayerExp[this.lastSlayerType] || 0);
 
 			if (this.expOnKill.getValue()) {
 				cancel(e);
