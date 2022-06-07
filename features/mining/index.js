@@ -68,7 +68,7 @@ class Mining extends Feature {
         this.hudElements.push(this.nextChEventElement)
 
 
-        this.metalDetectorSolver = new ToggleSetting("Metal detector solver", "", true, "metal_detector_solver", this)
+        this.metalDetectorSolver = new ToggleSetting("Metal detector solver", "", true, "metal_detector_solver", this).contributor("tenios", ["- idea that chests are in same locations every time", "- locations of chests", "- finding offset of divan mines"])
         this.alertTools = new ToggleSetting("Alert when all 4 tools in inventory", "", true, "alert_tools", this)
 
         this.seenBalDamages = []
