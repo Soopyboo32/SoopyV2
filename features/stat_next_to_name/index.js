@@ -11,7 +11,7 @@ class StatNextToName extends Feature {
         super()
     }
 
-    onEnable(){
+    onEnable() {
         new SettingBase("NOTE: A pink star thing (&d⚝§0)", "Means that player is also using SoopyV2", true, "stat_next_to_name_description", this)
         this.statToShow = new DropdownSetting("Stat to show", "", "weight", "stat_selected_nexttoname", this, {
             "weight": "Weight",
@@ -36,22 +36,22 @@ class StatNextToName extends Feature {
         this.loadingStats = []
         this.lastWorldLoad = undefined
 
-        soopyV2Server.onPlayerStatsLoaded = (stats)=>{this.playerStatsLoaded.call(this, stats)}
+        soopyV2Server.onPlayerStatsLoaded = (stats) => { this.playerStatsLoaded.call(this, stats) }
 
         this.registerStep(false, 5, this.loadPlayerStatsTick)
         this.registerEvent("worldLoad", this.worldLoad)
-        
+
         this.registerEvent("playerJoined", this.playerJoined)
 
         this.worldLoad()
     }
 
-    loadPlayerStatsTick(){
+    loadPlayerStatsTick() {
 
-        if(this.lastWorldLoad && Date.now() - this.lastWorldLoad > 1000){
+        if (this.lastWorldLoad && Date.now() - this.lastWorldLoad > 1000) {
             World.getAllPlayers().forEach(player => {
-                if(this.userStats[player.getUUID().toString().replace(/-/g, "")]) return
-                if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
+                if (this.userStats[player.getUUID().toString().replace(/-/g, "")]) return
+                if (Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
                 this.loadPlayerStatsCache(player.getUUID().toString().replace(/-/g, ""), player.getName())
             })
             this.lastWorldLoad = undefined
@@ -62,81 +62,83 @@ class StatNextToName extends Feature {
         let nearestDistance = Infinity
 
         World.getAllPlayers().forEach(player => {
-            if(this.userStats[player.getUUID().toString().replace(/-/g, "")]){
+            if (this.userStats[player.getUUID().toString().replace(/-/g, "")]) {
                 this.updatePlayerNametag(player)
                 return
             }
-            if(this.loadingStats.includes(player.getUUID().toString().replace(/-/g, ""))) return
-            if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
+            if (this.loadingStats.includes(player.getUUID().toString().replace(/-/g, ""))) return
+            if (Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
 
             let dist = Math.pow(player.getX() - Player.getX(), 2) + Math.pow(player.getY() - Player.getY(), 2) + Math.pow(player.getZ() - Player.getZ(), 2)
-            if(dist < nearestDistance){
+            if (dist < nearestDistance) {
                 nearestDistance = dist
                 nearestPlayer = player.getUUID().toString().replace(/-/g, "")
                 nearestPlayerName = player.getName()
             }
         })
 
-        if(nearestPlayer){
+        if (nearestPlayer) {
             this.loadPlayerStats(nearestPlayer, nearestPlayerName)
         }
     }
 
-    worldLoad(){
+    worldLoad() {
         let playerStats = this.userStats[Player.getUUID().toString().replace(/-/g, "")]
         this.userStats = {}
         this.loadingStats = []
-        if(playerStats){
+        if (playerStats) {
             this.userStats[Player.getUUID().toString().replace(/-/g, "")] = playerStats
         }
 
         this.lastWorldLoad = Date.now()
+
+        this.loadPlayerStatsCache(Player.getUUID().toString().replace(/-/g, ""), Player.getName())
     }
-    
-    playerJoined(player){
-        if(player.getUUID().toString().replace(/-/g,"") === Player.getUUID().toString().replace(/-/g,"")) return
-        if(this.userStats[player.getUUID().toString().replace(/-/g, "")]) return
-        if(Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
-    
+
+    playerJoined(player) {
+        if (player.getUUID().toString().replace(/-/g, "") === Player.getUUID().toString().replace(/-/g, "")) return
+        if (this.userStats[player.getUUID().toString().replace(/-/g, "")]) return
+        if (Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return
+
         this.loadPlayerStatsCache(player.getUUID().toString().replace(/-/g, ""), player.getName())
     }
 
-    updatePlayerNametag(player){
+    updatePlayerNametag(player) {
         let stats = this.userStats[player.getUUID().toString().replace(/-/g, "")]
 
         let nameTagString = player.getName()
 
         nameTagString += " &2["
-        if(stats.usingSoopyv2) nameTagString += "&d⚝&2"
-        if(stats.exists && stats[this.statToShow.getValue()]){
-            if(this.decimals[this.statToShow.getValue()] === "small"){
-                nameTagString += numberUtils.addNotation("oneLetters",Math.round(stats[this.statToShow.getValue()]))
-            }else{
+        if (stats.usingSoopyv2) nameTagString += "&d⚝&2"
+        if (stats.exists && stats[this.statToShow.getValue()]) {
+            if (this.decimals[this.statToShow.getValue()] === "small") {
+                nameTagString += numberUtils.addNotation("oneLetters", Math.round(stats[this.statToShow.getValue()]))
+            } else {
                 nameTagString += numberUtils.numberWithCommas(stats[this.statToShow.getValue()].toFixed(this.decimals[this.statToShow.getValue()]))
             }
-        }else{
+        } else {
             nameTagString += "?"
         }
         nameTagString += "]"
         player.setNametagName(new TextComponent(nameTagString));
     }
 
-    loadPlayerStats(uuid, username){
+    loadPlayerStats(uuid, username) {
         // console.log("loading stats for " + uuid)
         soopyV2Server.requestPlayerStats(uuid, username)
         this.loadingStats.push(uuid)
     }
 
-    loadPlayerStatsCache(uuid, username){
+    loadPlayerStatsCache(uuid, username) {
         // console.log("loading stats for " + uuid)
         soopyV2Server.requestPlayerStatsCache(uuid, username)
     }
 
-    playerStatsLoaded(stats){
+    playerStatsLoaded(stats) {
         this.userStats[stats.uuid] = stats
     }
 
-    onDisable(){
+    onDisable() {
         this.userStats = undefined
     }
 }

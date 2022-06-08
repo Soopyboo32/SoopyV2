@@ -85,7 +85,7 @@ class DungeonReadyGui {
     startDungeon() {
         if (Player.getContainer().getName() !== "Start Dungeon?") return
 
-        if (!this.confirmationCooldown && World.getAllPlayers().filter(p => p.getPing() === 1).length !== this.currPlayers) {
+        if (!this.confirmationCooldown && World.getAllPlayers().filter(p => p.getPing() === 1).length !== this.currPlayers && !(World.getAllPlayers().filter(p => p.getPing() === 1).length === 1 && this.currPlayers === 2)) {
             this.startButton.setText("§0Confirm starting Dungeon? (3s)")
             this.startButton.desc.setText("§0(" + World.getAllPlayers().filter(p => p.getPing() === 1).length + "/" + this.currPlayers + " in dungeon)")
             this.confirmationCooldown = Date.now() + 3000
