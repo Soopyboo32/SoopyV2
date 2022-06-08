@@ -389,11 +389,13 @@ class DungeonMap extends Feature {
             let playerI = 0
             for (let i = 0; i < 5; i++) {
                 let name = ChatLib.removeFormatting(Player.getContainer().getStackInSlot(3 + i)?.getName()?.split(" ")?.pop() || "")
-                if (this.nameToUUID[name]) {
+                if (this.nameToUUID[name] && this.nameToUUID[name] !== Player.getUUID().toString()) {
                     this.idToPlayer[playerI] = this.nameToUUID[name]
                 }
                 if (name) playerI++
             }
+            this.idToPlayer[playerI] = Player.getUUID().toString()
+            playerI++
             if (playerI !== World.getAllPlayers().filter(p => p.getPing() === 1).length) this.idToPlayer = {}
         }
         // console.log("asjbfoasbgp")
@@ -692,7 +694,7 @@ class DungeonMap extends Feature {
                         })
                         while (this.idToPlayer[i] && this.deadPlayers.has(this.idToPlayer[i])) i++
                         if (this.idToPlayer[i]) closestP = this.idToPlayer[i]
-                        if (closestP) {
+                        if (closestP && closestP !== Player.getUUID().toString()) {
                             // console.log(closestP, x, y)
                             this.mapDataPlayers[closestP].x = x
                             this.mapDataPlayers[closestP].y = y
