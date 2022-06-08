@@ -391,8 +391,8 @@ class DungeonMap extends Feature {
                 let name = ChatLib.removeFormatting(Player.getContainer().getStackInSlot(3 + i)?.getName()?.split(" ")?.pop() || "")
                 if (this.nameToUUID[name] && this.nameToUUID[name] !== Player.getUUID().toString()) {
                     this.idToPlayer[playerI] = this.nameToUUID[name]
+                    if (name) playerI++
                 }
-                if (name) playerI++
             }
             this.idToPlayer[playerI] = Player.getUUID().toString()
             playerI++
