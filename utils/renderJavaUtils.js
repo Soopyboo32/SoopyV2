@@ -16,8 +16,8 @@ let RenderBeaconC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.Beacon")
 let HudPointsC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.HudPoints")
 let HudTextC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.HudText")
 
-global.soopyv2RenderWorldThings = new Set()
-global.soopyv2RenderHudThings = new Set()
+if (!global.soopyv2RenderWorldThings) global.soopyv2RenderWorldThings = new Set()
+if (!global.soopyv2RenderHudThings) global.soopyv2RenderHudThings = new Set()
 
 register("gameUnload", () => {
     global.soopyv2RenderWorldThings.clear()
