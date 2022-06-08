@@ -16,45 +16,45 @@ let RenderBeaconC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.Beacon")
 let HudPointsC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.HudPoints")
 let HudTextC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.HudText")
 
-let RenderWorldThings = new Set()
-let RenderHudThings = new Set()
+global.soopyv2RenderWorldThings = new Set()
+global.soopyv2RenderHudThings = new Set()
 
 register("gameUnload", () => {
-    RenderWorldThings.clear()
+    global.soopyv2RenderWorldThings.clear()
     SoopyV2Forge.setRenderWorldList(new ArrayList([]))
-    RenderHudThings.clear()
+    global.soopyv2RenderHudThings.clear()
     SoopyV2Forge.setRenderHudList(new ArrayList([]))
 })
 
 class RenderWorldAble {
     startRender(isBatched) {
         if (!canUseForgeRendering) return
-        if (RenderWorldThings.has(this.javaObj)) return this
-        RenderWorldThings.add(this.javaObj)
-        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
+        if (global.soopyv2RenderWorldThings.has(this.javaObj)) return this
+        global.soopyv2RenderWorldThings.add(this.javaObj)
+        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
         return this
     }
     stopRender(isBatched) {
         if (!canUseForgeRendering) return
-        if (!RenderWorldThings.has(this.javaObj)) return this
-        RenderWorldThings.delete(this.javaObj)
-        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
+        if (!global.soopyv2RenderWorldThings.has(this.javaObj)) return this
+        global.soopyv2RenderWorldThings.delete(this.javaObj)
+        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
         return this
     }
 }
 class RenderHudAble {
     startRender() {
         if (!canUseForgeRendering) return
-        if (RenderHudThings.has(this.javaObj)) return this
-        RenderHudThings.add(this.javaObj)
-        SoopyV2Forge.setRenderHudList(new ArrayList([...RenderHudThings]))
+        if (global.soopyv2RenderHudThings.has(this.javaObj)) return this
+        global.soopyv2RenderHudThings.add(this.javaObj)
+        SoopyV2Forge.setRenderHudList(new ArrayList([...global.soopyv2RenderHudThings]))
         return this
     }
     stopRender() {
         if (!canUseForgeRendering) return
-        if (!RenderHudThings.has(this.javaObj)) return this
-        RenderHudThings.delete(this.javaObj)
-        SoopyV2Forge.setRenderHudList(new ArrayList([...RenderHudThings]))
+        if (!global.soopyv2RenderHudThings.has(this.javaObj)) return this
+        global.soopyv2RenderHudThings.delete(this.javaObj)
+        SoopyV2Forge.setRenderHudList(new ArrayList([...global.soopyv2RenderHudThings]))
         return this
     }
 }
@@ -343,7 +343,7 @@ export class Waypoint extends FilledBox {
         if (this.params.name) this.textLine1.startRender(true)
         if (this.params.showDist) this.textLine2.startRender(true)
 
-        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
+        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
         return this
     }
 
@@ -357,7 +357,7 @@ export class Waypoint extends FilledBox {
         this.textLine1.stopRender(true)
         this.textLine2.stopRender(true)
 
-        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...RenderWorldThings]))
+        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
         return this
     }
 }
