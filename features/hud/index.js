@@ -121,7 +121,7 @@ class Hud extends Feature {
 
         this.witherImpactCooldownSetting = new ToggleSetting("Show Wither Impact Cooldown", "This will render a small cooldown above your crosshair", true, "wither_impact_cooldown_enabled", this)
 
-        this.guidedSheepCooldownSetting = new ToggleSetting("Show Guided Sheep / Explosive Shot Cooldown", "This will render a small cooldown below your crosshair", true, "guided_sheep_cooldown_enabled", this)
+        // this.guidedSheepCooldownSetting = new ToggleSetting("Show Guided Sheep / Explosive Shot Cooldown", "This will render a small cooldown below your crosshair", true, "guided_sheep_cooldown_enabled", this)
 
         this.showSpotifyPlaying = new ToggleSetting("Show Current Playing Spotify Song", "(WINDOWS + Spotify Desktop only)", false, "spotify_now_playing", this)
         this.spotifyElement = new HudTextElement()
@@ -552,32 +552,13 @@ class Hud extends Feature {
         data.profiles.forEach(p => {
             if (!this.lastStatData || (p.members[Player.getUUID().toString().replace(/-/g, "")] && p.members[Player.getUUID().toString().replace(/-/g, "")].last_save > this.lastStatData.last_save)) {
                 this.lastStatData = p.members[Player.getUUID().toString().replace(/-/g, "")]
-                this.lastStatData.itemsData = {}
-
-                if (this.lastStatData?.talisman_bag && this.lastStatData?.talisman_bag?.data) {
-                    let nbtTagCompound = CompressedStreamTools[m.readCompressed](new ByteArrayInputStream(Base64.getDecoder().decode(this.lastStatData.talisman_bag.data)));
-
-                    this.lastStatData.itemsData.talisman_bag = new NBTTagCompound(nbtTagCompound)
-                }
             }
         })
 
-        if (this.lastStatData.itemsData.talisman_bag) {
-            let isSoulflowCounting = false
-            this.lastStatData.itemsData.talisman_bag.toString().split(",").forEach(line => { //omega scuffed because i cba actually using the nbt like a normal person
-                if (isSoulflowCounting) {
-                    this.lastStatData._soulflow *= 1000
-                    this.lastStatData._soulflow += parseInt(ChatLib.removeFormatting(line.split(` `)[0]).replace(/[^0-9]/g, ""))
-                    isSoulflowCounting = !line.endsWith(`Soulflow"`)
-                }
-                if (line.startsWith(`display:{Lore:[0:"§7Internalized:`) || line.startsWith(`4:"§7Internalized:`)) {
-                    isSoulflowCounting = !line.endsWith(`Soulflow"`)
-                    this.lastStatData._soulflow = parseInt(ChatLib.removeFormatting(line.split(`"§7Internalized: `)[1]))
+        if (this.lastStatData) {
+            if (this.lastStatData.soulflow) this.apiSoulflow = true
 
-                    this.apiSoulflow = true
-                }
-            })
-            if (this.apiSoulflow) this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData._soulflow))
+            if (this.apiSoulflow) this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData.soulflow))
         }
 
         this.updateHudThingos()
