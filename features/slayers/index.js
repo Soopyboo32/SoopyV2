@@ -39,6 +39,8 @@ class Slayers extends Feature {
 			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of you current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&6Enderman&7> &d&l2,147,483,647 XP").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.slayerXpElement);
 
+		this.betterHideDeadEntity = new ToggleSetting("Also hides mob nametag when it's dead.", "An improvement for Patcher's hide dead entity", false, "hide_dead_mob_nametag", this);
+
 		this.rcmDaeAxeSupport = new ToggleSetting("Eman Hyp hits before Dae axe swapping", "This will tell u how many clicks with hyp is needed before swapping to dae axe", true, "eman_rcm_support", this).requires(this.emanHpGuiElement).contributor("EmeraldMerchant");
 		this.rcmDamagePerHit = new TextSetting("Hyperion damage", "Your hyp's single hit damage w/o thunderlord/thunderbolt", "", "hyp_dmg", this, "Your hyp dmg (Unit: M)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
 		this.whenToShowHitsLeft = new TextSetting("Show hits left timing", "At how much hp should the hits left thing be visible", "", "eman_hp_left", this, "How much hp (Unit: M, enter a valid value 0-300)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
@@ -229,6 +231,18 @@ class Slayers extends Feature {
 	}
 
 	tick() {
+		if (this.betterHideDeadEntity.getValue()) {
+			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(name => {
+				if (name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1] === "0❤" ||
+					(
+						name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1].split("/")[0] === "0"
+						&& name.getName().removeFormatting().includes("❤"))
+				) {
+					name.getEntity()[m.setAlwaysRenderNameTag](false)
+				}
+			});
+		}
+
 		if (this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
 			if (!this.entityAttackEventLoaded) {
 				this.entityAttackEventLoaded = true;
