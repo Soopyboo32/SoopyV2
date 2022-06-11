@@ -19,7 +19,8 @@ class StatNextToName extends Feature {
             "skillAvg": "Skill Average",
             "totalSlayer": "Total Slayer Exp",
             "networth": "Networth",
-            "classAverage": "Class Average"
+            "classAverage": "Class Average",
+            "bestiary": "Bestiary"
         })
 
         this.decimals = {
@@ -28,6 +29,7 @@ class StatNextToName extends Feature {
             "skillAvg": 2,
             "totalSlayer": 0,
             "classAverage": 2,
+            "bestiary": 1,
             "networth": "small"
         }
 
@@ -135,6 +137,7 @@ class StatNextToName extends Feature {
     }
 
     playerStatsLoaded(stats) {
+        stats.bestiary /= 10
         this.userStats[stats.uuid] = stats
     }
 

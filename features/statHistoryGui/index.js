@@ -101,22 +101,24 @@ class StatGraphPage extends GuiPage {
                 this.errorElm.setDesc("§0" + playerData.error.description)
                 return
             }
+            this.statArea.clearChildren()
+            let nameElm = new SoopyTextElement().setText(playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7")).setMaxTextScale(2).setLocation(0.1, 0.05, 0.8, 0.1)
+            this.statArea.addChild(nameElm)
+            this.statArea.addChild(this.loadingElm)
 
             fetch("http://soopymc.my.to/api/v2/player_skyblock/" + playerData.data.uuid).json(skyblockData => {
 
                 if (player !== this.playerLoad) return
 
-                this.statArea.clearChildren()
 
                 if (!skyblockData.success) {
+                    this.statArea.clearChildren()
                     this.statArea.addChild(this.errorElm)
                     this.errorElm.setText("§0" + skyblockData.error.name)
                     this.errorElm.setDesc("§0" + skyblockData.error.description)
                     return
                 }
 
-                let nameElm = new SoopyTextElement().setText(playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7")).setMaxTextScale(2).setLocation(0.1, 0.05, 0.8, 0.1)
-                this.statArea.addChild(nameElm)
 
                 fetch("http://soopymc.my.to/statgraphgenerations/" + playerData.data.uuid + "/" + skyblockData.data.stats.bestProfileId).json(graphData => {
                     if (player !== this.playerLoad) return

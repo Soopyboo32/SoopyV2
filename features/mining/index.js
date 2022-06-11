@@ -56,7 +56,7 @@ class Mining extends Feature {
             .setLocationSetting(new LocationSetting("HUD Location", "Allows you to edit the location of the gemstone $/h", "gemstone_money_location", this, [10, 60, 1, 1])
                 .requires(this.gemstoneMoneyHud)
                 .editTempText("&6$/h&7> &f$12,345,678\n&6$ made&7> &f$123,456,789\n&6Time tracked&7> &f123m"))
-        this.gemstoneMoneyHudMoneyOnly = new ToggleSetting("Force npc price", "(Eg if u are ironman)", true, "gemstone_money_hud_npc", this).requires(this.gemstoneMoneyHud)
+        this.gemstoneMoneyHudMoneyOnly = new ToggleSetting("Force npc price", "(Eg if u are ironman)", false, "gemstone_money_hud_npc", this).requires(this.gemstoneMoneyHud)
         this.hudElements.push(this.gemstoneMoneyHudElement)
 
         this.nextChEvent = new ToggleSetting("Show the current and next crystal hollows event", "(syncs the data between all users in ch)", true, "chevent_hud", this)
@@ -186,6 +186,18 @@ class Mining extends Feature {
         this.predictedChestLocations = []
 
         let ignoreLocation = undefined
+
+        this.registerEvent("worldLoad", () => {
+            lastLoc = [0, 0, 0]
+
+            this.baseCoordinates = undefined
+
+            this.lastSearchedForBase = 0
+
+            this.predictedChestLocations = []
+
+            ignoreLocation = undefined
+        })
 
         let registerActionBar = this.registerCustom("actionbar", (dist) => {
 

@@ -1,8 +1,0 @@
-{
-    "name": "Improvements",
-    "description": "A bunch of random features that improve aspects of the game",
-    "isHidden": false,
-    "isTogglable": true,
-    "defaultEnabled": true,
-    "sortA": 1
-}

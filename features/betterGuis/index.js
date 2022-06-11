@@ -26,7 +26,7 @@ class BetterGuis extends Feature {
         this.museumGuiEnabled = new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this)
         this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI", "Custom gui for the dungeon ready up menu", false, "custom_dungeon_ready_enabled", this)
 
-        this.chestSearchBar = new ToggleSetting("Inventory Search Bar", "u can use '&' to make it filter buy stuff that contains multiple things", false, "inv_search", this)
+        this.chestSearchBar = new ToggleSetting("Inventory Search Bar", "use '&' to make it filter by stuff that contains multiple things", false, "inv_search", this)
 
         this.lastWindowId = 0
         this.shouldHold = 10

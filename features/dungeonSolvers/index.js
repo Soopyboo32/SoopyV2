@@ -8,6 +8,7 @@ import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import { fetch } from "../../utils/networkUtils";
+import { delay } from "../../utils/delayUtils";
 import { Waypoint } from "../../utils/renderJavaUtils";
 
 const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze");
@@ -185,8 +186,10 @@ class DungeonSolvers extends Feature {
 			this.goneInBonus = true;
 		});
 		this.registerChat("[BOSS] The Watcher: You have proven yourself. You may pass.", () => {
-			this.bloodOpenedBonus = false; //TODO: add 5second delay
-			this.goneInBonus = true;
+			delay(5000,()=>{
+				this.bloodOpenedBonus = false;
+				this.goneInBonus = true;
+			})
 		});
 		let enteredBossMessages = ["&r&4[BOSS] Maxor&r&c: &r&cWELL WELL WELL LOOK WHO’S HERE!&r", "&r&c[BOSS] Livid&r&f: Welcome, you arrive right on time. I am Livid, the Master of Shadows.&r", "&r&c[BOSS] Thorn&r&f: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!&r", "&r&c[BOSS] The Professor&r&f: I was burdened with terrible news recently...&r", "&r&c[BOSS] Scarf&r&f: This is where the journey ends for you, Adventurers.&r", "&r&c[BOSS] Bonzo&r&f: Gratz for making it this far, but I’m basically unbeatable.&r", "&r&c[BOSS] Sadan&r&f: So you made it all the way &r&fhere...and&r&f you wish to defy me? Sadan?!&r"]
 		enteredBossMessages.forEach(msg => {

@@ -22,7 +22,7 @@ if (!global.delayThingSoopy) {
     })
 
     global.delayThingSoopy = {
-        delay
+        delay: delay
     }
 }
 
