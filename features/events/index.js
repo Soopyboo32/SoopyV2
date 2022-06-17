@@ -36,6 +36,7 @@ class Events extends Feature {
 		new SettingBase("NOTE: You must have music disabled for burrial guessess to work", "/togglemusic", false, "burrial_guess_into", this).requires(this.showBurrialGuess)
 
 		this.otherInquisWaypoints = new ToggleSetting("Show other users inquis locations", "May be usefull for loot share", true, "inquis_location_other", this)
+		this.otherInquisPing = new ToggleSetting("Show cool title when someone's inquis spawned", "May be usefull for loot share", true, "inquis_ping_other", this)
 
 		this.shinyBlocks = []
 
@@ -80,7 +81,10 @@ class Events extends Feature {
 			return
 		}
 		this.slayerLocationDataH[user] = [loc, Date.now()]
-		if (this.otherInquisWaypoints.getValue()) Client.showTitle(user + "'s inquis spawned", "", 20, 60, 20)
+		if (this.otherInquisPing.getValue()) {
+			Client.showTitle("&r&6&l[&b&l&kO&6&l] MINOS INQUISITOR [&b&l&kO&6&l]", `${user}'s Inquisitor`, 0, 50, 10);
+			ChatLib.chat(this.FeatureManager.messagePrefix + `${user} spawned an inquis &7(waypoint added)`)
+		}
 	}
 
 	renderWorld(ticks) {
