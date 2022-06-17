@@ -186,7 +186,7 @@ class DungeonSolvers extends Feature {
 			this.goneInBonus = true;
 		});
 		this.registerChat("[BOSS] The Watcher: You have proven yourself. You may pass.", () => {
-			delay(5000,()=>{
+			delay(5000, () => {
 				this.bloodOpenedBonus = false;
 				this.goneInBonus = true;
 			})

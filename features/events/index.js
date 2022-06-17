@@ -80,6 +80,7 @@ class Events extends Feature {
 			return
 		}
 		this.slayerLocationDataH[user] = [loc, Date.now()]
+		if (this.otherInquisWaypoints.getValue()) Client.showTitle(user + "'s inquis spawned", "", 20, 60, 20)
 	}
 
 	renderWorld(ticks) {

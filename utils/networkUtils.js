@@ -15,6 +15,7 @@ if (!global.networkUtilsThingSoopy) {
         // if(theUrl.includes("soopymc.my.to")){
         //     throw new Error("Testing to ensure the module works when my server is down")
         // }
+        // Thread.sleep(1000) //simulating high ping
 
         let conn = new jURL(theUrl).openConnection()
         conn.setRequestProperty("User-Agent", userAgent)

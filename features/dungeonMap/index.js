@@ -35,6 +35,7 @@ class DungeonMap extends Feature {
 
         this.mapInfo = new SettingBase("NOTE: The more players in the party with this", "category enabled the more accurate the map will be.", undefined, "map_info", this)
         this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud", false, "dmap_render", this)
+        this.mapIcons = new ToggleSetting("Icons for puzzles on map", "Toggles Rendering the puzzle icons on map", true, "dmap_icons", this).requires(this.renderMap)
         this.mapLocation = new ImageLocationSetting("Map Location", "Sets the location of the map on the hud", "dmap_location", this, [10, 10, 1], new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/map.png"))), 100, 100).requires(this.renderMap)
         this.mapBackground = new ToggleSetting("Map Background And Border", "Puts a grey background behind the map + Black border", true, "dmap_background", this)
         this.showMapInBoss = new ToggleSetting("Keep showing the map in the dungeon boss room", "This will center the map when in boss to still be usefull", true, "dmap_enable_boss", this)
@@ -301,20 +302,22 @@ class DungeonMap extends Feature {
 
     drawOtherMisc(x2, y2, size2, scale) {
         if (this.currDungeonBossImage) return
-        Object.keys(this.puzzles).forEach(loc => {
-            if (!this.puzzles[loc]) return
-            if (this.puzzles[loc][1]) return
-            let y = (loc % 128) / 128 * 100
-            let x = (Math.floor(loc / 128)) / 128 * 100
+        if (this.mapIcons.getValue()) {
+            Object.keys(this.puzzles).forEach(loc => {
+                if (!this.puzzles[loc]) return
+                if (this.puzzles[loc][1]) return
+                let y = (loc % 128) / 128 * 100
+                let x = (Math.floor(loc / 128)) / 128 * 100
 
-            let item = this.puzzleItems[this.puzzles[loc][0]] || this.barrier_block_item
+                let item = this.puzzleItems[this.puzzles[loc][0]] || this.barrier_block_item
 
-            // lines.forEach((l, i)=>{
-            //     renderLibs.drawStringCentered("&0&l" + l, x*scale*2+x2-l.length/2*scale*2, y*scale*2+y2-this.roomWidth/3*scale*2+this.roomWidth/3*scale*2+i*6*scale*2-((lines.length-1)*3+4)*scale*2, scale*2)
-            // })
+                // lines.forEach((l, i)=>{
+                //     renderLibs.drawStringCentered("&0&l" + l, x*scale*2+x2-l.length/2*scale*2, y*scale*2+y2-this.roomWidth/3*scale*2+this.roomWidth/3*scale*2+i*6*scale*2-((lines.length-1)*3+4)*scale*2, scale*2)
+                // })
 
-            item.draw(x * scale * 2 + x2 - this.roomWidth / 4 * scale * 2, y * scale * 2 + y2 - this.roomWidth / 4 * scale * 2, 1.5 * scale)
-        })
+                item.draw(x * scale * 2 + x2 - this.roomWidth / 4 * scale * 2, y * scale * 2 + y2 - this.roomWidth / 4 * scale * 2, 1.5 * scale)
+            })
+        }
     }
 
     drawPlayersLocations(x, y, size, scale) {
