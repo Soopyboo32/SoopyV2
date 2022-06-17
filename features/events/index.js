@@ -81,6 +81,10 @@ class Events extends Feature {
 			return
 		}
 		this.slayerLocationDataH[user] = [loc, Date.now()]
+		if (this.otherInquisPing.getValue()) {
+			Client.showTitle("&r&6&l[&b&l&kO&6&l] MINOS INQUISITOR [&b&l&kO&6&l]", `${user}'s Inquisitor`, 0, 50, 10);
+		}
+
 	}
 
 	renderWorld(ticks) {
@@ -121,9 +125,6 @@ class Events extends Feature {
 
 		if (this.otherInquisWaypoints.getValue()) {
 			Object.keys(this.slayerLocationDataH).forEach(key => {
-				if (this.otherInquisPing.getValue()) {
-					Client.showTitle("&r&6&l[&b&l&kO&6&l] MINOS INQUISITOR [&b&l&kO&6&l]", "", 0, 50, 10);
-				}
 				drawCoolWaypoint(this.slayerLocationDataH[key][0][0], this.slayerLocationDataH[key][0][1], this.slayerLocationDataH[key][0][2], 255, 0, 0, { name: key + "'s inquis" })
 			})
 		}
