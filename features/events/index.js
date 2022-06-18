@@ -115,6 +115,7 @@ class Events extends Feature {
 
 		this.registerCommand("sethubwarp", () => {
 			warpData.worldload = [Player.getX(), Player.getY(), Player.getZ()]
+			ChatLib.chat(this.FeatureManager.messagePrefix + "Set /hub location!")
 		})
 	}
 
