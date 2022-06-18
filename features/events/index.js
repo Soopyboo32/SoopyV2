@@ -77,7 +77,7 @@ class Events extends Feature {
 
 		this.warpBindDefault = new TextSetting("Default keybind", "Eg KEY_F", "KEY_F", "inquis_keybind_default", this, "", false)
 
-		this.warpBind = getKeyBindFromKey(Keyboard[warpBindDefault.getValue()], "Warp to nearest location to burrial guess");
+		this.warpBind = getKeyBindFromKey(Keyboard[this.warpBindDefault.getValue()], "Warp to nearest location to burrial guess");
 
 		this.slayerLocationDataH = {}
 		this.todoE = []
