@@ -59,8 +59,8 @@ class Events extends Feature {
 			ChatLib.command("togglemusic")
 		}, false).requires(this.showBurrialGuess)
 
-		this.otherInquisWaypoints = new ToggleSetting("Show other users inquis locations", "May be usefull for loot share", true, "inquis_location_other", this)
-		this.otherInquisPing = new ToggleSetting("Show cool title when someone's inquis spawned", "May be usefull for loot share", true, "inquis_ping_other", this)
+		this.otherInquisWaypoints = new ToggleSetting("Show other users inquis locations", "May be usefull for loot share", true, "inquis_location_other", this).requires(this.loadFromParticles)
+		this.otherInquisPing = new ToggleSetting("Show cool title when someone's inquis spawned", "May be usefull for loot share", true, "inquis_ping_other", this).requires(this.loadFromParticles)
 
 		this.shinyBlocks = []
 
