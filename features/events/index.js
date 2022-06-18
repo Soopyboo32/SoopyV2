@@ -10,6 +10,7 @@ import ToggleSetting from "../settings/settingThings/toggle";
 import { fetch } from "../../utils/networkUtils"
 import ButtonSetting from "../settings/settingThings/button";
 import { delay } from "../../utils/delayUtils";
+import TextSetting from "../settings/settingThings/textSetting";
 
 let warpData = {
 	"castle": [-250, 130, 45],
@@ -74,9 +75,9 @@ class Events extends Feature {
 		this.dingIndex = 0
 		this.dingSlope = []
 
-		this.warpBindDefault = new ToggleSetting("Show cool title when someone's inquis spawned", "May be usefull for loot share", true, "inquis_ping_other", this)
+		this.warpBindDefault = new TextSetting("Default keybind", "Eg KEY_F", "KEY_F", "inquis_keybind_default", this, "", false)
 
-		this.warpBind = getKeyBindFromKey(Keyboard.KEY_F, "Warp to nearest location to burrial guess");
+		this.warpBind = getKeyBindFromKey(Keyboard[warpBindDefault.getValue()], "Warp to nearest location to burrial guess");
 
 		this.slayerLocationDataH = {}
 		this.todoE = []
