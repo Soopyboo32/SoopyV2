@@ -15,6 +15,8 @@ import { fetch } from "../../utils/networkUtils";
 import SoopyImageElement from "../../../guimanager/GuiElement/SoopyImageElement";
 import renderLibs from "../../../guimanager/renderLibs";
 import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";
+import Dropdown from "../../../guimanager/GuiElement/Dropdown";
+import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent";
 
 class StatHistoryGUI extends Feature {
     constructor() {
@@ -79,7 +81,7 @@ class StatGraphPage extends GuiPage {
         this.finaliseLoading()
     }
 
-    updateData(player) {
+    updateData(player, profIn) {
         this.closeSidebarPage()
 
         this.playerLoad = player
@@ -102,14 +104,12 @@ class StatGraphPage extends GuiPage {
                 return
             }
             this.statArea.clearChildren()
-            let nameElm = new SoopyTextElement().setText(playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7")).setMaxTextScale(2).setLocation(0.1, 0.05, 0.8, 0.1)
+            let nameElm = new SoopyTextElement().setText(playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7")).setMaxTextScale(2).setLocation(0.1, 0.05, 0.5, 0.1)
             this.statArea.addChild(nameElm)
             this.statArea.addChild(this.loadingElm)
 
             fetch("http://soopymc.my.to/api/v2/player_skyblock/" + playerData.data.uuid).json(skyblockData => {
-
                 if (player !== this.playerLoad) return
-
 
                 if (!skyblockData.success) {
                     this.statArea.clearChildren()
@@ -119,8 +119,18 @@ class StatGraphPage extends GuiPage {
                     return
                 }
 
+                let selectedProf = profIn || skyblockData.data.stats.bestProfileId
+                let profOptions = {}
+                Object.keys(skyblockData.data.profiles).forEach(p => {
+                    profOptions[p] = skyblockData.data.profiles[p].stats.cute_name
+                })
 
-                fetch("http://soopymc.my.to/statgraphgenerations/" + playerData.data.uuid + "/" + skyblockData.data.stats.bestProfileId).json(graphData => {
+                let profileSelect = new Dropdown().setOptions(profOptions).setSelectedOption(selectedProf).setLocation(0.6, 0.05, 0.3, 0.1).addEvent(new SoopyContentChangeEvent().setHandler(newval => {
+                    this.updateData(player, newval)
+                }))
+                this.statArea.addChild(profileSelect)
+
+                fetch("http://soopymc.my.to/statgraphgenerations/" + playerData.data.uuid + "/" + selectedProf).json(graphData => {
                     if (player !== this.playerLoad) return
 
                     new Thread(() => {
