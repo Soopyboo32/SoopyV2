@@ -223,7 +223,6 @@ class Events extends Feature {
 				let loc = [e.getX(), e.getY() - 1, e.getZ()]
 				let self = false
 				this.burrialData.locations.forEach(a => {
-					ChatLib.chat(calculateDistanceQuick([a.x, a.y, a.z], loc))
 					if (calculateDistanceQuick([a.x, a.y, a.z], loc) < 25) {
 						self = true
 					}
