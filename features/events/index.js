@@ -4,11 +4,29 @@ import { m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import socketConnection from "../../socketConnection";
 import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
-import { calculateDistanceQuick } from "../../utils/utils";
+import { calculateDistance, calculateDistanceQuick } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
 import { fetch } from "../../utils/networkUtils"
 import ButtonSetting from "../settings/settingThings/button";
+import { delay } from "../../utils/delayUtils";
+
+let warpData = {
+	"castle": [-250, 130, 45],
+	"da": [91, 75, 176],
+	"museum": [-75, 76, 80],
+	"hub": [-2, 70, -69]
+}
+let warpBind = getKeyBindFromKey(Keyboard.KEY_F, "Warp to nearest location to burrial guess");
+function getKeyBindFromKey(key, description) {
+	var mcKeyBind = undefined //MinecraftVars.getKeyBindFromKey(key);
+
+	if (mcKeyBind == null || mcKeyBind == undefined) {
+		mcKeyBind = new KeyBind(description, key);
+	}
+
+	return mcKeyBind;
+}
 
 class Events extends Feature {
 	constructor() {
@@ -30,10 +48,12 @@ class Events extends Feature {
 		this.lastPath = []
 		this.updatingPath = false
 		this.lastPathCords = undefined
+		this.openedWarpsMenu = false
 
 
 		this.loadFromParticles = new ToggleSetting("Load burrials from particles", "Will load particles from burrows in the world", true, "burrial_from_partles", this)
 		this.showBurrialGuess = new ToggleSetting("Estimate burrial location from ability", "Will show a line + box where it thinks the burrial is", true, "burrial_guess", this)
+		new SettingBase("There is also a hotkey to warp near", "see minecraft controls menu", true, "warp_info_hotkey", this)
 		new ButtonSetting("NOTE: You must have music disabled", "for burrial guessess to work (/togglemusic)", "togglemusis_button", this, "click", () => {
 			ChatLib.command("togglemusic")
 		}, false).requires(this.showBurrialGuess)
@@ -57,6 +77,7 @@ class Events extends Feature {
 		this.slayerLocationDataH = {}
 		this.todoE = []
 
+		this.hasWarps = new Set()
 
 		this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 
@@ -72,6 +93,19 @@ class Events extends Feature {
 		this.registerChat("&r&eYou dug out a Griffin Burrow! &r&7(${*}/4)&r", this.burrialClicked)
 		this.registerChat("&r&eYou finished the Griffin burrow chain! &r&7(4/4)&r", this.burrialClicked)
 		this.inquisWaypointSpawned = false
+
+		this.registerEvent("tick", () => {
+			if (warpBind.isPressed()) {
+
+				if (!this.openedWarpsMenu) {
+					ChatLib.chat(this.FeatureManager.messagePrefix + "Please open the warps menu first (/warp)")
+					ChatLib.chat(this.FeatureManager.messagePrefix + "(So the mod knows what warps u have access to)")
+				}
+				let loc = this.getClosestWarp()
+
+				if (loc) ChatLib.command("warp " + loc)
+			}
+		})
 	}
 
 	entityJoinWorldEvent(e) {
@@ -96,7 +130,8 @@ class Events extends Feature {
 		})
 		if (this.showingWaypoints) {
 			if (this.guessPoint && this.showBurrialGuess.getValue()) {
-				drawCoolWaypoint(this.guessPoint[0], this.guessPoint[1], this.guessPoint[2], 255, 255, 0, { name: "§eGuess" })
+				let warpLoc = this.getClosestWarp()
+				drawCoolWaypoint(this.guessPoint[0], this.guessPoint[1], this.guessPoint[2], 255, 255, 0, { name: "§eGuess" + (warpLoc ? " §7(" + warpLoc + ")" : "") })
 			}
 			this.burrialData.locations.forEach((loc, i) => {
 
@@ -174,12 +209,51 @@ class Events extends Feature {
 
 		this.todoE.forEach(e => {
 			e = new Entity(e)
-			if (e.getName().toLowerCase().includes("inquis") && ChatLib.removeFormatting(e.getName().toLowerCase()).includes("40m/40m") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
-				socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
-				this.inquisWaypointSpawned = true
+			if (e.getName().toLowerCase().includes("inquis") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
+				let loc = [e.getX(), e.getY() - 1, e.getZ()]
+				let self = false
+				this.burrialData.locations.forEach(a => {
+					ChatLib.chat(calculateDistanceQuick([a.x, a.y, a.z], loc))
+					if (calculateDistanceQuick([a.x, a.y, a.z], loc) < 25) {
+						self = true
+					}
+				})
+				if (self) {
+					socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
+					this.inquisWaypointSpawned = true
+				}
 			}
 		})
 		this.todoE = []
+
+		if (Player.getContainer().getName() === "Fast Travel") {
+			this.openedWarpsMenu = true
+			for (let item of Player.getContainer().getItems()) {
+				if (!item) continue
+				if (ChatLib.removeFormatting(item.getLore()[1]).startsWith("/warp") && warpData[ChatLib.removeFormatting(item.getLore()[1]).replace("/warp ", "")]) {
+
+					if (item.getLore().some(a => a.includes("Click to warp!"))) {
+						this.hasWarps.add(ChatLib.removeFormatting(item.getLore()[1]).replace("/warp ", ""))
+					}
+				}
+			}
+		}
+	}
+
+	getClosestWarp() {
+		if (!this.guessPoint) return undefined
+		let warp = undefined
+		let minDist = calculateDistance([Player.getX(), Player.getY(), Player.getZ()], this.guessPoint) - 50
+
+		this.hasWarps.forEach(w => {
+			let d = calculateDistance(warpData[w], this.guessPoint)
+			if (d < minDist) {
+				warp = w
+				minDist = d
+			}
+		})
+
+		return warp
 	}
 
 	step_5s() {
