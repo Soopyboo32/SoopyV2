@@ -45,7 +45,7 @@ class ChangeLogGui extends Feature {
         }
         let alertBeta = this.FeatureManager.features["globalSettings"].class.alertAllUpdates.getValue()
 
-        if (this.latestAnnouncedVersion < alertBeta ? this.ChangelogPage.downloadableVersion : this.ChangelogPage.importantVersion) {
+        if (this.latestAnnouncedVersion < (alertBeta ? this.ChangelogPage.downloadableVersion : this.ChangelogPage.importantVersion)) {
             let version = ""
             this.ChangelogPage.changelogData.forEach(data => {
 

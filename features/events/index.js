@@ -174,7 +174,7 @@ class Events extends Feature {
 
 		this.todoE.forEach(e => {
 			e = new Entity(e)
-			if (e.getName().toLowerCase().includes("inquis") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
+			if (e.getName().toLowerCase().includes("inquis") && ChatLib.removeFormatting(e.getName().toLowerCase()).includes("40m/40m") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
 				socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
 				this.inquisWaypointSpawned = true
 			}
