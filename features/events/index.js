@@ -15,9 +15,9 @@ let warpData = {
 	"castle": [-250, 130, 45],
 	"da": [91, 75, 176],
 	"museum": [-75, 76, 80],
-	"hub": [-2, 70, -69]
+	"hub": [-2, 70, -69],
+	"worldload": undefined
 }
-let warpBind = getKeyBindFromKey(Keyboard.KEY_F, "Warp to nearest location to burrial guess");
 function getKeyBindFromKey(key, description) {
 	var mcKeyBind = undefined //MinecraftVars.getKeyBindFromKey(key);
 
@@ -74,10 +74,15 @@ class Events extends Feature {
 		this.dingIndex = 0
 		this.dingSlope = []
 
+		this.warpBindDefault = new ToggleSetting("Show cool title when someone's inquis spawned", "May be usefull for loot share", true, "inquis_ping_other", this)
+
+		this.warpBind = getKeyBindFromKey(Keyboard.KEY_F, "Warp to nearest location to burrial guess");
+
 		this.slayerLocationDataH = {}
 		this.todoE = []
 
 		this.hasWarps = new Set()
+		this.hasWarps.add("worldload")
 
 		this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 
@@ -95,7 +100,7 @@ class Events extends Feature {
 		this.inquisWaypointSpawned = false
 
 		this.registerEvent("tick", () => {
-			if (warpBind.isPressed()) {
+			if (this.warpBind.isPressed()) {
 
 				if (!this.openedWarpsMenu) {
 					ChatLib.chat(this.FeatureManager.messagePrefix + "Please open the warps menu first (/warp)")
@@ -103,8 +108,12 @@ class Events extends Feature {
 				}
 				let loc = this.getClosestWarp()
 
-				if (loc) ChatLib.command("warp " + loc)
+				if (loc) ChatLib.command(loc)
 			}
+		})
+
+		this.registerCommand("sethubwarp", () => {
+			warpData.worldload = [Player.getX(), Player.getY(), Player.getZ()]
 		})
 	}
 
@@ -246,9 +255,11 @@ class Events extends Feature {
 		let minDist = calculateDistance([Player.getX(), Player.getY(), Player.getZ()], this.guessPoint) - 50
 
 		this.hasWarps.forEach(w => {
+			if (!warpData[w]) return
 			let d = calculateDistance(warpData[w], this.guessPoint)
 			if (d < minDist) {
-				warp = w
+				warp = "warp " + w
+				if (w === "worldload") warp = "hub"
 				minDist = d
 			}
 		})
@@ -261,6 +272,8 @@ class Events extends Feature {
 	}
 
 	worldLoad() {
+		warpData.worldload = [Player.getX(), Player.getY(), Player.getZ()]
+
 		this.burrialData.points = []
 		this.burrialData.locations = []
 		this.burrialData.historicalLocations = []
