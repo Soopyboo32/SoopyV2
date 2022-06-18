@@ -38,7 +38,14 @@ class ChangeLogGui extends Feature {
 
     worldLoad() {
         if (this.ChangelogPage.downloadableVersion === -1) return
-        if (this.latestAnnouncedVersion < this.ChangelogPage.downloadableVersion) {
+
+
+        if (this.FeatureManager.features["globalSettings"] === undefined || this.FeatureManager.features["globalSettings"].class.alertAllUpdates === undefined) {
+            return
+        }
+        let alertBeta = this.FeatureManager.features["globalSettings"].class.alertAllUpdates.getValue()
+
+        if (this.latestAnnouncedVersion < alertBeta ? this.ChangelogPage.downloadableVersion : this.ChangelogPage.importantVersion) {
             let version = ""
             this.ChangelogPage.changelogData.forEach(data => {
 
@@ -80,6 +87,8 @@ class ChangelogPage extends GuiPage {
 
         this.changelogData = []
         this.downloadableVersion = -1
+
+        this.importantVersion = -1
 
         let changelogTitle = new SoopyTextElement().setText("§0Changelog").setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.1)
         this.pages[0].addChild(changelogTitle)
@@ -133,6 +142,7 @@ class ChangelogPage extends GuiPage {
             this.changelogData = data.changelog.reverse()
 
             this.downloadableVersion = data.downloadableVersion
+            this.importantVersion = data.importantVersion
 
             this.updateText()
         })

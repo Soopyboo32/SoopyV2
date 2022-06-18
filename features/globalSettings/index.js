@@ -38,6 +38,8 @@ class GlobalSettings extends Feature {
         this.newApiKey = new ButtonSetting("Run /api new", "This is here so u dont need to exit and re-enter", "api_new_command", this, "Click!", this.apiNewCommand, undefined)
         this.findApiKey = new ButtonSetting("Attempt to load api key from other mods", "This will scan other mods configs to attempt to find your key", "find_key", this, "Click!", () => { this.findKey() }, undefined)
 
+        this.alertAllUpdates = new ToggleSetting("Send chat update avalible for all updates", "if off itll notify less", false, "alert_all_updates", this)
+
         this.fixNeuNetworth = new ToggleSetting("Change networth in NEU pv to soopynw", "This should make it a lot more accurate", true, "neu_nw_override", this)
         this.darkTheme = new ToggleSetting("Dark theme", "This might be scuffed because guis are still made in light theme", false, "dark_theme", this)
         this.linkPreview = new ToggleSetting("Link preview", "Shows a preview of where a link will take you", true, "link_preview", this)
