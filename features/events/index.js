@@ -77,7 +77,11 @@ class Events extends Feature {
 
 		this.warpBindDefault = new TextSetting("Default keybind", "Eg KEY_F", "KEY_F", "inquis_keybind_default", this, "", false)
 
-		this.warpBind = getKeyBindFromKey(Keyboard[this.warpBindDefault.getValue()], "Warp to nearest location to burrial guess");
+		try {
+			this.warpBind = getKeyBindFromKey(Keyboard[this.warpBindDefault.getValue()], "Warp to nearest location to burrial guess");
+		} catch (e) {
+			ChatLib.chat(this.FeatureManager.messagePrefix + this.warpBindDefault.getValue() + " is an invalid keyboard key, see https://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html")
+		}
 
 		this.slayerLocationDataH = {}
 		this.todoE = []

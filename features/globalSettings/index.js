@@ -114,6 +114,16 @@ class GlobalSettings extends Feature {
         this.registerCommand("lobbyday", () => {
             ChatLib.chat(this.FeatureManager.messagePrefix + "Current lobby is day " + (World.getTime() / 20 / 60 / 20).toFixed(2))
         })
+        this.registerCommand("lobbyusers", () => {
+            fetch("http://soopymc.my.to/api/soopyv2/lobbyusers/" + this.FeatureManager.features["dataLoader"].class.stats.Server).json(data => {
+                ChatLib.chat("&c" + ChatLib.getChatBreak("-"))
+                ChatLib.chat(this.FeatureManager.messagePrefix + "&7(" + data.data + ")&r Lobby soopyv2 users:")
+                data.data.forEach(name => {
+                    ChatLib.chat("&7 - &r" + name)
+                })
+                ChatLib.chat("&c" + ChatLib.getChatBreak("-"))
+            })
+        })
 
         this.lastCookies = 0
 
@@ -131,8 +141,8 @@ class GlobalSettings extends Feature {
 
         this.partyChatEnabled = true
 
-        this.registerChat("&r&9Party &8> ${*}", (e)=>{
-            if(!this.partyChatEnabled){
+        this.registerChat("&r&9Party &8> ${*}", (e) => {
+            if (!this.partyChatEnabled) {
                 cancel(e)
             }
         })
