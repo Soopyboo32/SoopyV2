@@ -128,6 +128,14 @@ class GlobalSettings extends Feature {
         })
 
         this.registerEvent("guiMouseClick", this.guiClicked)
+
+        this.partyChatEnabled = true
+
+        this.registerChat("&r&9Party &8> ${*}", (e)=>{
+            if(!this.partyChatEnabled){
+                cancel(e)
+            }
+        })
     }
 
     renderWebpage() {

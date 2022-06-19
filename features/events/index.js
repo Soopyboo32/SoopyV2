@@ -55,7 +55,7 @@ class Events extends Feature {
 		this.loadFromParticles = new ToggleSetting("Load burrials from particles", "Will load particles from burrows in the world", true, "burrial_from_partles", this)
 		this.showBurrialGuess = new ToggleSetting("Estimate burrial location from ability", "Will show a line + box where it thinks the burrial is", true, "burrial_guess", this)
 		new SettingBase("There is also a hotkey to warp near", "see minecraft controls menu", true, "warp_info_hotkey", this)
-		new ButtonSetting("NOTE: You must have music disabled", "for burrial guessess to work (/togglemusic)", "togglemusis_button", this, "click", () => {
+		new ButtonSetting("NOTE: You must have music disabled", "for burrial guessess to work (/togglemusic)", "togglemusis_button", this, "toggle", () => {
 			ChatLib.command("togglemusic")
 		}, false).requires(this.showBurrialGuess)
 
@@ -174,7 +174,7 @@ class Events extends Feature {
 
 		if (this.otherInquisWaypoints.getValue()) {
 			Object.keys(this.slayerLocationDataH).forEach(key => {
-				drawCoolWaypoint(this.slayerLocationDataH[key][0][0], this.slayerLocationDataH[key][0][1], this.slayerLocationDataH[key][0][2], 255, 0, 0, { name: key + "'s inquis" })
+				drawCoolWaypoint(this.slayerLocationDataH[key][0][0], this.slayerLocationDataH[key][0][1], this.slayerLocationDataH[key][0][2], 255, 0, 0, { name: "§c" + key + "'s inquis" })
 			})
 		}
 	}
