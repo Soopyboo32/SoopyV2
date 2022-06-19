@@ -198,7 +198,6 @@ class Slayers extends Feature {
 			}
 		}
 	}
-
 	renderWorld(ticks) {
 		if (this.emanBoss && this.boxAroundEmanBoss.getValue()) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false);
 
@@ -244,6 +243,7 @@ class Slayers extends Feature {
 	}
 
 	tick() {
+		let text = ""
 		if (this.hideSummonsForLoot.getValue() && this.hideSummons) {
 			this.renderEntityEvent.register();
 		} else if (this.hideSummonsForLoot.getValue()) {
@@ -309,11 +309,20 @@ class Slayers extends Feature {
 						// console.log(":" + new Item(e[m.getEquipmentInSlot](4)).getNBT().getCompoundTag("tag").getCompoundTag("SkullOwner").getCompoundTag("Properties").getRawNBT().func_150295_c("textures", 10).func_150305_b(0).func_74779_i("Value"))
 					}
 				}
-
+				
 				if (e[m.getCustomNameTag]() && e[m.getCustomNameTag]().includes("Voidgloom Seraph")) {
 					if (Date.now() - this.nextIsBoss < 3000) {
 						this.emanBoss = new Entity(e);
 						this.nextIsBoss = false;
+					}
+					// just makes it to work on all eman slayers
+					if (this.allEmanBosses.getValue()) {
+						if ((e[f.posX.Entity] - Player.getX()) ** 2 + (e[f.posY.Entity] - Player.getY()) ** 2 + (e[f.posZ.Entity] - Player.getZ()) ** 2 > 20) return
+						let emanHealth = ChatLib.removeFormatting(e[m.getCustomNameTag]().split("Voidgloom Seraph")[1])
+						//only runs when t4's hp is <= 3m
+						if (emanHealth.includes("k") || (emanHealth.includes("m") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
+							this.hideSummons = true
+						}
 					}
 				}
 
@@ -342,6 +351,7 @@ class Slayers extends Feature {
 
 		if (this.emanBoss && this.emanBoss.getEntity()[f.isDead]) {
 			if (this.hideSummonsForLoot.getValue()) {
+				this.hideSummons = true
 				delay(2000, () => { this.hideSummons = false })
 			}
 			this.emanBoss = undefined
@@ -433,18 +443,6 @@ class Slayers extends Feature {
 			return true;
 		});
 
-		// just makes it to work on all eman slayers
-		if (this.allEmanBosses.getValue()) {
-			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(enderman => {
-				if (!enderman.getName().split(" ").includes("Voidgloom") || enderman.distanceTo(Player.getPlayer()) > 20) return
-				let emanHealth = ChatLib.removeFormatting(enderman.getName().split("Voidgloom Seraph")[1])
-				//only runs when t4's hp is <= 3m
-				if (emanHealth.includes("k") || (emanHealth.includes("m") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
-					this.hideSummons = true
-				}
-			});
-		}
-
 		if (this.emanBoss) {
 			let emanText = "&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim()
 			let emanHealth = ChatLib.removeFormatting(this.emanBoss.getName().split("Voidgloom Seraph")[1])
@@ -466,9 +464,9 @@ class Slayers extends Feature {
 				}
 			}
 
-			this.emanHpElement.setText(emanText);
+			this.emanHpElement.setText(emanText + `\n&r${text}`);
 		} else {
-			this.emanHpElement.setText("");
+			this.emanHpElement.setText("" + `&r${text}`);
 		}
 
 		if (this.pillerE) {
