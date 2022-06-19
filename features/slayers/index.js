@@ -320,7 +320,7 @@ class Slayers extends Feature {
 						if ((e[f.posX.Entity] - Player.getX()) ** 2 + (e[f.posY.Entity] - Player.getY()) ** 2 + (e[f.posZ.Entity] - Player.getZ()) ** 2 > 20) return
 						let emanHealth = ChatLib.removeFormatting(e[m.getCustomNameTag]().split("Voidgloom Seraph")[1])
 						//only runs when t4's hp is <= 3m
-						if (emanHealth.includes("k") || (emanHealth.includes("m") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
+						if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
 							this.hideSummons = true
 						}
 					}
@@ -447,7 +447,7 @@ class Slayers extends Feature {
 			let emanText = "&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim()
 			let emanHealth = ChatLib.removeFormatting(this.emanBoss.getName().split("Voidgloom Seraph")[1])
 			//only runs when t4's hp is <= 3m
-			if (emanHealth.includes("k") || (emanHealth.includes("m") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
+			if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
 				this.hideSummons = true
 			}
 			if (this.rcmDaeAxeSupport.getValue()) {
