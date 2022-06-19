@@ -27,11 +27,12 @@ class Slayers extends Feature {
 		this.boxToEmanBeacon = new ToggleSetting("Box and line to the enderman beacon", "This will help to find the beacon when the boss throws it", true, "eman_beacon", this);
 		this.emanBeaconDinkDonk = new ToggleSetting("DinkDonk when beacon is spawned", "This will help to notice when the beacon is spawned", true, "eman_beacon_dinkdink", this);
 		this.emanEyeThings = new ToggleSetting("Put box around the enderman eye things", "This will help to find them", true, "eman_eye_thing", this);
-		this.emanHpGuiElement = new ToggleSetting("Render the enderman hp on your screen", "This will help you to know what stage u are in etc.", true, "eman_hp", this);
+		this.emanHpGuiElement = new ToggleSetting("Render the enderman hp on your screen", "This will help you to know what stage u are in etc.", true, "eman_hp", this).contributor("EmeraldMerchant");
 
 		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
 		this.hudElements.push(this.emanHpElement);
-		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 drops", "This will make loots more visible.", false, "show_loot", this);
+		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 drops", "This will make loots more visible.", false, "show_loot", this).contributor("EmeraldMerchant");
+		this.allEmanBosses = new ToggleSetting("Hides summons for all eman bosses", "Hides summon for not just your boss, might fix ^ sometimes not working", false, "show_loot_all_bosses", this).requires(this.hideSummonsForLoot).contributor("EmeraldMerchant");
 
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
@@ -430,7 +431,18 @@ class Slayers extends Feature {
 			}
 			return true;
 		});
-
+		
+		// just makes it to work on all eman slayers
+		if (this.allEmanBosses.getValue()) {
+			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(enderman => {
+				if (!enderman.getName().split(" ").includes("Voidgloom") || enderman.distanceTo(Player.getPlayer()) > 20) return
+				let emanHealth = ChatLib.removeFormatting(enderman.getName().split("Voidgloom Seraph")[1])
+				//only runs when t4's hp is <= 3m
+				if (emanHealth.includes("k") || (emanHealth.includes("m") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
+					this.hideSummons = true
+				}
+			});
+		}
 
 		if (this.emanBoss) {
 			let emanText = "&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim()
