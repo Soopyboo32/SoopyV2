@@ -368,6 +368,7 @@ register("worldLoad", () => {
         ChatLib.chat("§cWARNING: You dont have the forge mod for soopyv2 installed")
         ChatLib.chat("§cWARNING: -> almost nothing can be rendered")
         new TextComponent(" &e[CLICK] &7- Download").setHover("show_text", "&2Download").setClick("open_url", "https://github.com/Soopyboo32/SoopyV2Forge/releases").chat()
+        ChatLib.chat("Or if u want to remove soopyv2 run /ct delete soopyv2")
         ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
     }
     if (SoopyV2Forge.getVersion() !== LASTEST_SOOPYFORGE_VER) {
