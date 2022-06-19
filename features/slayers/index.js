@@ -10,6 +10,7 @@ import ToggleSetting from "../settings/settingThings/toggle";
 import socketConnection from "../../socketConnection";
 import TextSetting from "../settings/settingThings/textSetting";
 import { firstLetterCapital } from "../../utils/stringUtils";
+import { delay } from "../../utils/delayUtils";
 
 class Slayers extends Feature {
 	constructor() {
@@ -341,7 +342,7 @@ class Slayers extends Feature {
 
 		if (this.emanBoss && this.emanBoss.getEntity()[f.isDead]) {
 			if (this.hideSummonsForLoot.getValue()) {
-				setTimeout(() => { this.hideSummons = false }, 2000);
+				delay(2000, () => { this.hideSummons = false })
 			}
 			this.emanBoss = undefined
 			this.actualEmanBoss = undefined
@@ -431,7 +432,7 @@ class Slayers extends Feature {
 			}
 			return true;
 		});
-		
+
 		// just makes it to work on all eman slayers
 		if (this.allEmanBosses.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(enderman => {
