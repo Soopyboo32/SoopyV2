@@ -31,6 +31,7 @@ class Slayers extends Feature {
 
 		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
 		this.hudElements.push(this.emanHpElement);
+		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 drops", "This will make loots more visible.", false, "show_loot", this);
 
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
@@ -130,6 +131,7 @@ class Slayers extends Feature {
 		this.todoE2 = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined
+		this.hideSummons = false;
 		this.nextIsBoss = 0;
 		this.counter = 0;
 		this.emanStartedSittingTime = -1
@@ -140,6 +142,8 @@ class Slayers extends Feature {
 
 		this.entityAttackEventLoaded = false;
 		this.entityAttackEventE = undefined;
+		this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
+		this.renderEntityEvent.unregister();
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.hasQuest);
 		this.registerEvent("tick", this.tick);
@@ -165,9 +169,16 @@ class Slayers extends Feature {
 		this.beaconLocations = {};
 		this.eyeE = [];
 		this.emanBoss = undefined;
-		this.actualEmanBoss = undefined
+		this.actualEmanBoss = undefined;
+		this.hideSummons = false
 
 		this.slayerLocationDataH = {}
+	}
+
+	renderEntity(entity, pos, partialTicks, event) {
+		if (entity.getClassName() === "EntityZombie") {
+			cancel(event)
+		}
 	}
 
 	entityAttackEvent(event) {
@@ -231,6 +242,11 @@ class Slayers extends Feature {
 	}
 
 	tick() {
+		if (this.hideSummonsForLoot.getValue() && this.hideSummons) {
+			this.renderEntityEvent.register();
+		} else if (this.hideSummonsForLoot.getValue()) {
+			this.renderEntityEvent.unregister();
+		}
 		if (this.betterHideDeadEntity.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(name => {
 				if (name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1] === "0❤" ||
@@ -323,6 +339,9 @@ class Slayers extends Feature {
 		}
 
 		if (this.emanBoss && this.emanBoss.getEntity()[f.isDead]) {
+			if (this.hideSummonsForLoot.getValue()) {
+				setTimeout(() => { this.hideSummons = false }, 2000);
+			}
 			this.emanBoss = undefined
 			this.actualEmanBoss = undefined
 		}
@@ -415,10 +434,12 @@ class Slayers extends Feature {
 
 		if (this.emanBoss) {
 			let emanText = "&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim()
-
+			let emanHealth = ChatLib.removeFormatting(this.emanBoss.getName().split("Voidgloom Seraph")[1])
+			//only runs when t4's hp is <= 3m
+			if (emanHealth.includes("k") || (emanHealth.includes("m") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
+				this.hideSummons = true
+			}
 			if (this.rcmDaeAxeSupport.getValue()) {
-				let emanHealth = ChatLib.removeFormatting(this.emanBoss.getName().split("Voidgloom Seraph")[1])
-
 				if (emanHealth.includes("k")) {
 					emanText += " &c0 Hits"
 				} else if (emanHealth.includes("M") && parseInt(emanHealth) <= parseFloat(this.whenToShowHitsLeft.getValue())) {
@@ -598,6 +619,7 @@ class Slayers extends Feature {
 		this.entityAttackEventLoaded = undefined;
 		this.todoE2 = undefined;
 		this.entityAttackEventE = undefined;
+		this.hideSummons = false;
 	}
 
 	onDisable() {
