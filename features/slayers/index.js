@@ -10,6 +10,7 @@ import ToggleSetting from "../settings/settingThings/toggle";
 import socketConnection from "../../socketConnection";
 import TextSetting from "../settings/settingThings/textSetting";
 import { firstLetterCapital } from "../../utils/stringUtils";
+import { delay } from "../../utils/delayUtils";
 
 class Slayers extends Feature {
 	constructor() {
@@ -27,10 +28,12 @@ class Slayers extends Feature {
 		this.boxToEmanBeacon = new ToggleSetting("Box and line to the enderman beacon", "This will help to find the beacon when the boss throws it", true, "eman_beacon", this);
 		this.emanBeaconDinkDonk = new ToggleSetting("DinkDonk when beacon is spawned", "This will help to notice when the beacon is spawned", true, "eman_beacon_dinkdink", this);
 		this.emanEyeThings = new ToggleSetting("Put box around the enderman eye things", "This will help to find them", true, "eman_eye_thing", this);
-		this.emanHpGuiElement = new ToggleSetting("Render the enderman hp on your screen", "This will help you to know what stage u are in etc.", true, "eman_hp", this);
+		this.emanHpGuiElement = new ToggleSetting("Render the enderman hp on your screen", "This will help you to know what stage u are in etc.", true, "eman_hp", this).contributor("EmeraldMerchant");
 
 		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
 		this.hudElements.push(this.emanHpElement);
+		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 drops", "This will make loots more visible.", false, "show_loot", this).contributor("EmeraldMerchant");
+		this.allEmanBosses = new ToggleSetting("Hides summons for all eman bosses", "Hides summon for not just your boss, might fix ^ sometimes not working", false, "show_loot_all_bosses", this).requires(this.hideSummonsForLoot).contributor("EmeraldMerchant");
 
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
@@ -130,6 +133,7 @@ class Slayers extends Feature {
 		this.todoE2 = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined
+		this.hideSummons = false;
 		this.nextIsBoss = 0;
 		this.counter = 0;
 		this.emanStartedSittingTime = -1
@@ -140,6 +144,8 @@ class Slayers extends Feature {
 
 		this.entityAttackEventLoaded = false;
 		this.entityAttackEventE = undefined;
+		this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
+		this.renderEntityEvent.unregister();
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.hasQuest);
 		this.registerEvent("tick", this.tick);
@@ -165,9 +171,16 @@ class Slayers extends Feature {
 		this.beaconLocations = {};
 		this.eyeE = [];
 		this.emanBoss = undefined;
-		this.actualEmanBoss = undefined
+		this.actualEmanBoss = undefined;
+		this.hideSummons = false
 
 		this.slayerLocationDataH = {}
+	}
+
+	renderEntity(entity, pos, partialTicks, event) {
+		if (entity.getClassName() === "EntityZombie") {
+			cancel(event)
+		}
 	}
 
 	entityAttackEvent(event) {
@@ -185,7 +198,6 @@ class Slayers extends Feature {
 			}
 		}
 	}
-
 	renderWorld(ticks) {
 		if (this.emanBoss && this.boxAroundEmanBoss.getValue()) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false);
 
@@ -231,6 +243,12 @@ class Slayers extends Feature {
 	}
 
 	tick() {
+		let text = ""
+		if (this.hideSummonsForLoot.getValue() && this.hideSummons) {
+			this.renderEntityEvent.register();
+		} else if (this.hideSummonsForLoot.getValue()) {
+			this.renderEntityEvent.unregister();
+		}
 		if (this.betterHideDeadEntity.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(name => {
 				if (name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1] === "0❤" ||
@@ -291,11 +309,20 @@ class Slayers extends Feature {
 						// console.log(":" + new Item(e[m.getEquipmentInSlot](4)).getNBT().getCompoundTag("tag").getCompoundTag("SkullOwner").getCompoundTag("Properties").getRawNBT().func_150295_c("textures", 10).func_150305_b(0).func_74779_i("Value"))
 					}
 				}
-
+				
 				if (e[m.getCustomNameTag]() && e[m.getCustomNameTag]().includes("Voidgloom Seraph")) {
 					if (Date.now() - this.nextIsBoss < 3000) {
 						this.emanBoss = new Entity(e);
 						this.nextIsBoss = false;
+					}
+					// just makes it to work on all eman slayers
+					if (this.allEmanBosses.getValue()) {
+						if ((e[f.posX.Entity] - Player.getX()) ** 2 + (e[f.posY.Entity] - Player.getY()) ** 2 + (e[f.posZ.Entity] - Player.getZ()) ** 2 > 20) return
+						let emanHealth = ChatLib.removeFormatting(e[m.getCustomNameTag]().split("Voidgloom Seraph")[1])
+						//only runs when t4's hp is <= 3m
+						if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
+							this.hideSummons = true
+						}
 					}
 				}
 
@@ -323,6 +350,10 @@ class Slayers extends Feature {
 		}
 
 		if (this.emanBoss && this.emanBoss.getEntity()[f.isDead]) {
+			if (this.hideSummonsForLoot.getValue()) {
+				this.hideSummons = true
+				delay(2000, () => { this.hideSummons = false })
+			}
 			this.emanBoss = undefined
 			this.actualEmanBoss = undefined
 		}
@@ -412,13 +443,14 @@ class Slayers extends Feature {
 			return true;
 		});
 
-
 		if (this.emanBoss) {
 			let emanText = "&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim()
-
+			let emanHealth = ChatLib.removeFormatting(this.emanBoss.getName().split("Voidgloom Seraph")[1])
+			//only runs when t4's hp is <= 3m
+			if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
+				this.hideSummons = true
+			}
 			if (this.rcmDaeAxeSupport.getValue()) {
-				let emanHealth = ChatLib.removeFormatting(this.emanBoss.getName().split("Voidgloom Seraph")[1])
-
 				if (emanHealth.includes("k")) {
 					emanText += " &c0 Hits"
 				} else if (emanHealth.includes("M") && parseInt(emanHealth) <= parseFloat(this.whenToShowHitsLeft.getValue())) {
@@ -432,9 +464,9 @@ class Slayers extends Feature {
 				}
 			}
 
-			this.emanHpElement.setText(emanText);
+			this.emanHpElement.setText(emanText + `\n&r${text}`);
 		} else {
-			this.emanHpElement.setText("");
+			this.emanHpElement.setText("" + `&r${text}`);
 		}
 
 		if (this.pillerE) {
@@ -598,6 +630,7 @@ class Slayers extends Feature {
 		this.entityAttackEventLoaded = undefined;
 		this.todoE2 = undefined;
 		this.entityAttackEventE = undefined;
+		this.hideSummons = false;
 	}
 
 	onDisable() {
