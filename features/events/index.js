@@ -75,7 +75,7 @@ class Events extends Feature {
 		this.dingIndex = 0
 		this.dingSlope = []
 
-		this.warpBindDefault = new TextSetting("Default keybind", "Eg KEY_F", "KEY_F", "inquis_keybind_default", this, "", false)
+		this.warpBindDefault = new TextSetting("Default keybind", "Eg KEY_F", "CHAR_NONE", "inquis_keybind_default", this, "", false)
 
 		try {
 			this.warpBind = getKeyBindFromKey(Keyboard[this.warpBindDefault.getValue()], "Warp to nearest location to burrial guess");
@@ -120,12 +120,6 @@ class Events extends Feature {
 		this.registerCommand("sethubwarp", () => {
 			warpData.worldload = [Player.getX(), Player.getY(), Player.getZ()]
 			ChatLib.chat(this.FeatureManager.messagePrefix + "Set /hub location!")
-		})
-		this.registerCommand("setpmemb", (...memb) => {
-			this.FeatureManager.features["dataLoader"].class.partyMembers.clear()
-			memb.forEach(m => {
-				this.FeatureManager.features["dataLoader"].class.partyMembers.add(memb)
-			})
 		})
 	}
 
