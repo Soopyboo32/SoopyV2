@@ -59,9 +59,9 @@ class Events extends Feature {
 			ChatLib.command("togglemusic")
 		}, false).requires(this.showBurrialGuess)
 
-		this.otherInquisWaypoints = new ToggleSetting("Show other users inquis locations", "May be usefull for loot share", true, "inquis_location_other", this).requires(this.loadFromParticles)
+		this.otherInquisWaypoints = new ToggleSetting("Show other users inquis locations", "If disabled others wont be able to see urs", true, "inquis_location_other", this).requires(this.loadFromParticles)
 		this.otherInquisPing = new ToggleSetting("Show cool title when someone's inquis spawned", "May be usefull for loot share", true, "inquis_ping_other", this).requires(this.loadFromParticles)
-
+		this.limitPMemb = new ToggleSetting("Only send inquis ping to party members", "If not in a party it works as default", true, "inquis_ping_party", this).requires(this.otherInquisPing)
 		this.shinyBlocks = []
 
 		this.lastDing = 0
@@ -121,10 +121,16 @@ class Events extends Feature {
 			warpData.worldload = [Player.getX(), Player.getY(), Player.getZ()]
 			ChatLib.chat(this.FeatureManager.messagePrefix + "Set /hub location!")
 		})
+		this.registerCommand("setpmemb", (...memb) => {
+			this.FeatureManager.features["dataLoader"].class.partyMembers.clear()
+			memb.forEach(m => {
+				this.FeatureManager.features["dataLoader"].class.partyMembers.add(memb)
+			})
+		})
 	}
 
 	entityJoinWorldEvent(e) {
-		this.todoE.push(e.entity);
+		if (this.otherInquisWaypoints.getValue()) this.todoE.push(e.entity);
 	}
 
 	inquisData(loc, user) {
@@ -233,7 +239,9 @@ class Events extends Feature {
 					}
 				})
 				if (self) {
-					socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
+					let pmemb = []
+					this.FeatureManager.features["dataLoader"].class.partyMembers.forEach(a => pmemb.push(a))
+					socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())], pmemb, limitPMemb: pmemb.length !== 0 && this.limitPMemb.getValue() });
 					this.inquisWaypointSpawned = true
 				}
 			}

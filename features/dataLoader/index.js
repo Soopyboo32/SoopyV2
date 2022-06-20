@@ -37,6 +37,9 @@ class DataLoader extends Feature {
 
         this.loadedApiDatas = {}
 
+        this.partyMembers = new Set()
+        this.partyMembers.add(Player.getName())
+
         this.lastApiData = {
             "skyblock": undefined,
             "player": undefined,
@@ -50,7 +53,44 @@ class DataLoader extends Feature {
 
         this.step_5min()
 
-        this.firstLoaded = false
+        this.firstLoaded = false;
+
+        ["You are not currently in a party.", "You have been kicked from the party by ${*}", "You left the party.", "The party was disbanded because all invites expired and the party was empty", "${*} &r&ehas disbanded the party!&r"].forEach(m => this.registerChat(m, () => {
+            this.partyMembers.clear()
+            this.partyMembers.add(Player.getName())
+        }));
+
+        ["${mem} &r&ejoined the party.&r", "${mem} &r&einvited &r${*} &r&eto the party! They have &r&c60 &r&eseconds to accept.&r", "&dDungeon Finder &r&f> &r${mem} &r&ejoined the dungeon group! (&r&b${*}&r&e)&r"].forEach(m => this.registerChat(m, (mem) => {
+            this.partyMembers.add(ChatLib.removeFormatting(mem.trim().split(" ").pop().trim()))
+        }));
+        ["${mem} &r&ehas been removed from the party.&r", "${mem} &r&ehas left the party.&r", "${mem} &r&ewas removed from your party because they disconnected&r", "Kicked ${mem} because they were offline."].forEach(m => this.registerChat(m, (mem) => {
+            this.partyMembers.delete(ChatLib.removeFormatting(mem.trim().split(" ").pop().trim()))
+        }))
+        this.registerChat("&eYou have joined &r${mem}'s &r&eparty!&r", (mem) => {
+            this.partyMembers.clear()
+            this.partyMembers.add(Player.getName())
+            this.partyMembers.add(ChatLib.removeFormatting(p = mem.trim().split(" ").pop().trim()))
+        })
+        this.registerChat("&eYou have joined &r${mem}' &r&eparty!&r", (mem) => {
+            this.partyMembers.clear()
+            this.partyMembers.add(Player.getName())
+            this.partyMembers.add(ChatLib.removeFormatting(mem).trim())
+        })
+        this.registerChat("&eYou'll be partying with: ${mem}", (mem) => {
+            mem.split(",").forEach(p => {
+                this.partyMembers.add(ChatLib.removeFormatting(p.trim().split(" ").pop().trim()))
+            })
+        })
+        this.registerChat("&eParty ${type}: ${mem}", (type, mem) => {
+            if (type.toLowerCase().includes("leader")) this.partyMembers.clear()
+            ChatLib.removeFormatting(mem).split("●").forEach(p => {
+                if (!p.trim()) return
+                this.partyMembers.add(p.trim().split(" ").pop().trim())
+            })
+        })
+        this.registerCommand("pmembdebug", () => {
+            ChatLib.chat([...this.partyMembers].join(" | "))
+        })
     }
 
     step_5min() {
