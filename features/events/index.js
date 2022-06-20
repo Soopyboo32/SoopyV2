@@ -241,7 +241,7 @@ class Events extends Feature {
 				if (self) {
 					let pmemb = []
 					this.FeatureManager.features["dataLoader"].class.partyMembers.forEach(a => pmemb.push(a))
-					socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())], pmemb, limitPMemb: pmemb.length !== 0 && this.limitPMemb.getValue() });
+					socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())], pmemb, limitPMemb: pmemb.length > 1 && this.limitPMemb.getValue() });
 					this.inquisWaypointSpawned = true
 				}
 			}
