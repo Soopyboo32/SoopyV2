@@ -32,7 +32,7 @@ class Slayers extends Feature {
 
 		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
 		this.hudElements.push(this.emanHpElement);
-		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 voidgloom drops", "This will make loots more visible.", false, "show_loot", this).contributor("EmeraldMerchant");
+		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 drops", "This will make loots more visible.", false, "show_loot", this).contributor("EmeraldMerchant");
 		this.allEmanBosses = new ToggleSetting("Hides summons for all eman bosses", "Hides summon for not just your boss, might fix ^ sometimes not working", false, "show_loot_all_bosses", this).requires(this.hideSummonsForLoot).contributor("EmeraldMerchant");
 
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
@@ -90,7 +90,7 @@ class Slayers extends Feature {
 			}
 
 			let multiplier = 1
-			if (this.FeatureManager.features["dataLoader"].class.mayorData.mayor.name === "Aatrox") {
+			if (this.FeatureManager.features["dataLoader"].class.mayorData.mayor?.name === "Aatrox") {
 				if (this.FeatureManager.features["dataLoader"].class.currentMayorPerks.has("Slayer XP Buff")) {
 					multiplier += 0.25
 				}
@@ -243,7 +243,6 @@ class Slayers extends Feature {
 	}
 
 	tick() {
-		let text = ""
 		if (this.hideSummonsForLoot.getValue() && this.hideSummons) {
 			this.renderEntityEvent.register();
 		} else if (this.hideSummonsForLoot.getValue()) {
@@ -309,7 +308,7 @@ class Slayers extends Feature {
 						// console.log(":" + new Item(e[m.getEquipmentInSlot](4)).getNBT().getCompoundTag("tag").getCompoundTag("SkullOwner").getCompoundTag("Properties").getRawNBT().func_150295_c("textures", 10).func_150305_b(0).func_74779_i("Value"))
 					}
 				}
-				
+
 				if (e[m.getCustomNameTag]() && e[m.getCustomNameTag]().includes("Voidgloom Seraph")) {
 					if (Date.now() - this.nextIsBoss < 3000) {
 						this.emanBoss = new Entity(e);
@@ -464,9 +463,9 @@ class Slayers extends Feature {
 				}
 			}
 
-			this.emanHpElement.setText(emanText + `\n&r${text}`);
+			this.emanHpElement.setText(emanText);
 		} else {
-			this.emanHpElement.setText("" + `&r${text}`);
+			this.emanHpElement.setText("");
 		}
 
 		if (this.pillerE) {
