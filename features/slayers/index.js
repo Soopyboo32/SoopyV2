@@ -169,7 +169,7 @@ class Slayers extends Feature {
 		}
 		//the volume of miniboss spawning is 0.6000000238418579
 		this.registerSoundPlay("random.explode", (pos, name, vol, pitch, categoryName, event) => {
-			if (Math.round(10 * vol) !== 6 || Math.abs(pos.getY() - Player.getY()) > 5 || pos.getX() - Player.getX() > 20 || pos.getZ() - Player.getZ() > 20 ) return
+			if (Math.round(10 * vol) !== 6 || Math.abs(pos.getY() - Player.getY()) > 5 || pos.getX() - Player.getX() > 20 || pos.getZ() - Player.getZ() > 20) return
 			if (!this.bossSpawnedMessage) {
 				if (this.MinibossAlert.getValue()) Client.showTitle("&c&lMiniBoss", "", 0, 20, 10);
 				if (this.MinibossPing.getValue()) World.playSound('random.orb', 1, 1);
@@ -235,10 +235,7 @@ class Slayers extends Feature {
 	}
 	renderWorld(ticks) {
 		this.minibossEntity.forEach((x) => {
-			let e = x[0]
-			let slayerType = x[1]
-			let mobName = `${e.getName().removeFormatting().split(" ")[0]} ${e.getName().removeFormatting().split(" ")[1]}`
-			drawBoxAtEntity(e, 0, 255, 0, this.SlayerWidth[slayerType], this.SlayerHeight[slayerType], ticks, 4, false);
+			drawBoxAtEntity(x[0], 0, 255, 0, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
 		})
 
 		if (this.emanBoss && this.boxAroundEmanBoss.getValue()) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false);
@@ -290,17 +287,25 @@ class Slayers extends Feature {
 		} else if (this.hideSummonsForLoot.getValue()) {
 			this.renderEntityEvent.unregister();
 		}
-		if (this.betterHideDeadEntity.getValue()) {
+
+		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(name => {
-				if (name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1] === "0❤" ||
-					(
-						name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1].split("/")[0] === "0"
-						&& name.getName().removeFormatting().includes("❤"))
-				) {
-					name.getEntity()[m.setAlwaysRenderNameTag](false)
+				let MobName = `${name.getName().removeFormatting().split(" ")[0]} ${name.getName().removeFormatting().split(" ")[1]}`
+				if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName)) {
+					this.minibossEntity.push([new Entity(name.getEntity()), this.lastSlayerType]);
+				}
+				if (this.betterHideDeadEntity.getValue()) {
+					if (name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1] === "0❤" ||
+						(
+							name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1].split("/")[0] === "0"
+							&& name.getName().removeFormatting().includes("❤"))
+					) {
+						name.getEntity()[m.setAlwaysRenderNameTag](false)
+					}
 				}
 			});
 		}
+
 
 		if (this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
 			if (!this.entityAttackEventLoaded) {
