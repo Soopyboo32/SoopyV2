@@ -368,6 +368,8 @@ class Slayers extends Feature {
 						//only runs when t4's hp is <= 3m
 						if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
 							this.hideSummons = true
+						} else if (emanHealth.replace(/[^\d.]/g, "") == 0) {
+							delay(2000, () => { this.hideSummons = false })
 						} else this.hideSummons = false
 					}
 				}
@@ -509,6 +511,8 @@ class Slayers extends Feature {
 			//only runs when t4's hp is <= 3m
 			if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
 				this.hideSummons = true
+			} else if (emanHealth.replace(/[^\d.]/g, "") == 0) {
+				delay(2000, () => { this.hideSummons = false })
 			} else this.hideSummons = false
 			if (this.rcmDaeAxeSupport.getValue()) {
 				if (emanHealth.includes("k")) {
