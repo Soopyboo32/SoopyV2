@@ -7,6 +7,7 @@ import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawFilledBox, drawL
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
+import DropdownSetting from "../settings/settingThings/dropdownSetting";
 import socketConnection from "../../socketConnection";
 import TextSetting from "../settings/settingThings/textSetting";
 import { firstLetterCapital } from "../../utils/stringUtils";
@@ -36,9 +37,16 @@ class Slayers extends Feature {
 
 		this.betterHideDeadEntity = new ToggleSetting("Also hides mob nametag when it's dead.", "An improvement for Skytils's hide dead entity", false, "hide_dead_mob_nametag", this);
 
+		this.beaconSoundType = {
+			"note.pling": "pling",
+			"random.orb": "orb"
+		}
 		this.boxAroundEmanBoss = new ToggleSetting("Box around enderman slayer boss", "This helps to know which boss is yours", true, "eman_box", this);
 		this.boxToEmanBeacon = new ToggleSetting("Box and line to the enderman beacon", "This will help to find the beacon when the boss throws it", true, "eman_beacon", this);
 		this.emanBeaconDinkDonk = new ToggleSetting("DinkDonk when beacon is spawned", "This will help to notice when the beacon is spawned", true, "eman_beacon_dinkdink", this);
+		this.beaconOnlyDingOnce = new ToggleSetting("Beacon DinkDonk but only Dink once", "Might make some people feel better", false, "beacon_dinkdink_once", this).requires(this.emanBeaconDinkDonk).contributor("EmeraldMerchant");
+		this.beaconDingSoundType = new DropdownSetting("Sound it plays for beacon ping", "1st one is louder 2nd one is higher", "note.pling", "beacon_sound", this, this.beaconSoundType).requires(this.emanBeaconDinkDonk).contributor("EmeraldMerchant");
+
 		this.emanEyeThings = new ToggleSetting("Put box around the enderman eye things", "This will help to find them", true, "eman_eye_thing", this);
 		this.emanHpGuiElement = new ToggleSetting("Render the enderman hp on your screen", "This will help you to know what stage u are in etc.", true, "eman_hp", this).contributor("EmeraldMerchant");
 
@@ -291,7 +299,7 @@ class Slayers extends Feature {
 		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(name => {
 				let MobName = `${name.getName().removeFormatting().split(" ")[0]} ${name.getName().removeFormatting().split(" ")[1]}`
-				if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.includes([new Entity(name.getEntity()), this.lastSlayerType])) {
+				if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName)) {
 					this.minibossEntity.push([new Entity(name.getEntity()), this.lastSlayerType]);
 				}
 				if (this.betterHideDeadEntity.getValue()) {
@@ -377,7 +385,7 @@ class Slayers extends Feature {
 				if (!this.bossSpawnedMessage && e instanceof net.minecraft.entity.item.EntityArmorStand) {
 					let mobName = `${e[m.getCustomNameTag]().removeFormatting().split(" ")[0]} ${e[m.getCustomNameTag]().removeFormatting().split(" ")[1]}`
 					if (this.Miniboss[this.lastSlayerType].has(mobName)) {
-						if (this.BoxAroundMiniboss.getValue()) {
+						if (this.BoxAroundMiniboss.getValue() && !this.minibossEntity.map(a=>a[0].getUUID().toString()).includes(new Entity(mobName.getEntity()).getUUID().toString())) {
 							this.minibossEntity.push([new Entity(e), this.lastSlayerType]);
 						}
 					}
@@ -482,7 +490,11 @@ class Slayers extends Feature {
 				if (World.getBlockAt(location[0], location[1], location[2]).getID() === 138) {
 					if (this.emanBeaconDinkDonk.getValue()) {
 						Client.showTitle("&cGO TO BEACON!", "&c" + (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) + "s", 0, 20, 10);
-						World.playSound("note.pling", 1, 1);
+						if (this.beaconOnlyDingOnce.getValue() && (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) > 4.9) {
+							World.playSound(this.beaconDingSoundType?.getValue(), 1, 1);
+						} else if ((this.beaconOnlyDingOnce.getValue() && (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) >= 4.9) || !this.beaconOnlyDingOnce.getValue()) {
+							World.playSound(this.beaconDingSoundType?.getValue(), 1, 1);
+						}
 					}
 				} else {
 					delete this.beaconPoints[e[1]];
@@ -494,7 +506,11 @@ class Slayers extends Feature {
 				if (World.getBlockAt(location[0], location[1], location[2]).getType().getID() === 138) {
 					if (this.emanBeaconDinkDonk.getValue()) {
 						Client.showTitle("&cGO TO BEACON!", "&c" + (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) + "s", 0, 20, 10);
-						World.playSound("note.pling", 1, 1);
+						if (this.beaconOnlyDingOnce.getValue() && (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) > 4.9) {
+							World.playSound(this.beaconDingSoundType?.getValue(), 1, 1);
+						} else if ((this.beaconOnlyDingOnce.getValue() && (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) >= 4.9) || !this.beaconOnlyDingOnce.getValue()) {
+							World.playSound(this.beaconDingSoundType?.getValue(), 1, 1);
+						}
 					}
 				} else {
 					delete this.beaconPoints[e[1]];
