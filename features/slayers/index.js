@@ -7,6 +7,7 @@ import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawFilledBox, drawL
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
+import DropdownSetting from "../settings/settingThings/dropdownSetting";
 import socketConnection from "../../socketConnection";
 import TextSetting from "../settings/settingThings/textSetting";
 import { firstLetterCapital } from "../../utils/stringUtils";
@@ -23,18 +24,6 @@ class Slayers extends Feature {
 		this.expOnKill = new ToggleSetting("Show slayer exp on boss kill", "Says your slayer exp in chat when you kill a boss, also says time taken to spawn+kill", true, "slayer_xp", this);
 		this.slainAlert = new ToggleSetting("Show boss slain alert", "This helps you to not kill mobs for ages with an inactive quest", true, "boss_slain_alert", this);
 		this.spawnAlert = new ToggleSetting("Show boss spawned alert", "This helps you to not miss your boss when you spawn it", true, "boss_spawn_alert", this);
-
-		this.boxAroundEmanBoss = new ToggleSetting("Box around enderman slayer boss", "This helps to know which boss is yours", true, "eman_box", this);
-		this.boxToEmanBeacon = new ToggleSetting("Box and line to the enderman beacon", "This will help to find the beacon when the boss throws it", true, "eman_beacon", this);
-		this.emanBeaconDinkDonk = new ToggleSetting("DinkDonk when beacon is spawned", "This will help to notice when the beacon is spawned", true, "eman_beacon_dinkdink", this);
-		this.emanEyeThings = new ToggleSetting("Put box around the enderman eye things", "This will help to find them", true, "eman_eye_thing", this);
-		this.emanHpGuiElement = new ToggleSetting("Render the enderman hp on your screen", "This will help you to know what stage u are in etc.", true, "eman_hp", this).contributor("EmeraldMerchant");
-
-		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
-		this.hudElements.push(this.emanHpElement);
-		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 voidgloom drops", "This will make loots more visible.", false, "show_loot", this).contributor("EmeraldMerchant");
-		this.allEmanBosses = new ToggleSetting("Hides summons for all eman bosses", "Hides summon for not just your boss, might fix ^ sometimes not working", false, "show_loot_all_bosses", this).requires(this.hideSummonsForLoot).contributor("EmeraldMerchant");
-
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
 			.setText("&6Slayer&7> &fLoading...")
@@ -42,7 +31,29 @@ class Slayers extends Feature {
 			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of you current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&6Enderman&7> &d&l2,147,483,647 XP").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.slayerXpElement);
 
+		this.MinibossAlert = new ToggleSetting("Alert when miniboss spawned nearby", "Pops up notification when a miniboss spawned", false, "miniboss_title_ping", this).contributor("EmeraldMerchant");
+		this.MinibossPing = new ToggleSetting("Also make a sound when miniboss spawned", "Sound ping when a miniboss spawned", false, "miniboss_sound_ping", this).requires(this.MinibossAlert).contributor("EmeraldMerchant");
+		this.BoxAroundMiniboss = new ToggleSetting("Draws boxes around minibosses.", "If they are too far away it doesnt draw.", false, "box_around_miniboss", this).contributor("EmeraldMerchant");
+
 		this.betterHideDeadEntity = new ToggleSetting("Also hides mob nametag when it's dead.", "An improvement for Skytils's hide dead entity", false, "hide_dead_mob_nametag", this);
+
+		this.beaconSoundType = {
+			"note.pling": "pling",
+			"random.orb": "orb"
+		}
+		this.boxAroundEmanBoss = new ToggleSetting("Box around enderman slayer boss", "This helps to know which boss is yours", true, "eman_box", this);
+		this.boxToEmanBeacon = new ToggleSetting("Box and line to the enderman beacon", "This will help to find the beacon when the boss throws it", true, "eman_beacon", this);
+		this.emanBeaconDinkDonk = new ToggleSetting("DinkDonk when beacon is spawned", "This will help to notice when the beacon is spawned", true, "eman_beacon_dinkdink", this);
+		this.beaconOnlyDingOnce = new ToggleSetting("Beacon DinkDonk but only Dink once", "Might make some people feel better", false, "beacon_dinkdink_once", this).requires(this.emanBeaconDinkDonk).contributor("EmeraldMerchant");
+		this.beaconDingSoundType = new DropdownSetting("Sound it plays for beacon ping", "1st one is louder 2nd one is higher", "note.pling", "beacon_sound", this, this.beaconSoundType).requires(this.emanBeaconDinkDonk).contributor("EmeraldMerchant");
+
+		this.emanEyeThings = new ToggleSetting("Put box around the enderman eye things", "This will help to find them", true, "eman_eye_thing", this);
+		this.emanHpGuiElement = new ToggleSetting("Render the enderman hp on your screen", "This will help you to know what stage u are in etc.", true, "eman_hp", this).contributor("EmeraldMerchant");
+
+		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
+		this.hudElements.push(this.emanHpElement);
+		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 drops", "This will make loots more visible.", false, "show_loot", this).contributor("EmeraldMerchant");
+		this.allEmanBosses = new ToggleSetting("Hides summons for all eman bosses", "Hides summon for not just your boss, might fix ^ sometimes not working", false, "show_loot_all_bosses", this).requires(this.hideSummonsForLoot).contributor("EmeraldMerchant");
 
 		this.rcmDaeAxeSupport = new ToggleSetting("Eman Hyp hits before Dae axe swapping", "This will tell u how many clicks with hyp is needed before swapping to dae axe", true, "eman_rcm_support", this).requires(this.emanHpGuiElement).contributor("EmeraldMerchant");
 		this.rcmDamagePerHit = new TextSetting("Hyperion damage", "Your hyp's single hit damage w/o thunderlord/thunderbolt", "", "hyp_dmg", this, "Your hyp dmg (Unit: M)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
@@ -111,7 +122,6 @@ class Slayers extends Feature {
 		this.registerChat("&r  &r&c&lSLAYER QUEST FAILED!&r", () => {
 			socketConnection.sendSlayerSpawnData({ loc: null });
 		})
-
 		this.bossSlainMessage = false;
 		this.bossSpawnedMessage = false;
 		this.lastBossNotSpawnedTime = 0;
@@ -130,6 +140,7 @@ class Slayers extends Feature {
 		this.deadE = [];
 		this.beaconLocations = {};
 		this.eyeE = [];
+		this.minibossEntity = [];
 		this.todoE2 = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined
@@ -141,6 +152,37 @@ class Slayers extends Feature {
 		this.lastPillerDink = 0
 		this.slayerLocationDataH = {}
 		this.hasQuest = false
+
+		this.Miniboss = {
+			zombie: new Set(["Revenant Sycophant", "Revenant Champion", "Deformed Revenant", "Atoned Champion", "Atoned Revenant"]),
+			spider: new Set(["Tarantula Vermin", "Tarantula Beast", "Mutant Tarantula"]),
+			wolf: new Set(["Pack Enforcer", "Sven Follower", "Sven Alpha"]),
+			enderman: new Set(["Voidling Devotee", "Voidling Radical", "Voidcrazed Maniac"]),
+			blaze: new Set(["Flare Demon", "Kindleheart Demon", "Burningsoul Demon"])
+		}
+
+		this.SlayerWidth = {
+			zombie: 1,
+			spider: 2,
+			wolf: 1,
+			enderman: 1,
+			blaze: 1
+		}
+		this.SlayerHeight = {
+			zombie: -2,
+			spider: -1,
+			wolf: -1,
+			enderman: -3,
+			blaze: -2
+		}
+		//the volume of miniboss spawning is 0.6000000238418579
+		this.registerSoundPlay("random.explode", (pos, name, vol, pitch, categoryName, event) => {
+			if (Math.round(10 * vol) !== 6 || Math.abs(pos.getY() - Player.getY()) > 5 || pos.getX() - Player.getX() > 20 || pos.getZ() - Player.getZ() > 20) return
+			if (!this.bossSpawnedMessage) {
+				if (this.MinibossAlert.getValue()) Client.showTitle("&c&lMiniBoss", "", 0, 20, 10);
+				if (this.MinibossPing.getValue()) World.playSound('random.orb', 1, 1);
+			}
+		})
 
 		this.entityAttackEventLoaded = false;
 		this.entityAttackEventE = undefined;
@@ -170,6 +212,7 @@ class Slayers extends Feature {
 		this.todoE2 = [];
 		this.beaconLocations = {};
 		this.eyeE = [];
+		this.minibossEntity = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined;
 		this.hideSummons = false
@@ -199,6 +242,10 @@ class Slayers extends Feature {
 		}
 	}
 	renderWorld(ticks) {
+		this.minibossEntity.forEach((x) => {
+			drawBoxAtEntity(x[0], 0, 255, 0, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
+		})
+
 		if (this.emanBoss && this.boxAroundEmanBoss.getValue()) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false);
 
 		if (this.emanBoss && this.emanStartedSittingTime > 0 && this.emanLazerTimer.getValue()) {
@@ -248,17 +295,25 @@ class Slayers extends Feature {
 		} else if (this.hideSummonsForLoot.getValue()) {
 			this.renderEntityEvent.unregister();
 		}
-		if (this.betterHideDeadEntity.getValue()) {
+
+		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(name => {
-				if (name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1] === "0❤" ||
-					(
-						name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1].split("/")[0] === "0"
-						&& name.getName().removeFormatting().includes("❤"))
-				) {
-					name.getEntity()[m.setAlwaysRenderNameTag](false)
+				let MobName = `${name.getName().removeFormatting().split(" ")[0]} ${name.getName().removeFormatting().split(" ")[1]}`
+				if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName)) {
+					this.minibossEntity.push([new Entity(name.getEntity()), this.lastSlayerType]);
+				}
+				if (this.betterHideDeadEntity.getValue()) {
+					if (name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1] === "0❤" ||
+						(
+							name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1].split("/")[0] === "0"
+							&& name.getName().removeFormatting().includes("❤"))
+					) {
+						name.getEntity()[m.setAlwaysRenderNameTag](false)
+					}
 				}
 			});
 		}
+
 
 		if (this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
 			if (!this.entityAttackEventLoaded) {
@@ -321,6 +376,17 @@ class Slayers extends Feature {
 						//only runs when t4's hp is <= 3m
 						if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
 							this.hideSummons = true
+						} else if (emanHealth.replace(/[^\d.]/g, "") == 0) {
+							delay(2000, () => { this.hideSummons = false })
+						} else this.hideSummons = false
+					}
+				}
+
+				if (!this.bossSpawnedMessage && e instanceof net.minecraft.entity.item.EntityArmorStand) {
+					let mobName = `${e[m.getCustomNameTag]().removeFormatting().split(" ")[0]} ${e[m.getCustomNameTag]().removeFormatting().split(" ")[1]}`
+					if (this.Miniboss[this.lastSlayerType].has(mobName)) {
+						if (this.BoxAroundMiniboss.getValue() && !this.minibossEntity.map(a=>a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
+							this.minibossEntity.push([new Entity(e), this.lastSlayerType]);
 						}
 					}
 				}
@@ -356,6 +422,11 @@ class Slayers extends Feature {
 			this.emanBoss = undefined
 			this.actualEmanBoss = undefined
 		}
+		this.minibossEntity.forEach((eArray) => {
+			if (eArray[0].getEntity()[f.isDead]) {
+				this.minibossEntity.splice(this.minibossEntity.indexOf(eArray))
+			}
+		})
 		this.eyeE = this.eyeE.filter((e) => !e.getEntity()[f.isDead]);
 		this.beaconE = this.beaconE.filter((e) => {
 			if (e[f.isDead]) {
@@ -419,7 +490,11 @@ class Slayers extends Feature {
 				if (World.getBlockAt(location[0], location[1], location[2]).getID() === 138) {
 					if (this.emanBeaconDinkDonk.getValue()) {
 						Client.showTitle("&cGO TO BEACON!", "&c" + (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) + "s", 0, 20, 10);
-						World.playSound("note.pling", 1, 1);
+						if (this.beaconOnlyDingOnce.getValue() && (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) > 4.9) {
+							World.playSound(this.beaconDingSoundType?.getValue(), 1, 1);
+						} else if ((this.beaconOnlyDingOnce.getValue() && (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) >= 4.9) || !this.beaconOnlyDingOnce.getValue()) {
+							World.playSound(this.beaconDingSoundType?.getValue(), 1, 1);
+						}
 					}
 				} else {
 					delete this.beaconPoints[e[1]];
@@ -431,7 +506,11 @@ class Slayers extends Feature {
 				if (World.getBlockAt(location[0], location[1], location[2]).getType().getID() === 138) {
 					if (this.emanBeaconDinkDonk.getValue()) {
 						Client.showTitle("&cGO TO BEACON!", "&c" + (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) + "s", 0, 20, 10);
-						World.playSound("note.pling", 1, 1);
+						if (this.beaconOnlyDingOnce.getValue() && (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) > 4.9) {
+							World.playSound(this.beaconDingSoundType?.getValue(), 1, 1);
+						} else if ((this.beaconOnlyDingOnce.getValue() && (Math.max(0, 5000 - (Date.now() - e[0])) / 1000).toFixed(1) >= 4.9) || !this.beaconOnlyDingOnce.getValue()) {
+							World.playSound(this.beaconDingSoundType?.getValue(), 1, 1);
+						}
 					}
 				} else {
 					delete this.beaconPoints[e[1]];
@@ -448,7 +527,9 @@ class Slayers extends Feature {
 			//only runs when t4's hp is <= 3m
 			if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
 				this.hideSummons = true
-			}
+			} else if (emanHealth.replace(/[^\d.]/g, "") == 0) {
+				delay(2000, () => { this.hideSummons = false })
+			} else this.hideSummons = false
 			if (this.rcmDaeAxeSupport.getValue()) {
 				if (emanHealth.includes("k")) {
 					emanText += " &c0 Hits"
@@ -624,6 +705,7 @@ class Slayers extends Feature {
 		this.actualEmanBoss = undefined
 		this.emanStartedSittingTime = undefined
 		this.eyeE = undefined;
+		this.minibossEntity = undefined;
 		this.nextIsBoss = undefined;
 		this.hudElements = [];
 		this.entityAttackEventLoaded = undefined;
