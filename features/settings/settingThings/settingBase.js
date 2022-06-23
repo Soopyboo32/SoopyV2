@@ -143,8 +143,8 @@ class SettingBase {
         return this
     }
 
-    contributor(name) {
-        this.contributorVal = name
+    contributor(name, things = []) {
+        this.contributorVal = { name, things }
         //TODO: this entire function
         return this
     }
