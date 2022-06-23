@@ -34,7 +34,7 @@ class Slayers extends Feature {
 		this.hudElements.push(this.slayerXpElement);
 
 		this.MinibossAlert = new ToggleSetting("Alert when miniboss spawned nearby", "Pops up notification when a miniboss spawned", false, "miniboss_title_ping", this).contributor("EmeraldMerchant");
-		this.MinibossPing = new ToggleSetting("Also make a sound when miniboss spawned", "Sound ping when a miniboss spawned", false, "miniboss_sound_ping", this).requires(this.MinibossAlert).contributor("EmeraldMerchant");
+		this.MinibossPing = new ToggleSetting("Also make a sound when miniboss spawned", "Sound ping when a miniboss spawned", false, "miniboss_sound_ping", this).contributor("EmeraldMerchant");
 		this.BoxAroundMiniboss = new ToggleSetting("Draws boxes around minibosses.", "If they are too far away it doesnt draw.", false, "box_around_miniboss", this).contributor("EmeraldMerchant");
 
 		this.betterHideDeadEntity = new ToggleSetting("Also hides mob nametag when it's dead.", "An improvement for Skytils's hide dead entity", false, "hide_dead_mob_nametag", this);
@@ -118,10 +118,10 @@ class Slayers extends Feature {
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t) => t + a, 0)) + " total XP&r&7!&r");
 				let bossKillTimeMessage = undefined
 				if (this.bossSpawnKillTime.getValue() && Date.now() - this.lastBossSlain < 60000 * 5) {
-					bossKillTimeMessage = `&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`
-					if (this.bossKillTime.getValue()) bossKillTimeMessage += `(${timeNumber(Date.now() - this.lastBossSpawned)} to kill)&r`;
-					ChatLib.chat(bossKillTimeMessage)
+					bossKillTimeMessage += `&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`
 				}
+				if (this.bossKillTime.getValue()) bossKillTimeMessage += `(${timeNumber(Date.now() - this.lastBossSpawned)} to kill)&r`;
+				if (bossKillTimeMessage !== undefined) ChatLib.chat(bossKillTimeMessage)
 			}
 			this.lastBossSlain = Date.now();
 		});
@@ -666,6 +666,7 @@ class Slayers extends Feature {
 			if (line.getName().includes("Slay the boss!")) {
 				if (!this.bossSpawnedMessage) {
 					socketConnection.sendSlayerSpawnData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
+					this.lastBossSpawned = Date.now();
 				}
 				if (!this.bossSpawnedMessage && !this.emanBoss) {
 					this.nextIsBoss = Date.now();
