@@ -25,7 +25,7 @@ class Slayers extends Feature {
 		this.slainAlert = new ToggleSetting("Show boss slain alert", "This helps you to not kill mobs for ages with an inactive quest", true, "boss_slain_alert", this);
 		this.spawnAlert = new ToggleSetting("Show boss spawned alert", "This helps you to not miss your boss when you spawn it", true, "boss_spawn_alert", this);
 		this.bossSpawnKillTime = new ToggleSetting("Show boss spawn and kill time", "tells you your slayer boss speed", true, "Slayer_spawn_kill_time", this).contributor("EmeraldMerchant");
-		this.bossKillTime = new ToggleSetting("Shows you bosses kill time", "requires previous option to be on", true, "slayer_kill_time", this).requires(this.bossSpawnKillTime).contributor("EmeraldMerchant");
+		this.bossKillTime = new ToggleSetting("Shows you bosses kill time", "tells you your slayer boss kill time", true, "slayer_kill_time", this).requires(this.bossSpawnKillTime).contributor("EmeraldMerchant");
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
 			.setText("&6Slayer&7> &fLoading...")
@@ -117,10 +117,10 @@ class Slayers extends Feature {
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(this.slayerExp[this.lastSlayerType]) + " " + this.lastSlayerType + " XP&r&7!&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t) => t + a, 0)) + " total XP&r&7!&r");
 				if (this.bossSpawnKillTime.getValue() && Date.now() - this.lastBossSlain < 60000 * 5) {
-					Chatlib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`);
+					ChatLib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`);
 				}
 				if (this.bossKillTime.getValue() && Date.now() - this.lastBossSpawned < 60000 * 4) {
-					Chatlib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSpawned)} &ato kill&r&7!`);
+					ChatLib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSpawned)} &ato kill&r&7!`);
 				}
 			}
 			this.lastBossSlain = Date.now();
