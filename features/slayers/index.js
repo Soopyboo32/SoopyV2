@@ -24,6 +24,8 @@ class Slayers extends Feature {
 		this.expOnKill = new ToggleSetting("Show slayer exp on boss kill", "Says your slayer exp in chat when you kill a boss, also says time taken to spawn+kill", true, "slayer_xp", this);
 		this.slainAlert = new ToggleSetting("Show boss slain alert", "This helps you to not kill mobs for ages with an inactive quest", true, "boss_slain_alert", this);
 		this.spawnAlert = new ToggleSetting("Show boss spawned alert", "This helps you to not miss your boss when you spawn it", true, "boss_spawn_alert", this);
+		this.bossSpawnKillTime = new ToggleSetting("Show boss spawn and kill time", "tells you your slayer boss speed", true, "Slayer_spawn_kill_time", this).contributor("EmeraldMerchant");
+		this.bossKillTime = new ToggleSetting("Shows you bosses kill time", "requires previous option to be on", true, "slayer_kill_time", this).requires(this.bossSpawnKillTime).contributor("EmeraldMerchant");
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
 			.setText("&6Slayer&7> &fLoading...")
@@ -114,7 +116,12 @@ class Slayers extends Feature {
 				ChatLib.chat("&r  &r&a&lSLAYER QUEST COMPLETE!&a&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(this.slayerExp[this.lastSlayerType]) + " " + this.lastSlayerType + " XP&r&7!&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t) => t + a, 0)) + " total XP&r&7!&r");
-				if (Date.now() - this.lastBossSlain < 60000 * 5) ChatLib.chat("&r   &r&aBoss took &d" + timeNumber(Date.now() - this.lastBossSlain) + " &ato spawn and kill&r&7!" + /* (" + timeNumber(Date.now()-this.lastBossSpawned) + " to kill) */ "&r"); //TODO: Seperate setting for this
+				let bossKillTimeMessage = undefined
+				if (this.bossSpawnKillTime.getValue() && Date.now() - this.lastBossSlain < 60000 * 5) {
+					bossKillTimeMessage = `&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`
+					if (this.bossKillTime.getValue()) bossKillTimeMessage += `(${timeNumber(Date.now() - this.lastBossSpawned)} to kill)&r`;
+					ChatLib.chat(bossKillTimeMessage)
+				}
 			}
 			this.lastBossSlain = Date.now();
 		});
@@ -385,7 +392,7 @@ class Slayers extends Feature {
 				if (!this.bossSpawnedMessage && e instanceof net.minecraft.entity.item.EntityArmorStand) {
 					let mobName = `${e[m.getCustomNameTag]().removeFormatting().split(" ")[0]} ${e[m.getCustomNameTag]().removeFormatting().split(" ")[1]}`
 					if (this.Miniboss[this.lastSlayerType].has(mobName)) {
-						if (this.BoxAroundMiniboss.getValue() && !this.minibossEntity.map(a=>a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
+						if (this.BoxAroundMiniboss.getValue() && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
 							this.minibossEntity.push([new Entity(e), this.lastSlayerType]);
 						}
 					}
