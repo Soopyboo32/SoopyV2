@@ -382,6 +382,14 @@ class FeatureManager {
         return event
     }
 
+    registerSoundPlay(criteria, func, context) {
+        let event = this.registerCustom("soundPlay", func, context)
+
+        event.trigger.setCriteria(criteria)
+
+        return event
+    }
+
     registerActionBar(criteria, func, context) {
 
         let event = this.registerCustom("actionBar", func, context)

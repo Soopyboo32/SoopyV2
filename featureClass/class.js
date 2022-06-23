@@ -106,6 +106,13 @@ class Feature {
 
         return new CustomEvent(theEvent, theEvent.trigger, [criteria, func], this)
     }
+    registerSoundPlay(criteria, func) {
+        let theEvent = this.FeatureManager.registerSoundPlay(criteria, func, this)
+
+        this.customEvents[theEvent.id] = theEvent
+
+        return new CustomEvent(theEvent, theEvent.trigger, [criteria, func], this)
+    }
     registerActionBar(criteria, func) {
         let theEvent = this.FeatureManager.registerActionBar(criteria, func, this)
 
