@@ -116,12 +116,12 @@ class Slayers extends Feature {
 				ChatLib.chat("&r  &r&a&lSLAYER QUEST COMPLETE!&a&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(this.slayerExp[this.lastSlayerType]) + " " + this.lastSlayerType + " XP&r&7!&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t) => t + a, 0)) + " total XP&r&7!&r");
-				let bossKillTimeMessage = undefined
 				if (this.bossSpawnKillTime.getValue() && Date.now() - this.lastBossSlain < 60000 * 5) {
-					bossKillTimeMessage += `&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`
+					Chatlib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`);
 				}
-				if (this.bossKillTime.getValue()) bossKillTimeMessage += `(${timeNumber(Date.now() - this.lastBossSpawned)} to kill)&r`;
-				if (bossKillTimeMessage !== undefined) ChatLib.chat(bossKillTimeMessage)
+				if (this.bossKillTime.getValue() && Date.now() - this.lastBossSpawned < 60000 * 4) {
+					Chatlib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSpawned)} &ato kill&r&7!`);
+				}
 			}
 			this.lastBossSlain = Date.now();
 		});
