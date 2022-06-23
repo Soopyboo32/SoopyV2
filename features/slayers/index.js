@@ -385,7 +385,9 @@ class Slayers extends Feature {
 				if (!this.bossSpawnedMessage && e instanceof net.minecraft.entity.item.EntityArmorStand) {
 					let mobName = `${e[m.getCustomNameTag]().removeFormatting().split(" ")[0]} ${e[m.getCustomNameTag]().removeFormatting().split(" ")[1]}`
 					if (this.Miniboss[this.lastSlayerType].has(mobName)) {
-						if (this.BoxAroundMiniboss.getValue() && !this.minibossEntity.map(a=>a[0].getUUID().toString()).includes(new Entity(mobName.getEntity()).getUUID().toString())) {
+						ChatLib.chat("a")
+						ChatLib.chat(!this.minibossEntity.map(a=>a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString()))
+						if (this.BoxAroundMiniboss.getValue() && !this.minibossEntity.map(a=>a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
 							this.minibossEntity.push([new Entity(e), this.lastSlayerType]);
 						}
 					}
