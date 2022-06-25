@@ -252,7 +252,7 @@ class Events extends Feature {
 			}
 		})
 		this.todoE = []
-		if (this.MythMobsHP.getValue()) {
+		if (mythMobs.length >= 1) {
 			this.mythMobsElement.setText(mythMobs.join("\n"))
 		}
 
