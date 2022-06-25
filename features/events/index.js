@@ -7,6 +7,8 @@ import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLi
 import { calculateDistance, calculateDistanceQuick } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
+import HudTextElement from "../hud/HudTextElement";
+import LocationSetting from "../settings/settingThings/location";
 import { fetch } from "../../utils/networkUtils"
 import ButtonSetting from "../settings/settingThings/button";
 import { delay } from "../../utils/delayUtils";
@@ -63,6 +65,10 @@ class Events extends Feature {
 		this.otherInquisPing = new ToggleSetting("Show cool title when someone's inquis spawned", "May be usefull for loot share", true, "inquis_ping_other", this).requires(this.loadFromParticles)
 		this.limitPMemb = new ToggleSetting("Only send inquis ping to party members", "If not in a party it works as default", true, "inquis_ping_party", this).requires(this.otherInquisPing)
 		this.shinyBlocks = []
+
+		this.MythMobsHPGuiElement = new ToggleSetting("Render Mythological Mobs hp on your screen", "This will help you to know their HP.", true, "myth_mobs_hp", this).contributor("EmeraldMerchant");
+		this.MythMobsHP = new HudTextElement().setToggleSetting(this.MythMobsHPGuiElement).setLocationSetting(new LocationSetting("Mythological Mobs Hp Location", "Allows you to edit the location of Mythological Mobs hp", "myth_mobs_location", this, [10, 50, 1, 1]).requires(this.MythMobsHPGuiElement).editTempText("&8[&7Lv750&8] &2Exalted Minos Inquisitor &a40M&f/&a40M&c❤&r"));
+		this.hudElements.push(this.MythMobsHP);
 
 		this.lastDing = 0
 		this.lastDingPitch = 0
@@ -222,8 +228,13 @@ class Events extends Feature {
 			}
 		})
 
+		let mythMobs = []
 		this.todoE.forEach(e => {
 			e = new Entity(e)
+			let health = e.getName().removeFormatting().split(" ")[4].split("/")[0]
+			if (this.MythMobsHP.getValue() && health != 0 && (e.getName().removeFormatting().includes("Exalted") || e.getName().removeFormatting().includes("Stalwart"))) {
+				mythMobs.push(e.getName())
+			}
 			if (e.getName().toLowerCase().includes("inquis") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
 				let loc = [e.getX(), e.getY() - 1, e.getZ()]
 				let self = false
@@ -241,6 +252,9 @@ class Events extends Feature {
 			}
 		})
 		this.todoE = []
+		if (mythMobs.length >= 1) {
+			this.mythMobsElement.setText(mythMobs.join("\n"))
+		}
 
 		if (Player.getContainer().getName() === "Fast Travel") {
 			this.openedWarpsMenu = true
@@ -553,10 +567,12 @@ class Events extends Feature {
 		this.lastPath = undefined
 		this.updatingPath = undefined
 		this.lastPathCords = undefined
+		this.hudElements = [];
 	}
 
 	onDisable() {
-		this.initVariables()
+		this.hudElements.forEach(h => h.delete())
+		this.initVariables();
 	}
 }
 
