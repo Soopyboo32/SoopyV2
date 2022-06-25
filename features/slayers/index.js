@@ -200,7 +200,8 @@ class Slayers extends Feature {
 		this.registerEvent("tick", this.tick);
 		this.registerEvent("renderWorld", this.renderWorld);
 		this.registerEvent("worldLoad", this.worldLoad);
-		this.registerStep(true, 3, this.step);
+		this.registerStep(true, 2, this.step);
+		this.registerStep(true, 4, this.step_4fps);
 	}
 
 	slayerLocationData(loc, user) {
@@ -296,7 +297,7 @@ class Slayers extends Feature {
 		this.todoE2.push(event.entity);
 	}
 
-	step() {
+	step_4fps() {
 		if (this.hideSummonsForLoot.getValue() && this.hideSummons) {
 			this.renderEntityEvent.register();
 		} else if (this.hideSummonsForLoot.getValue()) {
