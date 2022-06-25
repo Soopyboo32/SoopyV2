@@ -99,7 +99,6 @@ class Hud extends Feature {
         this.scanGuiForPet = new ToggleSetting("Scan pets menu gui for selected pet", "Only disable if you get a lot of lag in the pets menu", true, "scan_pets_menu", this).requires(this.petEnabledSetting)
 
         this.soulflowEnabledSetting = new ToggleSetting("Show Soulflow", "Whether the soulflow count is rendered onto the screen", true, "soulflow_enabled", this)
-        this.soulflowShowWarningSetting = new ToggleSetting("Show no Talisman Warning", "Shows a warning if you dont have a soulflow talis in ur inv", true, "soulflow_notalis_warning", this).requires(this.soulflowEnabledSetting)
         this.soulflowShowWhen0Setting = new ToggleSetting("Show When 0 Soulflow", "If this is off it wont render when you have 0 soulflow", true, "soulflow_showwhen_0", this).requires(this.soulflowEnabledSetting)
         this.soulflowElement = new HudTextElement()
             .setToggleSetting(this.soulflowEnabledSetting)
@@ -509,37 +508,8 @@ class Hud extends Feature {
             this.petElement.setText(this.petText)
         }
 
-        let soulflowCount = 0
-        let hasSoulflowItem = false
-        Player.getInventory().getItems().forEach(i => {
-
-            let id;
-            try {
-                id = i.getNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getString("id")
-            } catch (e) { }
-
-            if (id === "SOULFLOW_PILE" || id === "SOULFLOW_BATTERY" || id === "SOULFLOW_SUPERCELL") {
-                //soulflowCount
-                i.getLore().forEach(line => {
-                    if (line.startsWith("§5§o§7Internalized:")) {
-                        hasSoulflowItem = true
-                        soulflowCount = parseInt(ChatLib.removeFormatting(line).substr("Internalized: ".length).split("⸎")[0].replace(/,/g, ""))
-                    }
-                })
-            }
-        })
-        if (!hasSoulflowItem) {
-            if (!this.apiSoulflow) {
-                if (this.soulflowShowWarningSetting.getValue()) {
-                    this.soulflowElement.setText("&6Soulflow&7> &cNO TALISMAN")
-                } else {
-                    this.soulflowElement.setText("")
-                }
-            }
-            return;
-        }
-        if (soulflowCount > 0 && !this.soulflowShowWhen0Setting.getValue()) {
-            if (!this.apiSoulflow) this.soulflowElement.setText("")
+        if (!this.apiSoulflow) {
+            this.soulflowElement.setText("")
             return;
         }
 
