@@ -26,19 +26,39 @@ register("gameUnload", () => {
     SoopyV2Forge.setRenderHudList(new ArrayList([]))
 })
 
+let currentlyRendering = true
+export function setRendering(rendering) {
+    if (!rendering) {
+        setRenderWorldList(new ArrayList([]))
+        setRenderHudList(new ArrayList([]))
+    }
+    currentlyRendering = rendering
+    if (rendering) {
+        setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
+        setRenderHudList(new ArrayList([...global.soopyv2RenderHudThings]))
+    }
+}
+
+function setRenderWorldList(data) {
+    if (currentlyRendering) SoopyV2Forge.setRenderWorldList(data)
+}
+function setRenderHudList(data) {
+    if (currentlyRendering) SoopyV2Forge.setRenderHudList(data)
+}
+
 class RenderWorldAble {
     startRender(isBatched) {
         if (!canUseForgeRendering) return
         if (global.soopyv2RenderWorldThings.has(this.javaObj)) return this
         global.soopyv2RenderWorldThings.add(this.javaObj)
-        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
+        if (!isBatched) setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
         return this
     }
     stopRender(isBatched) {
         if (!canUseForgeRendering) return
         if (!global.soopyv2RenderWorldThings.has(this.javaObj)) return this
         global.soopyv2RenderWorldThings.delete(this.javaObj)
-        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
+        if (!isBatched) setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
         return this
     }
 }
@@ -47,14 +67,14 @@ class RenderHudAble {
         if (!canUseForgeRendering) return
         if (global.soopyv2RenderHudThings.has(this.javaObj)) return this
         global.soopyv2RenderHudThings.add(this.javaObj)
-        SoopyV2Forge.setRenderHudList(new ArrayList([...global.soopyv2RenderHudThings]))
+        setRenderHudList(new ArrayList([...global.soopyv2RenderHudThings]))
         return this
     }
     stopRender() {
         if (!canUseForgeRendering) return
         if (!global.soopyv2RenderHudThings.has(this.javaObj)) return this
         global.soopyv2RenderHudThings.delete(this.javaObj)
-        SoopyV2Forge.setRenderHudList(new ArrayList([...global.soopyv2RenderHudThings]))
+        setRenderHudList(new ArrayList([...global.soopyv2RenderHudThings]))
         return this
     }
 }
@@ -343,7 +363,7 @@ export class Waypoint extends FilledBox {
         if (this.params.name) this.textLine1.startRender(true)
         if (this.params.showDist) this.textLine2.startRender(true)
 
-        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
+        if (!isBatched) setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
         return this
     }
 
@@ -357,7 +377,7 @@ export class Waypoint extends FilledBox {
         this.textLine1.stopRender(true)
         this.textLine2.stopRender(true)
 
-        if (!isBatched) SoopyV2Forge.setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
+        if (!isBatched) setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
         return this
     }
 }

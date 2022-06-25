@@ -76,6 +76,8 @@ class Mining extends Feature {
         this.lastBalAlive = 0
         this.balDespawnDebounce = 0
 
+        this.predictedChestLocations = []
+
         this.totalCompact = 0
         this.compactProgress = 0
         this.compactItems = 0
@@ -183,8 +185,6 @@ class Mining extends Feature {
 
         this.lastSearchedForBase = 0
 
-        this.predictedChestLocations = []
-
         let ignoreLocation = undefined
 
         this.registerEvent("worldLoad", () => {
@@ -200,7 +200,6 @@ class Mining extends Feature {
         })
 
         let registerActionBar = this.registerCustom("actionbar", (dist) => {
-
             let lapis = false
             let diamond = false
             let emerald = false

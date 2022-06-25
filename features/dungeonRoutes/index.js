@@ -49,6 +49,13 @@ class DungeonRoutes extends Feature {
             })
             if (this.recentLocations.length >= 2) drawLinePoints(this.recentLocations.map(a => [a.loc[0] - 0.5, a.loc[1] + 0.1, a.loc[2] - 0.5]), 0, 0, 255, 2, true)
         })
+
+        let roomData = {}
+
+        this.registerCommand("roomname", (...name) => {
+            name = name.join(" ")
+
+        })
     }
 
     worldLoad() {
@@ -62,7 +69,7 @@ class DungeonRoutes extends Feature {
         if (this.recentLocations.length + this.recentMines.length + this.recentEtherwarps.length + this.recentTnts.length > 50) {
             let arrs = [this.recentLocations, this.recentMines, this.recentEtherwarps, this.recentTnts]
             let smallestArr = undefined
-            
+
             if (this.recentLocations[0].id < this.recentMines[0].id && this.recentLocations[0].id < this.recentEtherwarps[0].id) {
                 this.recentLocations.shift()
                 return

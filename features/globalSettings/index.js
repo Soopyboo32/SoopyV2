@@ -46,8 +46,6 @@ class GlobalSettings extends Feature {
 
         this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
 
-        this.hideFallingBlocks = new ToggleSetting("Hide falling blocks", "NOTE: this may cause more/less lag because of render entity event", false, "hide_falling_sand", this)
-
         this.privacySettings = [this.reportErrorsSetting]
 
         this.firstLoadPageData = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2firstloaddata.json") || "{}") || {}
@@ -57,13 +55,6 @@ class GlobalSettings extends Feature {
         soopyV2Server.reportErrorsSetting = this.reportErrorsSetting
 
         this.registerChat("&aYour new API key is &r&b${key}&r", this.newKey)
-        const EntityFallingBlock = Java.type("net.minecraft.entity.item.EntityFallingBlock");
-
-        this.registerEvent('renderEntity', (entity, posVec, partialTicks, event) => {
-            if (entity.getEntity() instanceof EntityFallingBlock) {
-                cancel(event);
-            }
-        }).registeredWhen(() => this.hideFallingBlocks.getValue())
 
         this.ranFirstLoadThing = false
 

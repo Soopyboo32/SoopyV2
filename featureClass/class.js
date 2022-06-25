@@ -34,6 +34,8 @@ class Feature {
         this.customEvents = {}
         this.enabled = false
 
+        this.dynamicEvents.clear()
+
         this.stepEvent.unregister()
     }
 
