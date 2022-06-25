@@ -116,10 +116,10 @@ class Slayers extends Feature {
 				ChatLib.chat("&r  &r&a&lSLAYER QUEST COMPLETE!&a&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(this.slayerExp[this.lastSlayerType]) + " " + this.lastSlayerType + " XP&r&7!&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t) => t + a, 0)) + " total XP&r&7!&r");
-				if (this.bossSpawnKillTime.getValue() && Date.now() - this.lastBossSlain < 60000 * 5) {
+				if (this.bossSpawnKillTime.getValue() && Date.now() - this.lastBossSlain < 60000 * 10) {
 					ChatLib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`);
 				}
-				if (this.bossKillTime.getValue() && Date.now() - this.lastBossSpawned < 60000 * 4) {
+				if (this.bossKillTime.getValue() && Date.now() - this.lastBossSpawned < 60000 * 4.6) {
 					ChatLib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSpawned)} &ato kill&r&7!`);
 				}
 			}
@@ -201,6 +201,7 @@ class Slayers extends Feature {
 		this.registerEvent("renderWorld", this.renderWorld);
 		this.registerEvent("worldLoad", this.worldLoad);
 		this.registerStep(true, 2, this.step);
+		this.registerStep(true, 4, this.step_4fps);
 	}
 
 	slayerLocationData(loc, user) {
@@ -296,7 +297,7 @@ class Slayers extends Feature {
 		this.todoE2.push(event.entity);
 	}
 
-	tick() {
+	step_4fps() {
 		if (this.hideSummonsForLoot.getValue() && this.hideSummons) {
 			this.renderEntityEvent.register();
 		} else if (this.hideSummonsForLoot.getValue()) {
@@ -320,8 +321,9 @@ class Slayers extends Feature {
 				}
 			});
 		}
+	}
 
-
+	tick() {
 		if (this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
 			if (!this.entityAttackEventLoaded) {
 				this.entityAttackEventLoaded = true;
