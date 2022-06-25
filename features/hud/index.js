@@ -14,9 +14,6 @@ import { numberWithCommas } from "../../utils/numberUtils.js";
 
 const ProcessBuilder = Java.type("java.lang.ProcessBuilder")
 const Scanner = Java.type("java.util.Scanner")
-const Base64 = Java.type("java.util.Base64")
-const CompressedStreamTools = Java.type("net.minecraft.nbt.CompressedStreamTools")
-const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream")
 
 class Hud extends Feature {
     constructor() {
@@ -405,6 +402,7 @@ class Hud extends Feature {
         let time = instant.getEpochSecond() + (instant.getNano() / 1000000000);
 
         let thisframeTime = time - this.lastFrame
+        // console.log(thisframeTime * 1000)
 
         if (thisframeTime > this.slowestFrameTime) {
             this.slowestFrameTime = thisframeTime

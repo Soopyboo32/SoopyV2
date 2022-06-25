@@ -103,7 +103,7 @@ class SoopyGui extends Feature {
 
         this.buttonListElm.children = []
 
-        this.getPages().forEach((p, i) => {
+        if (this.getPages()) this.getPages().forEach((p, i) => {
             let settingsButton = new ButtonWithArrow().setText("§0" + p.name).setLocation(0, 0.225 * i, 1, 0.2)
             settingsButton.addEvent(new SoopyMouseClickEvent().setHandler(() => { this.clickedOpen(p) }))
             this.buttonListElm.addChild(settingsButton)

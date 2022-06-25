@@ -305,21 +305,19 @@ class Slayers extends Feature {
 		}
 
 		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue()) {
-			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(name => {
-				let MobName = `${name.getName().removeFormatting().split(" ")[0]} ${name.getName().removeFormatting().split(" ")[1]}`
+			let entitys = World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand)
+			for (let name of entitys) {
+				let nameSplit = name.getName().removeFormatting().split(" ")
+				let MobName = nameSplit[0] + " " + nameSplit[1]
 				if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
-					this.minibossEntity.push([new Entity(name.getEntity()), this.lastSlayerType]);
+					this.minibossEntity.push([name, this.lastSlayerType]);
 				}
 				if (this.betterHideDeadEntity.getValue()) {
-					if (name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1] === "0❤" ||
-						(
-							name.getName().removeFormatting().split(" ")[name.getName().removeFormatting().split(" ").length - 1].split("/")[0] === "0"
-							&& name.getName().removeFormatting().includes("❤"))
-					) {
+					if (nameSplit[nameSplit.length - 1][0] === "0" && nameSplit[nameSplit.length - 1].endsWith("❤")) {
 						name.getEntity()[m.setAlwaysRenderNameTag](false)
 					}
 				}
-			});
+			}
 		}
 	}
 

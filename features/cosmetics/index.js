@@ -194,7 +194,7 @@ class Cosmetics extends Feature {
     }
 
     shouldPlayerHaveCosmetic(player, cosmetic) {
-        if (!!this.cosmeticsData[player.getUUID().toString().replace(/-/g, "")]?.[cosmetic]) {
+        if (this.getPlayerCosmeticSettings(player, cosmetic)) {
             if (!this.getPlayerCosmeticSettings(player, cosmetic).enabled) return false
             return true
         }

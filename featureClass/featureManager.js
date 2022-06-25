@@ -17,14 +17,18 @@ const StrongCachingModuleScriptProviderClass = Java.type("org.mozilla.javascript
 let StrongCachingModuleScriptProvider = new StrongCachingModuleScriptProviderClass(UrlModuleSourceProviderInstance)
 let CTRequire = new JSLoader.CTRequire(StrongCachingModuleScriptProvider)
 
+const System = Java.type("java.lang.System")
+
 let loadedModules = new Set()
-let shouldRequireNoCache = true
+let shouldRequireForceNoCache = true
 
 function RequireNoCache(place) {
-    if (!logger.isDev && shouldRequireNoCache) return require(place)
-    if (!loadedModules.has(place)) {
-        loadedModules.add(place)
-        return require(place) //performance optimisation
+    if (!shouldRequireForceNoCache) {
+        if (!logger.isDev) return require(place)
+        if (!loadedModules.has(place)) {
+            loadedModules.add(place)
+            return require(place) //performance optimisation
+        }
     }
 
     StrongCachingModuleScriptProvider = new StrongCachingModuleScriptProviderClass(UrlModuleSourceProviderInstance)
@@ -66,6 +70,7 @@ class FeatureManager {
         //PERFORMANCE RECORDING
         this.recordingPerformanceUsage = false
         this.performanceUsage = {} //{<moduleName>: {<event>: {time: 0, count: 0}}}
+        this.flameGraphData = []
 
         this.longEventTime = 20
 
@@ -182,17 +187,25 @@ class FeatureManager {
         }, this)
     }
 
+    getId() {
+        return "FeatureManager"
+    }
+
     loadPerformanceData() {
         new Thread(() => {
             ChatLib.chat(this.messagePrefix + "Recording performance impact, this will take around 50 seconds to complete!")
-            shouldRequireNoCache = false
+            shouldRequireForceNoCache = true
             let eventLagData = this.loadEventLag()
             ChatLib.chat(this.messagePrefix + "ETA: 40s")
+            this.perfTrackingFeatures = true
             this.unloadSoopy()
             this.loadSoopy()
+            Thread.sleep(1000)
             let eventLagDataFull = this.loadEventLag()
+            this.perfTrackingFeatures = false
             this.unloadSoopy()
             this.loadSoopy()
+            Thread.sleep(1000)
             ChatLib.chat(this.messagePrefix + "ETA: 25s")
             let forgeLagData = this.loadForgeRenderLag()
             ChatLib.chat(this.messagePrefix + "ETA: 15s")
@@ -205,10 +218,14 @@ class FeatureManager {
                 soopyLagData
             }
 
-            shouldRequireNoCache = true
+            shouldRequireForceNoCache = false
             let url = this.reportLagData(lagData)
             ChatLib.chat(this.messagePrefix + "Done!")
             new TextComponent(this.messagePrefix + "See the report at " + url).setClick("open_url", url).setHover("show_text", "Click to open the report.").chat()
+
+
+            this.performanceUsage = {}
+            this.flameGraphData = []
         }).start()
     }
 
@@ -280,6 +297,7 @@ class FeatureManager {
     loadEventLag() {
         this.recordingPerformanceUsage = true
         this.performanceUsage = {}
+        this.flameGraphData = []
         // ChatLib.chat(this.messagePrefix + "Recording Event Lag...")
 
         Thread.sleep(10000)
@@ -316,7 +334,7 @@ class FeatureManager {
         // })
 
         // ChatLib.chat("&eTotal: &7" + totalMsGlobal.toFixed(2) + "ms")
-        return this.performanceUsage
+        return { performanceUsage: this.performanceUsage, flameGraphData: this.flameGraphData }
     }
 
     loadFeatureSettings() {
@@ -401,14 +419,14 @@ class FeatureManager {
             try {
                 for (Event of Object.values(this.events[event])) {
                     if (Event.context.enabled) {
-                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(Event.context.constructor.name, event)
+                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(Event.context.getId(), event)
                         let start = Date.now()
                         Event.func.call(Event.context, ...args)
                         let time = Date.now() - start
                         if (time > this.longEventTime) {
-                            logger.logMessage("Long event triggered [" + time + "ms] (" + Event.context.constructor.name + "/" + event + ")", 3)
+                            logger.logMessage("Long event triggered [" + time + "ms] (" + Event.context.getId() + "/" + event + ")", 3)
                         }
-                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(Event.context.constructor.name, event)
+                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(Event.context.getId(), event)
                     }
                 }
             } catch (e) {
@@ -424,14 +442,14 @@ class FeatureManager {
             try {
                 for (Event of Object.values(this.soopyEventHandlers[event])) {
                     if (Event.context.enabled) {
-                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(Event.context.constructor.name, event)
+                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(Event.context.getId(), event)
                         let start = Date.now()
                         Event.func.call(Event.context, ...args)
                         let time = Date.now() - start
                         if (time > this.longEventTime) {
-                            logger.logMessage("Long event triggered [" + time + "ms] (" + Event.context.constructor.name + "/" + event + ")", 3)
+                            logger.logMessage("Long event triggered [" + time + "ms] (" + Event.context.getId() + "/" + event + ")", 3)
                         }
-                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(Event.context.constructor.name, event)
+                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(Event.context.getId(), event)
                     }
                 }
             } catch (e) {
@@ -534,14 +552,14 @@ class FeatureManager {
             trigger: register(type, (...args) => {
                 try {
                     if (context.enabled) {
-                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(context.constructor.name, type)
+                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(context.getId(), type)
                         let start = Date.now()
                         func.call(context, ...(args || []))
                         let time = Date.now() - start
                         if (time > this.longEventTime) {
-                            logger.logMessage("Long event triggered [" + time + "ms] (" + context.constructor.name + "/" + type + ")", 3)
+                            logger.logMessage("Long event triggered [" + time + "ms] (" + context.getId() + "/" + type + ")", 3)
                         }
-                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(context.constructor.name, type)
+                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(context.getId(), type)
                     }
                 } catch (e) {
                     logger.logMessage("Error in " + type + " event: " + JSON.stringify(e, undefined, 2), 2)
@@ -565,14 +583,14 @@ class FeatureManager {
             trigger: registerForgeBase(event, priority, (...args) => {
                 try {
                     if (context.enabled) {
-                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(context.constructor.name, event.class.name)
+                        if (this.recordingPerformanceUsage) this.startRecordingPerformance(context.getId(), event.class.name)
                         let start = Date.now()
                         func.call(context, ...(args || []))
                         let time = Date.now() - start
                         if (time > this.longEventTime) {
-                            logger.logMessage("Long (forge) event triggered (" + context.constructor.name + "/" + event.class.toString() + ")", 3)
+                            logger.logMessage("Long (forge) event triggered (" + context.getId() + "/" + event.class.toString() + ")", 3)
                         }
-                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(context.constructor.name, event.class.name)
+                        if (this.recordingPerformanceUsage) this.stopRecordingPerformance(context.getId(), event.class.name)
                     }
                 } catch (e) {
                     logger.logMessage("Error in " + event.class.toString() + " (forge) event: " + JSON.stringify(e, undefined, 2), 2)
@@ -649,32 +667,57 @@ class FeatureManager {
         if (!this.perfTrackingFeatures) return
 
         Object.getOwnPropertyNames(Object.getPrototypeOf(feature)).forEach(key => {
-            ChatLib.chat(key + " " + typeof (feature[key]))
             if (typeof (feature[key]) === "function") {
                 let fun = feature[key].bind(feature)
-                feature[key] = () => {
-                    if (!this.recordingPerformanceUsage) {
-                        fun()
+                feature[key] = (...args) => {
+                    if (!this.recordingPerformanceUsage || Thread.currentThread().getId() !== 1 || !this.perfTrackingFeatures) {
+                        let err = undefined
+                        try {
+                            args ? fun(...args) : fun()
+                        } catch (e) {
+                            err = e
+                        }
+                        if (err) throw err
                         return
                     }
 
                     let pushedId = false
+                    let start = this.getExactTime()
 
                     if (this.stack.length === 0) {
-                        this.stack.push(featureId)
+                        this.stack.push([featureId, 0])
+                        // this.flameGraphData.push({ isEnter: true, thing: featureId, time: start })
                         pushedId = true
                     }
+                    this.stack.push([featureId + "." + key, 0])
 
-                    this.stack.push(featureId + "." + key)
+                    // this.flameGraphData.push({ isEnter: true, thing: featureId + "." + key, time: start })
+                    let err = undefined
+                    try {
+                        args ? fun(...args) : fun()
+                    } catch (e) {
+                        err = e
+                    }
+                    let nowTime = this.getExactTime()
+                    let time = (nowTime - start) - this.stack[this.stack.length - 1][1]
 
-                    let start = this.getExactTime()
-                    fun()
-                    let time = this.getExactTime() - start
+                    this.stack[this.stack.length - 2][1] += nowTime - start
 
-                    this.performanceUsage
+                    if (!this.performanceUsage[featureId]) this.performanceUsage[featureId] = {}
+                    if (!this.performanceUsage[featureId].functions) this.performanceUsage[featureId].functions = {}
+                    if (!this.performanceUsage[featureId].functions[key]) this.performanceUsage[featureId].functions[key] = { time: 0, count: 0 }
+                    this.performanceUsage[featureId].functions[key].count++
+                    this.performanceUsage[featureId].functions[key].time += nowTime - start
 
-                    this.stack.pop()
-                    if (pushedId) this.stack.pop()
+                    this.flameGraphData.push(this.stack.map(a => a[0]).join(";") + " " + (time))
+                    this.stack.pop()[1]
+                    if (pushedId) {
+                        let time = (nowTime - start) - this.stack[this.stack.length - 1][1]
+                        this.flameGraphData.push(this.stack.map(a => a[0]).join(";") + " " + (time))
+                        this.stack.pop()
+                    }
+
+                    if (err) throw err
                 }
             }
         })
@@ -771,10 +814,8 @@ class FeatureManager {
     }
 
     getExactTime() {
-        let instant = Instant.now()
-        return (instant.getEpochSecond() + (instant.getNano() / 1000000000)) * 1000;
+        return System.nanoTime() / 1000000
     }
-
     startRecordingPerformance(feature, event) {
         if (!this.recordingPerformanceUsage) return
 
@@ -790,7 +831,7 @@ class FeatureManager {
 
         let time = this.getExactTime()
 
-        this.performanceUsage[feature][event].time += time - this.performanceUsage[feature][event].startTime
+        this.performanceUsage[feature][event].time += (time - this.performanceUsage[feature][event].startTime)
         this.performanceUsage[feature][event].count++
     }
 }
