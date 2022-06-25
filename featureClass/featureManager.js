@@ -182,18 +182,26 @@ class FeatureManager {
         this.registerCommand("soopysetlongeventtime", (args) => {
             this.longEventTime = parseInt(args)
         }, this)
-        this.registerCommand("soopylaginformation", (args) => { //TODO: make this a dedicated GUI
+        this.registerCommand("soopylaginformation", (args) => {
             this.loadPerformanceData()
+        }, this)
+        this.registerCommand("soopylaginformationfast", (args) => {
+            this.loadPerformanceDataFast()
         }, this)
     }
 
     getId() {
         return "FeatureManager"
     }
+    loadPerformanceDataFast() {
+        new Thread(() => {
+            this.loadEventLag(true)
+        }).start()
+    }
 
     loadPerformanceData() {
         new Thread(() => {
-            ChatLib.chat(this.messagePrefix + "Recording performance impact, this will take around 50 seconds to complete!")
+            ChatLib.chat(this.messagePrefix + "Recording performance impact, this will take around 60 seconds to complete!")
             shouldRequireForceNoCache = true
             let eventLagData = this.loadEventLag()
             ChatLib.chat(this.messagePrefix + "ETA: 40s")
@@ -294,46 +302,48 @@ class FeatureManager {
         }
     }
 
-    loadEventLag() {
+    loadEventLag(sendMessage = false) {
         this.recordingPerformanceUsage = true
         this.performanceUsage = {}
         this.flameGraphData = []
-        // ChatLib.chat(this.messagePrefix + "Recording Event Lag...")
+        if (sendMessage) ChatLib.chat(this.messagePrefix + "Recording Event Lag...")
 
         Thread.sleep(10000)
 
-        // let totalMsGlobal = 0
+        let totalMsGlobal = 0
         this.recordingPerformanceUsage = false
-        // ChatLib.chat(this.messagePrefix + "Event Lag:")
-        // Object.keys(this.performanceUsage).sort((a, b) => {
-        //     let totalMsA = 0
-        //     Object.keys(this.performanceUsage[a]).forEach((event) => {
-        //         totalMsA += this.performanceUsage[a][event].time
-        //     })
-        //     let totalMsB = 0
-        //     Object.keys(this.performanceUsage[b]).forEach((event) => {
-        //         totalMsB += this.performanceUsage[b][event].time
-        //     })
+        if (sendMessage) {
+            ChatLib.chat(this.messagePrefix + "Event Lag:")
+            Object.keys(this.performanceUsage).sort((a, b) => {
+                let totalMsA = 0
+                Object.keys(this.performanceUsage[a]).forEach((event) => {
+                    totalMsA += this.performanceUsage[a][event].time
+                })
+                let totalMsB = 0
+                Object.keys(this.performanceUsage[b]).forEach((event) => {
+                    totalMsB += this.performanceUsage[b][event].time
+                })
 
-        //     return totalMsA - totalMsB
-        // }).forEach((moduleName) => {
-        //     let totalMs = 0
-        //     let totalCalls = 0
-        //     Object.keys(this.performanceUsage[moduleName]).forEach((event) => {
-        //         totalMs += this.performanceUsage[moduleName][event].time
-        //         totalCalls += this.performanceUsage[moduleName][event].count
-        //     })
+                return totalMsA - totalMsB
+            }).forEach((moduleName) => {
+                let totalMs = 0
+                let totalCalls = 0
+                Object.keys(this.performanceUsage[moduleName]).forEach((event) => {
+                    totalMs += this.performanceUsage[moduleName][event].time
+                    totalCalls += this.performanceUsage[moduleName][event].count
+                })
 
-        //     totalMsGlobal += totalMs
+                totalMsGlobal += totalMs
 
-        //     ChatLib.chat("&eModule: &7" + moduleName)
-        //     ChatLib.chat("&eTotal: &7" + totalMs.toFixed(2) + "ms (" + totalCalls + " calls)")
-        //     Object.keys(this.performanceUsage[moduleName]).sort((a, b) => { return this.performanceUsage[moduleName][a].time - this.performanceUsage[moduleName][b].time }).forEach((event) => {
-        //         ChatLib.chat("  &eEvent:&7 " + event + " - " + this.performanceUsage[moduleName][event].time.toFixed(2) + "ms (" + this.performanceUsage[moduleName][event].count + " calls) [" + ((this.performanceUsage[moduleName][event].time / this.performanceUsage[moduleName][event].count).toFixed(2)) + "ms avg]")
-        //     })
-        // })
+                ChatLib.chat("&eModule: &7" + moduleName)
+                ChatLib.chat("&eTotal: &7" + totalMs.toFixed(2) + "ms (" + totalCalls + " calls)")
+                Object.keys(this.performanceUsage[moduleName]).sort((a, b) => { return this.performanceUsage[moduleName][a].time - this.performanceUsage[moduleName][b].time }).forEach((event) => {
+                    ChatLib.chat("  &eEvent:&7 " + event + " - " + this.performanceUsage[moduleName][event].time.toFixed(2) + "ms (" + this.performanceUsage[moduleName][event].count + " calls) [" + ((this.performanceUsage[moduleName][event].time / this.performanceUsage[moduleName][event].count).toFixed(2)) + "ms avg]")
+                })
+            })
 
-        // ChatLib.chat("&eTotal: &7" + totalMsGlobal.toFixed(2) + "ms")
+            ChatLib.chat("&eTotal: &7" + totalMsGlobal.toFixed(2) + "ms")
+        }
         return { performanceUsage: this.performanceUsage, flameGraphData: this.flameGraphData }
     }
 
