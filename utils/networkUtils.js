@@ -5,8 +5,9 @@ if (!global.networkUtilsThingSoopy) {
     let jCollectors = Java.type("java.util.stream.Collectors")
     let jBufferedReader = Java.type("java.io.BufferedReader")
     let jInputStreamReader = Java.type("java.io.InputStreamReader")
+    let jString = Java.type("java.lang.String")
 
-    function getUrlContent(theUrl, { userAgent = "Mozilla/5.0", includeConnection = false } = {}) {
+    function getUrlContent(theUrl, { userAgent = "Mozilla/5.0", includeConnection = false, postData = undefined } = {}) {
 
         if (global.soopyv2loggerthing) {
             global.soopyv2loggerthing.logMessage("Loading API: " + theUrl, 4)
@@ -19,6 +20,23 @@ if (!global.networkUtilsThingSoopy) {
 
         let conn = new jURL(theUrl).openConnection()
         conn.setRequestProperty("User-Agent", userAgent)
+
+        if (postData) {
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            let jsonInputString = new jString(JSON.stringify(postData))
+
+            let os
+            try {
+                os = conn.getOutputStream()
+                input = jsonInputString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            } finally {
+                os.close()
+            }
+        }
 
         let stringData
 

@@ -18,9 +18,10 @@ let StrongCachingModuleScriptProvider = new StrongCachingModuleScriptProviderCla
 let CTRequire = new JSLoader.CTRequire(StrongCachingModuleScriptProvider)
 
 let loadedModules = new Set()
+let shouldRequireNoCache = true
 
 function RequireNoCache(place) {
-    if (!logger.isDev) return require(place)
+    if (!logger.isDev && shouldRequireNoCache) return require(place)
     if (!loadedModules.has(place)) {
         loadedModules.add(place)
         return require(place) //performance optimisation
@@ -68,7 +69,8 @@ class FeatureManager {
 
         this.longEventTime = 20
 
-        this.perfTrackingFeatures = new Set()
+        this.perfTrackingFeatures = false
+        this.stack = []
 
 
         this.featureMetas = {}
@@ -182,16 +184,40 @@ class FeatureManager {
 
     loadPerformanceData() {
         new Thread(() => {
-            ChatLib.chat(this.messagePrefix + "Recording performance impact, this will take around 35 seconds to complete!")
-            this.loadEventLag()
-            this.loadForgeRenderLag()
-            this.loadSoopyLag()
+            ChatLib.chat(this.messagePrefix + "Recording performance impact, this will take around 50 seconds to complete!")
+            shouldRequireNoCache = false
+            let eventLagData = this.loadEventLag()
+            ChatLib.chat(this.messagePrefix + "ETA: 40s")
+            this.unloadSoopy()
+            this.loadSoopy()
+            let eventLagDataFull = this.loadEventLag()
+            this.unloadSoopy()
+            this.loadSoopy()
+            ChatLib.chat(this.messagePrefix + "ETA: 25s")
+            let forgeLagData = this.loadForgeRenderLag()
+            ChatLib.chat(this.messagePrefix + "ETA: 15s")
+            let soopyLagData = this.loadSoopyLag()
+
+            let lagData = {
+                eventLagDataFull,
+                eventLagData,
+                forgeLagData,
+                soopyLagData
+            }
+
+            shouldRequireNoCache = true
+            let url = this.reportLagData(lagData)
             ChatLib.chat(this.messagePrefix + "Done!")
+            new TextComponent(this.messagePrefix + "See the report at " + url).setClick("open_url", url).setHover("show_text", "Click to open the report.").chat()
         }).start()
     }
 
+    reportLagData(data) {
+        return fetch("http://soopymc.my.to/soopy/submitlag", { postData: data }).text()
+    }
+
     loadSoopyLag() {
-        ChatLib.chat(this.messagePrefix + "Recording All Soopy Lag...")
+        // ChatLib.chat(this.messagePrefix + "Recording All Soopy Lag...")
         let framesWith = 0
         let framesWithOut = 0
         let event = this.registerEvent("renderWorld", () => {
@@ -210,15 +236,20 @@ class FeatureManager {
         Thread.sleep(5000)
         this.unregisterEvent(event)
 
-        ChatLib.chat(this.messagePrefix + "Soopy Lag:")
-        ChatLib.chat("&eFps without Soopy: &7" + (framesWithOut / 5))
-        ChatLib.chat("&eFps with Soopy: &7" + (framesWith / 5))
+        // ChatLib.chat(this.messagePrefix + "Soopy Lag:")
+        // ChatLib.chat("&eFps without Soopy: &7" + (framesWithOut / 5))
+        // ChatLib.chat("&eFps with Soopy: &7" + (framesWith / 5))
 
         this.loadSoopy()
+
+        return {
+            fpsWith: (framesWith / 5),
+            fpsWithout: (framesWithOut / 5)
+        }
     }
 
     loadForgeRenderLag() {
-        ChatLib.chat(this.messagePrefix + "Recording Forge-Rendering Lag...")
+        // ChatLib.chat(this.messagePrefix + "Recording Forge-Rendering Lag...")
         let framesWith = 0
         let framesWithOut = 0
         let renderingForge = true
@@ -237,50 +268,55 @@ class FeatureManager {
         }
         this.unregisterEvent(event)
 
-        ChatLib.chat(this.messagePrefix + "Forge Lag:")
-        ChatLib.chat("&eFps without forge: &7" + (framesWithOut / 5))
-        ChatLib.chat("&eFps with forge: &7" + (framesWith / 5))
+        // ChatLib.chat(this.messagePrefix + "Forge Lag:")
+        // ChatLib.chat("&eFps without forge: &7" + (framesWithOut / 5))
+        // ChatLib.chat("&eFps with forge: &7" + (framesWith / 5))
+        return {
+            fpsWith: (framesWith / 5),
+            fpsWithout: (framesWithOut / 5)
+        }
     }
 
     loadEventLag() {
         this.recordingPerformanceUsage = true
         this.performanceUsage = {}
-        ChatLib.chat(this.messagePrefix + "Recording Event Lag...")
+        // ChatLib.chat(this.messagePrefix + "Recording Event Lag...")
 
         Thread.sleep(10000)
 
-        let totalMsGlobal = 0
+        // let totalMsGlobal = 0
         this.recordingPerformanceUsage = false
-        ChatLib.chat(this.messagePrefix + "Event Lag:")
-        Object.keys(this.performanceUsage).sort((a, b) => {
-            let totalMsA = 0
-            Object.keys(this.performanceUsage[a]).forEach((event) => {
-                totalMsA += this.performanceUsage[a][event].time
-            })
-            let totalMsB = 0
-            Object.keys(this.performanceUsage[b]).forEach((event) => {
-                totalMsB += this.performanceUsage[b][event].time
-            })
+        // ChatLib.chat(this.messagePrefix + "Event Lag:")
+        // Object.keys(this.performanceUsage).sort((a, b) => {
+        //     let totalMsA = 0
+        //     Object.keys(this.performanceUsage[a]).forEach((event) => {
+        //         totalMsA += this.performanceUsage[a][event].time
+        //     })
+        //     let totalMsB = 0
+        //     Object.keys(this.performanceUsage[b]).forEach((event) => {
+        //         totalMsB += this.performanceUsage[b][event].time
+        //     })
 
-            return totalMsA - totalMsB
-        }).forEach((moduleName) => {
-            let totalMs = 0
-            let totalCalls = 0
-            Object.keys(this.performanceUsage[moduleName]).forEach((event) => {
-                totalMs += this.performanceUsage[moduleName][event].time
-                totalCalls += this.performanceUsage[moduleName][event].count
-            })
+        //     return totalMsA - totalMsB
+        // }).forEach((moduleName) => {
+        //     let totalMs = 0
+        //     let totalCalls = 0
+        //     Object.keys(this.performanceUsage[moduleName]).forEach((event) => {
+        //         totalMs += this.performanceUsage[moduleName][event].time
+        //         totalCalls += this.performanceUsage[moduleName][event].count
+        //     })
 
-            totalMsGlobal += totalMs
+        //     totalMsGlobal += totalMs
 
-            ChatLib.chat("&eModule: &7" + moduleName)
-            ChatLib.chat("&eTotal: &7" + totalMs.toFixed(2) + "ms (" + totalCalls + " calls)")
-            Object.keys(this.performanceUsage[moduleName]).sort((a, b) => { return this.performanceUsage[moduleName][a].time - this.performanceUsage[moduleName][b].time }).forEach((event) => {
-                ChatLib.chat("  &eEvent:&7 " + event + " - " + this.performanceUsage[moduleName][event].time.toFixed(2) + "ms (" + this.performanceUsage[moduleName][event].count + " calls) [" + ((this.performanceUsage[moduleName][event].time / this.performanceUsage[moduleName][event].count).toFixed(2)) + "ms avg]")
-            })
-        })
+        //     ChatLib.chat("&eModule: &7" + moduleName)
+        //     ChatLib.chat("&eTotal: &7" + totalMs.toFixed(2) + "ms (" + totalCalls + " calls)")
+        //     Object.keys(this.performanceUsage[moduleName]).sort((a, b) => { return this.performanceUsage[moduleName][a].time - this.performanceUsage[moduleName][b].time }).forEach((event) => {
+        //         ChatLib.chat("  &eEvent:&7 " + event + " - " + this.performanceUsage[moduleName][event].time.toFixed(2) + "ms (" + this.performanceUsage[moduleName][event].count + " calls) [" + ((this.performanceUsage[moduleName][event].time / this.performanceUsage[moduleName][event].count).toFixed(2)) + "ms avg]")
+        //     })
+        // })
 
-        ChatLib.chat("&eTotal: &7" + totalMsGlobal.toFixed(2) + "ms")
+        // ChatLib.chat("&eTotal: &7" + totalMsGlobal.toFixed(2) + "ms")
+        return this.performanceUsage
     }
 
     loadFeatureSettings() {
@@ -610,16 +646,35 @@ class FeatureManager {
 
     addPerformanceTracking(feature) {
         let featureId = feature.getId()
-        if (!this.perfTrackingFeatures.has(featureId)) return
+        if (!this.perfTrackingFeatures) return
 
         Object.getOwnPropertyNames(Object.getPrototypeOf(feature)).forEach(key => {
             ChatLib.chat(key + " " + typeof (feature[key]))
             if (typeof (feature[key]) === "function") {
                 let fun = feature[key].bind(feature)
                 feature[key] = () => {
-                    ChatLib.chat("entering " + key)
+                    if (!this.recordingPerformanceUsage) {
+                        fun()
+                        return
+                    }
+
+                    let pushedId = false
+
+                    if (this.stack.length === 0) {
+                        this.stack.push(featureId)
+                        pushedId = true
+                    }
+
+                    this.stack.push(featureId + "." + key)
+
+                    let start = this.getExactTime()
                     fun()
-                    ChatLib.chat("exiting " + key)
+                    let time = this.getExactTime() - start
+
+                    this.performanceUsage
+
+                    this.stack.pop()
+                    if (pushedId) this.stack.pop()
                 }
             }
         })
