@@ -97,6 +97,7 @@ class Slayers extends Feature {
 		this.lastSlayerExp = 0;
 		this.lastBossSlain = 0;
 		this.registerChat("&r  &r&a&lSLAYER QUEST COMPLETE!&r", (e) => {
+			socketConnection.sendSlayerSpawnData({ loc: null });
 			this.lastSlayerExps.push(this.lastSlayerExp);
 			if (this.lastSlayerExps.length > 5) {
 				this.lastSlayerExps.shift();
