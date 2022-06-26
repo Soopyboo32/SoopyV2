@@ -141,6 +141,7 @@ class BetterGuis extends Feature {
         this.mana = 0
         this.overflowMana = 0
         this.maxMana = 0
+        this.lastOverFlow = Date.now()
 
         this.slotMatches = new Map()
         this.registerEvent("renderHealth", this.renderHealth).registeredWhen(() => this.inSkyblock() && this.customBars.getValue())
@@ -152,6 +153,7 @@ class BetterGuis extends Feature {
         registerActionBar2.trigger.setCriteria('&3${curr}ʬ').setParameter('contains');
         //&c2532/2532❤     &a798&a❈ Defense     &b2525/2525✎ &31ʬ&r (100)
         //&c2532/2532❤     &f20&f❂ True Defense     &b2414/2414✎ &3600ʬ&r (13)
+        //&c2665/2665❤     &a972&a❈ Defense     &b2145/2145✎ &3600ʬ&r
         this.registerEvent("guiRender", this.postGuiRender).registeredWhen(() => this.chestSearchBar.getValue())
         this.registerEvent("guiMouseClick", this.guiMouseClick).registeredWhen(() => this.chestSearchBar.getValue())
         this.registerEvent("guiKey", this.guiKey).registeredWhen(() => this.chestSearchBar.getValue())
@@ -165,11 +167,12 @@ class BetterGuis extends Feature {
         }
         this.mana = parseInt(curr)
         this.maxMana = parseInt(max)
-        this.overflowMana = 0
+        if (Date.now() - this.lastOverFlow > 1000) this.overflowMana = 0
     }
 
     actionbarOverflowMana(curr) {
         this.overflowMana = parseInt(curr)
+        this.lastOverFlow = Date.now()
     }
 
     renderMana(event) {
