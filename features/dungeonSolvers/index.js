@@ -170,6 +170,7 @@ class DungeonSolvers extends Feature {
 			7: 360,
 		};
 
+		this.registerStep(true, 2, this.stepNotDung).registeredWhen(() => !this.isInDungeon());
 		this.registerStep(true, 2, this.step).registeredWhen(() => this.isInDungeon());
 		this.registerStep(false, 60, this.step)
 		this.registerStep(true, 10, this.step2).registeredWhen(() => this.isInDungeon());
@@ -556,7 +557,6 @@ class DungeonSolvers extends Feature {
 	}
 
 	onWorldLoad() {
-		this.inBoss = false
 		this.goneInBonus = false;
 		this.bloodOpenedBonus = false;
 		this.mimicDead = false
@@ -788,6 +788,10 @@ class DungeonSolvers extends Feature {
 				}
 			}
 		}
+	}
+
+	stepNotDung() {
+		this.inBoss = false
 	}
 
 	step() {
