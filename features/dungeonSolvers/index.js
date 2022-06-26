@@ -44,8 +44,8 @@ class DungeonSolvers extends Feature {
 			Purple: "&5",
 			Arcade: "&e",
 		};
-		this.onWorldLoad();
 
+		this.lastWorldload = Date.now()
 		this.lividFindEnabled = new ToggleSetting("Correct livid finder", "Finds the real livid to kill in the f5 boss fight", true, "livid_find_enabled", this);
 		this.lividFindHud = new ToggleSetting("Show Livid Hp", "Shows the nametag of the correct livid", true, "livid_hud_enabled", this).requires(this.lividFindEnabled);
 		this.lividHpElement = new HudTextElement().setToggleSetting(this.lividFindHud).setLocationSetting(new LocationSetting("Correct Livid Hp Location", "Allows you to edit the location of the correct livid hp text", "livid_hp_location", this, [10, 50, 1, 1]).requires(this.lividFindHud).editTempText("§r§e﴾ §c§lLivid§r §a7M§c❤ §e﴿§r"));
@@ -557,6 +557,7 @@ class DungeonSolvers extends Feature {
 	}
 
 	onWorldLoad() {
+		this.lastWorldload = Date.now()
 		this.goneInBonus = false;
 		this.bloodOpenedBonus = false;
 		this.mimicDead = false
@@ -791,10 +792,12 @@ class DungeonSolvers extends Feature {
 	}
 
 	stepNotDung() {
+		if (Date.now() - this.lastWorldload < 5000) return
 		this.inBoss = false
 	}
 
 	step() {
+		ChatLib.chat(this.inBoss)
 		if (this.bearSpawning && this.bearSpawning > 0) {
 			this.spiritBearSpawnElement.setText("&dBear spawned in: &c" + (Math.max(0, this.bearSpawning - Date.now()) / 1000).toFixed(2) + "s");
 		} else {
