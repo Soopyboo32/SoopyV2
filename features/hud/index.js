@@ -513,7 +513,7 @@ class Hud extends Feature {
             return;
         }
 
-        this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(soulflowCount))
+        this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData.soulflow))
     }
 
     statApiLoadThingo(data) {

@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import logger from "../../logger";
-import { f } from "../../../mappings/mappings";
+import { f, m } from "../../../mappings/mappings";
 import ToggleSetting from "../settings/settingThings/toggle";
 import MuseumGui from "./museumGui.js";
 import DungeonReadyGui from "./dungeonReadyGui";
@@ -12,6 +12,10 @@ import TextBox from "../../../guimanager/GuiElement/TextBox";
 class BetterGuis extends Feature {
     constructor() {
         super()
+    }
+
+    inSkyblock() {
+        return this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.isInSkyblock
     }
 
     onEnable() {
@@ -27,6 +31,7 @@ class BetterGuis extends Feature {
         this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI", "Custom gui for the dungeon ready up menu", false, "custom_dungeon_ready_enabled", this)
 
         this.chestSearchBar = new ToggleSetting("Inventory Search Bar", "use '&' to make it filter by stuff that contains multiple things", false, "inv_search", this)
+        this.customBars = new ToggleSetting("Custom hp and mana bar", "Also hides stuff like armor bar", false, "custom_bars", this)
 
         this.lastWindowId = 0
         this.shouldHold = 10
@@ -133,13 +138,81 @@ class BetterGuis extends Feature {
         this.invSearchTextBox = new TextBox().setPlaceholder("Click to search").setLocation(0.4, 0.05, 0.2, 0.05)
         this.invSearchSoopyGui.element.addChild(this.invSearchTextBox)
 
-        this.slotMatches = new Map()
+        this.mana = 0
+        this.overflowMana = 0
+        this.maxMana = 0
 
+        this.slotMatches = new Map()
+        this.registerEvent("renderHealth", this.renderHealth).registeredWhen(() => this.inSkyblock() && this.customBars.getValue())
+        this.registerEvent("renderFood", cancel).registeredWhen(() => this.inSkyblock() && this.customBars.getValue())
+        this.registerEvent("renderArmor", this.renderMana).registeredWhen(() => this.inSkyblock() && this.customBars.getValue())
+        let registerActionBar = this.registerCustom("actionbar", this.actionbarMana)
+        registerActionBar.trigger.setCriteria('&b${curr}/${max}✎').setParameter('contains');
+        let registerActionBar2 = this.registerCustom("actionbar", this.actionbarOverflowMana)
+        registerActionBar2.trigger.setCriteria('&3${curr}ʬ').setParameter('contains');
+        //&c2532/2532❤     &a798&a❈ Defense     &b2525/2525✎ &31ʬ&r (100)
+        //&c2532/2532❤     &f20&f❂ True Defense     &b2414/2414✎ &3600ʬ&r (13)
         this.registerEvent("guiRender", this.postGuiRender).registeredWhen(() => this.chestSearchBar.getValue())
         this.registerEvent("guiMouseClick", this.guiMouseClick).registeredWhen(() => this.chestSearchBar.getValue())
         this.registerEvent("guiKey", this.guiKey).registeredWhen(() => this.chestSearchBar.getValue())
         this.registerEvent("renderSlot", this.renderSlot).registeredWhen(() => this.chestSearchBar.getValue())
         this.registerEvent("guiOpened", this.guiOpened).registeredWhen(() => this.chestSearchBar.getValue())
+    }
+
+    actionbarMana(curr, max) {
+        if (curr.includes("Mana")) {
+            curr = curr.split("&b").pop()
+        }
+        this.mana = parseInt(curr)
+        this.maxMana = parseInt(max)
+        this.overflowMana = 0
+    }
+
+    actionbarOverflowMana(curr) {
+        this.overflowMana = parseInt(curr)
+    }
+
+    renderMana(event) {
+        cancel(event)
+
+        let left = Renderer.screen.getWidth() / 2 + 91 - 80;
+        let top = Renderer.screen.getHeight() - 40;
+
+        Renderer.retainTransforms(true)
+        Renderer.translate(left, top)
+
+        let totalAmt = Math.max(this.maxMana, this.mana + this.overflowMana)
+
+        let manaPercent = this.mana / totalAmt
+        let ofPercent = this.overflowMana / totalAmt
+
+        Renderer.drawRect(Renderer.color(0, 0, 0), 0, 0, 80, 10)
+        Renderer.drawRect(Renderer.color(50, 50, 50), 2, 2, 76, 6)
+        Renderer.drawRect(Renderer.color(0, 0, 255), 2, 2, manaPercent * 76, 6)
+        Renderer.drawRect(Renderer.color(0, 255, 255), 2 + manaPercent * 76, 2, ofPercent * 76, 6)
+        Renderer.retainTransforms(false)
+    }
+
+    renderHealth(event) {
+        cancel(event)
+
+        let left = Renderer.screen.getWidth() / 2 - 91;
+        let top = Renderer.screen.getHeight() - 40;
+
+        Renderer.retainTransforms(true)
+        Renderer.translate(left, top)
+
+        let totalAmt = Math.max(Player.getPlayer()[m.getMaxHealth](), Player.getHP() + Player.getPlayer()[m.getAbsorptionAmount]())
+
+        let hpPercent = Player.getHP() / totalAmt
+        let abPercent = Player.getPlayer()[m.getAbsorptionAmount]() / totalAmt
+
+
+        Renderer.drawRect(Renderer.color(0, 0, 0), 0, 0, 80, 10)
+        Renderer.drawRect(Renderer.color(50, 50, 50), 2, 2, 76, 6)
+        Renderer.drawRect(Renderer.color(255, 0, 0), 2, 2, hpPercent * 76, 6)
+        Renderer.drawRect(Renderer.color(255, 255, 0), 2 + hpPercent * 76, 2, abPercent * 76, 6)
+        Renderer.retainTransforms(false)
     }
 
     postGuiRender(x, y, gui) {
