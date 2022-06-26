@@ -181,6 +181,7 @@ class DungeonSolvers extends Feature {
 		this.bloodOpenedBonus = false;
 		this.goneInBonus = false;
 		this.mimicDead = false
+		this.inBoss = false
 		this.registerChat("&r&cThe &r&c&lBLOOD DOOR&r&c has been opened!&r", () => {
 			this.bloodOpenedBonus = true;
 			this.goneInBonus = true;
@@ -196,6 +197,7 @@ class DungeonSolvers extends Feature {
 			this.registerChat(msg, () => {
 				this.goneInBonus = false;
 				this.bloodOpenedBonus = false;
+				this.inBoss = true
 			});
 		})
 		this.registerEvent("entityDeath", (entity) => {
@@ -248,7 +250,7 @@ class DungeonSolvers extends Feature {
 			}
 		});
 
-		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDungeon());
+		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDungeon() && !this.inBoss);
 		// this.registerEvent("renderEntity", this.renderEntity)
 		this.renderEntityEvent = undefined;
 
@@ -554,6 +556,7 @@ class DungeonSolvers extends Feature {
 	}
 
 	onWorldLoad() {
+		this.inBoss = false
 		this.goneInBonus = false;
 		this.bloodOpenedBonus = false;
 		this.mimicDead = false
