@@ -797,7 +797,6 @@ class DungeonSolvers extends Feature {
 	}
 
 	step() {
-		ChatLib.chat(this.inBoss)
 		if (this.bearSpawning && this.bearSpawning > 0) {
 			this.spiritBearSpawnElement.setText("&dBear spawned in: &c" + (Math.max(0, this.bearSpawning - Date.now()) / 1000).toFixed(2) + "s");
 		} else {
