@@ -18,6 +18,9 @@ class Slayers extends Feature {
 		super();
 	}
 
+	inSkyblock() {
+		return this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.isInSkyblock
+	}
 	onEnable() {
 		this.initVariables();
 
@@ -96,6 +99,7 @@ class Slayers extends Feature {
 		this.hudElements.push(this.dulkirThingElement);
 
 		this.otherSlayerWaypoints = new ToggleSetting("Show other users slayer boss locations", "May be usefull for loot share", true, "slayer_location_other", this)
+		this.disableEmanTp = new ToggleSetting("Disable enderman Teleportation", "Exact same as feature in SBA", false, "emantp_disable", this)
 
 		this.lastSlayerFinishes = [];
 		this.lastSlayerExps = [];
@@ -251,6 +255,7 @@ class Slayers extends Feature {
 		this.registerEvent("worldLoad", this.worldLoad);
 		this.registerStep(true, 2, this.step);
 		this.registerStep(true, 4, this.step_4fps);
+		this.registerForge(Java.type("net.minecraftforge.event.entity.living.EnderTeleportEvent"), this.emanTp).registeredWhen(() => this.inSkyblock() && this.disableEmanTp.getValue())
 
 		this.formatNumber = (HPString) => {
 			HPString = HPString.removeFormatting().replace("❤", "");
@@ -262,6 +267,10 @@ class Slayers extends Feature {
 				return parseInt(HPString);
 			}
 		}
+	}
+
+	emanTp(event) {
+		cancel(event)
 	}
 
 	slayerLocationData(loc, user) {
@@ -368,7 +377,8 @@ class Slayers extends Feature {
 		}
 
 		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonsShowNametag.getValue() || this.summonsLowWarning.getValue()) {
-			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(name => {
+			let entities = World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand)
+			for (let name of entities) {
 				let nameSplit = name.getName().removeFormatting().split(" ")
 				let MobName = `${nameSplit[0]} ${nameSplit[1]}`
 				if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
@@ -386,7 +396,7 @@ class Slayers extends Feature {
 						this.summonEntity.push(name)
 					}
 				}
-			});
+			};
 		}
 	}
 
