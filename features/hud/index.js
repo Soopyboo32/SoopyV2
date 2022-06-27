@@ -128,14 +128,14 @@ class Hud extends Feature {
                 .requires(this.showSpotifyPlaying)
                 .editTempText("&6Spotify&7> &cNot open"))
         this.hudElements.push(this.spotifyElement)
-        this.spotifyElement2 = new HudTextElement().setToggleSetting(this.showSpotifyPlaying).setLocationSetting({
+        this.spotifyElement2 = new HudTextElement().setLocationSetting({
             setParent: () => { },
             x: this.spotifyElement.locationSetting.x + this.spotifyElement.getWidth(),
             y: this.spotifyElement.locationSetting.y,
             scale: this.spotifyElement.locationSetting.scale,
             shadowType: this.spotifyElement.locationSetting.shadowType
         })
-        this.spotifyElement2.renderElm.stopRender()
+        this.spotifyElement2.disableRendering()
 
         this.showLobbyDay = new ToggleSetting("Show Current Lobby Day", "", true, "lobby_day", this)
         this.lobbyDayElement = new HudTextElement()

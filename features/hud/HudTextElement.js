@@ -18,7 +18,21 @@ class HudTextElement {
         this.renderTextCache = [""]
         this.textChanged = false
 
+        this.renderingDisabled = false
+
         this.renderElm = new HudText([""], 0, 0, true).startRender()
+    }
+
+    disableRendering() {
+        this.renderingDisabled = true
+        this.renderElm.stopRender()
+    }
+
+    enableRendering() {
+        this.renderingDisabled = false
+        if (this.toggleSetting.getValue()) {
+            this.renderElm.startRender()
+        }
     }
 
     delete() {
@@ -48,13 +62,13 @@ class HudTextElement {
     setToggleSetting(setting) {
         this.toggleSetting = setting
         setting.onChange = () => {
-            if (this.toggleSetting.getValue()) {
+            if (this.toggleSetting.getValue() && !this.renderingDisabled) {
                 this.renderElm.startRender()
             } else {
                 this.renderElm.stopRender()
             }
         }
-        if (this.toggleSetting.getValue()) {
+        if (this.toggleSetting.getValue() && !this.renderingDisabled) {
             this.renderElm.startRender()
         } else {
             this.renderElm.stopRender()
