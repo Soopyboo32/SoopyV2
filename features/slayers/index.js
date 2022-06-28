@@ -165,6 +165,7 @@ class Slayers extends Feature {
 		this.bossSpawnedMessage = false;
 		this.lastBossNotSpawnedTime = 0;
 		this.lastBossSpawned = 0;
+		this.cannotFindEmanBoss = false;
 
 		this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.spawnAlert.getValue() || this.slainAlert.getValue());
 
@@ -298,6 +299,7 @@ class Slayers extends Feature {
 		this.summonEntity = []
 		this.warnAfterBoss = false
 		this.canCaptureSummonHPInfo = false
+		this.cannotFindEmanBoss = false
 	}
 
 	renderEntity(entity, pos, partialTicks, event) {
@@ -453,6 +455,10 @@ class Slayers extends Feature {
 					if (Date.now() - this.nextIsBoss < 3000) {
 						this.emanBoss = new Entity(e);
 						this.nextIsBoss = false;
+					}
+					if (this.cannotFindEmanBoss && ((e[f.posX.Entity] - Player.getX()) ** 2 + (e[f.posY.Entity] - Player.getY()) ** 2 + (e[f.posZ.Entity] - Player.getZ()) ** 2 < 5)) {
+						this.emanBoss = new Entity(e);
+						this.cannotFindEmanBoss = false
 					}
 					// just makes it to work on all eman slayers
 					if (this.allEmanBosses.getValue()) {
@@ -768,18 +774,20 @@ class Slayers extends Feature {
 					socketConnection.sendSlayerSpawnData({ loc: null });
 				}
 				this.bossSlainMessage = true;
+				this.cannotFindEmanBoss = false
 			}
 
 			if (line.getName().includes("Slay the boss!")) {
 				if (!this.bossSpawnedMessage) {
 					socketConnection.sendSlayerSpawnData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
 					this.lastBossSpawned = Date.now();
-				}
-				if (!this.bossSpawnedMessage && this.emanBoss) {
-					this.emanBoss = undefined
-				}
-				if (!this.bossSpawnedMessage && !this.emanBoss) {
-					this.nextIsBoss = Date.now();
+					if (this.emanBoss) {
+						this.emanBoss = undefined
+					} else {
+						this.nextIsBoss = Date.now();
+					}
+				} else if (!this.emanBoss) {
+					this.cannotFindEmanBoss = true
 				}
 
 				dis1 = true;
@@ -833,6 +841,7 @@ class Slayers extends Feature {
 		this.summonAtHPShouldWarn = undefined;
 		this.warnAfterBoss = false
 		this.canCaptureSummonHPInfo = false
+		this.cannotFindEmanBoss = false
 	}
 
 	onDisable() {
