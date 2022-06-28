@@ -377,8 +377,7 @@ class Slayers extends Feature {
 		}
 
 		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonsShowNametag.getValue() || this.summonsLowWarning.getValue()) {
-			let entities = World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand)
-			for (let name of entities) {
+			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
 				let nameSplit = name.getName().removeFormatting().split(" ")
 				let MobName = `${nameSplit[0]} ${nameSplit[1]}`
 				if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
@@ -396,7 +395,7 @@ class Slayers extends Feature {
 						this.summonEntity.push(name)
 					}
 				}
-			};
+			});
 		}
 	}
 
@@ -775,6 +774,9 @@ class Slayers extends Feature {
 				if (!this.bossSpawnedMessage) {
 					socketConnection.sendSlayerSpawnData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())] });
 					this.lastBossSpawned = Date.now();
+				}
+				if (!this.bossSpawnedMessage && this.emanBoss) {
+					this.emanBoss = undefined
 				}
 				if (!this.bossSpawnedMessage && !this.emanBoss) {
 					this.nextIsBoss = Date.now();
