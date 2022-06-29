@@ -177,13 +177,10 @@ class Slayers extends Feature {
 
 		this.registerChat("&r&aYou have spawned your ${soul} &r&asoul! &r&d(${mana} Mana)&r", (soul, mana) => {
 			if (!this.summonFeatureMaster) {
-				ChatLib.chat("1")
 				return
 			} else if (!this.summonsHideNametag && !this.summonsShowNametag && !this.summonHPGuiElement && !this.summonsLowWarning) {
-				ChatLib.chat("2")
 				return
 			}
-			ChatLib.chat("3")
 			if (!soul.removeFormatting().includes("Tank Zombie")) {
 				if (!this.wrongSummons) {
 					delay(300, () => {
@@ -394,16 +391,28 @@ class Slayers extends Feature {
 			this.renderEntityEvent.unregister();
 		}
 
-		if (this.cannotFindEmanBoss || this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonsShowNametag.getValue() || this.summonsLowWarning.getValue()) {
+		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonsShowNametag.getValue() || this.summonsLowWarning.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
 				if (this.cannotFindEmanBoss) {
-					if ((e[f.posX.Entity] - Player.getX()) ** 2 + (e[f.posY.Entity] - Player.getY()) ** 2 + (e[f.posZ.Entity] - Player.getZ()) ** 2 < 5) {
-						this.emanBoss = new Entity(e);
+					if (this.bossSpawnedMessage) {
+						this.emanBoss = undefined
+						this.cannotFindEmanBoss = false
+					}
+					if (name.getName().removeFormatting().includes("Voidgloom Seraph") && ((name.getX() - Player.getX()) ** 2 + (name.getY() - Player.getY()) ** 2 + (name.getZ() - Player.getZ()) ** 2 < 25)) {
+						this.emanBoss = name
 						this.cannotFindEmanBoss = false
 					}
 				}
 				let nameSplit = name.getName().removeFormatting().split(" ")
 				let MobName = `${nameSplit[0]} ${nameSplit[1]}`
+				if (this.summonEntity.length !== parseInt(this.maxSummons.getValue())) {
+					if (this.summonsHideNametag.getValue() || this.summonsShowNametag.getValue() || this.summonsLowWarning.getValue()) {
+						// 2nd statement makes it to support both tank zombie and super tank zombie
+						if (nameSplit[0] === `${Player.getName()}'s` && `${nameSplit[nameSplit.length - 3]} ${nameSplit[nameSplit.length - 2]}` === "Tank Zombie" && !this.summonEntity?.map(a => a.getUUID().toString()).includes(name.getUUID().toString())) {
+							this.summonEntity.push(name)
+						}
+					}
+				}
 				if (this.MinibossOffWhenBoss.getValue() && !this.bossSpawnedMessage) {
 					if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
 						this.minibossEntity.push([name, this.lastSlayerType]);
@@ -412,13 +421,6 @@ class Slayers extends Feature {
 						if (nameSplit[nameSplit.length - 1].startsWith("0") && nameSplit[nameSplit.length - 1].endsWith("❤")) {
 							name.getEntity()[m.setAlwaysRenderNameTag](false)
 						}
-					}
-				}
-				if (this.summonEntity.length === parseInt(this.maxSummons.getValue())) return;
-				if (this.summonsHideNametag.getValue() || this.summonsShowNametag.getValue() || this.summonsLowWarning.getValue()) {
-					// 2nd statement makes it to support both tank zombie and super tank zombie
-					if (nameSplit[0] === `${Player.getName()}'s` && `${nameSplit[nameSplit.length - 3]} ${nameSplit[nameSplit.length - 2]}` === "Tank Zombie" && !this.summonEntity?.map(a => a.getUUID().toString()).includes(name.getUUID().toString())) {
-						this.summonEntity.push(name)
 					}
 				}
 			});
@@ -556,9 +558,12 @@ class Slayers extends Feature {
 					this.warnAfterBoss = true
 				}
 				if (this.canCaptureSummonHPInfo) {
-					if (!this.summonHPPossibilities.has(summonHP.removeFormatting())) return
-					this.canCaptureSummonHPInfo = false
-					this.summonAtHPShouldWarn = this.formatNumber(summonHP) * (parseInt(this.summonPercentage.getValue()) / 100)
+					if (this.summonHPPossibilities.has(summonHP.removeFormatting())) {
+						this.canCaptureSummonHPInfo = false
+						this.summonAtHPShouldWarn = this.formatNumber(summonHP) * (parseInt(this.summonPercentage.getValue()) / 100)
+					} else {
+						this.canCaptureSummonHPInfo = false
+					}
 				}
 			}
 		})
@@ -807,10 +812,12 @@ class Slayers extends Feature {
 					this.lastBossSpawned = Date.now();
 					if (this.emanBoss) {
 						this.emanBoss = undefined
+
 					} else {
 						this.nextIsBoss = Date.now();
 					}
-				} else if (!this.emanBoss) {
+				}
+				if (this.bossSpawnedMessage && !this.emanBoss) {
 					this.cannotFindEmanBoss = true
 				}
 
