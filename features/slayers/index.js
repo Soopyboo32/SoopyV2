@@ -380,12 +380,12 @@ class Slayers extends Feature {
 			let entities = World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand)
 			for (let name of entities) {
 				let nameSplit = name.getName().removeFormatting().split(" ")
-				let MobName = `${nameSplit[0]} ${nameSplit[1]}`
+				let MobName = nameSplit[0] + " " + nameSplit[1]
 				if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
 					this.minibossEntity.push([name, this.lastSlayerType]);
 				}
 				if (this.betterHideDeadEntity.getValue()) {
-					if (nameSplit[nameSplit.length - 1].startsWith("0") && nameSplit[nameSplit.length - 1].endsWith("❤")) {
+					if (nameSplit[nameSplit.length - 1][0] === "0" && nameSplit[nameSplit.length - 1].endsWith("❤")) {
 						name.getEntity()[m.setAlwaysRenderNameTag](false)
 					}
 				}
