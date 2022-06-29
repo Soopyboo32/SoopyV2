@@ -394,11 +394,10 @@ class Slayers extends Feature {
 		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonsShowNametag.getValue() || this.summonsLowWarning.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
 				if (this.cannotFindEmanBoss) {
-					if (this.bossSpawnedMessage) {
+					if (!this.bossSpawnedMessage) {
 						this.emanBoss = undefined
 						this.cannotFindEmanBoss = false
-					}
-					if (name.getName().removeFormatting().includes("Voidgloom Seraph") && ((name.getX() - Player.getX()) ** 2 + (name.getY() - Player.getY()) ** 2 + (name.getZ() - Player.getZ()) ** 2 < 25)) {
+					} else if (name.getName().removeFormatting().includes("Voidgloom Seraph") && ((name.getX() - Player.getX()) ** 2 + (name.getY() - Player.getY()) ** 2 + (name.getZ() - Player.getZ()) ** 2 < 25)) {
 						this.emanBoss = name
 						this.cannotFindEmanBoss = false
 					}
