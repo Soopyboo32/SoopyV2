@@ -410,6 +410,13 @@ class Slayers extends Feature {
 						if (nameSplit[0] === `${Player.getName()}'s` && `${nameSplit[nameSplit.length - 3]} ${nameSplit[nameSplit.length - 2]}` === "Tank Zombie" && !this.summonEntity?.map(a => a.getUUID().toString()).includes(name.getUUID().toString())) {
 							this.summonEntity.push(name)
 						}
+				if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
+					this.minibossEntity.push([name, this.lastSlayerType]);
+				}
+				if (this.betterHideDeadEntity.getValue()) {
+					if (nameSplit[nameSplit.length - 1][0] === "0" && nameSplit[nameSplit.length - 1].endsWith("❤")) {
+						name.getEntity()[m.setAlwaysRenderNameTag](false)
+
 					}
 				}
 				if (this.MinibossOffWhenBoss.getValue() && !this.bossSpawnedMessage) {

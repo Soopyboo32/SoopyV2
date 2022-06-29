@@ -8,6 +8,7 @@ import MuseumGui from "./museumGui.js";
 import DungeonReadyGui from "./dungeonReadyGui";
 import { SoopyGui } from "../../../guimanager";
 import TextBox from "../../../guimanager/GuiElement/TextBox";
+import SoopyNumber from "../../../guimanager/Classes/SoopyNumber";
 
 class BetterGuis extends Feature {
     constructor() {
@@ -138,9 +139,9 @@ class BetterGuis extends Feature {
         this.invSearchTextBox = new TextBox().setPlaceholder("Click to search").setLocation(0.4, 0.05, 0.2, 0.05)
         this.invSearchSoopyGui.element.addChild(this.invSearchTextBox)
 
-        this.mana = 0
-        this.overflowMana = 0
-        this.maxMana = 0
+        this.mana = new SoopyNumber(0)
+        this.overflowMana = new SoopyNumber(0)
+        this.maxMana = new SoopyNumber(0)
         this.lastOverFlow = Date.now()
 
         this.slotMatches = new Map()
@@ -165,13 +166,13 @@ class BetterGuis extends Feature {
         if (curr.includes("Mana")) {
             curr = curr.split("&b").pop()
         }
-        this.mana = parseInt(curr)
-        this.maxMana = parseInt(max)
-        if (Date.now() - this.lastOverFlow > 1000) this.overflowMana = 0
+        this.mana.set(parseInt(curr), 500)
+        this.maxMana.set(parseInt(max), 500)
+        if (Date.now() - this.lastOverFlow > 1000) this.overflowMana.set(0, 500)
     }
 
     actionbarOverflowMana(curr) {
-        this.overflowMana = parseInt(curr)
+        this.overflowMana.set(parseInt(curr), 500)
         this.lastOverFlow = Date.now()
     }
 
@@ -184,10 +185,10 @@ class BetterGuis extends Feature {
         Renderer.retainTransforms(true)
         Renderer.translate(left, top)
 
-        let totalAmt = Math.max(this.maxMana, this.mana + this.overflowMana)
+        let totalAmt = Math.max(this.maxMana.get(), this.mana.get() + this.overflowMana.get())
 
-        let manaPercent = this.mana / totalAmt
-        let ofPercent = this.overflowMana / totalAmt
+        let manaPercent = this.mana.get() / totalAmt
+        let ofPercent = this.overflowMana.get() / totalAmt
 
         Renderer.drawRect(Renderer.color(0, 0, 0), 0, 0, 80, 10)
         Renderer.drawRect(Renderer.color(50, 50, 50), 2, 2, 76, 6)
