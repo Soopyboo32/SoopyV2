@@ -45,6 +45,8 @@ class DungeonSolvers extends Feature {
 			Arcade: "&e",
 		};
 
+		this.IceSprayWarn = new ToggleSetting("Ice Spray Drop Ping", "Renders a big title so you don't miss ice spray wands", true, "ice_spray_ping", this).contributor("EmeraldMerchant");
+
 		this.lastWorldload = Date.now()
 		this.lividFindEnabled = new ToggleSetting("Correct livid finder", "Finds the real livid to kill in the f5 boss fight", true, "livid_find_enabled", this);
 		this.lividFindHud = new ToggleSetting("Show Livid Hp", "Shows the nametag of the correct livid", true, "livid_hud_enabled", this).requires(this.lividFindEnabled);
@@ -902,6 +904,18 @@ class DungeonSolvers extends Feature {
 			}
 		} else {
 			this.runSpeedRatesElement.setText("");
+		}
+	}
+
+	step_5fps() {
+		if (this.IceSprayWarn.getValue()) {
+			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
+				let MobName = name.getName()
+				if (MobName.includes("Ice Spray Wand") && name.getTicksExisted() <= 199) {
+					Client.showTitle(`&r&6&l[&b&l&kO&6&l] ${MobName.toUpperCase()} &6&l[&b&l&kO&6&l]`, "", 0, 40, 10);
+					ChatLib.chat(`&6&lRARE DROP! &r${MobName}`)
+				}
+			})
 		}
 	}
 
