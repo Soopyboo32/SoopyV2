@@ -497,7 +497,7 @@ class DungeonSolvers extends Feature {
 			}
 		}
 
-		if (this.bloodCampAssist.getValue()) {
+		if (this.bloodCampAssist.getValue() && this.skulls) {
 			for (let skull of this.skulls) {
 				if (this.eMovingThing[skull.getUUID().toString()] && this.eMovingThing[skull.getUUID().toString()].timeTook) {
 					let skullE = skull.getEntity();
