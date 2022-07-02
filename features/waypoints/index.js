@@ -222,6 +222,10 @@ class Waypoints extends Feature {
                 })
             })
         }).registeredWhen(() => this.mineWaypointsSetting.getValue())
+
+        this.registerEvent("worldLoad", () => {
+            this.locations = {}
+        })
     }
 
     tickWaypoints() {
