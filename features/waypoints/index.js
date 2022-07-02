@@ -6,7 +6,18 @@ import { Waypoint } from "../../utils/renderJavaUtils";
 import { drawCoolWaypoint } from "../../utils/renderUtils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
+import minewaypoints_socket from "./minewaypoints_socket";
 
+
+let areas = {
+    "MinesofDivan": "Mines of Divan",
+    "LostPrecursorCity": "Lost Precursor City",
+    "JungleTemple": "Jungle Temple",
+    "GoblinQueensDen": "Goblin Queen's Den",
+    "Khazaddm": "Khazad-dûm",
+    "KingYolkar": "§6King Yolkar",
+    "BossCorleone": "§cBoss Corleone"
+}
 
 class Waypoints extends Feature {
     constructor() {
@@ -24,6 +35,7 @@ class Waypoints extends Feature {
         this.showInfoInChat = new ToggleSetting("Show info in chat", "Should chat msg be sent when theres waypoint added/cleared/removed", true, "waypoints_send_message", this);
 
         this.loadWaypointsFromSendCoords = new ToggleSetting("Load waypoints from /patcher sendcoords messages", "Will dissapear after 1min", true, "load_waypoints_from_sendcoords", this)
+        this.mineWaypointsSetting = new ToggleSetting("CH waypoints", "Will sync between users", true, "minwaypoints", this)
 
         this.userWaypoints = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2userwaypoints.json") || "{}")
         this.userWaypointsHash = {}
@@ -140,6 +152,76 @@ class Waypoints extends Feature {
                 this.tickWaypoints()
             }
         })
+
+
+        this.lastSend = 0
+        this.locations = {}
+        minewaypoints_socket.setLocationHandler = (area, loc) => {
+            if (!area) return
+            if (area == "undefined") return
+            this.locations[area] = loc;
+            // console.log(JSON.stringify(loc, undefined, 2))
+        }
+
+        this.registerEvent("tick", () => {
+            try {
+                if (Scoreboard.getLines().length < 2) return;
+                let server = ChatLib.removeFormatting(Scoreboard.getLineByIndex(Scoreboard.getLines().length - 1)).split(" ")
+
+                if (server.length === 2) {
+                    server = server[1].replace(/[^0-9A-z]/g, "")
+                } else {
+                    return;
+                }
+
+                minewaypoints_socket.setServer(server, World.getWorld().func_82737_E())
+
+                if (Date.now() - this.lastSend > 1000) {
+                    Scoreboard.getLines().forEach(line => {
+                        line = ChatLib.removeFormatting(line.getName()).replace(/[^0-9A-z]/g, "")
+                        if (Object.keys(areas).includes(line)) {
+                            minewaypoints_socket.setLocation(line, { x: Math.floor(Player.getX()), y: Math.floor(Player.getY()), z: Math.floor(Player.getZ()) })
+                        }
+                    })
+                    this.lastSend = Date.now()
+                }
+            } catch (e) {
+                console.log("SOOPYV2MINEWAYPOINTS ERROR")
+                console.log(JSON.stringify(e, undefined, 2))
+            }
+        })
+
+        this.registerStep(false, 5, () => {
+
+            World.getAllEntities().forEach(e => {
+                if (Math.max(Math.abs(Player.getX() - e.getX()), Math.abs(Player.getY() - e.getY()), Math.abs(Player.getZ() - e.getZ())) > 20) return;
+
+                if (!this.locations["KingYolkar"]) {
+                    if (ChatLib.removeFormatting(e.getName()) === "King Yolkar") {
+                        minewaypoints_socket.setLocation("KingYolkar", { x: e.getX(), y: e.getY() + 3.5, z: e.getZ() })
+                    }
+                }
+                if (ChatLib.removeFormatting(e.getName()).includes("Boss Corleone")) {
+                    minewaypoints_socket.setLocation("BossCorleone", { x: e.getX(), y: e.getY() + 3.5, z: e.getZ() })
+                }
+            })
+            // console.log(JSON.stringify(locations, undefined, 2))
+        })
+
+        this.registerEvent("renderWorld", () => {
+            if (!this.mineWaypointsSetting.getValue()) return
+            Object.values(this.locations).forEach(item => {
+                if (!item) return;
+                item.forEach(loc => {
+                    // console.log(JSON.stringify(loc, undefined, 2))
+                    if (loc.loc.x) {
+                        drawCoolWaypoint(loc.loc.x, loc.loc.y, loc.loc.z, 0, 255, 0, { name: areas[loc.area] })
+                    } else {
+                        drawCoolWaypoint(loc.loc.minX / 2 + loc.loc.maxX / 2, loc.loc.minY / 2 + loc.loc.maxY / 2, loc.loc.minZ / 2 + loc.loc.maxZ / 2, 0, 255, 0, { name: areas[loc.area] })
+                    }
+                })
+            })
+        }).registeredWhen(() => this.mineWaypointsSetting.getValue())
     }
 
     tickWaypoints() {
