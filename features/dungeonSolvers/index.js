@@ -175,7 +175,7 @@ class DungeonSolvers extends Feature {
 		this.registerStep(true, 2, this.stepNotDung).registeredWhen(() => !this.isInDungeon());
 		this.registerStep(true, 2, this.step).registeredWhen(() => this.isInDungeon());
 		this.registerStep(false, 60, this.step)
-		this.registerStep(true, 10, this.step2).registeredWhen(() => this.isInDungeon());
+		this.registerStep(true, 10, this.step_5fps).registeredWhen(() => this.isInDungeon());
 		this.registerStep(false, 60 * 5, this.step_5min)
 		this.registerEvent("worldLoad", this.onWorldLoad);
 
