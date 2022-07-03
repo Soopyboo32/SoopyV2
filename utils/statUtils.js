@@ -280,13 +280,21 @@ function getLevelByXp(xp, type, levelCap) {
             level++
             xpCurrent -= 200000000
         }
-        if(level < levelCap){
+        if (level < levelCap) {
             progress = xpCurrent / 200000000
             xpForNext = 200000000
-        }else{
+        } else {
             progress = 0
             xpForNext = NaN
         }
+    }
+    if (type != 1 && type != 2 && levelCap === Infinity && level === type) {
+        while (xpCurrent > 50000000) {
+            level++
+            xpCurrent -= 50000000
+        }
+        progress = xpCurrent / 50000000
+        xpForNext = 50000000
     }
     return {
         xp,
