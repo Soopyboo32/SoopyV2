@@ -163,6 +163,17 @@ class Hud extends Feature {
             "experience_skill_taming": 50,
         };
 
+        this.lastSkillLevel = {
+            "experience_skill_combat": 0,
+            "experience_skill_foraging": 0,
+            "experience_skill_farming": 0,
+            "experience_skill_fishing": 0,
+            "experience_skill_alchemy": 0,
+            "experience_skill_enchanting": 0,
+            "experience_skill_mining": 0,
+            "experience_skill_taming": 0,
+        }
+
         this.spotifyProcessId = -1
 
         Object.keys(this.skillLevelCaps).forEach(skill => {
@@ -651,6 +662,12 @@ class Hud extends Feature {
         Object.keys(this.skillLevelCaps).forEach(skill => {
             if (type === skill) {
                 let skillData = getLevelByXp(this.lastStatData[skill], this.skillLevelCaps[skill] === 50 ? 50 : 60, this.extendLevelCap.getValue() ? Infinity : this.skillLevelCaps[skill])
+                if (this.lastSkillLevel[skill] === skillData.level - 1 && (skillData.level > (this.skillLevelCaps[skill] === 50 ? 50 : 60))) {
+                    ChatLib.chat(`&r&3&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬&r\n  &r&b&lSKILL LEVEL UP &3${firstLetterCapital(skill.split("_").pop())} &8${skillData.level - 1}➜&3${skillData.level}&r\n&r  &r&a&lREWARDS&r\n&r  &r&6&lSoopy's Respect\n&r&3&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬&r\n`)
+                    this.lastSkillLevel[skill] = skillData.level;
+                } else if (this.lastSkillLevel[skill] === 0 ) {
+                    this.lastSkillLevel[skill] = skillData.level;
+                }
                 string = "&6" + firstLetterCapital(skill.split("_").pop()) + "&7> &f" + (skillData.level + skillData.progress).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(skillData.xpCurrent) + (skillData.level === this.skillLevelCaps[skill] ? "" : "/" + this.numberUtils.numberWithCommas(skillData.xpForNext)) + ")"
             }
         })
