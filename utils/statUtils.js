@@ -289,12 +289,14 @@ function getLevelByXp(xp, type, levelCap) {
         }
     }
     if (type != 1 && type != 2 && levelCap === Infinity && level === type) {
-        while (xpCurrent > 50000000) {
+        let xpScaling = Math.round(119767.226 * (2 ** (level/10)))
+        while (xpCurrent > xpScaling) {
             level++
-            xpCurrent -= 50000000
+            xpCurrent -= xpScaling
+            xpScaling = Math.round(119767.226 * (2 ** (level/10)))
         }
-        progress = xpCurrent / 50000000
-        xpForNext = 50000000
+        progress = xpCurrent / xpScaling
+        xpForNext = xpScaling
     }
     return {
         xp,
