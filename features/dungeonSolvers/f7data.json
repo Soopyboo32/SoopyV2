@@ -1,0 +1,263 @@
+[
+    {
+        "type": "device",
+        "location": [
+            110,
+            118,
+            91
+        ],
+        "phase": 0
+    },
+    {
+        "type": "terminal",
+        "location": [
+            110,
+            112,
+            73
+        ],
+        "phase": 0
+    },
+    {
+        "type": "terminal",
+        "location": [
+            110,
+            118,
+            79
+        ],
+        "phase": 0
+    },
+    {
+        "type": "terminal",
+        "location": [
+            90,
+            111,
+            92
+        ],
+        "phase": 0
+    },
+    {
+        "type": "terminal",
+        "location": [
+            90,
+            121,
+            101
+        ],
+        "phase": 0
+    },
+    {
+        "type": "lever",
+        "location": [
+            106,
+            124,
+            113
+        ],
+        "phase": 0
+    },
+    {
+        "type": "lever",
+        "location": [
+            94,
+            124,
+            113
+        ],
+        "phase": 0
+    },
+    {
+        "type": "terminal",
+        "location": [
+            68,
+            108,
+            122
+        ],
+        "phase": 1
+    },
+    {
+        "type": "terminal",
+        "location": [
+            59,
+            119,
+            123
+        ],
+        "phase": 1
+    },
+    {
+        "type": "device",
+        "location": [
+            60,
+            131,
+            142
+        ],
+        "phase": 1
+    },
+    {
+        "type": "terminal",
+        "location": [
+            47,
+            108,
+            122
+        ],
+        "phase": 1
+    },
+    {
+        "type": "lever",
+        "location": [
+            27,
+            124,
+            127
+        ],
+        "phase": 1
+    },
+    {
+        "type": "terminal",
+        "location": [
+            40,
+            123,
+            123
+        ],
+        "phase": 1
+    },
+    {
+        "type": "terminal",
+        "location": [
+            39,
+            107,
+            142
+        ],
+        "phase": 1
+    },
+    {
+        "type": "lever",
+        "location": [
+            23,
+            132,
+            138
+        ],
+        "phase": 1
+    },
+    {
+        "type": "terminal",
+        "location": [
+            -1,
+            108,
+            112
+        ],
+        "phase": 2
+    },
+    {
+        "type": "terminal",
+        "location": [
+            18,
+            122,
+            93
+        ],
+        "phase": 2
+    },
+    {
+        "type": "terminal",
+        "location": [
+            -1,
+            118,
+            93
+        ],
+        "phase": 2
+    },
+    {
+        "type": "terminal",
+        "location": [
+            -1,
+            108,
+            77
+        ],
+        "phase": 2
+    },
+    {
+        "type": "device",
+        "location": [
+            -1,
+            119,
+            74
+        ],
+        "phase": 2
+    },
+    {
+        "type": "lever",
+        "location": [
+            14,
+            122,
+            55
+        ],
+        "phase": 2
+    },
+    {
+        "type": "lever",
+        "location": [
+            2,
+            122,
+            55
+        ],
+        "phase": 2
+    },
+    {
+        "type": "terminal",
+        "location": [
+            44,
+            120,
+            30
+        ],
+        "phase": 3
+    },
+    {
+        "type": "device",
+        "location": [
+            63,
+            126,
+            34
+        ],
+        "phase": 3
+    },
+    {
+        "type": "terminal",
+        "location": [
+            72,
+            114,
+            47
+        ],
+        "phase": 3
+    },
+    {
+        "type": "lever",
+        "location": [
+            86,
+            128,
+            46
+        ],
+        "phase": 3
+    },
+    {
+        "type": "lever",
+        "location": [
+            84,
+            121,
+            34
+        ],
+        "phase": 3
+    },
+    {
+        "type": "terminal",
+        "location": [
+            41,
+            108,
+            30
+        ],
+        "phase": 3
+    },
+    {
+        "type": "terminal",
+        "location": [
+            67,
+            108,
+            30
+        ],
+        "phase": 3
+    }
+]

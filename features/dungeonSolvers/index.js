@@ -10,6 +10,7 @@ import ToggleSetting from "../settings/settingThings/toggle";
 import { fetch } from "../../utils/networkUtils";
 import { delay } from "../../utils/delayUtils";
 import { Waypoint } from "../../utils/renderJavaUtils";
+import { calculateDistanceQuick } from "../../utils/utils";
 
 const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze");
 let translate;
@@ -97,6 +98,7 @@ class DungeonSolvers extends Feature {
 			}
 		});
 		this.forgorEnabled = new ToggleSetting("Change withermancer death message to forgor ", "", true, "withermancer_forgor", this);
+		this.f7waypoints = new ToggleSetting("Waypoints for P3 F7/M7", "", true, "f7_waypoints", this);
 
 		this.registerChat("&r&c ☠ &r${player} were killed by Withermancer&r&7 and became a ghost&r&7.&r", (player, e) => {
 			if (this.forgorEnabled.getValue()) {
@@ -260,75 +262,136 @@ class DungeonSolvers extends Feature {
 
 		this.onWorldLoad();
 
+		this.registerEvent("tick", () => {
+			this.terminals.forEach(w => w.update())
+			this.levers.forEach(w => w.update())
+			this.devices.forEach(w => w.update())
+		}).registeredWhen(() => this.f7waypoints.getValue())
+		this.terminals = []
+		this.levers = []
+		this.devices = []
+		this.data = []
+		this.area = -1
+		this.registerChat("[BOSS] Goldor: You have done it, you destroyed the factory…", () => {
+			this.area = -1
+			this.areaUpdated()
+		})
+		this.registerChat("[BOSS] Goldor: Who dares trespass into my domain?", () => {
+			this.area = 0
+			this.areaUpdated()
+		})
 
-		//TODO: finish this
-		// let saidLocations = new Set()
-		// let waypoints = []
-		// let data = []
-		// let area = 0
-		// this.registerChat("", () => {
-		// 	area++
-		// })
-		// this.registerStep(false, 3, () => {
-		// 	World.getAllEntities().forEach(e => {
-		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive device")) {
-		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "device")
-		// 		}
-		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("inactive terminal")) {
-		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "terminal")
-		// 		}
-		// 		if (ChatLib.removeFormatting(e.getName()).toLowerCase().includes("not activated")) {
-		// 			addThing([Math.trunc(e.getX()), Math.trunc(e.getY()), Math.trunc(e.getZ())], "lever")
-		// 		}
-		// 	})
-		// 	waypoints.forEach(w => w.update())
-		// })
+		this.loadf7data()
 
-		// function addThing(location, type) {
-		// 	if (saidLocations.has(location.join(","))) return
+		this.registerChat("${name} activated a lever! (${start}/${end})", (name, start, end) => {
+			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
 
-		// 	saidLocations.add(location.join(","))
+			if (!player) return
 
-		// 	if (type === "lever") {
-		// 		let finalLoc = undefined
-		// 		for (let i = 5; i > -5; i--) {
-		// 			if (World.getBlockAt(location[0], location[1] + i, location[2])?.getType()?.getID() === 69) {
-		// 				finalLoc = [location[0], location[1] + i, location[2]]
-		// 			}
-		// 		}
-		// 		ChatLib.chat("Loaded " + type)
-		// 		data.push({ type: "lever", location: finalLoc, phase: area })
-		// 		waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }).startRender())
-		// 		return
-		// 	}
-		// 	if (type === "terminal") {
-		// 		let finalLoc = undefined
-		// 		for (let x = 5; x > -5; x--) {
-		// 			for (let y = 5; y > -5; y--) {
-		// 				for (let z = 5; z > -5; z--) {
-		// 					if (World.getBlockAt(location[0] + x, location[1] + y, location[2] + x)?.getType()?.getID() === 137) {
-		// 						finalLoc = [location[0] + x, location[1] + y, location[2] + x]
-		// 					}
-		// 				}
-		// 			}
-		// 		}
-		// 		ChatLib.chat("Loaded " + type)
-		// 		data.push({ type: "terminal", location: finalLoc, phase: area })
-		// 		waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }).startRender())
-		// 		return
-		// 	}
-		// 	ChatLib.chat("Loaded " + type)
-		// 	waypoints.push(new Waypoint(finalLoc[0], finalLoc[1], finalLoc[2], 1, 0, 0, { name: type + " | " + area }).startRender())
-		// 	data.push({ type: type, location: location, phase: area })
-		// }
+			let closestDist = calculateDistanceQuick([this.levers[0].params.x, this.levers[0].params.y, this.levers[0].params.z], [player.getX(), player.getY(), player.getZ()])
+			let closest = this.levers[0]
+			this.levers.forEach(l => {
+				if (!l.rendering) return
+				let dist = calculateDistanceQuick([l.params.x, l.params.y, l.params.z], [player.getX(), player.getY(), player.getZ()])
+				if (dist < closestDist) {
+					closestDist = dist
+					closest = l
+				}
+			})
+			closest.stopRender()
 
-		// this.registerCommand("getdata", () => {
-		// 	ChatLib.chat(JSON.stringify(data))
-		// })
 
+			if (start == "0" || start == end) {
+				this.area++
+				this.areaUpdated()
+			}
+		}).registeredWhen(() => this.f7waypoints.getValue())
+
+		this.registerChat("${name} completed a device! (${start}/${end})", (name, start, end) => {
+
+			let closest = this.devices[0]
+
+			closest.stopRender()
+
+			if (start == "0" || start == end) {
+				this.area++
+				this.areaUpdated()
+			}
+		}).registeredWhen(() => this.f7waypoints.getValue())
+
+		this.registerChat("${name} activated a terminal! (${start}/${end})", (name, start, end) => {
+			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
+
+			if (!player) return
+
+			let closestDist = calculateDistanceQuick([this.terminals[0].params.x, this.terminals[0].params.y, this.terminals[0].params.z], [player.getX(), player.getY(), player.getZ()])
+			let closest = this.terminals[0]
+			this.terminals.forEach(l => {
+				if (!l.rendering) return
+				let dist = calculateDistanceQuick([l.params.x, l.params.y, l.params.z], [player.getX(), player.getY(), player.getZ()])
+				if (dist < closestDist) {
+					closestDist = dist
+					closest = l
+				}
+			})
+			closest.stopRender()
+
+
+			if (start == "0" || start == end) {
+				this.area++
+				this.areaUpdated()
+			}
+		}).registeredWhen(() => this.f7waypoints.getValue())
 		//§r§6Soopyboo32§r§a activated a lever! (§r§c8§r§a/8)§r
 		//§r§6Soopyboo32§r§a completed a device! (§r§c3§r§a/8)§r
 		//§r§bBossmanLeo§r§a activated a terminal! (§r§c2§r§a/8)§r
+	}
+
+	areaUpdated() {
+		this.terminals.forEach(w => w.stopRender())
+		this.levers.forEach(w => w.stopRender())
+		this.devices.forEach(w => w.stopRender())
+
+		this.terminals = []
+		this.levers = []
+		this.devices = []
+
+		if (!this.f7waypoints.getValue()) return
+
+		this.data.forEach(term => {
+			if (term.phase !== this.area) return
+
+			if (term.type === "lever") {
+				this.levers.push(new Waypoint(term.location[0], term.location[1], term.location[2], 1, 0, 0, { name: "Lever" }).startRender())
+			}
+			if (term.type === "terminal") {
+				this.terminals.push(new Waypoint(term.location[0], term.location[1], term.location[2], 1, 0, 0, { name: "Terminal" }).startRender())
+			}
+			if (term.type === "device") {
+				this.devices.push(new Waypoint(term.location[0], term.location[1], term.location[2], 1, 0, 0, { name: "Device" }).startRender())
+			}
+		})
+	}
+
+	loadf7data() {
+		this.unloadf7data()
+
+		let data = FileLib.read("SoopyV2", "features/dungeonSolvers/f7data.json")
+		data = JSON.parse(data)
+
+		this.data = data
+	}
+
+	unloadf7data() {
+		this.terminals.forEach(w => w.stopRender())
+		this.levers.forEach(w => w.stopRender())
+		this.devices.forEach(w => w.stopRender())
+
+		this.terminals = []
+		this.levers = []
+		this.devices = []
+		this.data = []
+		this.area = 0
 	}
 
 	step_5min() {
@@ -928,7 +991,7 @@ class DungeonSolvers extends Feature {
 
 	onDisable() {
 		this.hudElements.forEach(h => h.delete())
-
+		this.unloadf7data()
 		this.initVariables();
 	}
 }

@@ -28,6 +28,16 @@ class DungeonRoutes extends Feature {
         this.registerEvent("worldLoad", this.worldLoad)
 
         this.registerStep(true, 5, () => {
+            let roomId = this.getCurrentRoomId()
+            if (this.lastRoomId !== roomId) {
+                this.lastRoomId = roomId
+                this.actionId = 0
+                this.recentEtherwarps = []
+                this.recentMines = []
+                this.recentLocations = []
+                this.recentTnts = []
+            }
+
             if (this.recentLocations.length === 0
                 || Math.ceil(Player.getX()) !== this.recentLocations[this.recentLocations.length - 1].loc[0]
                 || Math.ceil(Player.getY()) !== this.recentLocations[this.recentLocations.length - 1].loc[1]
@@ -50,12 +60,32 @@ class DungeonRoutes extends Feature {
             if (this.recentLocations.length >= 2) drawLinePoints(this.recentLocations.map(a => [a.loc[0] - 0.5, a.loc[1] + 0.1, a.loc[2] - 0.5]), 0, 0, 255, 2, true)
         })
 
-        let roomData = {}
-
-        this.registerCommand("roomname", (...name) => {
-            name = name.join(" ")
-
+        this.idMap = new Map()
+        this.fullRoomData = JSON.parse(FileLib.read("SoopyV2", "features/dungeonRoutes/temproomdata.json"))
+        this.fullRoomData.forEach((d, i) => {
+            d.id.forEach(id => {
+                this.idMap.set(id, i)
+            })
         })
+        let roomData = {}
+        this.lastRoomId = undefined
+
+        this.registerCommand("roomid", (...name) => {
+            ChatLib.chat(JSON.stringify(this.getCurrentRoomData(), undefined, 2))
+        })
+    }
+
+    getCurrentRoomData() {
+        let roomId = this.idMap.get(this.getCurrentRoomId())
+        if (roomId === undefined) return null
+
+        return this.fullRoomData[roomId]
+    }
+
+    getCurrentRoomId() {
+        let id = Scoreboard.getLineByIndex(Scoreboard.getLines().length - 1).getName().trim().split(" ").pop()
+
+        return id
     }
 
     worldLoad() {
