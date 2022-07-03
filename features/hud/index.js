@@ -184,6 +184,8 @@ class Hud extends Feature {
         hudStatTypes["mythril_powder"] = "Mithril Powder"
         hudStatTypes["gemstone_powder"] = "Gemstone Powder"
 
+        this.extendLevelCap = new ToggleSetting("Hud Stat Ignore Skill Level Cap", "level cap goes over 60 requiring 50m xp per level", false, "hud_ignore_level_cap", this).contributor("EmeraldMerchant")
+
         this.hudStat = []
         for (let i = 0; i < 5; i++) {
             this.hudStat[i] = {}
@@ -648,7 +650,7 @@ class Hud extends Feature {
 
         Object.keys(this.skillLevelCaps).forEach(skill => {
             if (type === skill) {
-                let skillData = getLevelByXp(this.lastStatData[skill], 0, this.skillLevelCaps[skill])
+                let skillData = getLevelByXp(this.lastStatData[skill], this.skillLevelCaps[skill] === 50 ? 50 : 60, this.extendLevelCap.getValue() ? Infinity : this.skillLevelCaps[skill])
                 string = "&6" + firstLetterCapital(skill.split("_").pop()) + "&7> &f" + (skillData.level + skillData.progress).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(skillData.xpCurrent) + (skillData.level === this.skillLevelCaps[skill] ? "" : "/" + this.numberUtils.numberWithCommas(skillData.xpForNext)) + ")"
             }
         })
