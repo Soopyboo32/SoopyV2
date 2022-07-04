@@ -98,7 +98,7 @@ class DungeonSolvers extends Feature {
 			}
 		});
 		this.forgorEnabled = new ToggleSetting("Change withermancer death message to forgor ", "", true, "withermancer_forgor", this);
-		this.f7waypoints = new ToggleSetting("Waypoints for P3 F7/M7", "", true, "f7_waypoints", this);
+		this.f7waypoints = new ToggleSetting("Waypoints for P3 F7/M7", "(Only shows unfinished ones)", true, "f7_waypoints", this);
 
 		this.registerChat("&r&c ☠ &r${player} were killed by Withermancer&r&7 and became a ghost&r&7.&r", (player, e) => {
 			if (this.forgorEnabled.getValue()) {
