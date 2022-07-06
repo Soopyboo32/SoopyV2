@@ -20,7 +20,8 @@
             "item": 0,
             "chest": 0
         },
-        "soul": false
+        "soul": false,
+        "index": 0
     },
     {
         "name": "Mithril Cave",
@@ -41,7 +42,8 @@
         "soul": false,
         "id": [
             "710,-592"
-        ]
+        ],
+        "index": 1
     },
     {
         "name": "Doors",
@@ -62,7 +64,8 @@
         "soul": false,
         "id": [
             "642,-384"
-        ]
+        ],
+        "index": 2
     },
     {
         "name": "Locked Away",
@@ -84,7 +87,8 @@
         "soul": false,
         "id": [
             "246,-132"
-        ]
+        ],
+        "index": 3
     },
     {
         "name": "Beams",
@@ -106,7 +110,8 @@
         "soul": false,
         "id": [
             "750,-240"
-        ]
+        ],
+        "index": 4
     },
     {
         "name": "Hall",
@@ -128,7 +133,8 @@
         "soul": false,
         "id": [
             "30,-204"
-        ]
+        ],
+        "index": 5
     },
     {
         "name": "Banners",
@@ -150,7 +156,8 @@
         "soul": false,
         "id": [
             "30,-276"
-        ]
+        ],
+        "index": 6
     },
     {
         "name": "Andesite",
@@ -172,7 +179,8 @@
         "soul": false,
         "id": [
             "30,-132"
-        ]
+        ],
+        "index": 7
     },
     {
         "name": "Painting",
@@ -194,7 +202,8 @@
         "soul": false,
         "id": [
             "30,-96"
-        ]
+        ],
+        "index": 8
     },
     {
         "name": "Multicolored",
@@ -216,7 +225,8 @@
         "soul": false,
         "id": [
             "66,-348"
-        ]
+        ],
+        "index": 9
     },
     {
         "name": "Black Flag",
@@ -238,7 +248,8 @@
         "soul": false,
         "id": [
             "534,-312"
-        ]
+        ],
+        "index": 10
     },
     {
         "name": "Overgrown Chains",
@@ -260,7 +271,8 @@
         "soul": false,
         "id": [
             "642,-168"
-        ]
+        ],
+        "index": 11
     },
     {
         "name": "Chains",
@@ -282,7 +294,8 @@
         "soul": false,
         "id": [
             "498,-132"
-        ]
+        ],
+        "index": 12
     },
     {
         "name": "Golden Oasis",
@@ -304,7 +317,8 @@
         "soul": false,
         "id": [
             "174,-312"
-        ]
+        ],
+        "index": 13
     },
     {
         "name": "Redstone Warrior",
@@ -325,7 +339,8 @@
         "soul": false,
         "id": [
             "1118,-384"
-        ]
+        ],
+        "index": 14
     },
     {
         "name": "Silvers Sword",
@@ -347,7 +362,8 @@
         "soul": false,
         "id": [
             "30,-168"
-        ]
+        ],
+        "index": 15
     },
     {
         "name": "Pedestal",
@@ -368,7 +384,8 @@
         "soul": false,
         "id": [
             "30,-384"
-        ]
+        ],
+        "index": 16
     },
     {
         "name": "Temple",
@@ -390,7 +407,8 @@
         "soul": false,
         "id": [
             "678,-240"
-        ]
+        ],
+        "index": 17
     },
     {
         "name": "Big Red Flag",
@@ -412,7 +430,8 @@
         "soul": false,
         "id": [
             "102,-96"
-        ]
+        ],
+        "index": 18
     },
     {
         "name": "Mural",
@@ -434,7 +453,8 @@
         "soul": false,
         "id": [
             "462,-132"
-        ]
+        ],
+        "index": 19
     },
     {
         "name": "Perch",
@@ -456,7 +476,8 @@
         "soul": false,
         "id": [
             "462,-96"
-        ]
+        ],
+        "index": 20
     },
     {
         "name": "End",
@@ -478,7 +499,8 @@
         "soul": false,
         "id": [
             "678,-168"
-        ]
+        ],
+        "index": 21
     },
     {
         "name": "Cage",
@@ -500,7 +522,8 @@
         "soul": false,
         "id": [
             "498,-276"
-        ]
+        ],
+        "index": 22
     },
     {
         "name": "Sloth",
@@ -522,7 +545,8 @@
         "soul": false,
         "id": [
             "66,-276"
-        ]
+        ],
+        "index": 23
     },
     {
         "name": "Steps",
@@ -544,7 +568,8 @@
         "soul": false,
         "id": [
             "138,-204"
-        ]
+        ],
+        "index": 24
     },
     {
         "name": "Granite",
@@ -566,7 +591,8 @@
         "soul": false,
         "id": [
             "66,-168"
-        ]
+        ],
+        "index": 25
     },
     {
         "name": "Crypt",
@@ -587,7 +613,8 @@
         "soul": true,
         "id": [
             "438,-384"
-        ]
+        ],
+        "index": 26
     },
     {
         "name": "Dueces",
@@ -609,7 +636,8 @@
         "soul": false,
         "id": [
             "138,-168"
-        ]
+        ],
+        "index": 27
     },
     {
         "name": "Red Green",
@@ -631,7 +659,8 @@
         "soul": false,
         "id": [
             "570,-240"
-        ]
+        ],
+        "index": 28
     },
     {
         "name": "Long Hall",
@@ -653,7 +682,8 @@
         "soul": false,
         "id": [
             "534,-96"
-        ]
+        ],
+        "index": 29
     },
     {
         "name": "Mirror",
@@ -675,7 +705,8 @@
         "soul": false,
         "id": [
             "174,-168"
-        ]
+        ],
+        "index": 30
     },
     {
         "name": "Quad Lava",
@@ -697,7 +728,8 @@
         "soul": false,
         "id": [
             "30,-348"
-        ]
+        ],
+        "index": 31
     },
     {
         "name": "Waterfall",
@@ -719,7 +751,8 @@
         "soul": false,
         "id": [
             "210,-96"
-        ]
+        ],
+        "index": 32
     },
     {
         "name": "Basement",
@@ -741,7 +774,8 @@
         "soul": false,
         "id": [
             "66,-96"
-        ]
+        ],
+        "index": 33
     },
     {
         "name": "Dip",
@@ -763,7 +797,8 @@
         "soul": false,
         "id": [
             "498,-240"
-        ]
+        ],
+        "index": 34
     },
     {
         "name": "Water",
@@ -785,7 +820,8 @@
         "soul": false,
         "id": [
             "498,-204"
-        ]
+        ],
+        "index": 35
     },
     {
         "name": "Dome",
@@ -807,7 +843,8 @@
         "soul": false,
         "id": [
             "642,-240"
-        ]
+        ],
+        "index": 36
     },
     {
         "name": "Scaffolding",
@@ -829,7 +866,8 @@
         "soul": false,
         "id": [
             "210,-132"
-        ]
+        ],
+        "index": 37
     },
     {
         "name": "Small Stairs",
@@ -851,7 +889,8 @@
         "soul": false,
         "id": [
             "606,-168"
-        ]
+        ],
+        "index": 38
     },
     {
         "name": "Tomioka",
@@ -873,7 +912,8 @@
         "soul": true,
         "id": [
             "138,-132"
-        ]
+        ],
+        "index": 39
     },
     {
         "name": "Mushroom",
@@ -895,7 +935,8 @@
         "soul": false,
         "id": [
             "174,-132"
-        ]
+        ],
+        "index": 40
     },
     {
         "name": "Slabs",
@@ -917,7 +958,8 @@
         "soul": false,
         "id": [
             "570,-168"
-        ]
+        ],
+        "index": 41
     },
     {
         "name": "Duncan",
@@ -939,7 +981,8 @@
         "soul": false,
         "id": [
             "30,-240"
-        ]
+        ],
+        "index": 42
     },
     {
         "name": "Logs",
@@ -961,7 +1004,8 @@
         "soul": false,
         "id": [
             "102,-312"
-        ]
+        ],
+        "index": 43
     },
     {
         "name": "Cages",
@@ -983,7 +1027,8 @@
         "soul": false,
         "id": [
             "750,-168"
-        ]
+        ],
+        "index": 44
     },
     {
         "name": "Admin",
@@ -1005,7 +1050,8 @@
         "soul": true,
         "id": [
             "102,-168"
-        ]
+        ],
+        "index": 45
     },
     {
         "name": "Skull",
@@ -1026,7 +1072,8 @@
         "soul": false,
         "id": [
             "98,-384"
-        ]
+        ],
+        "index": 46
     },
     {
         "name": "Balcony",
@@ -1047,7 +1094,8 @@
         "soul": false,
         "id": [
             "710,-384"
-        ]
+        ],
+        "index": 47
     },
     {
         "name": "Knight",
@@ -1069,7 +1117,8 @@
         "soul": false,
         "id": [
             "66,-312"
-        ]
+        ],
+        "index": 48
     },
     {
         "name": "Sarcophagus",
@@ -1091,7 +1140,8 @@
         "soul": false,
         "id": [
             "462,-204"
-        ]
+        ],
+        "index": 49
     },
     {
         "name": "Drop",
@@ -1113,7 +1163,8 @@
         "soul": false,
         "id": [
             "462,-168"
-        ]
+        ],
+        "index": 50
     },
     {
         "name": "Raccoon",
@@ -1135,7 +1186,8 @@
         "soul": true,
         "id": [
             "174,-96"
-        ]
+        ],
+        "index": 51
     },
     {
         "name": "Double Diamond",
@@ -1157,7 +1209,8 @@
         "soul": false,
         "id": [
             "642,-96"
-        ]
+        ],
+        "index": 52
     },
     {
         "name": "Blue Skulls",
@@ -1179,7 +1232,8 @@
         "soul": false,
         "id": [
             "102,-132"
-        ]
+        ],
+        "index": 53
     },
     {
         "name": "Leaves",
@@ -1201,7 +1255,8 @@
         "soul": true,
         "id": [
             "66,-240"
-        ]
+        ],
+        "index": 54
     },
     {
         "name": "Withermancers",
@@ -1222,7 +1277,8 @@
         "soul": false,
         "id": [
             "710,-524"
-        ]
+        ],
+        "index": 55
     },
     {
         "name": "Redstone Key",
@@ -1244,7 +1300,8 @@
         "soul": false,
         "id": [
             "534,-168"
-        ]
+        ],
+        "index": 56
     },
     {
         "name": "Prison Cell",
@@ -1266,7 +1323,8 @@
         "soul": false,
         "id": [
             "66,-132"
-        ]
+        ],
+        "index": 57
     },
     {
         "name": "Cell",
@@ -1288,7 +1346,8 @@
         "soul": false,
         "id": [
             "66,-204"
-        ]
+        ],
+        "index": 58
     },
     {
         "name": "Arrow Trap",
@@ -1310,7 +1369,8 @@
         "soul": false,
         "id": [
             "534,-204"
-        ]
+        ],
+        "index": 59
     },
     {
         "name": "Bridges",
@@ -1331,7 +1391,8 @@
         "soul": false,
         "id": [
             "1050,-384"
-        ]
+        ],
+        "index": 60
     },
     {
         "name": "Cobble Wall Pillar",
@@ -1353,7 +1414,8 @@
         "soul": false,
         "id": [
             "102,-348"
-        ]
+        ],
+        "index": 61
     },
     {
         "name": "Spikes",
@@ -1375,7 +1437,8 @@
         "soul": false,
         "id": [
             "498,-168"
-        ]
+        ],
+        "index": 62
     },
     {
         "name": "Gold",
@@ -1396,7 +1459,8 @@
         "soul": false,
         "id": [
             "166,-384"
-        ]
+        ],
+        "index": 63
     },
     {
         "name": "Chambers",
@@ -1417,7 +1481,8 @@
         "soul": false,
         "id": [
             "506,-524"
-        ]
+        ],
+        "index": 64
     },
     {
         "name": "Lava Ravine",
@@ -1438,7 +1503,8 @@
         "soul": false,
         "id": [
             "642,-524"
-        ]
+        ],
+        "index": 65
     },
     {
         "name": "Wizard",
@@ -1459,7 +1525,8 @@
         "soul": false,
         "id": [
             "530,-420"
-        ]
+        ],
+        "index": 66
     },
     {
         "name": "Overgrown",
@@ -1481,7 +1548,8 @@
         "soul": false,
         "id": [
             "714,-240"
-        ]
+        ],
+        "index": 67
     },
     {
         "name": "Jumping Skulls",
@@ -1503,7 +1571,8 @@
         "soul": false,
         "id": [
             "102,-204"
-        ]
+        ],
+        "index": 68
     },
     {
         "name": "Lots of Floors",
@@ -1525,7 +1594,8 @@
         "soul": false,
         "id": [
             "102,-240"
-        ]
+        ],
+        "index": 69
     },
     {
         "name": "Purple Flags",
@@ -1546,7 +1616,8 @@
         "soul": false,
         "id": [
             "778,-384"
-        ]
+        ],
+        "index": 70
     },
     {
         "name": "Archway",
@@ -1567,7 +1638,8 @@
         "soul": false,
         "id": [
             "574,-384"
-        ]
+        ],
+        "index": 71
     },
     {
         "name": "Mage",
@@ -1588,7 +1660,8 @@
         "soul": false,
         "id": [
             "506,-384"
-        ]
+        ],
+        "index": 72
     },
     {
         "name": "Grass Ruin",
@@ -1609,7 +1682,8 @@
         "soul": false,
         "id": [
             "1322,-384"
-        ]
+        ],
+        "index": 73
     },
     {
         "name": "Grand Library",
@@ -1630,7 +1704,8 @@
         "soul": false,
         "id": [
             "1526,-384"
-        ]
+        ],
+        "index": 74
     },
     {
         "name": "Pit",
@@ -1651,7 +1726,8 @@
         "soul": false,
         "id": [
             "690,-456"
-        ]
+        ],
+        "index": 75
     },
     {
         "name": "Atlas",
@@ -1672,7 +1748,8 @@
         "soul": false,
         "id": [
             "778,-592"
-        ]
+        ],
+        "index": 76
     },
     {
         "name": "Layers",
@@ -1693,7 +1770,8 @@
         "soul": false,
         "id": [
             "1050,-524"
-        ]
+        ],
+        "index": 77
     },
     {
         "name": "Cavern",
@@ -1714,7 +1792,8 @@
         "soul": false,
         "id": [
             "822,-456"
-        ]
+        ],
+        "index": 78
     },
     {
         "name": "Pressure Plate",
@@ -1735,7 +1814,8 @@
         "soul": false,
         "id": [
             "1186,-384"
-        ]
+        ],
+        "index": 79
     },
     {
         "name": "Super Tall",
@@ -1756,7 +1836,8 @@
         "soul": true,
         "id": [
             "642,-592"
-        ]
+        ],
+        "index": 80
     },
     {
         "name": "Gravel",
@@ -1777,7 +1858,8 @@
         "soul": false,
         "id": [
             "30,-420"
-        ]
+        ],
+        "index": 81
     },
     {
         "name": "Cathedral",
@@ -1798,7 +1880,8 @@
         "soul": false,
         "id": [
             "506,-592"
-        ]
+        ],
+        "index": 82
     },
     {
         "name": "Red Blue",
@@ -1819,7 +1902,8 @@
         "soul": false,
         "id": [
             "130,-420"
-        ]
+        ],
+        "index": 83
     },
     {
         "name": "Spider",
@@ -1840,7 +1924,8 @@
         "soul": false,
         "id": [
             "234,-524"
-        ]
+        ],
+        "index": 84
     },
     {
         "name": "Deathmite",
@@ -1861,7 +1946,8 @@
         "soul": false,
         "id": [
             "730,-420"
-        ]
+        ],
+        "index": 85
     },
     {
         "name": "Museum",
@@ -1882,7 +1968,8 @@
         "soul": false,
         "id": [
             "846,-592"
-        ]
+        ],
+        "index": 86
     },
     {
         "name": "Market",
@@ -1903,7 +1990,8 @@
         "soul": false,
         "id": [
             "574,-524"
-        ]
+        ],
+        "index": 87
     },
     {
         "name": "Melon",
@@ -1924,7 +2012,8 @@
         "soul": false,
         "id": [
             "166,-524"
-        ]
+        ],
+        "index": 88
     },
     {
         "name": "Mossy",
@@ -1945,7 +2034,8 @@
         "soul": true,
         "id": [
             "30,-456"
-        ]
+        ],
+        "index": 89
     },
     {
         "name": "Flags",
@@ -1966,7 +2056,8 @@
         "soul": false,
         "id": [
             "574,-592"
-        ]
+        ],
+        "index": 90
     },
     {
         "name": "Well",
@@ -1987,7 +2078,8 @@
         "soul": false,
         "id": [
             "438,-524"
-        ]
+        ],
+        "index": 91
     },
     {
         "id": [
@@ -2008,7 +2100,8 @@
             "item": 0,
             "chest": 3
         },
-        "soul": false
+        "soul": false,
+        "index": 92
     },
     {
         "id": [
@@ -2029,7 +2122,8 @@
             "item": 0,
             "chest": 3
         },
-        "soul": true
+        "soul": true,
+        "index": 93
     },
     {
         "name": "Catwalk",
@@ -2050,7 +2144,8 @@
         "soul": false,
         "id": [
             "630,-420"
-        ]
+        ],
+        "index": 94
     },
     {
         "name": "Dino Dig Site",
@@ -2071,7 +2166,8 @@
         "soul": false,
         "id": [
             "778,-524"
-        ]
+        ],
+        "index": 95
     },
     {
         "name": "Stairs",
@@ -2092,7 +2188,8 @@
         "soul": true,
         "id": [
             "234,-592"
-        ]
+        ],
+        "index": 96
     },
     {
         "id": [
@@ -2113,7 +2210,8 @@
             "item": 2,
             "chest": 4
         },
-        "soul": false
+        "soul": false,
+        "index": 97
     },
     {
         "name": "Buttons",
@@ -2134,7 +2232,8 @@
         "soul": false,
         "id": [
             "438,-592"
-        ]
+        ],
+        "index": 98
     },
     {
         "name": "Rail Track",
@@ -2155,7 +2254,8 @@
         "soul": false,
         "id": [
             "166,-592"
-        ]
+        ],
+        "index": 99
     },
     {
         "name": "Sanctuary",
@@ -2177,7 +2277,8 @@
         "soul": false,
         "id": [
             "354,-60"
-        ]
+        ],
+        "index": 100
     },
     {
         "name": "Pillars",
@@ -2199,7 +2300,8 @@
         "soul": false,
         "id": [
             "282,-60"
-        ]
+        ],
+        "index": 101
     },
     {
         "name": "Sand Dragon",
@@ -2221,7 +2323,8 @@
         "soul": false,
         "id": [
             "102,-60"
-        ]
+        ],
+        "index": 102
     },
     {
         "name": "Tombstone",
@@ -2243,7 +2346,8 @@
         "soul": false,
         "id": [
             "66,-60"
-        ]
+        ],
+        "index": 103
     },
     {
         "id": [
@@ -2265,7 +2369,8 @@
             "item": 0,
             "chest": 0
         },
-        "soul": true
+        "soul": true,
+        "index": 104
     },
     {
         "id": [
@@ -2287,7 +2392,8 @@
             "item": 1,
             "chest": 2
         },
-        "soul": false
+        "soul": false,
+        "index": 105
     },
     {
         "name": "Lava Skull",
@@ -2309,7 +2415,8 @@
         "soul": false,
         "id": [
             "174,-60"
-        ]
+        ],
+        "index": 106
     },
     {
         "name": "Mini Rail Track",
@@ -2331,7 +2438,8 @@
         "soul": false,
         "id": [
             "210,-60"
-        ]
+        ],
+        "index": 107
     },
     {
         "name": "Carpets",
@@ -2353,7 +2461,8 @@
         "soul": false,
         "id": [
             "570,-312"
-        ]
+        ],
+        "index": 108
     },
     {
         "name": "Trinity",
@@ -2375,7 +2484,8 @@
         "soul": false,
         "id": [
             "246,-60"
-        ]
+        ],
+        "index": 109
     },
     {
         "name": "Hanging Vines",
@@ -2397,7 +2507,8 @@
         "soul": false,
         "id": [
             "138,-60"
-        ]
+        ],
+        "index": 110
     },
     {
         "name": "Miniboss",
@@ -2413,7 +2524,8 @@
             "174,66",
             "246,102",
             "210,66"
-        ]
+        ],
+        "index": 111
     },
     {
         "name": "King Midas",
@@ -2427,7 +2539,8 @@
         "soul": false,
         "id": [
             "210,102"
-        ]
+        ],
+        "index": 112
     },
     {
         "name": "Shadow Assassin",
@@ -2441,7 +2554,8 @@
         "soul": false,
         "id": [
             "318,66"
-        ]
+        ],
+        "index": 113
     },
     {
         "name": "Three Weirdos",
@@ -2455,7 +2569,8 @@
         "soul": false,
         "id": [
             "-60,-96"
-        ]
+        ],
+        "index": 114
     },
     {
         "name": "Water Board",
@@ -2469,7 +2584,8 @@
         "soul": false,
         "id": [
             "-60,-60"
-        ]
+        ],
+        "index": 115
     },
     {
         "name": "Ice Fill",
@@ -2483,7 +2599,8 @@
         "soul": false,
         "id": [
             "-132,-492"
-        ]
+        ],
+        "index": 116
     },
     {
         "name": "Creeper Beams",
@@ -2497,7 +2614,8 @@
         "soul": false,
         "id": [
             "-60,-528"
-        ]
+        ],
+        "index": 117
     },
     {
         "name": "Teleport Maze",
@@ -2511,7 +2629,8 @@
         "soul": false,
         "id": [
             "-60,-456"
-        ]
+        ],
+        "index": 118
     },
     {
         "name": "Higher or Lower",
@@ -2533,7 +2652,8 @@
         "id": [
             "-60,-204",
             "-96,-204"
-        ]
+        ],
+        "index": 119
     },
     {
         "name": "Quiz",
@@ -2547,7 +2667,8 @@
         "soul": false,
         "id": [
             "-60,-600"
-        ]
+        ],
+        "index": 120
     },
     {
         "id": [
@@ -2568,7 +2689,8 @@
             "item": 0,
             "chest": 1
         },
-        "soul": false
+        "soul": false,
+        "index": 121
     },
     {
         "name": "Bomb Defuse",
@@ -2582,7 +2704,8 @@
         "soul": false,
         "id": [
             "-60,-636"
-        ]
+        ],
+        "index": 122
     },
     {
         "name": "Boulder",
@@ -2596,7 +2719,8 @@
         "soul": false,
         "id": [
             "-60,-564"
-        ]
+        ],
+        "index": 123
     },
     {
         "name": "Ice Path",
@@ -2610,7 +2734,8 @@
         "soul": false,
         "id": [
             "-60,-276"
-        ]
+        ],
+        "index": 124
     },
     {
         "name": "New Trap",
@@ -2632,7 +2757,8 @@
         "id": [
             "-384,30",
             "-348,30"
-        ]
+        ],
+        "index": 125
     },
     {
         "name": "Old Trap",
@@ -2653,7 +2779,8 @@
         "soul": false,
         "id": [
             "-312,30"
-        ]
+        ],
+        "index": 126
     },
     {
         "name": "Blood",
@@ -2669,7 +2796,8 @@
             "354,66",
             "138,30",
             "138,66"
-        ]
+        ],
+        "index": 127
     },
     {
         "name": "Fairy",
@@ -2683,6 +2811,7 @@
         "soul": false,
         "id": [
             "462,-312"
-        ]
+        ],
+        "index": 128
     }
 ]

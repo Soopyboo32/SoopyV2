@@ -44,6 +44,12 @@ class Waypoints extends Feature {
         this.userWaypointsArr = Object.values(this.userWaypoints)
         this.updateWaypointsHashes()
         this.waypointsChanged = false
+        this.lastTp = 0
+        this.registerEvent("messageSent", (m) => {
+            if (m.toLowerCase().startsWith("/warp")) {
+                this.lastTp = Date.now()
+            }
+        })
 
         this.patcherWaypoints = []
 
@@ -176,7 +182,7 @@ class Waypoints extends Feature {
 
                 minewaypoints_socket.setServer(server, World.getWorld().func_82737_E())
 
-                if (Date.now() - this.lastSend > 1000) {
+                if (Date.now() - this.lastSend > 1000 && Date.now() - this.lastTp > 5000) {
                     Scoreboard.getLines().forEach(line => {
                         line = ChatLib.removeFormatting(line.getName()).replace(/[^0-9A-z]/g, "")
                         if (Object.keys(areas).includes(line)) {
