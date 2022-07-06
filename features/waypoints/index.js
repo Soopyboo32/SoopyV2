@@ -163,10 +163,8 @@ class Waypoints extends Feature {
         this.lastSend = 0
         this.locations = {}
         minewaypoints_socket.setLocationHandler = (area, loc) => {
-            if (!area) return
-            if (area == "undefined") return
-            this.locations[area] = loc;
-            // console.log(JSON.stringify(loc, undefined, 2))
+            console.log(area || loc[0].area, JSON.stringify(loc, undefined, 2))
+            this.locations[area || loc[0].area] = loc;
         }
 
         this.registerEvent("tick", () => {
