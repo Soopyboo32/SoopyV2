@@ -163,6 +163,17 @@ class Hud extends Feature {
             "experience_skill_taming": 50,
         };
 
+        this.lastSkillLevel = {
+            "experience_skill_combat": undefined,
+            "experience_skill_foraging": undefined,
+            "experience_skill_farming": undefined,
+            "experience_skill_fishing": undefined,
+            "experience_skill_alchemy": undefined,
+            "experience_skill_enchanting": undefined,
+            "experience_skill_mining": undefined,
+            "experience_skill_taming": undefined,
+        }
+
         this.spotifyProcessId = -1
 
         Object.keys(this.skillLevelCaps).forEach(skill => {
@@ -183,6 +194,8 @@ class Hud extends Feature {
 
         hudStatTypes["mythril_powder"] = "Mithril Powder"
         hudStatTypes["gemstone_powder"] = "Gemstone Powder"
+
+        this.extendLevelCap = new ToggleSetting("Hud Stat Ignore Skill Level Cap", "level cap goes over 60 requiring 50m xp per level", false, "hud_ignore_level_cap", this).contributor("EmeraldMerchant")
 
         this.hudStat = []
         for (let i = 0; i < 5; i++) {
@@ -648,7 +661,11 @@ class Hud extends Feature {
 
         Object.keys(this.skillLevelCaps).forEach(skill => {
             if (type === skill) {
-                let skillData = getLevelByXp(this.lastStatData[skill], 0, this.skillLevelCaps[skill])
+                let skillData = getLevelByXp(this.lastStatData[skill], 0, this.extendLevelCap.getValue() ? Infinity : this.skillLevelCaps[skill])
+                if (this.lastSkillLevel[skill] === skillData.level - 1 && (skillData.level > (this.skillLevelCaps[skill] === 50 ? 50 : 60))) {
+                    ChatLib.chat(`&r&3&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬&r\n  &r&b&lSKILL LEVEL UP &3${firstLetterCapital(skill.split("_").pop())} &8${skillData.level - 1}➜&3${skillData.level}&r\n&r  &r&a&lREWARDS&r\n&r  &r&6&lSoopy's Respect\n&r&3&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬&r\n`)
+                }
+                this.lastSkillLevel[skill] = skillData.level;
                 string = "&6" + firstLetterCapital(skill.split("_").pop()) + "&7> &f" + (skillData.level + skillData.progress).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(skillData.xpCurrent) + (skillData.level === this.skillLevelCaps[skill] ? "" : "/" + this.numberUtils.numberWithCommas(skillData.xpForNext)) + ")"
             }
         })
