@@ -843,14 +843,25 @@ class SpiritLeapOverlay {
                 this.buttonsContainer.clearChildren()
 
                 Object.keys(this.items).forEach((name, i) => {
-                    let button = new ButtonWithArrow().setText((ChatLib.removeFormatting(name) === this.parent.lastDoorOpener ? "&4" : "&2") + "[" + (this.players[ChatLib.removeFormatting(name)] || "?") + "] " + ChatLib.removeFormatting(name)).addEvent(new SoopyMouseClickEvent().setHandler(() => {
+
+                    let name2 = ChatLib.removeFormatting(name)
+                    let pClass = (this.players[name2] || "?")
+                    if (pClass === "?") {
+                        Object.keys(this.players).forEach(n => {
+                            if (name2.startsWith(n)) {
+                                pClass = this.players[n]
+                            }
+                        })
+                    }
+
+                    let button = new ButtonWithArrow().setText((name2 === this.parent.lastDoorOpener ? "&4" : "&2") + "[" + pClass + "] " + name2).addEvent(new SoopyMouseClickEvent().setHandler(() => {
                         Player.getContainer().click(itemsNew[name])
                         ChatLib.chat("Leaping to " + name)
                     })).setLocation((i % 2) * 0.5, Math.floor(i / 2) * 0.5, 0.5, 0.5)
                     button.text.setLocation(0.5, 0, 0.4, 1)
                     button.addEvent(new SoopyRenderEvent().setHandler(() => {
-                        if (!this.parent.nameToUUID[ChatLib.removeFormatting(name).toLowerCase()]) return
-                        let img = this.parent.getImageForPlayer(this.parent.nameToUUID[ChatLib.removeFormatting(name).toLowerCase()])
+                        if (!this.parent.nameToUUID[name2.toLowerCase()]) return
+                        let img = this.parent.getImageForPlayer(this.parent.nameToUUID[name2.toLowerCase()])
 
                         if (!img) return
 
