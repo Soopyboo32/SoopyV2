@@ -842,17 +842,24 @@ class SpiritLeapOverlay {
                 this.items = itemsNew
                 this.buttonsContainer.clearChildren()
 
-                Object.keys(this.items).forEach((name, i) => {
-
-                    let name2 = ChatLib.removeFormatting(name)
-                    let pClass = (this.players[name2] || "?")
+                getClass = (name) => {
+                    let pClass = (this.players[name] || "?")
                     if (pClass === "?") {
                         Object.keys(this.players).forEach(n => {
-                            if (name2.startsWith(n)) {
+                            if (name.startsWith(n)) {
                                 pClass = this.players[n]
                             }
                         })
                     }
+                    return pClass
+                }
+
+                Object.keys(this.items).sort((a, b) => {
+                    return getClass(ChatLib.removeFormatting(a)).codePointAt(0) - getClass(ChatLib.removeFormatting(b)).codePointAt(0)
+                }).forEach((name, i) => {
+
+                    let name2 = ChatLib.removeFormatting(name)
+                    let pClass = getClass(name2)
 
                     let button = new ButtonWithArrow().setText((name2 === this.parent.lastDoorOpener ? "&4" : "&2") + "[" + pClass + "] " + name2).addEvent(new SoopyMouseClickEvent().setHandler(() => {
                         Player.getContainer().click(itemsNew[name])
