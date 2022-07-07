@@ -160,12 +160,12 @@ class DungeonMap extends Feature {
         this.registerChat("&r&c ☠ ${info} and became a ghost&r&7.&r", (info, e) => {
             let player = ChatLib.removeFormatting(info.split(" ")[0])
 
-            this.deadPlayers.add(this.nameToUUID[player])
+            this.deadPlayers.add(this.nameToUUID[player.toLowerCase()])
         });
         this.registerChat("&r&a ❣ &r${info} was revived${*}!&r", (info, e) => {
             let player = ChatLib.removeFormatting(info.split(" ")[0])
 
-            this.deadPlayers.delete(this.nameToUUID[player])
+            this.deadPlayers.delete(this.nameToUUID[player.toLowerCase()])
         });
 
         this.registerStep(true, 3, () => {
@@ -387,13 +387,13 @@ class DungeonMap extends Feature {
         if (Player.getContainer().getName().startsWith("Catacombs - Floor ")) {
             this.nameToUUID = {}
             World.getAllPlayers().forEach(p => {
-                this.nameToUUID[p.getName()] = p.getUUID().toString()
+                this.nameToUUID[p.getName().toLowerCase()] = p.getUUID().toString()
             })
             let playerI = 0
             for (let i = 0; i < 5; i++) {
                 let name = ChatLib.removeFormatting(Player.getContainer().getStackInSlot(3 + i)?.getName()?.split(" ")?.pop() || "")
-                if (this.nameToUUID[name] && this.nameToUUID[name] !== Player.getUUID().toString()) {
-                    this.idToPlayer[playerI] = this.nameToUUID[name]
+                if (this.nameToUUID[name.toLowerCase()] && this.nameToUUID[name.toLowerCase()] !== Player.getUUID().toString()) {
+                    this.idToPlayer[playerI] = this.nameToUUID[name.toLowerCase()]
                     if (name) playerI++
                 }
             }
@@ -741,7 +741,7 @@ class DungeonMap extends Feature {
                 username: player.getName(),
                 uuid: player.getUUID().toString()
             })
-            this.nameToUUID[player.getName()] = player.getUUID().toString()
+            this.nameToUUID[player.getName().toLowerCase()] = player.getUUID().toString()
         })
         // console.log("Sending: " + JSON.stringify(this.people, undefined, 2)+JSON.stringify(data, undefined, 2))
         socketConnection.sendDungeonData(this.people, data)
