@@ -68,7 +68,6 @@ class Slayers extends Feature {
 
 		this.summonFeatureMaster = new ToggleSetting("Summon Features Main Toggle", "enable this to use summon features", false, "summons_master", this).contributor("EmeraldMerchant");
 		this.summonsHideNametag = new ToggleSetting("Hide your summons' nametags", "so u can see your boss more clearly", false, "hide_summons_nametags", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
-		this.summonsShowNametag = new ToggleSetting("Renders your summons' HP on screen", "this shows your summons' hp on screen", false, "show_summons_hp", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
 		this.summonsLowWarning = new ToggleSetting("Warns you when a summon is low", "this warns you after a delay after each bosses, until you respawn them", false, "warn_when_summon_low", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
 		this.warnDelay = new TextSetting("Delay for warning", "How long should it wait after the boss to warn you a summon is low", "3", "summon_warn_delay", this, "(seconds)", false).requires(this.summonsLowWarning).contributor("EmeraldMerchant");
 		this.summonPercentage = new TextSetting("When will it start warning you", "Below how many % hp (your summons) should it start warning you", "30", "summon_warn_percentage", this, "(%)", false).requires(this.summonsLowWarning).contributor("EmeraldMerchant");
@@ -178,7 +177,7 @@ class Slayers extends Feature {
 		this.registerChat("&r&aYou have spawned your ${soul} &r&asoul! &r&d(${mana} Mana)&r", (soul, mana) => {
 			if (!this.summonFeatureMaster.getValue()) {
 				return
-			} else if (!this.summonsHideNametag.getValue() && !this.summonsShowNametag.getValue() && !this.summonHPGuiElement.getValue() && !this.summonsLowWarning.getValue()) {
+			} else if (!this.summonsHideNametag.getValue() && !this.summonHPGuiElement.getValue() && !this.summonsLowWarning.getValue()) {
 				return
 			}
 			if (!soul.removeFormatting().includes("Tank Zombie")) {
@@ -391,7 +390,7 @@ class Slayers extends Feature {
 			this.renderEntityEvent.unregister();
 		}
 
-		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonsShowNametag.getValue() || this.summonsLowWarning.getValue()) {
+		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonHPGuiElement.getValue() || this.summonsLowWarning.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
 				if (this.cannotFindEmanBoss) {
 					if (!this.bossSpawnedMessage) {
@@ -405,7 +404,7 @@ class Slayers extends Feature {
 				let nameSplit = name.getName().removeFormatting().split(" ")
 				let MobName = `${nameSplit[0]} ${nameSplit[1]}`
 				if (this.summonEntity.length !== parseInt(this.maxSummons.getValue())) {
-					if (this.summonsHideNametag.getValue() || this.summonsShowNametag.getValue() || this.summonsLowWarning.getValue()) {
+					if (this.summonsHideNametag.getValue() || this.summonsLowWarning.getValue() || this.summonHPGuiElement.getValue()) {
 						// 2nd statement makes it to support both tank zombie and super tank zombie
 						if (nameSplit[0] === `${Player.getName()}'s` && `${nameSplit[nameSplit.length - 3]} ${nameSplit[nameSplit.length - 2]}` === "Tank Zombie" && !this.summonEntity?.map(a => a.getUUID().toString()).includes(name.getUUID().toString())) {
 							this.summonEntity.push(name)
@@ -546,7 +545,7 @@ class Slayers extends Feature {
 			if (this.summonsHideNametag.getValue()) {
 				eArray.getEntity()[m.setAlwaysRenderNameTag](false)
 			}
-			if (this.summonsShowNametag.getValue()) {
+			if (this.summonHPGuiElement.getValue()) {
 				if (this.formatNumber(summonHP) <= this.summonAtHPShouldWarn) {
 					summonHpFloatText += `&c&l${summonHP.removeFormatting().replace("❤", "")}&r&c❤ `
 				} else { summonHpFloatText += `${summonHP} ` }
