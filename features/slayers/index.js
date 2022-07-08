@@ -145,7 +145,7 @@ class Slayers extends Feature {
 			}
 			this.lastBossSlain = Date.now();
 
-			if (this.summonsLowWarning.getValue() && this.warnAfterBoss) {
+			if (this.summonFeatureMaster.getValue() && this.summonsLowWarning.getValue() && this.warnAfterBoss) {
 				this.warnAfterBoss = false
 				let delayForWarn = parseInt(this.warnDelay.getValue()) * 1000
 				if (delayForWarn < 0 || delayForWarn > 10000) {
@@ -176,9 +176,9 @@ class Slayers extends Feature {
 		}
 
 		this.registerChat("&r&aYou have spawned your ${soul} &r&asoul! &r&d(${mana} Mana)&r", (soul, mana) => {
-			if (!this.summonFeatureMaster) {
+			if (!this.summonFeatureMaster.getValue()) {
 				return
-			} else if (!this.summonsHideNametag && !this.summonsShowNametag && !this.summonHPGuiElement && !this.summonsLowWarning) {
+			} else if (!this.summonsHideNametag.getValue() && !this.summonsShowNametag.getValue() && !this.summonHPGuiElement.getValue() && !this.summonsLowWarning.getValue()) {
 				return
 			}
 			if (!soul.removeFormatting().includes("Tank Zombie")) {
