@@ -74,9 +74,12 @@ class Slayers extends Feature {
 		this.summonHPGuiElement = new ToggleSetting("Render the HP of your summons on your screen", "This will help you to know how much HP your summons have left while hide summons nametags is on", false, "summon_hp_hud", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
 		this.summonHPElement = new HudTextElement()
 			.setText("")
-			.setToggleSetting(this.summonHPGuiElement)
-			.setLocationSetting(new LocationSetting("Summon HP Location", "Allows you to edit the location of your summons' HP info", "summon_hp_location", this, [10, 50, 1, 1]).requires(this.summonHPGuiElement).editTempText("&a160k&c❤ &a160k&c❤ &a160k&c❤ &a160k&c❤").contributor("EmeraldMerchant"));
+			.setToggleSetting(this.summonsShowNametag)
+			.setLocationSetting(new LocationSetting("Summon HP Location", "Allows you to edit the location of your summons' HP info", "summon_hp_location", this, [10, 50, 1, 1]).requires(this.summonsShowNametag).editTempText("&a160k&c❤ &a160k&c❤ &a160k&c❤ &a160k&c❤").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.summonHPElement);
+		this.summonsLowWarning = new ToggleSetting("Warns you when a summon is low", "this warns you after a delay after each bosses, until you respawn them", false, "warn_when_summon_low", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
+		this.warnDelay = new TextSetting("Delay for warning", "How long should it wait after the boss to warn you a summon is low", "3", "summon_warn_delay", this, "(seconds)", false).requires(this.summonsLowWarning).contributor("EmeraldMerchant");
+		this.summonPercentage = new TextSetting("When will it start warning you", "Below how many % hp (your summons) should it start warning you", "30", "summon_warn_percentage", this, "(%)", false).requires(this.summonsLowWarning).contributor("EmeraldMerchant");
 		this.maxSummons = new TextSetting("Maximum amount of your summons", "How many summons you are using", "", "max_summons", this, "Max Summons (1-8)", false).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
 
 		this.emanLazerTimer = new ToggleSetting("Adds a timer for the boss lazer phase", "The timer will be inside the boss's body during the phase", true, "eman_lazer_timer", this);
@@ -566,7 +569,7 @@ class Slayers extends Feature {
 			}
 		})
 		this.summonEntity = this.summonEntity?.filter((e) => !e.getEntity()[f.isDead]);
-		if (this.summonHPGuiElement.getValue()) {
+		if (this.summonsShowNametag.getValue()) {
 			this.summonHPElement.setText(summonHpFloatText)
 		}
 		this.minibossEntity.forEach((eArray) => {
