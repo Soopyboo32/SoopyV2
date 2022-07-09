@@ -24,7 +24,7 @@ class ChangeLogGui extends Feature {
 
     onEnable() {
         this.initVariables()
-
+        
         this.ChangelogPage = new ChangelogPage()
 
         this.latestAnnouncedVersion = this.ChangelogPage.currVersionId
@@ -168,7 +168,7 @@ class ChangelogPage extends GuiPage {
 
         this.openSidebarPage(this.updatingSidebar)
     }
-
+    
     downloadUpdate() {
         new Thread(() => {
             this.updatingSidebarConfirmPage.location.location.x.set(-1, 500)

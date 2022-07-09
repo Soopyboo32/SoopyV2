@@ -189,6 +189,7 @@ class DungeonMap extends Feature {
                 lastXY = loc.join(",")
                 return
             }
+            if (curr === max) curr = "§a" + curr
             if (this.roomDataStuff.get(loc.join(",")) !== curr + "  " + max) {
                 this.roomDataStuff.set(loc.join(","), curr + "  " + max)
 
@@ -313,6 +314,8 @@ class DungeonMap extends Feature {
                 this.drawOtherMisc(x + xOff, y + yOff, size, scale)
 
                 this.drawPlayersLocations(x + xOff, y + yOff, size, scale)
+
+                this.drawOtherMisc2(x + xOff, y + yOff, size, scale)
             } catch (e) {
                 console.error(e)
                 console.error(e.stack)
@@ -345,23 +348,29 @@ class DungeonMap extends Feature {
                 item.draw(x * scale * 2 + x2 - this.roomWidth / 4 * scale * 2, y * scale * 2 + y2 - this.roomWidth / 4 * scale * 2, 1.5 * scale)
             })
         }
+    }
+
+    drawOtherMisc2(x2, y2, size, scale) {
+        if (this.currDungeonBossImage) return
         if (this.roomsecrets.getValue()) {
             for (let ent of this.roomDataStuff.entries()) {
                 let [loc, val] = ent
                 let [x, y] = loc.split(",")
 
+                let val2 = ChatLib.removeFormatting(val)
+
                 let renderX = (parseInt(x) + 16) / this.mapScale / 128 * size + this.offset[0] / 128 * size
                 let renderY = (parseInt(y) + 16) / this.mapScale / 128 * size + this.offset[1] / 128 * size
 
-                Renderer.translate(0, 0, 100)
-                renderLibs.drawStringCentered("§0" + val, x2 + renderX + scale * 1.25, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
-                Renderer.translate(0, 0, 100)
-                renderLibs.drawStringCentered("§0" + val, x2 + renderX - scale * 1.25, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
-                Renderer.translate(0, 0, 100)
-                renderLibs.drawStringCentered("§0" + val, x2 + renderX, y2 + renderY + scale * 1.25 - 2 * scale * 1.25, scale * 1.25)
-                Renderer.translate(0, 0, 100)
-                renderLibs.drawStringCentered("§0" + val, x2 + renderX, y2 + renderY - scale * 1.25 - 2 * scale * 1.25, scale * 1.25)
-                Renderer.translate(0, 0, 100)
+                Renderer.translate(0, 0, 1000)
+                renderLibs.drawStringCentered("§0" + val2, x2 + renderX + scale * 1.25, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
+                Renderer.translate(0, 0, 1000)
+                renderLibs.drawStringCentered("§0" + val2, x2 + renderX - scale * 1.25, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
+                Renderer.translate(0, 0, 1000)
+                renderLibs.drawStringCentered("§0" + val2, x2 + renderX, y2 + renderY + scale * 1.25 - 2 * scale * 1.25, scale * 1.25)
+                Renderer.translate(0, 0, 1000)
+                renderLibs.drawStringCentered("§0" + val2, x2 + renderX, y2 + renderY - scale * 1.25 - 2 * scale * 1.25, scale * 1.25)
+                Renderer.translate(0, 0, 1000)
                 renderLibs.drawStringCentered("§f" + val, x2 + renderX, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
             }
         }
