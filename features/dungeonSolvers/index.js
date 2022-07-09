@@ -11,6 +11,7 @@ import { fetch } from "../../utils/networkUtils";
 import { delay } from "../../utils/delayUtils";
 import { Waypoint } from "../../utils/renderJavaUtils";
 import { calculateDistanceQuick } from "../../utils/utils";
+import { drawLinePoints } from "../../utils/renderUtils";
 
 const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze");
 let translate;

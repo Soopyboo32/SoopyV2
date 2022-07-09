@@ -225,10 +225,10 @@ Client.getMinecraft().field_71438_f.func_174974_b(
             if (this.getTopBlockAt(x + width, y + height, roofY) === 11) return 3
             if (this.getTopBlockAt(x, y + height, roofY) === 11) return 4
         } else {
-            let one = this.getTopBlockAt(x + width / 2 + 1, y + height / 2, roofY)
-            let two = this.getTopBlockAt(x + width / 2 - 1, y + height / 2, roofY)
-            let three = this.getTopBlockAt(x + width / 2, y + height / 2 + 1, roofY)
-            let four = this.getTopBlockAt(x + width / 2, y + height / 2 - 1, roofY)
+            let one = this.getTopBlockAt2(x + width / 2 + 1, y + height / 2, roofY)
+            let two = this.getTopBlockAt2(x + width / 2 - 1, y + height / 2, roofY)
+            let three = this.getTopBlockAt2(x + width / 2, y + height / 2 + 1, roofY)
+            let four = this.getTopBlockAt2(x + width / 2, y + height / 2 - 1, roofY)
 
             if (one === 0 && three === 0) return 1
             if (two === 0 && three === 0) return 2
@@ -292,6 +292,11 @@ Client.getMinecraft().field_71438_f.func_174974_b(
         if (!y) y = this.getHeightAt(x, z)
 
         return World.getBlockStateAt(new BlockPos(x, y, z)).getMetadata()
+    }
+    getTopBlockAt2(x, z, y) {
+        if (!y) y = this.getHeightAt(x, z)
+
+        return World.getBlockStateAt(new BlockPos(x, y, z)).getBlockId()
     }
 
     getCurrentRoomData() {

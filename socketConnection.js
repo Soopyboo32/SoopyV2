@@ -57,6 +57,9 @@ class SoopyV2Server extends WebsiteCommunicator {
         if (data.type === "dungeonMapData") {
             if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.dungeonMap) global.soopyv2featuremanagerthing.features.dungeonMap.class.updateDungeonMapData(data.data)
         }
+        if (data.type === "dungeonMapData2") {
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.dungeonMap) global.soopyv2featuremanagerthing.features.dungeonMap.class.updateDungeonMapData2(data.data)
+        }
         if (data.type === "slayerSpawnData") {
             if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.slayers) global.soopyv2featuremanagerthing.features.slayers.class.slayerLocationData(data.location, data.user)
         }
@@ -161,6 +164,14 @@ class SoopyV2Server extends WebsiteCommunicator {
     sendDungeonData(names, data) {
         this.sendData({
             type: "dungeonMapData",
+            names: names,
+            data: data
+        })
+    }
+
+    sendDungeonData2(names, data) {
+        this.sendData({
+            type: "dungeonMapData2",
             names: names,
             data: data
         })

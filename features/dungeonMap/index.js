@@ -40,6 +40,7 @@ class DungeonMap extends Feature {
         this.mapBackground = new ToggleSetting("Map Background And Border", "Puts a grey background behind the map + Black border", true, "dmap_background", this)
         this.showMapInBoss = new ToggleSetting("Keep showing the map in the dungeon boss room", "This will center the map when in boss to still be usefull", true, "dmap_enable_boss", this)
         this.borderedHeads = new ToggleSetting("Add a black border around heads on map", "", false, "dmap_border_head", this)
+        this.roomsecrets = new ToggleSetting("Shows secretscompleted/total secrets in room", "(works best when all of party is using soopy map)", false, "roomsecrets", this)
         this.brBox = new ToggleSetting("Box around doors in br", "In map category because it uses map to find location (no esp)", true, "dmap_door", this)
         this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this)
         // this.spiritLeapOverlay = new ToggleSetting("Spirit leap overlay", "Cool overlay for the spirit leap menu", true, "spirit_leap_overlay", this).requires(this.spiritLeapOverlay)
@@ -61,6 +62,8 @@ class DungeonMap extends Feature {
         this.mortLocationOnMap = undefined
         this.brBoxLoc = undefined
         this.keys = 0
+
+        this.roomDataStuff = new Map()
         // this.invMapImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB)
         // this.renderImage = new BufferedImage(this.IMAGE_SIZE, this.IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB)
         this.mapData = undefined
@@ -177,8 +180,28 @@ class DungeonMap extends Feature {
         this.registerChat("&r&r&r                     &r&cThe Catacombs &r&8- &r&eFloor ${*} Stats&r", () => {
             this.puzzles = {}
         })
+
+        let lastXY = ""
+        let registerActionBar = this.registerCustom("actionbar", (curr, max) => {
+            let loc = this.getRoomXYWorld()
+
+            if (lastXY !== loc.join(",")) {
+                lastXY = loc.join(",")
+                return
+            }
+            if (this.roomDataStuff.get(loc.join(",")) !== curr + "  " + max) {
+                this.roomDataStuff.set(loc.join(","), curr + "  " + max)
+
+                socketConnection.sendDungeonData2(this.people, [loc.join(","), curr + "  " + max])
+            }
+        })
+        registerActionBar.trigger.setCriteria('&7${curr}/${max} Secrets').setParameter('contains');
     }
 
+    updateDungeonMapData2(data) {
+        // console.log("Recieved: " + JSON.stringify(data, undefined, 2))
+        this.roomDataStuff.set(data[0], data[1])
+    }
     worldLoad() {
         this.dungeonBrBoxElm.stopRender()
         this.mortLocation = undefined
@@ -192,6 +215,7 @@ class DungeonMap extends Feature {
         this.bloodOpened = false
         this.keys = 0
         this.idToPlayer = {}
+        this.roomDataStuff.clear()
     }
 
     renderOverlay() {
@@ -285,11 +309,14 @@ class DungeonMap extends Feature {
                 Client.getMinecraft().field_71460_t.func_147701_i().func_148250_a(this.mapData, true);
                 GlStateManager.func_179121_F(); //GlStateManager.pop()
             }
+            try {
+                this.drawOtherMisc(x + xOff, y + yOff, size, scale)
 
-            this.drawOtherMisc(x + xOff, y + yOff, size, scale)
-
-            this.drawPlayersLocations(x + xOff, y + yOff, size, scale)
-
+                this.drawPlayersLocations(x + xOff, y + yOff, size, scale)
+            } catch (e) {
+                console.error(e)
+                console.error(e.stack)
+            }
             renderLibs.stopScizzor()
 
             if (this.mapBackground.getValue()) Renderer.drawRect(Renderer.color(0, 0, 0), x, y, size, 2)
@@ -300,7 +327,7 @@ class DungeonMap extends Feature {
         }
     }
 
-    drawOtherMisc(x2, y2, size2, scale) {
+    drawOtherMisc(x2, y2, size, scale) {
         if (this.currDungeonBossImage) return
         if (this.mapIcons.getValue()) {
             Object.keys(this.puzzles).forEach(loc => {
@@ -317,6 +344,26 @@ class DungeonMap extends Feature {
 
                 item.draw(x * scale * 2 + x2 - this.roomWidth / 4 * scale * 2, y * scale * 2 + y2 - this.roomWidth / 4 * scale * 2, 1.5 * scale)
             })
+        }
+        if (this.roomsecrets.getValue()) {
+            for (let ent of this.roomDataStuff.entries()) {
+                let [loc, val] = ent
+                let [x, y] = loc.split(",")
+
+                let renderX = (parseInt(x) + 16) / this.mapScale / 128 * size + this.offset[0] / 128 * size
+                let renderY = (parseInt(y) + 16) / this.mapScale / 128 * size + this.offset[1] / 128 * size
+
+                Renderer.translate(0, 0, 100)
+                renderLibs.drawStringCentered("§0" + val, x2 + renderX + scale * 1.25, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
+                Renderer.translate(0, 0, 100)
+                renderLibs.drawStringCentered("§0" + val, x2 + renderX - scale * 1.25, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
+                Renderer.translate(0, 0, 100)
+                renderLibs.drawStringCentered("§0" + val, x2 + renderX, y2 + renderY + scale * 1.25 - 2 * scale * 1.25, scale * 1.25)
+                Renderer.translate(0, 0, 100)
+                renderLibs.drawStringCentered("§0" + val, x2 + renderX, y2 + renderY - scale * 1.25 - 2 * scale * 1.25, scale * 1.25)
+                Renderer.translate(0, 0, 100)
+                renderLibs.drawStringCentered("§f" + val, x2 + renderX, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
+            }
         }
     }
 
@@ -379,6 +426,95 @@ class DungeonMap extends Feature {
         Renderer.scale(scale * 1.5, scale * 1.5)
         Renderer.rotate(this.mapDataPlayers[uuid].rot)
         this.getImageForPlayer(uuid).draw(-5, -5, 10, 10)
+    }
+
+    getRoomXYWorld() {
+        let roomData = this.getRoomWorldData()
+        if (roomData.rotation === 4) {
+            return [roomData.x, roomData.y + 32]
+        }
+
+        return [roomData.x, roomData.y]
+    }
+
+    getRotation(x, y, width, height, roofY) {
+        let one = this.getTopBlockAt(x + width / 2 + 1, y + height / 2, roofY)
+        let two = this.getTopBlockAt(x + width / 2 - 1, y + height / 2, roofY)
+        let three = this.getTopBlockAt(x + width / 2, y + height / 2 + 1, roofY)
+        let four = this.getTopBlockAt(x + width / 2, y + height / 2 - 1, roofY)
+
+        if (one === 0 && three === 0) return 1
+        if (two === 0 && three === 0) return 2
+        if (one === 0 && four === 0) return 3
+        if (two === 0 && four === 0) return 4 //4 IS SO TOXIK HGOLY HEL I HATE L SHAPE ROOMS WHY DO THIS TO ME
+
+        return -1
+    }
+
+    getRoomWorldData() {
+        let x = Math.floor((Player.getX() + 8) / 32) * 32 - 8
+        let y = Math.floor((Player.getZ() + 8) / 32) * 32 - 8
+        let width = 30
+        let height = 30
+
+        let roofY = this.getRoofAt(x, y)
+
+        while (World.getBlockStateAt(new BlockPos(x - 1, roofY, y)).getBlockId() !== 0) {
+            x -= 32
+            width += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x, roofY, y - 1)).getBlockId() !== 0) {
+            y -= 32
+            height += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x - 1, roofY, y)).getBlockId() !== 0) { //second iteration incase of L shape
+            x -= 32
+            width += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x + width + 1, roofY, y)).getBlockId() !== 0) {
+            width += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x, roofY, y + height + 1)).getBlockId() !== 0) {
+            height += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x + width, roofY, y + height + 1)).getBlockId() !== 0) { //second iteration incase of L shape
+            height += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x + width + 1, roofY, y + height)).getBlockId() !== 0) { //second iteration incase of L shape
+            width += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x + width, roofY, y - 1)).getBlockId() !== 0) {//second iteration incase of L shape
+            y -= 32
+            height += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x - 1, roofY, y + height)).getBlockId() !== 0) { //third iteration incase of L shape
+            x -= 32
+            width += 32
+        }
+
+
+        return {
+            x,
+            y,
+            width,
+            height,
+            cx: x + width / 2,
+            cy: y + height / 2,
+            rotation: this.getRotation(x, y, width, height, roofY)
+        }
+    }
+
+    getRoofAt(x, z) {
+        let y = 255
+        while (y > 0 && World.getBlockStateAt(new BlockPos(x, y, z)).getBlockId() === 0) y--
+
+        return y
+    }
+
+    getTopBlockAt(x, z, y) {
+        if (!y) y = this.getHeightAt(x, z)
+
+        return World.getBlockStateAt(new BlockPos(x, y, z)).getBlockId()
     }
 
     step() {
@@ -776,6 +912,7 @@ class DungeonMap extends Feature {
         this.dungeonBrBoxElm.stopRender()
         this.initVariables()
         this.running = false
+        this.roomDataStuff.clear()
     }
 }
 
