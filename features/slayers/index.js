@@ -74,7 +74,7 @@ class Slayers extends Feature {
 		this.summonHPGuiElement = new ToggleSetting("Render the HP of your summons on your screen", "This will help you to know how much HP your summons have left while hide summons nametags is on", false, "summon_hp_hud", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
 		this.summonHPElement = new HudTextElement()
 			.setText("")
-			.setToggleSetting(this.summonsShowNametag)
+			.setToggleSetting(this.summonHPGuiElement)
 			.setLocationSetting(new LocationSetting("Summon HP Location", "Allows you to edit the location of your summons' HP info", "summon_hp_location", this, [10, 50, 1, 1]).requires(this.summonsShowNametag).editTempText("&a160k&c❤ &a160k&c❤ &a160k&c❤ &a160k&c❤").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.summonHPElement);
 		this.summonsLowWarning = new ToggleSetting("Warns you when a summon is low", "this warns you after a delay after each bosses, until you respawn them", false, "warn_when_summon_low", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");

@@ -42,7 +42,7 @@ class GlobalSettings extends Feature {
 
         this.fixNeuNetworth = new ToggleSetting("Change networth in NEU pv to soopynw", "This should make it a lot more accurate", true, "neu_nw_override", this)
         this.darkTheme = new ToggleSetting("Dark theme", "This might be scuffed because guis are still made in light theme", false, "dark_theme", this)
-        this.linkPreview = new ToggleSetting("Link preview", "Shows a preview of where a link will take you", true, "link_preview", this)
+        // this.linkPreview = new ToggleSetting("Link preview", "Shows a preview of where a link will take you", true, "link_preview", this)
 
         this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
 
@@ -119,7 +119,7 @@ class GlobalSettings extends Feature {
 
         this.registerEvent("postGuiRender", () => {
             if (Player.getContainer() && Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.renderCookie()
-            if (this.linkPreview.getValue() && Client.currentGui && Client.currentGui.get() && Client.currentGui.get().toString().startsWith("net.minecraft.client.gui.GuiConfirmOpenLink")) this.renderWebpage()
+            // if (this.linkPreview.getValue() && Client.currentGui && Client.currentGui.get() && Client.currentGui.get().toString().startsWith("net.minecraft.client.gui.GuiConfirmOpenLink")) this.renderWebpage()
         })
         this.registerStep(false, 1, () => {
             if (Player.getContainer() && Player.getContainer().getName() === "Cookie Clicker v0.01" && Player.getContainer().getStackInSlot(13)) this.tickCookie()
@@ -138,18 +138,18 @@ class GlobalSettings extends Feature {
         })
     }
 
-    renderWebpage() {
-        let url = this.getField(Client.currentGui.get(), f.linkText)
+    // renderWebpage() {
+    //     let url = this.getField(Client.currentGui.get(), f.linkText)
 
-        let image = renderLibs.getImage("https://soopymc.my.to/api/soopyv2/webpage?webpage=" + url)
+    //     let image = renderLibs.getImage("https://soopymc.my.to/api/soopyv2/webpage?webpage=" + url)
 
-        if (image) {
-            let scale = Renderer.screen.getHeight() * 0.5 / image.getTextureHeight()
-            image.draw(Renderer.screen.getWidth() / 2 - image.getTextureWidth() * scale / 2, Renderer.screen.getHeight() / 2, scale * image.getTextureWidth(), scale * image.getTextureHeight())
-        } else {
-            Renderer.drawString("Loading website preview...", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth("Loading website preview...") / 2, Renderer.screen.getHeight() * 3 / 4)
-        }
-    }
+    //     if (image) {
+    //         let scale = Renderer.screen.getHeight() * 0.5 / image.getTextureHeight()
+    //         image.draw(Renderer.screen.getWidth() / 2 - image.getTextureWidth() * scale / 2, Renderer.screen.getHeight() / 2, scale * image.getTextureWidth(), scale * image.getTextureHeight())
+    //     } else {
+    //         Renderer.drawString("Loading website preview...", Renderer.screen.getWidth() / 2 - Renderer.getStringWidth("Loading website preview...") / 2, Renderer.screen.getHeight() * 3 / 4)
+    //     }
+    // }
 
     guiClicked(mouseX, mouseY, button, gui, event) {
         if (gui.class.toString() === "class net.minecraft.client.gui.inventory.GuiChest" && Player.getContainer().getName() === "Cookie Clicker v0.01") {

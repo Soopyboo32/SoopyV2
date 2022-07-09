@@ -161,6 +161,23 @@ class DungeonRoutes extends Feature {
             this.recordRoute = false
         })
     }
+    /*const EnumParticleTypes = Java.type('net.minecraft.util.EnumParticleTypes'); //TODO: make path rendering use particles
+World.particle.getParticleNames().forEach(name => { console.log(name) }) // All names
+let particleType = EnumParticleTypes.valueOf('EXPLOSION_HUGE');
+let idField = particleType.getClass().getDeclaredField('field_179372_R');
+idField.setAccessible(true);
+let id = idField.get(particleType);
+
+Client.getMinecraft().field_71438_f.func_174974_b(
+    id,   // particleID
+    true, // shouldIgnoreRange
+    -19,  // x
+    113,  // y
+    6,      // z
+    0,      // speedX
+    0,      // speedY
+    0,      // speedZ
+);*/
 
     toRoomCoordinates(x, y, z) { //From relative coords to world coords
         if (!this.currRoomData) return null
