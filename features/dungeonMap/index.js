@@ -189,7 +189,7 @@ class DungeonMap extends Feature {
                 lastXY = loc.join(",")
                 return
             }
-            if (curr === max) curr = "§a" + curr
+            if (curr === max) curr = "&a" + curr
             if (this.roomDataStuff.get(loc.join(",")) !== curr + "  " + max) {
                 this.roomDataStuff.set(loc.join(","), curr + "  " + max)
 

@@ -7,6 +7,7 @@ import SettingBase from "../settings/settingThings/settingBase";
 
 const EntityItem = Java.type("net.minecraft.entity.item.EntityItem")
 
+const EnumParticleTypes = Java.type('net.minecraft.util.EnumParticleTypes');
 
 class DungeonRoutes extends Feature {
     constructor() {
@@ -19,13 +20,8 @@ class DungeonRoutes extends Feature {
             return
         }
 
-        this.actionId = 0
-
-        this.recentEtherwarps = []
-        this.recentMines = []
-        this.recentLocations = []
-        this.recentInteracts = []
-        this.recentTnts = []
+        this.recordingData = []
+        this.currentActionIndex = 0
         this.lastLocationUpdatedTime = Date.now()
 
         this.registerEvent("soundPlay", this.playSound)
@@ -42,68 +38,69 @@ class DungeonRoutes extends Feature {
             let roomId = this.getCurrentRoomId()
             if (this.lastRoomId !== roomId) {
                 this.lastRoomId = roomId
-                this.actionId = 0
-                this.recentEtherwarps = []
-                this.recentMines = []
-                this.recentLocations = []
-                this.recentTnts = []
-                this.recentInteracts = []
+                this.recordingData = []
 
                 this.currRoomData = this.getRoomWorldData()
 
-                this.currentRouteDisplay = this.routesIndexMap.get(this.fullRoomData[this.idMap.get(roomId)].index)
+                this.currentRouteDisplay = this.routesIndexMap.get(this.fullRoomData[this.idMap.get(roomId)].index)?.data
                 ChatLib.chat(JSON.stringify(this.currentRouteDisplay, undefined, 2))
             }
 
             if (!this.recordRoute) return
-            if (this.recentLocations.length === 0
-                || Math.ceil(Player.getX()) !== this.recentLocations[this.recentLocations.length - 1].loc[0]
-                || Math.ceil(Player.getY()) !== this.recentLocations[this.recentLocations.length - 1].loc[1]
-                || Math.ceil(Player.getZ()) !== this.recentLocations[this.recentLocations.length - 1].loc[2]) {
+            if (!this.recordingData[this.recordingData.length - 1]) return
+            let locs = this.recordingData[this.recordingData.length - 1].locations
+            if (locs.length === 0
+                || Math.ceil(Player.getX()) !== locs[locs.length - 1][0]
+                || Math.ceil(Player.getY()) !== locs[locs.length - 1][1]
+                || Math.ceil(Player.getZ()) !== locs[locs.length - 1][2]) {
 
-                this.recentLocations.push({ loc: [Math.ceil(Player.getX()), Math.ceil(Player.getY()), Math.ceil(Player.getZ())], id: this.actionId++ })
+                this.addRecordingPoint("locations", [Math.ceil(Player.getX()), Math.ceil(Player.getY()), Math.ceil(Player.getZ())])
             }
         })
 
         this.registerEvent("renderWorld", () => {
-            this.recentEtherwarps.forEach(({ loc }) => {
-                drawFilledBox(loc.x, loc.y - 1, loc.z, 1, 1, 1, 0, 0, 50 / 255, true)
-                drawBoxAtBlock(loc.x - 0.5, loc.y - 1, loc.z - 0.5, 1, 0, 0, 1, 1, 1)
-            })
-            this.recentMines.forEach(({ loc }) => {
-                drawFilledBox(loc.x, loc.y - 0.5, loc.z, 1, 1, 0, 1, 0, 50 / 255, true)
-            })
-            this.recentTnts.forEach(({ loc }) => {
-                drawFilledBox(loc.x, loc.y - 0.5, loc.z, 1, 1, 1, 0, 0, 50 / 255, true)
-            })
-            this.recentInteracts.forEach(({ loc }) => {
-                drawFilledBox(loc.x, loc.y, loc.z, 1, 1, 0, 0, 1, 50 / 255, true)
-                drawBoxAtBlock(loc.x - 0.5, loc.y, loc.z - 0.5, 0, 0, 1, 1, 1, 1)
-            })
-            if (this.recentLocations.length >= 2) drawLinePoints(this.recentLocations.map(a => [a.loc[0] - 0.5, a.loc[1] + 0.1, a.loc[2] - 0.5]), 0, 0, 255, 2, false)
+            if (this.recordingData && this.recordingData[this.recordingData.length - 1]) {
+                this.recordingData[this.recordingData.length - 1].etherwarps.forEach((loc) => {
+                    drawFilledBox(loc[0], loc[1] - 1, loc[2], 1, 1, 1, 0, 0, 50 / 255, true)
+                    drawBoxAtBlock(loc[0] - 0.5, loc[1] - 1, loc[2] - 0.5, 1, 0, 0, 1, 1, 1)
+                })
+                this.recordingData[this.recordingData.length - 1].mines.forEach((loc) => {
+                    drawFilledBox(loc[0], loc[1] - 0.5, loc[2], 1, 1, 0, 1, 0, 50 / 255, true)
+                })
+                this.recordingData[this.recordingData.length - 1].tnts.forEach((loc) => {
+                    drawFilledBox(loc[0], loc[1] - 0.5, loc[2], 1, 1, 1, 0, 0, 50 / 255, true)
+                })
+                this.recordingData[this.recordingData.length - 1].interacts.forEach(({ loc }) => {
+                    drawFilledBox(loc[0], loc[1], loc[2], 1, 1, 0, 0, 1, 50 / 255, true)
+                    drawBoxAtBlock(loc[0] - 0.5, loc[1], loc[2] - 0.5, 0, 0, 1, 1, 1, 1)
+                })
+                let locs = this.recordingData[this.recordingData.length - 1].locations
+                if (locs.length >= 2) drawLinePoints(locs.map(a => [a[0] - 0.5, a[1] + 0.1, a[2] - 0.5]), 0, 0, 255, 2, false)
+            }
 
             if (this.currRoomData) {
+                drawBoxAtBlock(...this.toRoomCoordinates(0, 70, 0), 1, 0, 0, 1, 1, 1)
                 if (this.currentRouteDisplay) {
-                    this.currentRouteDisplay.etherwarps.forEach(loc => {
+                    this.currentRouteDisplay[this.currentActionIndex].etherwarps.forEach(loc => {
                         let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
-                        drawFilledBox(coords[0] + 0.5, coords[1], coords[2] + 0.5, 1, 1, 1, 0, 0, 50 / 255, true)
-                        drawBoxAtBlock(coords[0], coords[1], coords[2], 1, 0, 0, 1, 1, 1)
+                        drawFilledBox(coords[0], coords[1], coords[2], 1, 1, 1, 0, 0, 50 / 255, true)
+                        drawBoxAtBlock(coords[0] - 0.5, coords[1], coords[2] - 0.5, 1, 0, 0, 1, 1, 1)
                     })
-                    this.currentRouteDisplay.mines.forEach(loc => {
+                    this.currentRouteDisplay[this.currentActionIndex].mines.forEach(loc => {
                         let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
-                        drawFilledBox(coords[0] + 0.5, coords[1] + 0.5, coords[2] + 0.5, 1, 1, 0, 255, 0, 50 / 255, true)
+                        drawFilledBox(coords[0], coords[1] + 0.5, coords[2], 1, 1, 0, 255, 0, 50 / 255, true)
                     })
-                    this.currentRouteDisplay.tnts.forEach(loc => {
+                    this.currentRouteDisplay[this.currentActionIndex].tnts.forEach(loc => {
                         let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
-                        drawFilledBox(coords[0] + 0.5, coords[1] + 0.5, coords[2] + 0.5, 1, 1, 255, 0, 0, 50 / 255, true)
+                        drawFilledBox(coords[0], coords[1] + 0.5, coords[2] + 0.5, 1, 1, 255, 0, 0, 50 / 255, true)
                     })
-                    this.currentRouteDisplay.interacts.forEach(loc => {
-                        let coords = this.toRoomCoordinates(loc[0], loc[1], loc[2])
-                        drawFilledBox(coords[0] + 0.5, coords[1], coords[2] + 0.5, 1, 1, 0, 0, 1, 50 / 255, true)
+                    this.currentRouteDisplay[this.currentActionIndex].interacts.forEach((data) => {
+                        let coords = this.toRoomCoordinates(data.loc[0], data.loc[1], data.loc[2])
+                        drawFilledBox(coords[0], coords[1], coords[2], 1, 1, 0, 0, 1, 50 / 255, true)
                         drawBoxAtBlock(coords[0], coords[1], coords[2], 0, 0, 1, 1, 1, 1)
                     })
 
-                    if (this.currentRouteDisplay.locations.length >= 2) drawLinePoints(this.currentRouteDisplay.locations.map(a => this.toRoomCoordinates(...a)).map(a => [a[0] - 0.5, a[1] + 0.1, a[2] - 0.5]), 0, 0, 255, 2, false)
+                    // if (this.currentRouteDisplay.locations.length >= 2) drawLinePoints(this.currentRouteDisplay.locations.map(a => this.toRoomCoordinates(...a)).map(a => [a[0] - 0.5, a[1] + 0.1, a[2] - 0.5]), 0, 0, 255, 2, false)
 
                 }
             }
@@ -138,46 +135,129 @@ class DungeonRoutes extends Feature {
 
         this.registerCommand("startroute", (...name) => {
             this.recordRoute = true
-            this.recentEtherwarps = []
-            this.recentMines = []
-            this.recentLocations = []
-            this.recentInteracts = []
-            this.recentTnts = []
+            this.recordingData = []
+            this.addRecordingPoint()
             ChatLib.chat(this.FeatureManager.messagePrefix + "Started recording route!")
         })
 
         this.registerCommand("saveroute", () => {
             let data = {
                 index: this.fullRoomData[this.idMap.get(this.lastRoomId)].index,
-                etherwarps: this.recentEtherwarps.map(ether => this.fromRoomCoordinates(ether.loc.x - 0.5, ether.loc.y, ether.loc.z - 0.5)),
-                mines: this.recentMines.map(ether => this.fromRoomCoordinates(ether.loc.x - 0.5, ether.loc.y, ether.loc.z - 0.5)),
-                locations: this.recentLocations.map(ether => this.fromRoomCoordinates(ether.loc[0], ether.loc[1], ether.loc[2])),
-                interacts: this.recentInteracts.map(ether => this.fromRoomCoordinates(ether.loc.x - 0.5, ether.loc.y, ether.loc.z - 0.5)),
-                tnts: this.recentTnts.map(ether => this.fromRoomCoordinates(ether.loc.x - 0.5, ether.loc.y, ether.loc.z - 0.5)),
+                data: this.recordingData.map(a => {
+                    a.etherwarps = a.etherwarps.map(a => this.fromRoomCoordinates(a[0] + 0.5, a[1], a[2] + 0.5))
+                    a.mines = a.mines.map(a => this.fromRoomCoordinates(a[0] + 0.5, a[1], a[2] + 0.5))
+                    a.locations = a.locations.map(a => this.fromRoomCoordinates(...a))
+                    a.interacts = a.interacts.map(b => {
+                        b.pos = this.fromRoomCoordinates(...b.pos)
+                        return b
+                    })
+                    a.tnts = a.tnts.map(a => this.fromRoomCoordinates(a[0] + 0.5, a[1], a[2] + 0.5))
+
+                    return a
+                })
             }
+            // this.recordingData.push({
+            //     etherwarps: [],
+            //     mines: [],
+            //     locations: [],
+            //     interacts: [],
+            //     tnts: []
+            // })
 
             ChatLib.chat(JSON.stringify(data, undefined, 4))
             ChatLib.chat(this.FeatureManager.messagePrefix + "Saved route!")
             this.recordRoute = false
         })
-    }
-    /*const EnumParticleTypes = Java.type('net.minecraft.util.EnumParticleTypes'); //TODO: make path rendering use particles
-World.particle.getParticleNames().forEach(name => { console.log(name) }) // All names
-let particleType = EnumParticleTypes.valueOf('EXPLOSION_HUGE');
-let idField = particleType.getClass().getDeclaredField('field_179372_R');
-idField.setAccessible(true);
-let id = idField.get(particleType);
 
-Client.getMinecraft().field_71438_f.func_174974_b(
-    id,   // particleID
-    true, // shouldIgnoreRange
-    -19,  // x
-    113,  // y
-    6,      // z
-    0,      // speedX
-    0,      // speedY
-    0,      // speedZ
-);*/
+        this.registerStep(true, 5, () => {
+            if (this.currRoomData) {
+                if (this.currentRouteDisplay) {
+                    // this.currentRouteDisplay.etherwarps.forEach(loc => {
+                    //     let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
+                    //     drawFilledBox(coords[0] + 0.5, coords[1], coords[2] + 0.5, 1, 1, 1, 0, 0, 50 / 255, true)
+                    //     drawBoxAtBlock(coords[0], coords[1], coords[2], 1, 0, 0, 1, 1, 1)
+                    // })
+                    // this.currentRouteDisplay.mines.forEach(loc => {
+                    //     let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
+                    //     drawFilledBox(coords[0] + 0.5, coords[1] + 0.5, coords[2] + 0.5, 1, 1, 0, 255, 0, 50 / 255, true)
+                    // })
+                    // this.currentRouteDisplay.tnts.forEach(loc => {
+                    //     let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
+                    //     drawFilledBox(coords[0] + 0.5, coords[1] + 0.5, coords[2] + 0.5, 1, 1, 255, 0, 0, 50 / 255, true)
+                    // })
+                    // this.currentRouteDisplay.interacts.forEach(loc => {
+                    //     let coords = this.toRoomCoordinates(loc[0], loc[1], loc[2])
+                    //     drawFilledBox(coords[0] + 0.5, coords[1], coords[2] + 0.5, 1, 1, 0, 0, 1, 50 / 255, true)
+                    //     drawBoxAtBlock(coords[0], coords[1], coords[2], 0, 0, 1, 1, 1, 1)
+                    // })
+
+                    if (this.currentRouteDisplay[this.currentActionIndex].locations.length >= 2) this.drawLineMultipleParticles(this.currentRouteDisplay[this.currentActionIndex].locations.map(a => this.toRoomCoordinates(a[0], a[1], a[2])))
+
+                }
+            }
+        })
+    }
+
+    addRecordingPoint(type, point) {
+        if (type) {
+            this.recordingData[this.recordingData.length - 1][type].push(point)
+        }
+        if (!type || type === "interact") {
+            this.recordingData.push({
+                etherwarps: [],
+                mines: [],
+                locations: [],
+                interacts: [],
+                tnts: []
+            })
+        }
+    }
+    drawLineMultipleParticles(locations) {
+        let lastLoc = undefined
+        locations.forEach(loc => {
+            if (!lastLoc) {
+                lastLoc = loc
+                return
+            }
+
+            this.drawLineParticles(lastLoc, loc)
+            lastLoc = loc
+        })
+    }
+
+    drawLineParticles(loc1, loc2) {
+        let distance = Math.hypot(...loc1.map((a, i) => a - loc2[i]))
+        let maxPoints = Math.ceil(distance * 1)
+        for (let i = 0; i < maxPoints; i++) {
+            let actualI = i + Math.random()
+            let a = actualI / maxPoints
+            let loc = [loc1[0] * a + loc2[0] * (1 - a) - 0.5, loc1[1] * a + loc2[1] * (1 - a) + 0.1, loc1[2] * a + loc2[2] * (1 - a) - 0.5]
+
+            let a2 = (actualI + 0.02) / maxPoints
+            let loc3 = [loc1[0] * a2 + loc2[0] * (1 - a2) - 0.5, loc1[1] * a2 + loc2[1] * (1 - a2) + 0.1, loc1[2] * a2 + loc2[2] * (1 - a2) - 0.5]
+            loc3 = loc3.map((a, i) => loc[i] - a)
+
+            this.spawnParticleAtLocation(loc, loc3, "FLAME")
+        }
+    }
+
+    spawnParticleAtLocation(loc, velo, particle) {
+        let particleType = EnumParticleTypes.valueOf(particle);
+        let idField = particleType.getClass().getDeclaredField('field_179372_R');
+        idField.setAccessible(true);
+        let id = idField.get(particleType);
+
+        Client.getMinecraft().field_71438_f.func_174974_b(
+            id,   // particleID
+            true, // shouldIgnoreRange
+            loc[0],  // x
+            loc[1],  // y
+            loc[2],      // z
+            velo[0],      // speedX
+            velo[1],      // speedY
+            velo[2],      // speedZ
+        );
+    }
 
     toRoomCoordinates(x, y, z) { //From relative coords to world coords
         if (!this.currRoomData) return null
@@ -232,7 +312,7 @@ Client.getMinecraft().field_71438_f.func_174974_b(
 
             if (one === 0 && three === 0) return 1
             if (two === 0 && three === 0) return 2
-            if (one === 0 && three === 0) return 3
+            if (one === 0 && four === 0) return 3
             if (two === 0 && four === 0) return 4
         }
 
@@ -267,6 +347,17 @@ Client.getMinecraft().field_71438_f.func_174974_b(
         }
         while (World.getBlockStateAt(new BlockPos(x + width, roofY, y + height + 1)).getBlockId() !== 0) { //second iteration incase of L shape
             height += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x + width + 1, roofY, y + height)).getBlockId() !== 0) { //second iteration incase of L shape
+            width += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x + width, roofY, y - 1)).getBlockId() !== 0) {//second iteration incase of L shape
+            y -= 32
+            height += 32
+        }
+        while (World.getBlockStateAt(new BlockPos(x - 1, roofY, y + height)).getBlockId() !== 0) { //third iteration incase of L shape
+            x -= 32
+            width += 32
         }
 
 
@@ -313,11 +404,7 @@ Client.getMinecraft().field_71438_f.func_174974_b(
     }
 
     worldLoad() {
-        this.recentEtherwarps = []
-        this.recentMines = []
-        this.recentLocations = []
-        this.recentInteracts = []
-        this.recentTnts = []
+
     }
 
     entityJoinWorldEvent(event) {
@@ -337,7 +424,7 @@ Client.getMinecraft().field_71438_f.func_174974_b(
         if (packetType === "S0DPacketCollectItem") {
             let pos = this.tempItemIdLocs.get(packet[m.getCollectedItemEntityID]())
 
-            if (pos) this.recentInteracts.push({ loc: pos, id: this.actionId++ })
+            if (pos) this.addRecordingPoint("interacts", { loc: pos, type: "item" })
         }
     }
 
@@ -350,29 +437,30 @@ Client.getMinecraft().field_71438_f.func_174974_b(
         let id = Player.lookingAt().getType().getID()
         if (id !== 54 && id !== 144 && id !== 69) return
 
-        this.recentInteracts.push({ loc: pos, id: this.actionId++ })
+        this.addRecordingPoint("interacts", { loc: pos, type: "interact" })
     }
 
     playSound(pos, name, volume, pitch, categoryName, event) {
         if (!this.recordRoute) return
 
+        let loc = [pos.x, pos.y, pos.z]
         let nameSplitted = name.split(".")
         if (name === "mob.enderdragon.hit") { //etherwarp
-            this.recentEtherwarps.push({ loc: pos, id: this.actionId++ })
+            this.addRecordingPoint("etherwarps", loc)
         }
         if (name === "random.explode" && pitch !== 1) { //tnt OR MIGHT BE spirit scepter
-            this.recentTnts.push({ loc: pos, id: this.actionId++ })
+            this.addRecordingPoint("tnts", loc)
         }
         if (name === "mob.bat.death") {
-            this.recentInteracts.push({ loc: pos, id: this.actionId++ })
+            this.addRecordingPoint("interacts", { loc: loc, type: "bat" })
         }
         if (nameSplitted[0] === "dig") { //mining block
-            if (!this.recentMines.some(a =>
-                a.loc.x === pos.x
-                && a.loc.y === pos.y
-                && a.loc.z === pos.z
+            if (!this.recordingData[this.recordingData.length - 1].mines.some(a =>
+                a[0] === pos[0]
+                && a[1] === pos[1]
+                && a[2] === pos[2]
             )) {
-                this.recentMines.push({ loc: pos, id: this.actionId++ })
+                this.addRecordingPoint("mines", loc)
             }
         }
     }
