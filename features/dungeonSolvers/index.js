@@ -13,6 +13,7 @@ import { Waypoint } from "../../utils/renderJavaUtils";
 import { calculateDistanceQuick } from "../../utils/utils";
 import { drawLinePoints } from "../../utils/renderUtils";
 
+const MCBlock = Java.type("net.minecraft.block.Block");
 const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze");
 let translate;
 try {
@@ -83,6 +84,7 @@ class DungeonSolvers extends Feature {
 		this.hudElements.push(this.scoreElement);
 
 		this.blazeSolver = new ToggleSetting("Blaze Puzzle Solver", "Shows what order to kill the blazes in", true, "blaze_solver", this);
+		this.respawnTimerTerra = new ToggleSetting("Terracotter respawn timer", "", true, "f6_timer_thing", this);
 
 		this.lastDungFinishes = [];
 		this.lastDungExps = [];
@@ -346,6 +348,57 @@ class DungeonSolvers extends Feature {
 		//§r§6Soopyboo32§r§a activated a lever! (§r§c8§r§a/8)§r
 		//§r§6Soopyboo32§r§a completed a device! (§r§c3§r§a/8)§r
 		//§r§bBossmanLeo§r§a activated a terminal! (§r§c2§r§a/8)§r
+
+		this.inf6boss = false
+		this.registerStep(true, 1, () => {
+			this.inf6boss = this.getCurrentRoomId() === "sadan"
+		})
+
+		let packetRecieved = this.registerCustom("packetReceived", this.packetReceived).registeredWhen(() => this.inf6boss && this.respawnTimerTerra.getValue())
+
+		try {
+			packetRecieved.trigger.setPacketClasses([net.minecraft.network.play.server.S23PacketBlockChange, net.minecraft.network.play.server.S22PacketMultiBlockChange])
+		} catch (e) { }//older ct version
+
+		this.timersData = []
+	}
+	getCurrentRoomId() {
+		let id = ChatLib.removeFormatting(Scoreboard.getLineByIndex(Scoreboard.getLines().length - 1).getName()).trim().split(" ").pop()
+
+		return id
+	}
+	getBlockIdFromState(state) {
+		return MCBlock[m.getStateId](state)
+	}
+
+	packetReceived(packet, event) {
+		if (!this.inf6boss || !this.respawnTimerTerra.getValue()) return
+
+		let packetType = new String(packet.class.getSimpleName()).valueOf()
+		if (packetType === "S23PacketBlockChange") {
+			let position = new BlockPos(packet[m.getBlockPosition.S23PacketBlockChange]())
+			let blockState = this.getBlockIdFromState(packet[m.getBlockState.S23PacketBlockChange]())
+			let oldBlockState = this.getBlockIdFromState(World.getBlockStateAt(position))
+
+			if (oldBlockState === 0 && blockState === 4240 && this.inf6boss) {
+				this.timerThing(position)
+			}
+		}
+		if (packetType === "S22PacketMultiBlockChange") {
+			packet[m.getChangedBlocks]().forEach(b => {
+				let position = new BlockPos(b[m.getPos.S22PacketMultiBlockChange$BlockUpdateData]())
+				let blockState = this.getBlockIdFromState(b[m.getBlockState.S22PacketMultiBlockChange$BlockUpdateData]())
+				let oldBlockState = this.getBlockIdFromState(World.getBlockStateAt(position))
+
+				if (oldBlockState === 0 && blockState === 4240 && this.inf6boss) {
+					this.timerThing(position)
+				}
+			})
+		}
+	}
+
+	timerThing(position) {
+		this.timersData.push([position, Date.now() + 5000])
 	}
 
 	areaUpdated() {
@@ -611,6 +664,18 @@ class DungeonSolvers extends Feature {
 				}
 			}
 		}
+
+		let shifts = 0
+		for (let data of this.timersData) {
+			let [position, time] = data
+
+			if (Date.now() > time) {
+				shifts++
+			}
+
+			Tessellator.drawString(((time - Date.now()) / 1000).toFixed(1) + "s", position.getX(), position.getY() + 0.5, position.getZ(), Renderer.color(0, 255, 50), false, 0.025, false)
+		}
+		for (let i = 0; i < shifts; i++) this.timersData.shift()
 	}
 
 	renderEntity(entity, position, ticks, event) {

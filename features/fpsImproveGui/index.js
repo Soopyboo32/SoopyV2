@@ -20,7 +20,7 @@ class FpsImproveGui extends Feature {
     onEnable() {
         this.initVariables()
 
-        this.GuiPage = new FpsPage()
+        // this.GuiPage = new FpsPage()
 
     }
 
@@ -54,5 +54,5 @@ class FpsPage extends GuiPage {
 
 
 module.exports = {
-    class: new StreamsGui()
+    class: new FpsImproveGui()
 }
