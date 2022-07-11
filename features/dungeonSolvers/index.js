@@ -363,6 +363,7 @@ class DungeonSolvers extends Feature {
 		this.timersData = []
 	}
 	getCurrentRoomId() {
+		if (Scoreboard.getLines().length === 0) return
 		let id = ChatLib.removeFormatting(Scoreboard.getLineByIndex(Scoreboard.getLines().length - 1).getName()).trim().split(" ").pop()
 
 		return id

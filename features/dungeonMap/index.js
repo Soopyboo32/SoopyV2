@@ -852,6 +852,22 @@ class DungeonMap extends Feature {
                     });
                 } catch (e) { }
             }
+
+
+            if (this.offset && this.offset.length === 2) {
+                for (let ent of this.roomDataStuff.entries()) {
+                    let [loc] = ent
+                    let [x, y] = loc.split(",")
+
+                    let renderX = Math.round((parseInt(x) + 16) / this.mapScale + this.offset[0]) // / 128 * size
+                    let renderY = Math.round((parseInt(y) + 16) / this.mapScale + this.offset[1])// / 128 * size
+
+                    if (bytes[renderX + renderY * 128] === 30) {
+                        let [first, second] = ent[1].split("  ")
+                        ent[1] = "&a" + second + "  " + second
+                    }
+                }
+            }
             // if (!this.renderImage) return
 
             // let newMapImageThing = new Image(this.renderImage)
