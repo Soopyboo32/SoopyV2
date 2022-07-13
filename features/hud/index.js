@@ -196,6 +196,7 @@ class Hud extends Feature {
         hudStatTypes["gemstone_powder"] = "Gemstone Powder"
 
         this.extendLevelCap = new ToggleSetting("Hud Stat Ignore Skill Level Cap", "level cap goes over 60 requiring 50m xp per level", false, "hud_ignore_level_cap", this).contributor("EmeraldMerchant")
+        this.showLevelUpMessage = new ToggleSetting("Show level-up message", "Shows skyblock skills level-up message over level 60 in chat", true, "skill_o60_level_message", this).requires(this.extendLevelCap).contributor("EmeraldMerchant")
 
         this.hudStat = []
         for (let i = 0; i < 5; i++) {
@@ -542,6 +543,18 @@ class Hud extends Feature {
             if (this.apiSoulflow) this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData.soulflow))
         }
 
+        if (this.showLevelUpMessage.getValue()) {
+            Object.keys(this.skillLevelCaps).forEach(skill => {
+                let skillData = getLevelByXp(this.lastStatData[skill], 0, this.extendLevelCap.getValue() ? Infinity : this.skillLevelCaps[skill])
+                if (this.lastSkillLevel[skill] === skillData.level - 1 && (skillData.level > (this.skillLevelCaps[skill] === 50 ? 50 : 60))) {
+                    ChatLib.chat(`&r&3&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬&r`)
+                    ChatLib.chat(`  &r&b&lSKILL LEVEL UP &3${firstLetterCapital(skill.split("_").pop())} &8${skillData.level - 1}➜&3${skillData.level}&r`)
+                    ChatLib.chat(`&r  &r&a&lREWARDS&r\n&r  &r&6&lSoopy's Respect\n&r&3&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬&r\n`)
+                }
+                this.lastSkillLevel[skill] = skillData.level;
+            })
+        }
+
         this.updateHudThingos()
     }
 
@@ -662,10 +675,6 @@ class Hud extends Feature {
         Object.keys(this.skillLevelCaps).forEach(skill => {
             if (type === skill) {
                 let skillData = getLevelByXp(this.lastStatData[skill], 0, this.extendLevelCap.getValue() ? Infinity : this.skillLevelCaps[skill])
-                if (this.lastSkillLevel[skill] === skillData.level - 1 && (skillData.level > (this.skillLevelCaps[skill] === 50 ? 50 : 60))) {
-                    //TODO: move to not relying on hud stat & seperate setting
-                    // ChatLib.chat(`&r&3&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬&r\n  &r&b&lSKILL LEVEL UP &3${firstLetterCapital(skill.split("_").pop())} &8${skillData.level - 1}➜&3${skillData.level}&r\n&r  &r&a&lREWARDS&r\n&r  &r&6&lSoopy's Respect\n&r&3&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬&r\n`)
-                }
                 this.lastSkillLevel[skill] = skillData.level;
                 string = "&6" + firstLetterCapital(skill.split("_").pop()) + "&7> &f" + (skillData.level + skillData.progress).toFixed(2) + " &7(" + this.numberUtils.numberWithCommas(skillData.xpCurrent) + (skillData.level === this.skillLevelCaps[skill] ? "" : "/" + this.numberUtils.numberWithCommas(skillData.xpForNext)) + ")"
             }
