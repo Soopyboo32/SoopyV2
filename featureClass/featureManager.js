@@ -9,6 +9,7 @@ import { fetch } from "../utils/networkUtils";
 import NonPooledThread from "../utils/nonPooledThread";
 import { setRendering } from "../utils/renderJavaUtils";
 import { registerForge as registerForgeBase, unregisterForge as unregisterForgeBase } from "./forgeEvents.js"
+import { delay } from "../utils/delayUtils"
 
 const JSLoader = Java.type("com.chattriggers.ctjs.engine.langs.js.JSLoader")
 const UrlModuleSourceProvider = Java.type("org.mozilla.javascript.commonjs.module.provider.UrlModuleSourceProvider")
