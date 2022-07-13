@@ -1041,7 +1041,7 @@ class DungeonSolvers extends Feature {
 	step_5fps() {
 		if (this.IceSprayWarn.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
-				let MobName = name.getName()
+				let MobName = ChatLib.removeFormatting(name.getName())
 				if (MobName.includes("Ice Spray Wand") && name.getTicksExisted() <= 199) {
 					Client.showTitle(`&r&6&l[&b&l&kO&6&l] ${MobName.toUpperCase()} &6&l[&b&l&kO&6&l]`, "", 0, 40, 10);
 					ChatLib.chat(`&6&lRARE DROP! &r${MobName}`)

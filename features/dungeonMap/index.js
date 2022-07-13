@@ -861,11 +861,21 @@ class DungeonMap extends Feature {
 
                     let renderX = Math.round((parseInt(x) + 16) / this.mapScale + this.offset[0]) // / 128 * size
                     let renderY = Math.round((parseInt(y) + 16) / this.mapScale + this.offset[1])// / 128 * size
-
-                    if (bytes[renderX + renderY * 128] === 30) {
-                        let [first, second] = ent[1].split("  ")
-                        ent[1] = "&a" + second + "  " + second
+                    // console.log(renderX, renderY)
+                    let isGreen = false
+                    for (let i = 0; i < 10; i++) {
+                        if (bytes[renderX + i + (renderY + i) * 128] === 30
+                            || bytes[renderX + i + 1 + (renderY + i) * 128] === 30) {
+                            isGreen = true
+                        }
                     }
+                    console.log(ent[1], isGreen)
+                    if (isGreen) {
+                        let total = ent[1].split("  ")[1]
+                        ent[1] = "&a" + total + "  " + total
+                        console.log(ent[1])
+                    }
+                    console.log(ent[1], isGreen)
                 }
             }
             // if (!this.renderImage) return

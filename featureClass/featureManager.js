@@ -414,6 +414,7 @@ class FeatureManager {
         //         }
         //     })
         // }else{
+
         this.eventObjects[event] = register(event, (...args) => {
             // let start = Date.now()
             this.triggerEvent(event, args)

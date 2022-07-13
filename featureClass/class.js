@@ -211,14 +211,19 @@ class Event {
         if (this.enabled) return
 
         this.enabled = true
-        this.actuallyRegister()
+
+        delay(0, () => {
+            this.actuallyRegister()
+        })
     }
 
     unregister() {
         if (!this.enabled) return
 
         this.enabled = false
-        this.actuallyUnregister()
+        delay(0, () => {
+            this.actuallyUnregister()
+        })
     }
 
     actuallyRegister() { }
