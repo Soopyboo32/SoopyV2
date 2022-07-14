@@ -55,7 +55,7 @@ class NetworthPage extends GuiPage {
 
         button.addEvent(new SoopyMouseClickEvent().setHandler(() => {
             java.awt.Desktop.getDesktop().browse(
-                new java.net.URI("https://soopymc.my.to/networth")
+                new java.net.URI("https://soopy.dev/networth")
             );
         }))
 
@@ -120,7 +120,7 @@ class NetworthPage extends GuiPage {
         this.statArea.clearChildren()
         this.statArea.addChild(this.loadingElm)
 
-        fetch("http://soopymc.my.to/api/v2/player/" + player).json(playerData => {
+        fetch("http://soopy.dev/api/v2/player/" + player).json(playerData => {
 
             if (player !== this.playerLoad) return
 
@@ -132,7 +132,7 @@ class NetworthPage extends GuiPage {
                 return
             }
 
-            fetch("http://soopymc.my.to/api/v2/player_skyblock/" + playerData.data.uuid).json(skyblockData => {
+            fetch("http://soopy.dev/api/v2/player_skyblock/" + playerData.data.uuid).json(skyblockData => {
 
                 if (player !== this.playerLoad) return
 
@@ -182,7 +182,7 @@ class NetworthPage extends GuiPage {
                 })
 
                 if (selectedProf === skyblockData.data.stats.bestProfileId) {
-                    fetch("http://soopymc.my.to/api/v2/leaderboard/networth/user/" + playerData.data.uuid).json(leaderboardData => {
+                    fetch("http://soopy.dev/api/v2/leaderboard/networth/user/" + playerData.data.uuid).json(leaderboardData => {
                         if (player !== this.playerLoad) return
 
                         if (leaderboardData.success) nameElm.setText("§0#" + numberWithCommas(leaderboardData.data.data.position + 1) + " " + playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7"))
@@ -202,7 +202,7 @@ class NetworthPage extends GuiPage {
     }
 
     sidebarSearch(user) {
-        fetch("http://soopymc.my.to/api/v2/leaderboard/networth/user/" + user).json(data => {
+        fetch("http://soopy.dev/api/v2/leaderboard/networth/user/" + user).json(data => {
             if (!data.success) {
                 return
             }
@@ -222,7 +222,7 @@ class NetworthPage extends GuiPage {
         if (scroll) this.leaderboardArea._scrollAmount = 0
         if (scroll) this.leaderboardArea.location.scroll.y.set(0, 100)
 
-        fetch("http://soopymc.my.to/api/v2/leaderboard/networth/" + page).json(data => {
+        fetch("http://soopy.dev/api/v2/leaderboard/networth/" + page).json(data => {
             this.leaderboardArea.clearChildren()
             data.data.data.forEach((user, i) => {
                 this.leaderboardArea.addChild(

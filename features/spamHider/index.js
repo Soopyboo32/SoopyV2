@@ -132,7 +132,7 @@ class SpamHider extends Feature {
     }
 
     loadSpamMessages() {
-        fetch("http://soopymc.my.to/api/soopyv2/spamHiderMessages.json").json(messages => {
+        fetch("http://soopy.dev/api/soopyv2/spamHiderMessages.json").json(messages => {
             this.hideMessages = messages.hideMessages
             this.moveMessages = messages.moveMessages
 

@@ -85,7 +85,7 @@ class GlobalSettings extends Feature {
             this.registerEvent("tick", this.fixNEU)
         }
 
-        try { //This enables links from soopymc.my.to to be shown in patcher image preview
+        try { //This enables links from soopy.dev to be shown in patcher image preview
             let hasHost = false
 
             for (let host of Java.type("gg.essential.util.TrustedHostsUtil").INSTANCE.getTrustedHosts()) {
@@ -98,7 +98,7 @@ class GlobalSettings extends Feature {
                 let TrustedHost = Java.type("gg.essential.api.utils.TrustedHostsUtil").TrustedHost
                 let TreeSet = Java.type("java.util.TreeSet")
                 let hosts = new TreeSet()
-                hosts.add("soopymc.my.to")
+                hosts.add("soopy.dev")
 
                 let host = new TrustedHost(124123, "soopymc", hosts)
 
@@ -143,7 +143,7 @@ class GlobalSettings extends Feature {
 
             if (message.startsWith("-")) {
                 cancel(event)
-                fetch("http://soopymc.my.to/api/soopyv2/botcommand?m=" + encodeURIComponent(message.replace("-", "")) + "&u=" + Player.getName()).text(text => {
+                fetch("http://soopy.dev/api/soopyv2/botcommand?m=" + encodeURIComponent(message.replace("-", "")) + "&u=" + Player.getName()).text(text => {
                     ChatLib.chat(this.FeatureManager.messagePrefix + "&7" + message)
                     let sendMessage = text
                     sendMessage = sendMessage.split(" ").map(a => {
@@ -162,7 +162,7 @@ class GlobalSettings extends Feature {
     // renderWebpage() {
     //     let url = this.getField(Client.currentGui.get(), f.linkText)
 
-    //     let image = renderLibs.getImage("https://soopymc.my.to/api/soopyv2/webpage?webpage=" + url)
+    //     let image = renderLibs.getImage("https://soopy.dev/api/soopyv2/webpage?webpage=" + url)
 
     //     if (image) {
     //         let scale = Renderer.screen.getHeight() * 0.5 / image.getTextureHeight()
@@ -247,7 +247,7 @@ class GlobalSettings extends Feature {
                 this.currentPlayerOpen = uuid
                 this.currentPlayerNetworth = {}
 
-                fetch("http://soopymc.my.to/api/v2/player_skyblock/" + uuid).json(data => {
+                fetch("http://soopy.dev/api/v2/player_skyblock/" + uuid).json(data => {
                     if (!data.success) return
 
                     if (this.currentPlayerOpen === data.data.uuid) {
@@ -278,13 +278,13 @@ class GlobalSettings extends Feature {
 
         ChatLib.chat(this.FeatureManager.messagePrefix + "Finding senither weight for " + user)
 
-        fetch("http://soopymc.my.to/api/v2/player/" + user).json(userData => {
+        fetch("http://soopy.dev/api/v2/player/" + user).json(userData => {
             if (!userData.success) {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "&cError loading data: " + userData.error.description)
                 return
             }
 
-            fetch("http://soopymc.my.to/api/v2/player_skyblock/" + userData.data.uuid).json(sbData => {
+            fetch("http://soopy.dev/api/v2/player_skyblock/" + userData.data.uuid).json(sbData => {
 
                 if (!sbData.success) {
                     ChatLib.chat(this.FeatureManager.messagePrefix + "&cError loading data: " + sbData.error.description)

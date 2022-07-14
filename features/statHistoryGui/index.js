@@ -54,7 +54,7 @@ class StatGraphPage extends GuiPage {
 
         button.addEvent(new SoopyMouseClickEvent().setHandler(() => {
             java.awt.Desktop.getDesktop().browse(
-                new java.net.URI("https://soopymc.my.to/stathistory")
+                new java.net.URI("https://soopy.dev/stathistory")
             );
         }))
 
@@ -92,7 +92,7 @@ class StatGraphPage extends GuiPage {
         this.statArea.clearChildren()
         this.statArea.addChild(this.loadingElm)
 
-        fetch("http://soopymc.my.to/api/v2/player/" + player).json(playerData => {
+        fetch("http://soopy.dev/api/v2/player/" + player).json(playerData => {
 
             if (player !== this.playerLoad) return
 
@@ -108,7 +108,7 @@ class StatGraphPage extends GuiPage {
             this.statArea.addChild(nameElm)
             this.statArea.addChild(this.loadingElm)
 
-            fetch("http://soopymc.my.to/api/v2/player_skyblock/" + playerData.data.uuid).json(skyblockData => {
+            fetch("http://soopy.dev/api/v2/player_skyblock/" + playerData.data.uuid).json(skyblockData => {
                 if (player !== this.playerLoad) return
 
                 if (!skyblockData.success) {
@@ -130,7 +130,7 @@ class StatGraphPage extends GuiPage {
                 }))
                 this.statArea.addChild(profileSelect)
 
-                fetch("http://soopymc.my.to/statgraphgenerations/" + playerData.data.uuid + "/" + selectedProf).json(graphData => {
+                fetch("http://soopy.dev/statgraphgenerations/" + playerData.data.uuid + "/" + selectedProf).json(graphData => {
                     if (player !== this.playerLoad) return
 
                     new Thread(() => {

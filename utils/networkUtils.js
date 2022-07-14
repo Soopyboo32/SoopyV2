@@ -13,7 +13,7 @@ if (!global.networkUtilsThingSoopy) {
             global.soopyv2loggerthing.logMessage("Loading API: " + theUrl, 4)
         }
 
-        // if(theUrl.includes("soopymc.my.to")){
+        // if(theUrl.includes("soopy.dev")){
         //     throw new Error("Testing to ensure the module works when my server is down")
         // }
         // Thread.sleep(1000) //simulating high ping

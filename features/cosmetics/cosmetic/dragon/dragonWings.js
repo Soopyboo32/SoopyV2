@@ -19,7 +19,7 @@ let loadingTextures = new Set()
 function loadTexture(id) {
     new Thread(() => {
         loadingTextures.add(id)
-        textures.set(id, renderLibs.getImage("http://soopymc.my.to/api/soopyv2/textures/cosmetic/dragon/" + id + "/img.png", true))
+        textures.set(id, renderLibs.getImage("http://soopy.dev/api/soopyv2/textures/cosmetic/dragon/" + id + "/img.png", true))
     }).start()
 }
 loadTexture("classic")

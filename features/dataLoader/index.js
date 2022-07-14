@@ -94,7 +94,7 @@ class DataLoader extends Feature {
     }
 
     step_5min() {
-        fetch("http://soopymc.my.to/api/v2/mayor").json(data => {
+        fetch("http://soopy.dev/api/v2/mayor").json(data => {
             if (!data.success) return
             this.mayorData = data.data
             this.currentMayorPerks = new Set(data.data.mayor.perks.map(a => a.name))
@@ -111,7 +111,7 @@ class DataLoader extends Feature {
         this.loadApiData("skyblock", false)
     }
     loadApi() {
-        fetch("http://soopymc.my.to/api/v2/player_skyblock/" + Player.getUUID().replace(/-/g, "")).json(data => {
+        fetch("http://soopy.dev/api/v2/player_skyblock/" + Player.getUUID().replace(/-/g, "")).json(data => {
 
             if (!data.success) return
 

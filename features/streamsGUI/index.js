@@ -50,7 +50,7 @@ class StreamPage extends GuiPage {
 
         button.addEvent(new SoopyMouseClickEvent().setHandler(() => {
             java.awt.Desktop.getDesktop().browse(
-                new java.net.URI("https://soopymc.my.to/skyblockstreams")
+                new java.net.URI("https://soopy.dev/skyblockstreams")
             );
         }))
 
@@ -64,7 +64,7 @@ class StreamPage extends GuiPage {
     }
 
     updateStreams() {
-        fetch("http://soopymc.my.to/api/skyblockstreams").json(streams => {
+        fetch("http://soopy.dev/api/skyblockstreams").json(streams => {
             this.streamsBox.clearChildren()
 
             let y = 0

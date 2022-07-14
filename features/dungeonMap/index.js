@@ -869,13 +869,13 @@ class DungeonMap extends Feature {
                             isGreen = true
                         }
                     }
-                    console.log(ent[1], isGreen)
+                    // console.log(ent[1], isGreen)
                     if (isGreen) {
                         let total = ent[1].split("  ")[1]
                         ent[1] = "&a" + total + "  " + total
-                        console.log(ent[1])
+                        // console.log(ent[1])
                     }
-                    console.log(ent[1], isGreen)
+                    // console.log(ent[1], isGreen)
                 }
             }
             // if (!this.renderImage) return

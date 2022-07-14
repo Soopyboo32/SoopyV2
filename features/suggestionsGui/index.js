@@ -72,7 +72,7 @@ class SuggestionPage extends GuiPage {
 
         button.addEvent(new SoopyMouseClickEvent().setHandler(() => {
             java.awt.Desktop.getDesktop().browse(
-                new java.net.URI("https://soopymc.my.to/soopyv2suggestion?uuid=" + Player.getUUID().toString().replace(/-/g, ""))
+                new java.net.URI("https://soopy.dev/soopyv2suggestion?uuid=" + Player.getUUID().toString().replace(/-/g, ""))
             );
         }))
 
@@ -82,7 +82,7 @@ class SuggestionPage extends GuiPage {
         this.pages[0].addChild(this.suggestionsArea)
 
 
-        fetch("http://soopymc.my.to/api/soopyv2/suggestionTags.json").json(data => {
+        fetch("http://soopy.dev/api/soopyv2/suggestionTags.json").json(data => {
             this.tags = data
         })
 
@@ -91,7 +91,7 @@ class SuggestionPage extends GuiPage {
 
     loadSuggestionPage() {
 
-        fetch("http://soopymc.my.to/api/soopyv2/suggestion/new").json(data => {
+        fetch("http://soopy.dev/api/soopyv2/suggestion/new").json(data => {
             this.suggestionElements = {}
             this.suggestionsArea.clearChildren()
 
@@ -127,7 +127,7 @@ class SuggestionPage extends GuiPage {
     }
 
     loadSuggestion(id) {
-        fetch("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/user/" + Player.getUUID().toString().replace(/-/g, "")).json(data => {
+        fetch("http://soopy.dev/api/soopyv2/suggestion/" + id + "/user/" + Player.getUUID().toString().replace(/-/g, "")).json(data => {
             let sideBarElm = new SoopyGuiElement().setLocation(0, 0, 1, 1).setScrollable(true)
             if (!data.success) {
                 sideBarElm.addChild(new SoopyTextElement().setText("§cError loading suggestion").setMaxTextScale(3).setLocation(0.5, 0.5, 0.5, 0.5))
@@ -154,13 +154,13 @@ class SuggestionPage extends GuiPage {
 
                 drop.addEvent(new SoopyContentChangeEvent().setHandler((newVal) => {
                     if (newVal === "delete") {
-                        fetch("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/delete/" + this.password).async()
+                        fetch("http://soopy.dev/api/soopyv2/suggestion/" + id + "/delete/" + this.password).async()
 
                         this.loadSuggestionPage()
                         this.closeSidebarPage()
                         return
                     }
-                    fetch("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/status/" + newVal + "/" + this.password).async()
+                    fetch("http://soopy.dev/api/soopyv2/suggestion/" + id + "/status/" + newVal + "/" + this.password).async()
 
                     this.loadSuggestion(id)
                 }))
@@ -204,7 +204,7 @@ class SuggestionPage extends GuiPage {
     }
 
     voteSuggestion(id, type) {
-        fetch("http://soopymc.my.to/api/soopyv2/suggestion/" + id + "/vote/" + (type) + "/" + Player.getUUID().toString().replace(/-/g, "")).async()
+        fetch("http://soopy.dev/api/soopyv2/suggestion/" + id + "/vote/" + (type) + "/" + Player.getUUID().toString().replace(/-/g, "")).async()
 
         this.loadSuggestion(id)
     }

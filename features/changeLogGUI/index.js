@@ -24,7 +24,7 @@ class ChangeLogGui extends Feature {
 
     onEnable() {
         this.initVariables()
-        
+
         this.ChangelogPage = new ChangelogPage()
 
         this.latestAnnouncedVersion = this.ChangelogPage.currVersionId
@@ -137,7 +137,7 @@ class ChangelogPage extends GuiPage {
     }
 
     loadChangeLog() {
-        fetch("http://soopymc.my.to/api/soopyv2/changelog.json").json(data => {
+        fetch("http://soopy.dev/api/soopyv2/changelog.json").json(data => {
 
             this.changelogData = data.changelog.reverse()
 
@@ -168,7 +168,7 @@ class ChangelogPage extends GuiPage {
 
         this.openSidebarPage(this.updatingSidebar)
     }
-    
+
     downloadUpdate() {
         new Thread(() => {
             this.updatingSidebarConfirmPage.location.location.x.set(-1, 500)
@@ -178,7 +178,7 @@ class ChangelogPage extends GuiPage {
 
             this.progressBar.setProgress(0.1)
 
-            this.urlToFile("http://soopymc.my.to/api/soopyv2/downloadLatest.zip", "./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons.zip", 10000, 20000)
+            this.urlToFile("http://soopy.dev/api/soopyv2/downloadLatest.zip", "./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons.zip", 10000, 20000)
 
             this.progressBar.setProgress(0.5)
 

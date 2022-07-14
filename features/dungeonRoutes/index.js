@@ -3,6 +3,7 @@
 import { m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import { drawBoxAtBlock, drawBoxAtBlock2, drawFilledBox, drawLine, drawLinePoints } from "../../utils/renderUtils";
+import { calculateDistanceQuick } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
 
 const EntityItem = Java.type("net.minecraft.entity.item.EntityItem")
@@ -70,7 +71,8 @@ class DungeonRoutes extends Feature {
                 this.recordingData[this.recordingData.length - 1].tnts.forEach((loc) => {
                     drawFilledBox(loc[0], loc[1] - 0.5, loc[2], 1, 1, 1, 0, 0, 50 / 255, true)
                 })
-                this.recordingData[this.recordingData.length - 1].interacts.forEach(({ loc }) => {
+                this.recordingData[this.recordingData.length - 1].interacts.forEach((data) => {
+                    let loc = data.loc
                     drawFilledBox(loc[0], loc[1], loc[2], 1, 1, 0, 0, 1, 50 / 255, true)
                     drawBoxAtBlock(loc[0] - 0.5, loc[1], loc[2] - 0.5, 0, 0, 1, 1, 1, 1)
                 })
@@ -79,7 +81,6 @@ class DungeonRoutes extends Feature {
             }
 
             if (this.currRoomData) {
-                drawBoxAtBlock(...this.toRoomCoordinates(0, 70, 0), 1, 0, 0, 1, 1, 1)
                 if (this.currentRouteDisplay) {
                     this.currentRouteDisplay[this.currentActionIndex].etherwarps.forEach(loc => {
                         let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
@@ -87,17 +88,17 @@ class DungeonRoutes extends Feature {
                         drawBoxAtBlock(coords[0] - 0.5, coords[1], coords[2] - 0.5, 1, 0, 0, 1, 1, 1)
                     })
                     this.currentRouteDisplay[this.currentActionIndex].mines.forEach(loc => {
-                        let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
-                        drawFilledBox(coords[0], coords[1] + 0.5, coords[2], 1, 1, 0, 255, 0, 50 / 255, true)
+                        let coords = this.toRoomCoordinates(loc[0], loc[1] - 0.5, loc[2])
+                        drawBoxAtBlock(coords[0] - 0.5, coords[1], coords[2] - 0.5, 1, 1, 0, 1, 1, 50 / 255)
                     })
                     this.currentRouteDisplay[this.currentActionIndex].tnts.forEach(loc => {
                         let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
-                        drawFilledBox(coords[0], coords[1] + 0.5, coords[2] + 0.5, 1, 1, 255, 0, 0, 50 / 255, true)
+                        drawBoxAtBlock(coords[0] - 0.5, coords[1] + 0.5, coords[2] - 0.5, 1, 1, 255, 1, 1, 50 / 255)
                     })
                     this.currentRouteDisplay[this.currentActionIndex].interacts.forEach((data) => {
                         let coords = this.toRoomCoordinates(data.loc[0], data.loc[1], data.loc[2])
                         drawFilledBox(coords[0], coords[1], coords[2], 1, 1, 0, 0, 1, 50 / 255, true)
-                        drawBoxAtBlock(coords[0], coords[1], coords[2], 0, 0, 1, 1, 1, 1)
+                        drawBoxAtBlock(coords[0] - 0.5, coords[1], coords[2] - 0.5, 0, 0, 1, 1, 1, 1)
                     })
 
                     // if (this.currentRouteDisplay.locations.length >= 2) drawLinePoints(this.currentRouteDisplay.locations.map(a => this.toRoomCoordinates(...a)).map(a => [a[0] - 0.5, a[1] + 0.1, a[2] - 0.5]), 0, 0, 255, 2, false)
@@ -144,14 +145,14 @@ class DungeonRoutes extends Feature {
             let data = {
                 index: this.fullRoomData[this.idMap.get(this.lastRoomId)].index,
                 data: this.recordingData.map(a => {
-                    a.etherwarps = a.etherwarps.map(a => this.fromRoomCoordinates(a[0] + 0.5, a[1], a[2] + 0.5))
-                    a.mines = a.mines.map(a => this.fromRoomCoordinates(a[0] + 0.5, a[1], a[2] + 0.5))
+                    a.etherwarps = a.etherwarps.map(a => this.fromRoomCoordinates(a[0], a[1], a[2]))
+                    a.mines = a.mines.map(a => this.fromRoomCoordinates(a[0], a[1], a[2]))
                     a.locations = a.locations.map(a => this.fromRoomCoordinates(...a))
                     a.interacts = a.interacts.map(b => {
-                        b.pos = this.fromRoomCoordinates(...b.pos)
+                        b.loc = this.fromRoomCoordinates(...b.loc)
                         return b
                     })
-                    a.tnts = a.tnts.map(a => this.fromRoomCoordinates(a[0] + 0.5, a[1], a[2] + 0.5))
+                    a.tnts = a.tnts.map(a => this.fromRoomCoordinates(a[0], a[1], a[2]))
 
                     return a
                 })
@@ -172,24 +173,6 @@ class DungeonRoutes extends Feature {
         this.registerStep(true, 5, () => {
             if (this.currRoomData) {
                 if (this.currentRouteDisplay) {
-                    // this.currentRouteDisplay.etherwarps.forEach(loc => {
-                    //     let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
-                    //     drawFilledBox(coords[0] + 0.5, coords[1], coords[2] + 0.5, 1, 1, 1, 0, 0, 50 / 255, true)
-                    //     drawBoxAtBlock(coords[0], coords[1], coords[2], 1, 0, 0, 1, 1, 1)
-                    // })
-                    // this.currentRouteDisplay.mines.forEach(loc => {
-                    //     let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
-                    //     drawFilledBox(coords[0] + 0.5, coords[1] + 0.5, coords[2] + 0.5, 1, 1, 0, 255, 0, 50 / 255, true)
-                    // })
-                    // this.currentRouteDisplay.tnts.forEach(loc => {
-                    //     let coords = this.toRoomCoordinates(loc[0], loc[1] - 1, loc[2])
-                    //     drawFilledBox(coords[0] + 0.5, coords[1] + 0.5, coords[2] + 0.5, 1, 1, 255, 0, 0, 50 / 255, true)
-                    // })
-                    // this.currentRouteDisplay.interacts.forEach(loc => {
-                    //     let coords = this.toRoomCoordinates(loc[0], loc[1], loc[2])
-                    //     drawFilledBox(coords[0] + 0.5, coords[1], coords[2] + 0.5, 1, 1, 0, 0, 1, 50 / 255, true)
-                    //     drawBoxAtBlock(coords[0], coords[1], coords[2], 0, 0, 1, 1, 1, 1)
-                    // })
 
                     if (this.currentRouteDisplay[this.currentActionIndex].locations.length >= 2) this.drawLineMultipleParticles(this.currentRouteDisplay[this.currentActionIndex].locations.map(a => this.toRoomCoordinates(a[0], a[1], a[2])))
 
@@ -202,7 +185,7 @@ class DungeonRoutes extends Feature {
         if (type) {
             this.recordingData[this.recordingData.length - 1][type].push(point)
         }
-        if (!type || type === "interact") {
+        if (!type || type === "interacts") {
             this.recordingData.push({
                 etherwarps: [],
                 mines: [],
@@ -411,7 +394,7 @@ class DungeonRoutes extends Feature {
         if (event.entity instanceof EntityItem) {
             // console.log("Blaze joined world")
             let e = new Entity(event.entity)
-            let pos = { x: e.getX(), y: e.getY(), z: e.getZ() }
+            let pos = [e.getX(), e.getY(), e.getZ()]
 
             this.tempItemIdLocs.set(event.entity[m.getEntityId.Entity](), pos)
             // console.log(event.entity[m.getEntityId.Entity]())
@@ -419,24 +402,46 @@ class DungeonRoutes extends Feature {
     }
 
     pickupItem(packet) {
-        if (!this.recordRoute) return
         let packetType = new String(packet.class.getSimpleName()).valueOf()
         if (packetType === "S0DPacketCollectItem") {
             let pos = this.tempItemIdLocs.get(packet[m.getCollectedItemEntityID]())
 
+            let data = this.currentRouteDisplay[this.currentActionIndex].interacts[0]
+            if (data && data.type === "item") {
+                let coords = this.toRoomCoordinates(data.loc[0], data.loc[1], data.loc[2])
+                if (calculateDistanceQuick(pos, coords) < 2) {
+                    if (this.currentRouteDisplay.length >= this.currentActionIndex) {
+                        this.currentActionIndex++
+                    }
+                }
+            }
+
+            if (!this.recordRoute) return
             if (pos) this.addRecordingPoint("interacts", { loc: pos, type: "item" })
         }
     }
 
     playerInteract(action, position, event) {
-        if (!this.recordRoute) return
         if (action.toString() !== "RIGHT_CLICK_BLOCK") return
 
-        let pos = { x: Player.lookingAt().getX() + 0.5, y: Player.lookingAt().getY(), z: Player.lookingAt().getZ() + 0.5 }
+        let pos = [Player.lookingAt().getX() + 0.5, Player.lookingAt().getY(), Player.lookingAt().getZ() + 0.5]
 
         let id = Player.lookingAt().getType().getID()
         if (id !== 54 && id !== 144 && id !== 69) return
 
+
+        let data = this.currentRouteDisplay[this.currentActionIndex].interacts[0]
+        if (data && data.type === "interact") {
+            let coords = this.toRoomCoordinates(data.loc[0], data.loc[1], data.loc[2])
+            console.log(coords.join(","), pos.join(","))
+            if (coords.join(",") === pos.join(",")) {
+                if (this.currentRouteDisplay.length > this.currentActionIndex) {
+                    this.currentActionIndex++
+                }
+            }
+        }
+
+        if (!this.recordRoute) return
         this.addRecordingPoint("interacts", { loc: pos, type: "interact" })
     }
 

@@ -84,7 +84,7 @@ class Cosmetics extends Feature {
     }
 
     loadCosmeticsData() {
-        fetch("http://soopymc.my.to/api/soopyv2/cosmetics.json").json(data => {
+        fetch("http://soopy.dev/api/soopyv2/cosmetics.json").json(data => {
             this.cosmeticsData = data
             this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g, "")]
             if (this.playerHasACosmeticA && !this.postRenderEntityTrigger) {

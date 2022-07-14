@@ -3,8 +3,8 @@ import { numberWithCommas } from "./numberUtils"
 
 let SoopyV2Forge = Java.type("me.soopyboo32.soopyv2forge.SoopyV2Forge").INSTANCE
 
-let LASTEST_SOOPYFORGE_VER = "1.0"
-let canUseForgeRendering = net.minecraftforge.fml.common.Loader.isModLoaded("soopyv2forge") && SoopyV2Forge.getVersion() === LASTEST_SOOPYFORGE_VER
+let LASTEST_SOOPYFORGE_VER = "1.1" //                                                          uncomment out on new soopyv2forge version
+let canUseForgeRendering = net.minecraftforge.fml.common.Loader.isModLoaded("soopyv2forge")// && SoopyV2Forge.getVersion() === LASTEST_SOOPYFORGE_VER
 
 let ArrayList = Java.type("java.util.ArrayList")
 
@@ -394,7 +394,11 @@ register("worldLoad", () => {
     if (SoopyV2Forge.getVersion() !== LASTEST_SOOPYFORGE_VER) {
         ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
         ChatLib.chat("§cWARNING: Your forge version of soopyv2 is outdated")
-        ChatLib.chat("§cWARNING: -> almost nothing can be rendered")
+        if (LASTEST_SOOPYFORGE_VER === "1.1") {
+            ChatLib.chat("§cWARNING: this does not affect much at the moment, but has an incorect download url")
+        } else {
+            ChatLib.chat("§cWARNING: -> almost nothing can be rendered")
+        }
         new TextComponent(" &e[CLICK] &7- Download").setHover("show_text", "&2Download update").setClick("open_url", "https://github.com/Soopyboo32/SoopyV2Forge/releases").chat()
         ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
     }
