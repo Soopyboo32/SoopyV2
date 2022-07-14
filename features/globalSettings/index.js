@@ -89,7 +89,7 @@ class GlobalSettings extends Feature {
             let hasHost = false
 
             for (let host of Java.type("gg.essential.util.TrustedHostsUtil").INSTANCE.getTrustedHosts()) {
-                if (host.getName() === "soopymc") {
+                if (host.getName() === "soopy.dev") {
                     hasHost = true
                 }
             }
@@ -100,7 +100,7 @@ class GlobalSettings extends Feature {
                 let hosts = new TreeSet()
                 hosts.add("soopy.dev")
 
-                let host = new TrustedHost(124123, "soopymc", hosts)
+                let host = new TrustedHost(124123, "soopy.dev", hosts)
 
                 Java.type("gg.essential.util.TrustedHostsUtil").INSTANCE.addTrustedHost(host)
             }
