@@ -64,6 +64,7 @@ class DungeonMap extends Feature {
         this.keys = 0
 
         this.roomDataStuff = new Map()
+        this.roomDataStuffRender = new Map()
         // this.invMapImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB)
         // this.renderImage = new BufferedImage(this.IMAGE_SIZE, this.IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB)
         this.mapData = undefined
@@ -189,7 +190,7 @@ class DungeonMap extends Feature {
                 lastXY = loc.join(",")
                 return
             }
-            if (curr === max) curr = "&a" + curr
+            // if (curr === max) curr = "&a" + curr
             if (this.roomDataStuff.get(loc.join(",")) !== curr + "  " + max) {
                 this.roomDataStuff.set(loc.join(","), curr + "  " + max)
 
@@ -353,7 +354,7 @@ class DungeonMap extends Feature {
     drawOtherMisc2(x2, y2, size, scale) {
         if (this.currDungeonBossImage) return
         if (this.roomsecrets.getValue()) {
-            for (let ent of this.roomDataStuff.entries()) {
+            for (let ent of this.roomDataStuffRender.entries()) {
                 let [loc, val] = ent
                 let [x, y] = loc.split(",")
 
@@ -855,6 +856,7 @@ class DungeonMap extends Feature {
 
 
             if (this.offset && this.offset.length === 2) {
+                this.roomDataStuffRender.clear()
                 for (let ent of this.roomDataStuff.entries()) {
                     let [loc] = ent
                     let [x, y] = loc.split(",")
@@ -863,17 +865,24 @@ class DungeonMap extends Feature {
                     let renderY = Math.round((parseInt(y) + 16) / this.mapScale + this.offset[1])// / 128 * size
                     // console.log(renderX, renderY)
                     let isGreen = false
+                    let color = "&8"
                     for (let i = 0; i < 10; i++) {
                         if (bytes[renderX + i + (renderY + i) * 128] === 30
                             || bytes[renderX + i + 1 + (renderY + i) * 128] === 30) {
                             isGreen = true
+                            color = "&a"
+                        }
+                        if (bytes[renderX + i + (renderY + i) * 128] === 34
+                            || bytes[renderX + i + 1 + (renderY + i) * 128] === 34) {
+                            color = "&f"
                         }
                     }
                     if (isGreen) {
                         let total = ent[1].split("  ")[1]
-                        ent[1] = "&a" + total + "  " + total
-                        this.roomDataStuff.set(loc, "&a" + total + "  " + total)
+                        this.roomDataStuff.set(loc, total + "  " + total)
                     }
+
+                    this.roomDataStuffRender.set(loc, color + this.roomDataStuff.get(loc))
                 }
             }
             // if (!this.renderImage) return
