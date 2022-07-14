@@ -183,6 +183,7 @@ class DungeonMap extends Feature {
 
         let lastXY = ""
         let registerActionBar = this.registerCustom("actionbar", (curr, max) => {
+            return
             let loc = this.getRoomXYWorld()
 
             if (lastXY !== loc.join(",")) {
@@ -197,6 +198,21 @@ class DungeonMap extends Feature {
             }
         })
         registerActionBar.trigger.setCriteria('&7${curr}/${max} Secrets').setParameter('contains');
+
+        this.registerCommand("setrooms", (curr, max) => {
+            let loc = this.getRoomXYWorld()
+
+            if (lastXY !== loc.join(",")) {
+                lastXY = loc.join(",")
+                return
+            }
+            if (curr === max) curr = "&a" + curr
+            if (this.roomDataStuff.get(loc.join(",")) !== curr + "  " + max) {
+                this.roomDataStuff.set(loc.join(","), curr + "  " + max)
+
+                socketConnection.sendDungeonData2(this.people, [loc.join(","), curr + "  " + max])
+            }
+        })
     }
 
     updateDungeonMapData2(data) {
@@ -869,13 +885,11 @@ class DungeonMap extends Feature {
                             isGreen = true
                         }
                     }
-                    // console.log(ent[1], isGreen)
                     if (isGreen) {
                         let total = ent[1].split("  ")[1]
                         ent[1] = "&a" + total + "  " + total
-                        // console.log(ent[1])
+                        this.roomDataStuff.set(loc, "&a" + total + "  " + total)
                     }
-                    // console.log(ent[1], isGreen)
                 }
             }
             // if (!this.renderImage) return

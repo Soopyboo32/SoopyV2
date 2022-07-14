@@ -231,7 +231,7 @@ class Events extends Feature {
 		let mythMobs = []
 		this.todoE.forEach(e => {
 			e = new Entity(e)
-			let health = e.getName().removeFormatting().split(" ")[4].split("/")[0]
+			let health = e.getName().removeFormatting().split(" ")[4]?.split("/")[0]
 			if (this.MythMobsHP.getValue() && health != 0 && (e.getName().removeFormatting().includes("Exalted") || e.getName().removeFormatting().includes("Stalwart"))) {
 				mythMobs.push(e.getName())
 			}
