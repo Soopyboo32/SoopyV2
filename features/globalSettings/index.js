@@ -47,6 +47,7 @@ class GlobalSettings extends Feature {
         this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
 
         this.hideFallingBlocks = new ToggleSetting("Hide falling blocks", "NOTE: this may cause more lag because of render entity event", false, "hide_falling_sand", this)
+        this.twitchCommands = new ToggleSetting("Ingame twitch bot commands", "Allows u to use twitch bot commands ingame (eg -sa)", true, "twitch_commands_ingame", this)
 
         this.privacySettings = [this.reportErrorsSetting]
 
@@ -134,6 +135,26 @@ class GlobalSettings extends Feature {
         this.registerChat("&r&9Party &8> ${*}", (e) => {
             if (!this.partyChatEnabled) {
                 cancel(e)
+            }
+        })
+
+        this.registerEvent("messageSent", (message, event) => {
+            if (!this.twitchCommands.getValue()) return
+
+            if (message.startsWith("-")) {
+                cancel(event)
+                fetch("http://soopymc.my.to/api/soopyv2/botcommand?m=" + encodeURIComponent(message.replace("-", "")) + "&u=" + Player.getName()).text(text => {
+                    ChatLib.chat(this.FeatureManager.messagePrefix + "&7" + message)
+                    let sendMessage = text
+                    sendMessage = sendMessage.split(" ").map(a => {
+                        if (a.match(/(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm)) {
+                            return new TextComponent("&f&n" + a + ' ').setHover("show_text", "Click to open " + a).setClick("open_url", a)
+                        } else {
+                            return new TextComponent("&f" + a + ' ')
+                        }
+                    })
+                    sendMessage.reduce((c, curr) => c.addTextComponent(curr), new Message().addTextComponent(new TextComponent(this.FeatureManager.messagePrefix))).chat()
+                })
             }
         })
     }
