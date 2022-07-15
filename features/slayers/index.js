@@ -59,7 +59,6 @@ class Slayers extends Feature {
 		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
 		this.hudElements.push(this.emanHpElement);
 		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 drops", "This will make loots more visible.", false, "show_loot", this).contributor("EmeraldMerchant");
-		this.allEmanBosses = new ToggleSetting("Hides summons for all eman bosses", "Hides summon for not just your boss, might fix ^ sometimes not working", false, "show_loot_all_bosses", this).requires(this.hideSummonsForLoot).contributor("EmeraldMerchant");
 
 		this.rcmDaeAxeSupport = new ToggleSetting("Eman Hyp hits before Dae axe swapping", "This will tell u how many clicks with hyp is needed before swapping to dae axe", true, "eman_rcm_support", this).requires(this.emanHpGuiElement).contributor("EmeraldMerchant");
 		this.rcmDamagePerHit = new TextSetting("Hyperion damage", "Your hyp's single hit damage w/o thunderlord/thunderbolt", "", "hyp_dmg", this, "Your hyp dmg (Unit: M)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
@@ -484,17 +483,7 @@ class Slayers extends Feature {
 						this.emanBoss = new Entity(e);
 						this.cannotFindEmanBoss = false
 					}
-					// just makes it to work on all eman slayers
-					if (this.allEmanBosses.getValue()) {
-						if ((e[f.posX.Entity] - Player.getX()) ** 2 + (e[f.posY.Entity] - Player.getY()) ** 2 + (e[f.posZ.Entity] - Player.getZ()) ** 2 > 20) return
-						let emanHealth = ChatLib.removeFormatting(e[m.getCustomNameTag]().split("Voidgloom Seraph")[1])
-						//only runs when t4's hp is <= 3m
-						if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
-							this.hideSummons = true
-						} else if (emanHealth.replace(/[^\d.]/g, "") == 0) {
-							delay(2000, () => { this.hideSummons = false })
-						} else this.hideSummons = false
-					}
+
 				}
 
 				if (!this.bossSpawnedMessage && e instanceof net.minecraft.entity.item.EntityArmorStand) {
