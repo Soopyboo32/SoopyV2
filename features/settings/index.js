@@ -34,6 +34,10 @@ class SettingsRenderer extends Feature {
             }
         })
 
+        this.registerCommand("soopytogglesetting", (category, setting) => {
+            settingsCommunicator.settings?.[category]?.[setting]?.setValue(!settingsCommunicator.settings?.[category]?.[setting]?.getValue())
+        })
+
     }
 
     onDisable() {
