@@ -257,8 +257,7 @@ class Slayers extends Feature {
 
 		this.summonHPPossibilities = new Set(["60000❤", "105k❤", "160k❤", "180k❤", "300k❤", "525k❤", "1M❤"])
 
-		this.entityAttackEventLoaded = false;
-		this.entityAttackEventE = undefined;
+		this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent).registeredWhen(() => this.hasQuest && this.lastSlayerType === "enderman")
 		this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
 		this.renderEntityEvent.unregister();
 
@@ -321,7 +320,7 @@ class Slayers extends Feature {
 	}
 
 	entityAttackEvent(event) {
-		ChatLib.chat("ENTITY ATTACKING")
+		// ChatLib.chat("ENTITY ATTACKING " + event.source + " -> " + event.entity)
 		if (event.source.func_76346_g() === Player.getPlayer()) {
 			if (event.entity instanceof net.minecraft.entity.monster.EntityEnderman) {
 				World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((e) => {
@@ -427,17 +426,17 @@ class Slayers extends Feature {
 	}
 
 	tick() {
-		if (this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
-			if (!this.entityAttackEventLoaded) {
-				this.entityAttackEventLoaded = true;
-				this.entityAttackEventE = this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent);
-			}
-		} else {
-			if (this.entityAttackEventLoaded) {
-				this.entityAttackEventLoaded = false;
-				this.entityAttackEventE.unregister()
-			}
-		}
+		// if (this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
+		// 	if (!this.entityAttackEventLoaded) {
+		// 		this.entityAttackEventLoaded = true;
+		// 		this.entityAttackEventE = this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent);
+		// 	}
+		// } else {
+		// 	if (this.entityAttackEventLoaded) {
+		// 		this.entityAttackEventLoaded = false;
+		// 		this.entityAttackEventE.unregister()
+		// 	}
+		// }
 
 		this.todoE.forEach((e) => {
 			try {
