@@ -280,10 +280,11 @@ class ForgeEvent extends Event {
 }
 
 class CustomEvent extends Event {
+    constructor(...args) {
+        super(...args)
+    }
     actuallyRegister() {
-        let newEvent = this.trigger.register()
-        this.data = newEvent.data
-        this.trigger = newEvent.trigger
+        this.trigger.register()
     }
 
     actuallyUnregister() {

@@ -138,6 +138,9 @@ class DungeonMap extends Feature {
         this.registerEvent("renderPlayerList", () => {
             this.renderingPlayerList = true
         })
+        this.registerEvent("renderDebug", () => {
+            this.renderingPlayerList = true
+        })
 
         this.registerEvent("guiOpened", (event) => {
             if (this.spiritLeapOverlay.getValue()) this.spiritLeapOverlayGui.guiOpened.call(this.spiritLeapOverlayGui, event)

@@ -177,6 +177,7 @@ class DungeonSolvers extends Feature {
 			6: 120,
 			7: 360,
 		};
+		this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
 
 		this.registerStep(true, 2, this.stepNotDung).registeredWhen(() => !this.isInDungeon());
 		this.registerStep(true, 2, this.step).registeredWhen(() => this.isInDungeon());
@@ -262,7 +263,6 @@ class DungeonSolvers extends Feature {
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDungeon() && !this.inBoss);
 
-		this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
 
 		this.onWorldLoad();
 
@@ -561,8 +561,8 @@ class DungeonSolvers extends Feature {
 	scanFirstDeathForSpiritPet(username) {
 		if (this.firstDeath) return
 		this.firstDeath = true
-
-		let uuid = this.nameToUuid[username.toLowerCase()].replace(/-/g, "")
+		if (!this.nameToUuid[username.toLowerCase()]) return
+		let uuid = this.nameToUuid[username.toLowerCase()]?.replace(/-/g, "")
 
 		if (this.FeatureManager.features["globalSettings"] && this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()) {
 			fetch(`https://api.hypixel.net/skyblock/profiles?key=${this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()}&uuid=${uuid}`).json(data => {
@@ -734,7 +734,7 @@ class DungeonSolvers extends Feature {
 			this.spiritBearSpawnElement.setText("");
 		}
 		if (this.scoreCalculation.getValue()) this.calculateDungeonScore();
-		if (this.bloodCampAssist.getValue()) {
+		if (this.bloodCampAssist.getValue() && this.skulls) {
 			this.skulls.forEach((skull) => {
 				let skullE = skull.getEntity();
 				// renderUtils.drawBoxAtEntity(skull, 255, 0, 0, 0.5, 0.5, ticks)

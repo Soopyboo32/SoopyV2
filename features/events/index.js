@@ -231,10 +231,13 @@ class Events extends Feature {
 		let mythMobs = []
 		this.todoE.forEach(e => {
 			e = new Entity(e)
-			let health = e.getName().removeFormatting().split(" ")[4]?.split("/")[0]
-			if (this.MythMobsHP.getValue() && health != 0 && (e.getName().removeFormatting().includes("Exalted") || e.getName().removeFormatting().includes("Stalwart"))) {
-				mythMobs.push(e.getName())
-			}
+			try {
+				let health = e.getName().removeFormatting().split(" ")[4]?.split("/")[0]
+				if (this.MythMobsHP.getValue() && health != 0 && (e.getName().removeFormatting().includes("Exalted") || e.getName().removeFormatting().includes("Stalwart"))) {
+					mythMobs.push(e.getName())
+				}
+			} catch (e) { }//not mytho mob
+
 			if (e.getName().toLowerCase().includes("inquis") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
 				let loc = [e.getX(), e.getY() - 1, e.getZ()]
 				let self = false
