@@ -65,7 +65,7 @@ class Nether extends Feature {
 		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInNether())
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDojo());
-		this.registerEvent("tick", this.tick)
+		this.registerEvent("tick", this.tick).registeredWhen(() => this.isInNether())
 
 		this.todoE = []
 		this.todoE2 = []

@@ -141,8 +141,9 @@ class GlobalSettings extends Feature {
         this.registerEvent("messageSent", (message, event) => {
             if (!this.twitchCommands.getValue()) return
 
-            if (message.startsWith("-")) {
+            if (message.startsWith("-") && message[1].toLowerCase().match(/[a-z]/)) {
                 cancel(event)
+                ChatLib.addToSentMessageHistory(message)
                 fetch("http://soopy.dev/api/soopyv2/botcommand?m=" + encodeURIComponent(message.replace("-", "")) + "&u=" + Player.getName()).text(text => {
                     ChatLib.chat(this.FeatureManager.messagePrefix + "&7" + message)
                     let sendMessage = text

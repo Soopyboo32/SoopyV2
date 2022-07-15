@@ -321,6 +321,7 @@ class Slayers extends Feature {
 	}
 
 	entityAttackEvent(event) {
+		ChatLib.chat("ENTITY ATTACKING")
 		if (event.source.func_76346_g() === Player.getPlayer()) {
 			if (event.entity instanceof net.minecraft.entity.monster.EntityEnderman) {
 				World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((e) => {

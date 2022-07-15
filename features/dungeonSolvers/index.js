@@ -157,6 +157,7 @@ class DungeonSolvers extends Feature {
 		this.blazes = [];
 		this.blazeX = -1;
 		this.blazeY = -1;
+		this.timersData = []
 
 		this.dungeonSecretRquired = {
 			1: 0.3,
@@ -181,7 +182,7 @@ class DungeonSolvers extends Feature {
 		this.registerStep(true, 2, this.step).registeredWhen(() => this.isInDungeon());
 		this.registerStep(false, 60, this.step)
 		this.registerStep(true, 10, this.step2).registeredWhen(() => this.isInDungeon());
-		this.registerStep(true, 5, this.step_5fps).registeredWhen(() => this.isInDungeon());
+		this.registerStep(true, 1, this.step_1fps).registeredWhen(() => this.isInDungeon());
 		this.registerStep(false, 60 * 5, this.step_5min)
 		this.registerEvent("worldLoad", this.onWorldLoad);
 
@@ -201,7 +202,7 @@ class DungeonSolvers extends Feature {
 				this.goneInBonus = true;
 			})
 		});
-		let enteredBossMessages = ["&r&4[BOSS] Maxor&r&c: &r&cWELL WELL WELL LOOK WHO’S HERE!&r", "&r&c[BOSS] Livid&r&f: Welcome, you arrive right on time. I am Livid, the Master of Shadows.&r", "&r&c[BOSS] Thorn&r&f: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!&r", "&r&c[BOSS] The Professor&r&f: I was burdened with terrible news recently...&r", "&r&c[BOSS] Scarf&r&f: This is where the journey ends for you, Adventurers.&r", "&r&c[BOSS] Bonzo&r&f: Gratz for making it this far, but I’m basically unbeatable.&r", "&r&c[BOSS] Sadan&r&f: So you made it all the way &r&fhere...and&r&f you wish to defy me? Sadan?!&r"]
+		let enteredBossMessages = ["[BOSS] Maxor: WELL WELL WELL LOOK WHO’S HERE!", "[BOSS] Livid: Welcome, you arrive right on time. I am Livid, the Master of Shadows.", "[BOSS] Thorn: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!", "[BOSS] The Professor: I was burdened with terrible news recently...", "[BOSS] Scarf: This is where the journey ends for you, Adventurers.", "[BOSS] Bonzo: Gratz for making it this far, but I’m basically unbeatable.", "[BOSS] Sadan: So you made it all the way here...and you wish to defy me? Sadan?!"]
 		enteredBossMessages.forEach(msg => {
 			this.registerChat(msg, () => {
 				this.goneInBonus = false;
@@ -260,8 +261,8 @@ class DungeonSolvers extends Feature {
 		});
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDungeon() && !this.inBoss);
-		// this.registerEvent("renderEntity", this.renderEntity)
-		this.renderEntityEvent = undefined;
+
+		this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
 
 		this.onWorldLoad();
 
@@ -360,7 +361,6 @@ class DungeonSolvers extends Feature {
 			packetRecieved.trigger.setPacketClasses([net.minecraft.network.play.server.S23PacketBlockChange, net.minecraft.network.play.server.S22PacketMultiBlockChange])
 		} catch (e) { }//older ct version
 
-		this.timersData = []
 	}
 	getCurrentRoomId() {
 		if (Scoreboard.getLines().length === 0) return
@@ -987,13 +987,12 @@ class DungeonSolvers extends Feature {
 		}
 
 		if (this.lividData.correctLividEntity) {
-			if (!this.renderEntityEvent) {
-				this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
+			if (!this.renderEntityEvent.enabled) {
+				this.renderEntityEvent.register()
 			}
 		} else {
-			if (this.renderEntityEvent) {
+			if (this.renderEntityEvent.enabled) {
 				this.renderEntityEvent.unregister()
-				this.renderEntityEvent = undefined;
 			}
 		}
 
@@ -1038,7 +1037,7 @@ class DungeonSolvers extends Feature {
 		}
 	}
 
-	step_5fps() {
+	step_1fps() {
 		if (this.IceSprayWarn.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
 				let MobName = ChatLib.removeFormatting(name.getName())
