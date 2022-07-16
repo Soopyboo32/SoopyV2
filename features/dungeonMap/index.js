@@ -194,18 +194,24 @@ class DungeonMap extends Feature {
                 return
             }
             // if (curr === max) curr = "&a" + curr
-            if (this.roomDataStuff.get(loc.join(",")) !== curr + "  " + max) {
-                this.roomDataStuff.set(loc.join(","), curr + "  " + max)
+            if (!this.roomDataStuff.get(loc.join(",")) || this.roomDataStuff.get(loc.join(","))[0] !== curr + "  " + max) {
+                this.roomDataStuff.set(loc.join(","), [curr + "  " + max, this.getCurrentRoomId()])
 
-                socketConnection.sendDungeonData2(this.people, [loc.join(","), curr + "  " + max])
+                socketConnection.sendDungeonData2(this.people, [loc.join(","), curr + "  " + max, this.getCurrentRoomId()])
             }
         })
         registerActionBar.trigger.setCriteria('&7${curr}/${max} Secrets').setParameter('contains');
     }
 
+    getCurrentRoomId() {
+        let id = Scoreboard.getLineByIndex(Scoreboard.getLines().length - 1).getName().trim().split(" ").pop()
+
+        return id
+    }
+
     updateDungeonMapData2(data) {
         // console.log("Recieved: " + JSON.stringify(data, undefined, 2))
-        this.roomDataStuff.set(data[0], data[1])
+        this.roomDataStuff.set(data[0], [data[1], data[2]])
     }
     worldLoad() {
         this.dungeonBrBoxElm.stopRender()
@@ -358,10 +364,12 @@ class DungeonMap extends Feature {
         if (this.currDungeonBossImage) return
         if (this.roomsecrets.getValue()) {
             for (let ent of this.roomDataStuffRender.entries()) {
-                let [loc, val] = ent
+                let [loc, [secrets, roomid, color]] = ent
                 let [x, y] = loc.split(",")
 
-                let val2 = ChatLib.removeFormatting(val)
+                let renderText = color + secrets
+
+                let val2 = ChatLib.removeFormatting(renderText)
 
                 let renderX = (parseInt(x) + 16) / this.mapScale / 128 * size + this.offset[0] / 128 * size
                 let renderY = (parseInt(y) + 16) / this.mapScale / 128 * size + this.offset[1] / 128 * size
@@ -375,7 +383,7 @@ class DungeonMap extends Feature {
                 Renderer.translate(0, 0, 1000)
                 renderLibs.drawStringCentered("§0" + val2, x2 + renderX, y2 + renderY - scale * 1.25 - 2 * scale * 1.25, scale * 1.25)
                 Renderer.translate(0, 0, 1000)
-                renderLibs.drawStringCentered("§f" + val, x2 + renderX, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
+                renderLibs.drawStringCentered("§f" + renderText, x2 + renderX, y2 + renderY - 2 * scale * 1.25, scale * 1.25)
             }
         }
     }
@@ -881,11 +889,15 @@ class DungeonMap extends Feature {
                         }
                     }
                     if (isGreen) {
-                        let total = ent[1].split("  ")[1]
-                        this.roomDataStuff.set(loc, total + "  " + total)
+                        let total = ent[1][0].split("  ")[1]
+                        let data = this.roomDataStuff.get(loc)
+                        data[0] = total + "  " + total
+                        this.roomDataStuff.set(loc, data)
                     }
 
-                    this.roomDataStuffRender.set(loc, color + this.roomDataStuff.get(loc))
+                    let setData = [...this.roomDataStuff.get(loc)]
+                    setData.push(color)
+                    this.roomDataStuffRender.set(loc, setData)
                 }
             }
             // if (!this.renderImage) return

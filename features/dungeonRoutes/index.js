@@ -112,7 +112,7 @@ class DungeonRoutes extends Feature {
 
         this.idMap = new Map()
         this.routesIndexMap = new Map()
-        this.fullRoomData = JSON.parse(FileLib.read("SoopyV2", "features/dungeonRoutes/temproomdata.json"))
+        this.fullRoomData = JSON.parse(FileLib.read("SoopyV2", "data/roomdata.json"))
         this.fullRoutesData = JSON.parse(FileLib.read("SoopyV2", "features/dungeonRoutes/routesData.json"))
         this.fullRoomData.forEach((d, i) => {
             d.id.forEach(id => {

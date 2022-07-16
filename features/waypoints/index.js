@@ -4,6 +4,7 @@ import { m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import { Waypoint } from "../../utils/renderJavaUtils";
 import { drawCoolWaypoint } from "../../utils/renderUtils";
+import { calculateDistanceQuick } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
 import minewaypoints_socket from "./minewaypoints_socket";
@@ -44,12 +45,6 @@ class Waypoints extends Feature {
         this.userWaypointsArr = Object.values(this.userWaypoints)
         this.updateWaypointsHashes()
         this.waypointsChanged = false
-        this.lastTp = 0
-        this.registerEvent("messageSent", (m) => {
-            if (m.toLowerCase().startsWith("/warp")) {
-                this.lastTp = Date.now()
-            }
-        })
 
         this.patcherWaypoints = []
 
@@ -165,7 +160,8 @@ class Waypoints extends Feature {
         minewaypoints_socket.setLocationHandler = (area, loc) => {
             this.locations[area || loc[0].area] = loc;
         }
-
+        let lastLoc = [0, 0, 0]
+        let lastTp = 0
         this.registerEvent("tick", () => {
             try {
                 if (Scoreboard.getLines().length < 2) return;
@@ -178,6 +174,11 @@ class Waypoints extends Feature {
                 }
 
                 minewaypoints_socket.setServer(server, World.getWorld().func_82737_E())
+
+                let loc = [Player.getX(), Player.getY(), Player.getZ()]
+                if (calculateDistanceQuick(lastLoc, loc) > 25) {
+                    this.lastTp = Date.now()
+                }
 
                 if (Date.now() - this.lastSend > 1000 && Date.now() - this.lastTp > 5000) {
                     Scoreboard.getLines().forEach(line => {
