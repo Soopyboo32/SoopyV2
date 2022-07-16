@@ -38,8 +38,13 @@ if (!global.soopyv2loggerthing) {
     register("command", () => {
         devs.push(Player.getUUID().toString().replace(/-/g, ""))
         global.soopyv2loggerthing.isDev = isDev()
+        global.soopyv2loggerthing.loglevel = 4
         global.soopyv2featuremanagerthing.isDev = isDev()
     }).setName("pleasegivemeaccesstosoopyv2devconsolelogs", true) //yep
+    register("command", () => {
+        global.soopyv2loggerthing.logToMcChat = !global.soopyv2loggerthing.logToMcChat
+        ChatLib.chat("logToMcChat now " + global.soopyv2loggerthing.logToMcChat)
+    }).setName("soopyv2loggerchat", true) //yep
 
     register("gameUnload", () => {
         global.soopyv2loggerthing = undefined

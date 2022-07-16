@@ -10,6 +10,7 @@ class DungeonMapRoom {
     static TYPE_MINIBOSS = 3
     static TYPE_FAIRY = 4
     static TYPE_BLOOD = 5
+    static TYPE_TRAP = 7
     static TYPE_UNKNOWN = 6
 
     static SHAPE_1X1 = 0
@@ -43,6 +44,9 @@ class DungeonMapRoom {
                 break
             case "blood":
                 type = DungeonMapRoom.TYPE_BLOOD
+                break
+            case "trap":
+                type = DungeonMapRoom.TYPE_TRAP
                 break
         }
 
@@ -84,41 +88,161 @@ class DungeonMapRoom {
         this.shape = shape
         this.rotation = rotation
         this.roomId = roomId
+        this.maxSecrets = roomId ? DungeonRoomStaticData.getDataFromId(roomId).secrets : 0
+        this.secrets = 0
+
+        this.checkedState = 0
 
         this.location = [x, y]
     }
 
-    setId(id) {
-        this.roomId = id
+    setSecrets(curr, max) {
+        if (this.maxSecrets === 0) return
+        this.maxSecrets = max
+        this.secrets = curr
     }
+
+    getSecrets() {
+        let checkColor = "&8"
+        if (this.checkedState === 1) checkColor = "&f"
+        if (this.checkedState === 2) checkColor = "&a"
+        return checkColor + this.secrets + "/" + this.maxSecrets
+    }
+
+    setId(id) {
+        if (this.roomId !== id) {
+            this.roomId = id
+
+            let newRoomData = DungeonMapRoom.fromId(id)
+            this.type = newRoomData.type
+            this.shape = newRoomData.shape
+            this.maxSecrets = newRoomData.maxSecrets
+        }
+    }
+
+    setCheckedState(state) { }
 
     /**
      * Renders this room onto the given Graphics2D
      * @param {Graphics2D} graphics 
      */
-    draw(graphics, xOff, yOff) {
+    draw(graphics, renderTicks) {
+
+        let [roomWidth, roomHeight] = this.getRoomWidthHeight()
+
+        let translateX = this.location[0] + 3 + roomWidth / 2
+        let translateY = this.location[1] + 3 + roomHeight / 2
+
+        graphics.translate(translateX, translateY)
 
         graphics.setColor(this.getRoomRenderColor())
 
+        graphics.rotate(this.rotation * Math.PI / 2)
         switch (this.shape) {
             case DungeonMapRoom.SHAPE_1X1:
-                graphics.fillRect(this.location[0] + xOff + 3, this.location[1] + yOff + 3, 26, 26)
+                graphics.fillRect(-13, -13, 26, 26)
                 break;
             case DungeonMapRoom.SHAPE_1X2:
-                graphics.fillRect(this.location[0] + xOff + 3, this.location[1] + yOff + 3, 26 + 32, 26)
+                graphics.fillRect(-(26 + 32) / 2, -13, 26 + 32, 26)
                 break;
             case DungeonMapRoom.SHAPE_1X3:
-                graphics.fillRect(this.location[0] + xOff + 3, this.location[1] + yOff + 3, 26 + 64, 26)
+                graphics.fillRect(-(26 + 64) / 2, -13, 26 + 64, 26)
                 break;
             case DungeonMapRoom.SHAPE_1X4:
-                graphics.fillRect(this.location[0] + xOff + 3, this.location[1] + yOff + 3, 26 + 96, 26)
+                graphics.fillRect(-(26 + 96) / 2, -13, 26 + 96, 26)
+                break;
+            case DungeonMapRoom.SHAPE_2X2:
+                graphics.fillRect(-(26 + 32) / 2, -(26 + 32) / 2, 26 + 32, 26 + 32)
+                break;
+            case DungeonMapRoom.SHAPE_L:
+                graphics.fillRect(-(26 + 32) / 2, -(26 + 32) / 2, 26, 26 + 32)
+                graphics.fillRect(-(26 + 32) / 2, -(26 + 32) / 2, 26 + 32, 26)
+                break;
+        }
+        graphics.rotate(-this.rotation * Math.PI / 2)
+
+        graphics.translate(-translateX, -translateY)
+
+        if (renderTicks || this.maxSecrets === 0) {
+            if (this.checkedState === 1) {
+                let loc = this.getIconLocation()
+                graphics.drawImage(whiteCheck, loc[0] - 2, loc[1] - 2, 10, 10, null)
+            }
+            if (this.checkedState === 2) {
+                let loc = this.getIconLocation()
+                graphics.drawImage(greenCheck, loc[0] - 2, loc[1] - 2, 10, 10, null)
+            }
+        }
+    }
+
+    getRoomWidthHeight() {
+        let roomWidth = 32
+        let roomHeight = 32
+
+        switch (this.shape) {
+            case DungeonMapRoom.SHAPE_1X2:
+                roomWidth = 64
+                break;
+            case DungeonMapRoom.SHAPE_1X3:
+                roomWidth = 96
+                break;
+            case DungeonMapRoom.SHAPE_1X4:
+                roomWidth = 128
+                break;
+            case DungeonMapRoom.SHAPE_2X2:
+            case DungeonMapRoom.SHAPE_L:
+                roomWidth = 64
+                roomHeight = 64
                 break;
         }
 
+        if (this.rotation === 1 || this.rotation === 3) {
+            let tmp = roomWidth
+            roomWidth = roomHeight
+            roomHeight = tmp
+        }
+
+        return [roomWidth, roomHeight]
     }
 
     getRoomRenderColor() {
         return roomColorMap.get(this.type)
+    }
+
+    getIconLocation() {
+        let [width, height] = this.getRoomWidthHeight()
+        if (this.shape === DungeonMapRoom.SHAPE_L && this.rotation === 0) {
+            return [this.location[0] + 16, this.location[1] + 16]
+        }
+        if (this.shape === DungeonMapRoom.SHAPE_L && this.rotation === 1) {
+            return [this.location[0] + 16 + 32, this.location[1] + 16]
+        }
+        if (this.shape === DungeonMapRoom.SHAPE_L && this.rotation === 2) {
+            return [this.location[0] + 16 + 31, this.location[1] + 16 + 31]
+        }
+        if (this.shape === DungeonMapRoom.SHAPE_L && this.rotation === 2) {
+            return [this.location[0] + 16, this.location[1] + 16 + 32]
+        }
+
+        return [this.location[0] + width / 2, this.location[1] + height / 2]
+    }
+
+    static drawUnknownRoom(graphics, x, y) {
+        let roomWidth = 32
+        let roomHeight = 32
+
+        let translateX = x + 3 + roomWidth / 2
+        let translateY = y + 3 + roomHeight / 2
+
+        graphics.translate(translateX, translateY)
+
+        graphics.setColor(roomColorMap.get(DungeonMapRoom.TYPE_UNKNOWN))
+
+        graphics.fillRect(-13, -13, 26, 26)
+
+        graphics.drawImage(questionMark, -4, -7, 8, 14, null)
+
+        graphics.translate(-translateX, -translateY)
     }
 }
 
@@ -129,6 +253,12 @@ roomColorMap.set(DungeonMapRoom.TYPE_PUZZLE, new Color(Renderer.color(178, 76, 2
 roomColorMap.set(DungeonMapRoom.TYPE_MINIBOSS, new Color(Renderer.color(229, 229, 51, 255)))
 roomColorMap.set(DungeonMapRoom.TYPE_FAIRY, new Color(Renderer.color(242, 127, 165, 255)))
 roomColorMap.set(DungeonMapRoom.TYPE_BLOOD, new Color(Renderer.color(255, 0, 0, 255)))
+roomColorMap.set(DungeonMapRoom.TYPE_TRAP, new Color(Renderer.color(216, 127, 51, 255)))
 roomColorMap.set(DungeonMapRoom.TYPE_UNKNOWN, new Color(Renderer.color(65, 65, 65, 255)))
+
+const greenCheck = new Image("greenCheckVanilla.png", "https://i.imgur.com/h2WM1LO.png").image
+const whiteCheck = new Image("whiteCheckVanilla.png", "https://i.imgur.com/hwEAcnI.png").image
+const failedRoom = new Image("failedRoomVanilla.png", "https://i.imgur.com/WqW69z3.png").image
+const questionMark = new Image("questionMarkVanilla.png", "https://i.imgur.com/1jyxH9I.png").image
 
 export default DungeonMapRoom
