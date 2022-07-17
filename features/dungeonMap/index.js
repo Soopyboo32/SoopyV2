@@ -813,7 +813,7 @@ class DungeonMap extends Feature {
                 if (mortLocationOnMap && this.mortLocation) {
                     this.offset = [mortLocationOnMap[0] - this.mortLocation[0] / this.mapScale, mortLocationOnMap[1] - this.mortLocation[1] / this.mapScale]
                     // this.renderImage.setRGB(mortLocationOnMap[0], mortLocationOnMap[1], Renderer.color(255, 0, 0))
-                    ChatLib.chat(roomWidth + " " + this.offset.join(", "))
+                    // ChatLib.chat(roomWidth + " " + this.offset.join(", "))
                 }
             }
 

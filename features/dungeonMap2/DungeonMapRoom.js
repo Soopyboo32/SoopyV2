@@ -137,29 +137,21 @@ class DungeonMapRoom {
 
         graphics.setColor(this.getRoomRenderColor())
 
-        graphics.rotate(this.rotation * Math.PI / 2)
         switch (this.shape) {
             case DungeonMapRoom.SHAPE_1X1:
-                graphics.fillRect(-13, -13, 26, 26)
-                break;
             case DungeonMapRoom.SHAPE_1X2:
-                graphics.fillRect(-(26 + 32) / 2, -13, 26 + 32, 26)
-                break;
             case DungeonMapRoom.SHAPE_1X3:
-                graphics.fillRect(-(26 + 64) / 2, -13, 26 + 64, 26)
-                break;
             case DungeonMapRoom.SHAPE_1X4:
-                graphics.fillRect(-(26 + 96) / 2, -13, 26 + 96, 26)
-                break;
             case DungeonMapRoom.SHAPE_2X2:
-                graphics.fillRect(-(26 + 32) / 2, -(26 + 32) / 2, 26 + 32, 26 + 32)
+                graphics.fillRect(-roomWidth / 2 + 3, -roomHeight / 2 + 3, roomWidth - 6, roomHeight - 6)
                 break;
             case DungeonMapRoom.SHAPE_L:
+                graphics.rotate(this.rotation * Math.PI / 2)
                 graphics.fillRect(-(26 + 32) / 2, -(26 + 32) / 2, 26, 26 + 32)
                 graphics.fillRect(-(26 + 32) / 2, -(26 + 32) / 2, 26 + 32, 26)
+                graphics.rotate(-this.rotation * Math.PI / 2)
                 break;
         }
-        graphics.rotate(-this.rotation * Math.PI / 2)
 
         graphics.translate(-translateX, -translateY)
 

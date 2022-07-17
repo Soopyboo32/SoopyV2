@@ -120,7 +120,6 @@ class DungeonMapData {
     }
 
     updateHotbarData() {
-
         let mapData
         try {
             let item = Player.getInventory().getStackInSlot(8)

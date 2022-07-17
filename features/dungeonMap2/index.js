@@ -33,7 +33,6 @@ class DungeonMap extends Feature {
 
         this.roomXY = this.getRoomXYWorld().join(",")
         this.lastXY = undefined
-        this.defaultPlayerImage = renderLibs.getImage("https://crafatar.com/avatars/dc8c39647b294e03ae9ed13ebd65dd29?size=8", true)
 
         let registerActionBar = this.registerCustom("actionbar", (curr, max) => {
 
@@ -56,6 +55,7 @@ class DungeonMap extends Feature {
 
         this.registerEvent("renderOverlay", this.renderOverlay)
         this.registerEvent("worldLoad", this.worldLoad)
+
     }
 
     update() {
@@ -302,12 +302,6 @@ class DungeonMap extends Feature {
         if (!y) y = this.getHeightAt(x, z)
 
         return World.getBlockStateAt(new BlockPos(x, y, z)).getBlockId()
-    }
-    getImageForPlayer(uuid) {
-        let img = renderLibs.getImage("https://crafatar.com/avatars/" + uuid.replace(/-/g, "") + "?size=8&overlay")
-        if (!img) return this.defaultPlayerImage
-
-        return img
     }
     onDisable() {
     }
