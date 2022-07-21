@@ -703,7 +703,8 @@ class DungeonSolvers extends Feature {
 		this.nameToUuid = {
 			"you": Player.getUUID().toString()
 		}
-
+		this.spiritBowPickUps = []
+		this.bearSpawning = 0
 		this.startSpawningTime = 0;
 		this.spawnIdThing = 0;
 		this.eMovingThing = {};

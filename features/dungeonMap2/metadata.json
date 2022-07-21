@@ -1,7 +1,7 @@
 {
     "name": "Dungeon Map 2",
     "description": "WIP",
-    "isHidden": false,
+    "isHidden": true,
     "isTogglable": true,
     "defaultEnabled": false,
     "sortA": 1

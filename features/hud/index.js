@@ -10,7 +10,7 @@ import DropdownSetting from "../settings/settingThings/dropdownSetting";
 import { getLevelByXp } from "../../utils/statUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
 import renderLibs from "../../../guimanager/renderLibs";
-import { numberWithCommas } from "../../utils/numberUtils.js";
+import { addNotation, numberWithCommas } from "../../utils/numberUtils.js";
 
 const ProcessBuilder = Java.type("java.lang.ProcessBuilder")
 const Scanner = Java.type("java.util.Scanner")
@@ -215,13 +215,13 @@ class Hud extends Feature {
         }
 
 
-        // this.showDragonDamages = new ToggleSetting("Show dragon damages", "This will render the top 3 damages + your damage during a dragon fight", true, "dragon_dmg_enable", this).requires(this.soulflowEnabledSetting)
-        // this.dragonDamageElement = new HudTextElement()
-        //     .setToggleSetting(this.showDragonDamages)
-        //     .setLocationSetting(new LocationSetting("Damage Location", "Allows you to edit the location of the damage leaderboard", "dragon_dmg_location", this, [50, 40, 1, 1])
-        //         .requires(this.showDragonDamages)
-        //         .editTempText("Test Line 1\nTest line 2\nTest line 3\nTest line 4 (longer KEKW)"))
-        // this.hudElements.push(this.dragonDamageElement)
+        this.showDragonDamages = new ToggleSetting("Show dragon damages", "This will render the top 3 damages + your damage during a dragon fight", true, "dragon_dmg_enable", this).requires(this.soulflowEnabledSetting)
+        this.dragonDamageElement = new HudTextElement()
+            .setToggleSetting(this.showDragonDamages)
+            .setLocationSetting(new LocationSetting("Damage Location", "Allows you to edit the location of the damage leaderboard", "dragon_dmg_location", this, [50, 40, 1, 1])
+                .requires(this.showDragonDamages)
+                .editTempText("&6Old Dragon &7(&f13.4&7M HP)\n&7- &fSoopyboo32&7:&f 13.4&7M\n&7- &fCamCamSatNav&7:&f 12.3&7M\n&7- &fMuffixy&7:&f 3.4&7M"))
+        this.hudElements.push(this.dragonDamageElement)
 
 
         this.step_5second()
@@ -495,6 +495,68 @@ class Hud extends Feature {
                     }
                 }
             }
+        }
+
+        this.dragonDamageElement.setText("")
+
+        if (this.showDragonDamages.getValue()) {
+
+            let playerDamage = -1
+            let dragonHealth = -1
+
+            Scoreboard.getLines().forEach(line => {
+                if (ChatLib.removeFormatting(line).startsWith("Your Damage: ")) {
+                    playerDamage = parseInt(ChatLib.removeFormatting(line).replace("Your Damage: ", "").replace(/[^0-9\.]/g, ""))
+                }
+                if (ChatLib.removeFormatting(line).startsWith("Dragon HP: ")) {
+                    dragonHealth = parseInt(ChatLib.removeFormatting(line).replace("Dragon HP: ", "").replace(/[^0-9\.]/g, ""))
+                }
+            })
+
+            if (playerDamage > -1) {
+
+                let damages = [[Player.getName(), playerDamage]]
+                let dragonType = ""
+
+                let lbNum = 0
+
+                TabList.getNames().forEach(n => {
+                    l = ChatLib.removeFormatting(n)
+
+                    if (lbNum > 0) {
+                        lbNum--
+
+                        // Soopyboo32: 3.2M
+
+                        let name = l.split(":")[0].trim()
+
+                        if (name === Player.getName()) return
+
+                        let damage = l.split(" ").pop()
+
+                        let actualDamage = parseFloat(damage)
+
+                        if (damage.includes("k")) actualDamage *= 1000
+                        if (damage.includes("M")) actualDamage *= 1000000
+
+                        damages.push([name, actualDamage])
+                    }
+                    if (l.startsWith("Dragon Fight: (")) {
+                        dragonType = l.split("(")[1].split(")")[0]
+
+                        lbNum = 3
+                    }
+                })
+
+                let text = `&6${dragonType} Dragon &7(&f${addNotation("oneLetters", dragonHealth, "&7")} HP)`
+
+                damages.sort((a, b) => b[1] - a[1]).forEach(d => {
+                    text += `\n&7- &f${d[0]}&7: &f${addNotation("oneLetters", d[1], "&7")}`
+                })
+
+                this.dragonDamageElement.setText(text)
+            }
+
         }
 
         if (Player.getPlayer()[m.getAbsorptionAmount]() > this.lastAbsorbtion) {

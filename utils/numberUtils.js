@@ -5,7 +5,7 @@ let utils = {
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         return parts.join(".");
     },
-    addNotation: function (type, value) {
+    addNotation: function (type, value, joiner="") {
         let returnVal = value;
         let notList = [];
         if (type === "shortScale") {
@@ -36,7 +36,7 @@ let utils = {
                         returnVal = value / (checkNum / 100);
                         returnVal = Math.floor(returnVal);
                         returnVal = (returnVal / Math.pow(10, o)) * 10;
-                        returnVal = +returnVal.toFixed(o - 1) + notValue;
+                        returnVal = +returnVal.toFixed(o - 1) + joiner + notValue;
                     }
                     checkNum *= 10;
                 }

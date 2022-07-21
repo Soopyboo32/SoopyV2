@@ -158,6 +158,8 @@ class DataLoader extends Feature {
 
         if (!this.isInSkyblock) {
             this.stats = {}
+            this.isInDungeon = false
+            this.dungeonFloor = undefined
             return
         }
 

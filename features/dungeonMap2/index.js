@@ -19,7 +19,7 @@ class DungeonMap extends Feature {
 
     onEnable() {
         if (Player.getUUID().toString() !== "dc8c3964-7b29-4e03-ae9e-d13ebd65dd29") {
-            new SettingBase("Coming soontm", "maby", undefined, "coming_soontm", this)
+            new SettingBase("not Coming soontm", "maby", undefined, "coming_soontm", this)
             return
         }
         this.mapLocation = new ImageLocationSetting("Map Location", "Sets the location of the map on the hud", "dmap_location", this, [10, 10, 1], new Image(javax.imageio.ImageIO.read(new java.io.File("./config/ChatTriggers/modules/SoopyV2/features/dungeonMap/map.png"))), 150, 150)
