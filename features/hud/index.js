@@ -548,7 +548,7 @@ class Hud extends Feature {
                     }
                 })
 
-                let text = `&6${dragonType} Dragon &7(&f${addNotation("oneLetters", dragonHealth, "&7")} HP)`
+                let text = `&6${dragonType} Dragon &7(&f${addNotation("oneLetters", dragonHealth, "&7")}&7 HP)`
 
                 damages.sort((a, b) => b[1] - a[1]).forEach(d => {
                     text += `\n&7- &f${d[0]}&7: &f${addNotation("oneLetters", d[1], "&7")}`
