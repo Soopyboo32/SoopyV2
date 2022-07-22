@@ -108,7 +108,11 @@ class Slayers extends Feature {
 		this.lastSlayerType = "";
 		this.lastSlayerExp = 0;
 		this.lastBossSlain = 0;
+		this.gdragLevelPing = false;
 		this.registerChat("&r  &r&a&lSLAYER QUEST COMPLETE!&r", (e) => {
+			if (this.GdragLevelPing) {
+				this.gdragLevelPing = true
+			}
 			socketConnection.sendSlayerSpawnData({ loc: null });
 			this.lastSlayerExps.push(this.lastSlayerExp);
 			if (this.lastSlayerExps.length > 5) {
@@ -155,7 +159,112 @@ class Slayers extends Feature {
 					World.playSound("random.orb", 1, 1);
 				})
 			}
+
+			if (Player.getName() === "EmeraldMerchant") {
+				this.emeraldDropsData.t4Kills ? this.emeraldDropsData.t4Kills++ : this.emeraldDropsData.t4Kills = 1
+				this.saveEmeraldData()
+			}
 		});
+
+		this.emeraldDropsData = {}
+
+		if (Player.getName() === "EmeraldMerchant") {
+			//EmeraldMerchant was here!
+			this.saveEmeraldData = () => {
+				FileLib.write("soopyAddonsData", "emeralddrops.json", JSON.stringify(this.emeraldDropsData));
+			}
+			this.rngDropped = false;
+			this.GdragLevelPing = new ToggleSetting("Gdrag Level Warn After Boss", "", false, "Gdrag_level_ping", this)
+			this.registerChat("&r&aYou summoned your &r&6Golden Dragon&r&a!&r", () => {
+				delay(500, () => {
+					delay(this.rngDropped ? 5000 : 0, () => {
+						this.gdragLevelPing = false
+						this.rngDropped = false
+					})
+				})
+			})
+			this.emeraldDropsData = JSON.parse(FileLib.read("soopyAddonsData", "emeralddrops.json"))
+			const drop1 = ["◆ Enchant Rune I", "Exceedingly Rare Ender Artifact Upgrader", "Judgement Core", "Ender Slayer VII"]
+			const drop2 = ["Pocket Espresso Machine", "Handy Blood Chalice", "Void Conqueror Enderman Skin", "◆ Enchant Rune I", "Exceedingly Rare Ender Artifact Upgrader", "Judgement Core", "Ender Slayer VII"]
+			this.registerChat("&r${a} DROP!  &r&7(${drop}) &r&b(+${mf}% Magic Find!)&r", (a, drop, mf) => {
+				if (drop2.includes(drop.split("&r")[2])) {
+					this.emeraldDropsData.loot.push(drop)
+					this.rngDropped = true
+					World.playSound('note.pling', 10, 4);
+					Client.showTitle(`${drop.split("&r")[2].substring(0, 2)}${drop.removeFormatting().toUpperCase()}!`, "", 0, 80, 20);
+				}
+				if (drop1.includes(drop.split("&r")[2])) {
+					ChatLib.command(`gc ${ChatLib.removeFormatting(ChatLib.getChatMessage(e))}`);
+					delay(10000, () => { Client.showTitle("&cEnd Recording", `${drop.split("&r")[2].substring(0, 2)}${drop.removeFormatting().toUpperCase()}!`, 0, 80, 20) })
+				}
+				drop = drop.removeFormatting().toLowerCase()
+				if (drop.includes("judgement")) {
+					this.emeraldDropsData.cores ? this.emeraldDropsData.cores++ : this.emeraldDropsData.cores = 1
+					this.saveEmeraldData()
+				} else if (drop.includes("upgrader")) {
+					this.emeraldDropsData.upgrader ? this.emeraldDropsData.upgrader++ : this.emeraldDropsData.upgrader = 1
+					this.saveEmeraldData()
+				} else if (drop.includes("slayer vii")) {
+					this.emeraldDropsData.es7 ? this.emeraldDropsData.es7++ : this.emeraldDropsData.es7 = 1
+					this.saveEmeraldData()
+				}
+			})
+			const LootTabCompletions = {
+				"espresso": "&fPocket Espresso Machine",
+				"chalice": "&fHandy Blood Chalice",
+				"skin": "&5Void Conqueror Enderman Skin",
+				"rune": "&7◆ Enchant Rune I",
+				"core": "&6Judgement Core",
+				"upgrader": "&6Exceedingly Rare Ender Artifact Upgrader",
+				"ender": "&5Ender Slayer VII"
+			}
+			const comp = new Set(["espresso", "chalice", "skin", "rune", "core", "upgrader", "ender"])
+			this.registerCommand("lootadd", (loot) => {
+				if (!comp.has(loot)) return
+				this.emeraldDropsData.loot.push(LootTabCompletions[loot])
+				this.saveEmeraldData()
+				ChatLib.chat(`&7Added loot ${LootTabCompletions[loot].removeFormatting()}.`)
+			}, ["espresso", "chalice", "skin", "rune", "core", "upgrader", "ender"], this)
+			this.registerCommand("lootclear", () => {
+				this.emeraldDropsData.loot = []
+				this.saveEmeraldData()
+				ChatLib.chat(`&7Successfully cleared loot list.`)
+			}, this)
+			this.toFixSpaces = (DefaultLength, number) => {
+				let totalLength = 24 - (DefaultLength + number?.toString()?.length)
+				if (totalLength < 0) return "" + number
+				else {
+					let spaces = ""
+					for (l = 1; l <= 2 * totalLength; l++) {
+						spaces += " "
+					}
+					return spaces + number
+				}
+			}
+			this.emanInfo = new ToggleSetting("Eman Info", "", true, "eman_info", this);
+			this.emanInfoElement = new HudTextElement()
+				.setText("")
+				.setToggleSetting(this.emanInfo)
+				.setLocationSetting(new LocationSetting("Eman info location", "", "eman_info_location", this, [10, 100, 1, 1]).requires(this.emanInfo).editTempText(`&aVoidgloom Seraph T4s: &b0\n&dJudgement Core: &b0\n&dUpgrader: &b0\n&cEnder Slayer VII: &b0`));
+
+			this.hudElements.push(this.emanInfoElement);
+
+			this.emanLootInfo = new ToggleSetting("Eman Loot Info", "", true, "eman_loot_info", this);
+			this.emanLootInfoElement = new HudTextElement()
+				.setText("")
+				.setToggleSetting(this.emanLootInfo)
+				.setLocationSetting(new LocationSetting("Eman Loot Info location", "", "eman_loot_info_location", this, [10, 100, 1, 1]).requires(this.emanLootInfo).editTempText("&6&lDrops This Streak: 0"));
+
+			this.hudElements.push(this.emanLootInfoElement);
+			//TODO: finish this
+			this.gdragLevelThing = new ToggleSetting("Gdrag Level Thing", "", false, "pet_level_thing", this);
+			this.gdragLevelThingElement = new HudTextElement()
+				.setText("")
+				.setToggleSetting(this.gdragLevelThing)
+				.setLocationSetting(new LocationSetting("Gdrag Level Thing location", "", "pet_level_thing_location", this, [10, 100, 1, 1]).requires(this.gdragLevelThing).editTempText("&6Golden Dragon &b[&6200&b] &7(&e0&6/&e11111111&7)"));
+
+			this.hudElements.push(this.gdragLevelThingElement);
+		}
 
 		this.registerChat("&r  &r&c&lSLAYER QUEST FAILED!&r", () => {
 			socketConnection.sendSlayerSpawnData({ loc: null });
@@ -310,6 +419,9 @@ class Slayers extends Feature {
 		this.warnAfterBoss = false
 		this.canCaptureSummonHPInfo = false
 		this.cannotFindEmanBoss = false
+		this.gdragLevelPing = false
+
+		this.rngDropped = false
 	}
 
 	renderEntity(entity, pos, partialTicks, event) {
@@ -387,6 +499,17 @@ class Slayers extends Feature {
 			this.renderEntityEvent.register();
 		} else if (this.hideSummonsForLoot.getValue()) {
 			this.renderEntityEvent.unregister();
+		}
+
+		if (this.gdragLevelPing && this.GdragLevelPing.getValue()) {
+			Client.showTitle("&6&lEQUIP GDRAG TO LEVEL!", "", 0, 3, 1);
+		}
+
+		if (this.emanInfo.getValue()) this.emanInfoElement.setText(`&aVoidgloom Seraph T4s: &b${numberWithCommas(this.emeraldDropsData.t4Kills)}\n&dJudgement Core: &b${this.toFixSpaces(14, this.emeraldDropsData.cores)}\n&dUpgrader: &b${this.toFixSpaces(9, this.emeraldDropsData.upgrader)}\n&cEnder Slayer VII: &b${this.toFixSpaces(15, this.emeraldDropsData.es7)}`)
+		if (this.emanLootInfo.getValue()) {
+			let tempText = `&6&lDrops This Streak: ${this.emeraldDropsData.loot?.length}`
+			this.emeraldDropsData.loot?.forEach((thing) => { tempText += `\n${thing}` })
+			this.emanLootInfoElement.setText(tempText)
 		}
 
 		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonHPGuiElement.getValue() || this.summonsLowWarning.getValue()) {
@@ -860,6 +983,8 @@ class Slayers extends Feature {
 		this.warnAfterBoss = false
 		this.canCaptureSummonHPInfo = false
 		this.cannotFindEmanBoss = false
+		this.gdragLevelPing = false
+		this.rngDropped = false
 	}
 
 	onDisable() {
