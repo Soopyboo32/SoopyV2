@@ -121,7 +121,6 @@ class SoopyGui extends Feature {
         theParent.children = []
 
         this.mainWindowElement.addChild(this.categoryPage)
-        this.mainWindowElement.addChild(this.backButton)
 
         this.activePages = category.pages
         this.currCategory = category
@@ -129,6 +128,8 @@ class SoopyGui extends Feature {
         Object.values(this.activePages).forEach(p => {
             this.mainWindowElement.addChild(p)
         })
+
+        this.mainWindowElement.addChild(this.backButton)
 
         category.onOpen()
 
