@@ -139,7 +139,7 @@ class Feature {
         return new CustomEvent(theEvent, theEvent.trigger, [event, func], this)
     }
 
-    registerCommand(name, func) {
+    registerCommand(name, func, completions) {
         this.FeatureManager.commandFuncs[name] = func
 
         this.FeatureManager.registerCommand(name, (...args) => {
@@ -148,7 +148,7 @@ class Feature {
             } else {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "This command is not available atm")
             }
-        }, this)
+        }, this, completions)
 
         return new CommandEvent(name, undefined, [name, func], this)
     }
