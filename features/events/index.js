@@ -1,6 +1,6 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
-import { m } from "../../../mappings/mappings";
+import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import socketConnection from "../../socketConnection";
 import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
@@ -69,7 +69,7 @@ class Events extends Feature {
 		this.MythMobsHPGuiElement = new ToggleSetting("Render Mythological Mobs hp on your screen", "This will help you to know their HP.", true, "myth_mobs_hp", this).contributor("EmeraldMerchant");
 		this.MythMobsHP = new HudTextElement().setToggleSetting(this.MythMobsHPGuiElement).setLocationSetting(new LocationSetting("Mythological Mobs Hp Location", "Allows you to edit the location of Mythological Mobs hp", "myth_mobs_location", this, [10, 50, 1, 1]).requires(this.MythMobsHPGuiElement).editTempText("&8[&7Lv750&8] &2Exalted Minos Inquisitor &a40M&f/&a40M&c❤&r"));
 		this.hudElements.push(this.MythMobsHP);
-
+		this.Mobs = []
 		this.lastDing = 0
 		this.lastDingPitch = 0
 		this.firstPitch = 0
@@ -123,10 +123,24 @@ class Events extends Feature {
 			}
 		})
 
+		this.registerStep(true, 4, this.step_4fps)
+
 		this.registerCommand("sethubwarp", () => {
 			warpData.worldload = [Player.getX(), Player.getY(), Player.getZ()]
 			ChatLib.chat(this.FeatureManager.messagePrefix + "Set /hub location!")
 		})
+	}
+
+	step_4fps() {
+		if (!this.MythMobsHPGuiElement.getValue()) return
+		World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((mob) => {
+			let name = mob.getName()
+			if ((name.includes("Exalted") || name.includes("Stalwart")) && !name.split(" ")[2].startsWith("0")) {
+				this.Mobs.push(name)
+			}
+		})
+		this.MythMobsHP.setText(this.Mobs.join("\n"))
+		this.Mobs = []
 	}
 
 	entityJoinWorldEvent(e) {
@@ -318,6 +332,7 @@ class Events extends Feature {
 		this.lastPathCords = undefined
 
 		this.lastWorldChange = Date.now()
+		this.Mobs = []
 	}
 
 	playSound(pos, name, volume, pitch, categoryName, event) {
@@ -571,6 +586,7 @@ class Events extends Feature {
 		this.updatingPath = undefined
 		this.lastPathCords = undefined
 		this.hudElements = [];
+		this.Mobs = []
 	}
 
 	onDisable() {
