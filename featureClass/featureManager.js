@@ -536,11 +536,13 @@ class FeatureManager {
 
         return event
     }
-    registerCommand(commandName, func, context) {
+    registerCommand(commandName, func, context, completions) {
 
         let event = this.registerCustom("command", func, context)
 
         event.trigger.setName(commandName, true)
+        
+        if (completions) event.trigger.setName(commandName, true).setTabCompletions(completions)
 
         return event
     }
