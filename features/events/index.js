@@ -133,6 +133,8 @@ class Events extends Feature {
 
 	step_4fps() {
 		if (!this.MythMobsHPGuiElement.getValue()) return
+		if (!this.showingWaypoints) return
+
 		World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((mob) => {
 			let name = mob.getName()
 			if ((name.includes("Exalted") || name.includes("Stalwart")) && !name.split(" ")[2].startsWith("0")) {
@@ -242,15 +244,8 @@ class Events extends Feature {
 			}
 		})
 
-		let mythMobs = []
 		this.todoE.forEach(e => {
 			e = new Entity(e)
-			try {
-				let health = e.getName().removeFormatting().split(" ")[4]?.split("/")[0]
-				if (this.MythMobsHP.getValue() && health != 0 && (e.getName().removeFormatting().includes("Exalted") || e.getName().removeFormatting().includes("Stalwart"))) {
-					mythMobs.push(e.getName())
-				}
-			} catch (e) { }//not mytho mob
 
 			if (e.getName().toLowerCase().includes("inquis") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
 				let loc = [e.getX(), e.getY() - 1, e.getZ()]
@@ -269,9 +264,6 @@ class Events extends Feature {
 			}
 		})
 		this.todoE = []
-		if (mythMobs.length >= 1) {
-			this.mythMobsElement.setText(mythMobs.join("\n"))
-		}
 
 		if (Player.getContainer().getName() === "Fast Travel") {
 			this.openedWarpsMenu = true
