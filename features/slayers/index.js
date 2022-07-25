@@ -12,6 +12,21 @@ import socketConnection from "../../socketConnection";
 import TextSetting from "../settings/settingThings/textSetting";
 import { firstLetterCapital } from "../../utils/stringUtils";
 import { delay } from "../../utils/delayUtils";
+import SettingBase from "../settings/settingThings/settingBase";
+
+function getKeyBindFromKey(key, description) {
+	var mcKeyBind = undefined //MinecraftVars.getKeyBindFromKey(key);
+
+	if (mcKeyBind == null || mcKeyBind == undefined) {
+		mcKeyBind = new KeyBind(description, key);
+	}
+
+	return mcKeyBind;
+}
+
+function distanceTo(entity) {
+	return Math.sqrt((Player.getX()-entity.getX())**2+(Player.getY()-entity.getY())**2+(Player.getZ()-entity.getZ())**2)
+}
 
 class Slayers extends Feature {
 	constructor() {
@@ -99,6 +114,31 @@ class Slayers extends Feature {
 
 		this.otherSlayerWaypoints = new ToggleSetting("Show other users slayer boss locations", "May be usefull for loot share", true, "slayer_location_other", this)
 		this.disableEmanTp = new ToggleSetting("Disable enderman Teleportation", "Exact same as feature in SBA", false, "emantp_disable", this)
+
+		this.bossBindBase = new SettingBase("Underneath is hotkey for choosing Eman Boss", "see minecraft controls menu", true, "boss_info_hotkey", this)
+		this.bossBindDefault = new TextSetting("Default keybind", "Eg KEY_F", "CHAR_NONE", "boss_keybind_default", this, "", false)
+		this.disableWhenNotYourBoss = new ToggleSetting("Disable KeyBind", "when the boss is not yours", false, "boss_bind_disable", this)
+		this.isCorrectBind = true
+		this.candidateBoss = []
+		try {
+			this.bossBind = getKeyBindFromKey(Keyboard[this.bossBindDefault.getValue()], "Choose the nearest eman boss as your boss.");
+		} catch (e) {
+			ChatLib.chat(this.FeatureManager.messagePrefix + this.bossBindDefault.getValue() + " is an invalid keyboard key, see https://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html")
+			this.isCorrectBind = false
+		}
+		if (this.isCorrectBind) {
+			this.registerEvent("tick", () => {
+				if (this.bossBind.isPressed()) {
+					if (this.disableWhenNotYourBoss.getValue() ? (this.bossSpawnedMessage && this.emanBoss) : true) {
+						let candidatesDist = []
+						this.candidateBoss?.forEach(candidate => {
+							candidatesDist.push(Math.round(parseFloat(distanceTo(candidate))*10))
+						})
+						this.emanBoss = this.candidateBoss[candidatesDist.indexOf(Math.min(...candidatesDist))]
+					}
+				}
+			})
+		}
 
 		this.lastSlayerFinishes = [];
 		this.lastSlayerExps = [];
@@ -310,6 +350,7 @@ class Slayers extends Feature {
 		this.warnAfterBoss = false
 		this.canCaptureSummonHPInfo = false
 		this.cannotFindEmanBoss = false
+		this.candidateBoss = []
 	}
 
 	renderEntity(entity, pos, partialTicks, event) {
@@ -389,24 +430,32 @@ class Slayers extends Feature {
 			this.renderEntityEvent.unregister();
 		}
 
-		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonHPGuiElement.getValue() || this.summonsLowWarning.getValue()) {
+		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonHPGuiElement.getValue() || this.summonsLowWarning.getValue() || (this.isCorrectBind && this.bossBindDefault.getValue() != "CHAR_NONE")) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
+				let nameRemoveFormat = name.getName().removeFormatting()
 				if (this.cannotFindEmanBoss) {
 					if (!this.bossSpawnedMessage) {
 						this.emanBoss = undefined
 						this.cannotFindEmanBoss = false
-					} else if (name.getName().removeFormatting().includes("Voidgloom Seraph") && ((name.getX() - Player.getX()) ** 2 + (name.getY() - Player.getY()) ** 2 + (name.getZ() - Player.getZ()) ** 2 < 25)) {
+					} else if (nameRemoveFormat.includes("Voidgloom Seraph") && ((name.getX() - Player.getX()) ** 2 + (name.getY() - Player.getY()) ** 2 + (name.getZ() - Player.getZ()) ** 2 < 25)) {
 						this.emanBoss = name
 						this.cannotFindEmanBoss = false
 					}
 				}
-				let nameSplit = name.getName().removeFormatting().split(" ")
+				if (nameRemoveFormat.includes("Voidgloom Seraph")) {
+					if (!this.candidateBoss?.map(c => c.getUUID().toString()).includes(name.getUUID().toString())) {
+						this.candidateBoss.push(name)
+					}
+				}
+				let nameSplit = nameRemoveFormat.split(" ")
 				let MobName = `${nameSplit[0]} ${nameSplit[1]}`
 				if (this.summonEntity.length !== parseInt(this.maxSummons.getValue())) {
 					if (this.summonsHideNametag.getValue() || this.summonsLowWarning.getValue() || this.summonHPGuiElement.getValue()) {
 						// 2nd statement makes it to support both tank zombie and super tank zombie
-						if (nameSplit[0] === `${Player.getName()}'s` && `${nameSplit[nameSplit.length - 3]} ${nameSplit[nameSplit.length - 2]}` === "Tank Zombie" && !this.summonEntity?.map(a => a.getUUID().toString()).includes(name.getUUID().toString())) {
-							this.summonEntity.push(name)
+						if (nameSplit[0] === `${Player.getName()}'s` && `${nameSplit[nameSplit.length - 3]} ${nameSplit[nameSplit.length - 2]}` === "Tank Zombie") {
+							if (!this.summonEntity?.map(a => a.getUUID().toString()).includes(name.getUUID().toString())) {
+								this.summonEntity.push(name)
+							}
 						}
 					}
 				}
@@ -564,6 +613,7 @@ class Slayers extends Feature {
 			}
 		})
 		this.eyeE = this.eyeE.filter((e) => !e.getEntity()[f.isDead]);
+		this.candidateBoss = this.candidateBoss.filter((e) => !e[f.isDead]);
 		this.beaconE = this.beaconE.filter((e) => {
 			if (e[f.isDead]) {
 				this.deadE.push([Date.now(), e[m.getUniqueID.Entity]().toString()]);
@@ -860,6 +910,7 @@ class Slayers extends Feature {
 		this.warnAfterBoss = false
 		this.canCaptureSummonHPInfo = false
 		this.cannotFindEmanBoss = false
+		this.candidateBoss = []
 	}
 
 	onDisable() {
