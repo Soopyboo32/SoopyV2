@@ -69,6 +69,7 @@ class Events extends Feature {
 		this.MythMobsHPGuiElement = new ToggleSetting("Render Mythological Mobs hp on your screen", "This will help you to know their HP.", true, "myth_mobs_hp", this).contributor("EmeraldMerchant");
 		this.MythMobsHP = new HudTextElement().setToggleSetting(this.MythMobsHPGuiElement).setLocationSetting(new LocationSetting("Mythological Mobs Hp Location", "Allows you to edit the location of Mythological Mobs hp", "myth_mobs_location", this, [10, 50, 1, 1]).requires(this.MythMobsHPGuiElement).editTempText("&8[&7Lv750&8] &2Exalted Minos Inquisitor &a40M&f/&a40M&c❤&r"));
 		this.hudElements.push(this.MythMobsHP);
+
 		this.Mobs = []
 		this.lastDing = 0
 		this.lastDingPitch = 0
@@ -123,7 +124,8 @@ class Events extends Feature {
 			}
 		})
 
-		this.registerStep(true, 4, this.step_4fps)
+		this.registerStep(true, 1, this.step_1fps)
+		this.registerStep(true, 10, this.step_10fps)
 
 		this.registerCommand("sethubwarp", () => {
 			warpData.worldload = [Player.getX(), Player.getY(), Player.getZ()]
@@ -131,18 +133,26 @@ class Events extends Feature {
 		})
 	}
 
-	step_4fps() {
-		if (!this.MythMobsHPGuiElement.getValue()) return
-		if (!this.showingWaypoints) return
-
+	step_1fps() {
+		if (!this.MythMobsHPGuiElement.getValue() || !this.showingWaypoints) return
 		World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((mob) => {
 			let name = mob.getName()
-			if ((name.includes("Exalted") || name.includes("Stalwart")) && !name.split(" ")[2].startsWith("0")) {
-				this.Mobs.push(name)
+			if (!this.Mobs?.map(a => a.getUUID().toString()).includes(mob.getUUID().toString())) {
+				if ((name.includes("Exalted") || name.includes("Stalwart")) && !name.split(" ")[2].startsWith("0")) {
+					this.Mobs.push(mob)
+				}
 			}
 		})
-		this.MythMobsHP.setText(this.Mobs.join("\n"))
-		this.Mobs = []
+		this.Mobs = this.Mobs.filter((e) => !e[f.isDead]);
+	}
+
+	step_10fps() {
+		if (!this.MythMobsHPGuiElement.getValue()) return
+		let names = []
+		this.Mobs.forEach(nameTag => {
+			names.push(nameTag.getName())
+		})
+		this.MythMobsHP.setText(names.join("\n"))
 	}
 
 	entityJoinWorldEvent(e) {
