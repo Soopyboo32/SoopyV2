@@ -144,7 +144,7 @@ class Events extends Feature {
 				}
 			}
 		})
-		this.Mobs = this.Mobs.filter((e) => !e[f.isDead]);
+		this.Mobs = this.Mobs.filter((e) => !e.getEntity()[f.isDead]);
 	}
 
 	step_10fps() {
