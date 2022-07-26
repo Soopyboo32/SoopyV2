@@ -44,18 +44,18 @@ class GlobalSettings extends Feature {
         this.darkTheme = new ToggleSetting("Dark theme", "This might be scuffed because guis are still made in light theme", false, "dark_theme", this)
         // this.linkPreview = new ToggleSetting("Link preview", "Shows a preview of where a link will take you", true, "link_preview", this)
 
-        this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
+        // this.reportErrorsSetting = new ToggleSetting("Send module errors to soopy server", "This will allow me to more effectivly fix them", false, "privacy_send_errors", this)
 
         this.hideFallingBlocks = new ToggleSetting("Hide falling blocks", "NOTE: this may cause more lag because of render entity event", false, "hide_falling_sand", this)
         this.twitchCommands = new ToggleSetting("Ingame twitch bot commands", "Allows u to use twitch bot commands ingame (eg -sa)", true, "twitch_commands_ingame", this)
 
-        this.privacySettings = [this.reportErrorsSetting]
+        this.privacySettings = []
 
         this.firstLoadPageData = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2firstloaddata.json") || "{}") || {}
 
         this.GuiPage = new FirstLoadingPage(this)
 
-        soopyV2Server.reportErrorsSetting = this.reportErrorsSetting
+        // soopyV2Server.reportErrorsSetting = this.reportErrorsSetting
 
         this.registerChat("&aYour new API key is &r&b${key}&r", this.newKey)
         const EntityFallingBlock = Java.type("net.minecraft.entity.item.EntityFallingBlock");

@@ -17,6 +17,7 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.reportErrorsSetting = undefined
 
         this.onPlayerStatsLoaded = undefined
+        this.apithingo = undefined
 
         this.userCosmeticPermissions = undefined
 
@@ -26,6 +27,8 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.cookieData = undefined
         this.cookieDataUpdated = 0
 
+        this.inApiQ = false
+
         this.chEvent = ["???", "???"]
 
         register("step", () => {
@@ -34,6 +37,23 @@ class SoopyV2Server extends WebsiteCommunicator {
                 this.cookieDataUpdated = 0
             }
         }).setDelay(60)
+    }
+
+    joinApiQ() {
+        if (this.inApiQ) return
+        this.inApiQ = true
+
+        this.sendData({
+            type: "apiready"
+        })
+    }
+
+    respondQueue(id, data) {
+        this.sendData({
+            type: "api",
+            id,
+            data
+        })
     }
 
     onData(data) {
@@ -93,6 +113,11 @@ class SoopyV2Server extends WebsiteCommunicator {
         if (data.type === "chEvent") {
             this.chEvent = data.event
         }
+        if (data.type === "api") {
+            this.inApiQ = false
+
+            if (this.apithingo) this.apithingo(data.uuid, data.packetId)
+        }
     }
 
     onConnect() {
@@ -105,6 +130,7 @@ class SoopyV2Server extends WebsiteCommunicator {
             })
         })
         this.errorsToReport = []
+        this.inApiQ = false
     }
 
     updateCosmeticsData(data) {
@@ -124,6 +150,7 @@ class SoopyV2Server extends WebsiteCommunicator {
 
     reportError(error, description) {
         // ChatLib.chat(JSON.stringify(error))
+        return
         if (this.reportErrorsSetting && !this.reportErrorsSetting.getValue()) return
         let data = {
             lineNumber: error.lineNumber,

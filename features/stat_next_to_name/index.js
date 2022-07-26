@@ -5,6 +5,8 @@ import soopyV2Server from "../../socketConnection";
 import SettingBase from "../settings/settingThings/settingBase";
 import * as numberUtils from "../../utils/numberUtils";
 import DropdownSetting from "../settings/settingThings/dropdownSetting";
+import { fetch } from "../../utils/networkUtils"
+import ToggleSetting from "../settings/settingThings/toggle";
 
 class StatNextToName extends Feature {
     constructor() {
@@ -39,8 +41,18 @@ class StatNextToName extends Feature {
 
         this.loadingStats = []
         this.lastWorldLoad = undefined
+        this.apiKeyThing = new ToggleSetting("Use ur api key for data loading", "Max of 12 requests/min", true, "api_key_stat_load", this)
 
         soopyV2Server.onPlayerStatsLoaded = (stats) => { this.playerStatsLoaded.call(this, stats) }
+
+        soopyV2Server.apithingo = (uuid, packetId) => {
+            let key = this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()
+            if (!key) return
+
+            fetch(`https://api.hypixel.net/skyblock/profiles?key=${key}&uuid=${uuid}`).text(t => {
+                soopyV2Server.respondQueue(packetId, t)
+            })
+        }
 
         this.registerStep(false, 5, this.loadPlayerStatsTick)
         this.registerEvent("worldLoad", this.worldLoad)
@@ -48,6 +60,27 @@ class StatNextToName extends Feature {
         this.registerEvent("playerJoined", this.playerJoined)
 
         this.worldLoad()
+
+
+        // respondQueue(id, data) {
+        //     this.sendData({
+        //         type: "api",
+        //         id,
+        //         data
+        //     })
+        // }
+
+        this.registerStep(false, 5, () => {
+            if (keyValid && this.apiKeyThing.getValue()) soopyV2Server.joinApiQ()
+        })
+
+        let keyValid = false
+        let key = this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()
+        fetch("https://api.hypixel.net/key?key=" + key).json(d => {
+            if (d.success) {
+                keyValid = true
+            }
+        })
     }
 
     loadPlayerStatsTick() {

@@ -56,7 +56,6 @@ class Events extends Feature {
 
 		this.loadFromParticles = new ToggleSetting("Load burrials from particles", "Will load particles from burrows in the world", true, "burrial_from_partles", this)
 		this.showBurrialGuess = new ToggleSetting("Estimate burrial location from ability", "Will show a line + box where it thinks the burrial is", true, "burrial_guess", this)
-		new SettingBase("There is also a hotkey to warp near", "see minecraft controls menu", true, "warp_info_hotkey", this)
 		new ButtonSetting("NOTE: You must have music disabled", "for burrial guessess to work (/togglemusic)", "togglemusis_button", this, "toggle", () => {
 			ChatLib.command("togglemusic")
 		}, false).requires(this.showBurrialGuess)
@@ -81,12 +80,14 @@ class Events extends Feature {
 		this.dingIndex = 0
 		this.dingSlope = []
 
-		this.warpBindDefault = new TextSetting("Default keybind", "Eg KEY_F", "CHAR_NONE", "inquis_keybind_default", this, "", false)
+		new SettingBase("There is also a hotkey to warp near", "see minecraft controls menu", true, "warp_info_hotkey", this)
+		this.warpBindDefault = new TextSetting("Default warp keybind", "Eg KEY_F", "CHAR_NONE", "inquis_keybind_default", this, "", false)
 
 		try {
 			this.warpBind = getKeyBindFromKey(Keyboard[this.warpBindDefault.getValue()], "Warp to nearest location to burrial guess");
 		} catch (e) {
 			ChatLib.chat(this.FeatureManager.messagePrefix + this.warpBindDefault.getValue() + " is an invalid keyboard key, see https://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html")
+			this.warpBind = getKeyBindFromKey("CHAR_NONE", "Warp to nearest location to burrial guess");
 		}
 
 		this.slayerLocationDataH = {}
@@ -247,7 +248,7 @@ class Events extends Feature {
 		this.todoE.forEach(e => {
 			e = new Entity(e)
 
-			if (e.getName().toLowerCase().includes("inquis") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
+			if (e.getName().toLowerCase().includes("inquis") && !e.getName().includes("'") && Math.abs(e.getY() - Player.getY()) < 10 && Math.abs(e.getX() - Player.getX()) < 10 && Math.abs(e.getZ() - Player.getZ()) < 10) {
 				let loc = [e.getX(), e.getY() - 1, e.getZ()]
 				let self = false
 				this.burrialData.locations.forEach(a => {
