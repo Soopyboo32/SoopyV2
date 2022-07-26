@@ -150,15 +150,6 @@ class Hud extends Feature {
         this.showLobbyDayOnlyUnder30 = new ToggleSetting("Show Current Lobby Day ONLY WHEN under day 30", "", true, "lobby_day_30", this)
         this.hudElements.push(this.lobbyDayElement)
 
-        this.showPing = new ToggleSetting("Show Current Ping", "(Updates every 30s)", true, "show_ping", this)
-        this.pingElement = new HudTextElement()
-            .setText("&6Ping&7> &fLoading...")
-            .setToggleSetting(this.showPing)
-            .setLocationSetting(new LocationSetting("Ping Location", "Allows you to edit the location of the ping text", "show_ping_location", this, [10, 100, 1, 1])
-                .requires(this.showPing)
-                .editTempText("&6Ping&7> &c312ms"))
-        this.hudElements.push(this.pingElement)
-
         let hudStatTypes = {
             "cata": "Catacombs level + Exp",
             "totaldeaths": "Total deaths"
@@ -270,44 +261,6 @@ class Hud extends Feature {
         this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.fpsEnabledSetting.getValue() && this.fpsFastSetting.getValue())
         this.registerEvent("worldLoad", this.worldLoad)
 
-        this.registerStep(false, 30, () => {
-            if (this.showPing.getValue() && Client.getMinecraft().func_147104_D()) {
-                let pingNum = Client.getMinecraft().func_147104_D().field_78844_e
-
-                let pingT = "&a" + pingNum + "ms"
-                if (pingNum > 150) {
-                    pingT = "&e" + pingNum + "ms"
-                }
-                if (pingNum > 250) {
-                    pingT = "&c" + pingNum + "ms"
-                }
-
-                if (pingNum === -1) {
-                    pingT = "Loading..."
-                }
-                this.pingElement.setText("&6Ping&7> " + pingT)
-
-                serverPinger[m.ping](Client.getMinecraft().func_147104_D());
-            }
-        })
-        this.registerStep(false, 5, () => {
-            if (this.showPing.getValue() && Client.getMinecraft().func_147104_D()) {
-                let pingNum = Client.getMinecraft().func_147104_D().field_78844_e
-
-                let pingT = "&a" + pingNum + "ms"
-                if (pingNum > 150) {
-                    pingT = "&e" + pingNum + "ms"
-                }
-                if (pingNum > 250) {
-                    pingT = "&c" + pingNum + "ms"
-                }
-
-                if (pingNum === -1) {
-                    return;
-                }
-                this.pingElement.setText("&6Ping&7> " + pingT)
-            }
-        })
 
         this.petLevels = {}
         this.petText = "&6Pet&7> &fLoading..."
