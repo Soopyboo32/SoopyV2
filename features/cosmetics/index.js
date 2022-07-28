@@ -226,7 +226,7 @@ class Cosmetics extends Feature {
 
     restoreEssentialCosmetics() {
         this.hiddenEssentialCosmetics.forEach(cosmetic => {
-            cosmetic.isHidden = false
+            setField(cosmetic, "showModel", true)
         })
         this.hiddenEssentialCosmetics = []
     }
@@ -259,4 +259,13 @@ let instance = new Cosmetics()
 
 module.exports = {
     class: instance
+}
+
+function setField(e, field, value) {
+
+    let field2 = e.class.getDeclaredField(field);
+
+    field2.setAccessible(true)
+
+    return field2.set(e, value)
 }

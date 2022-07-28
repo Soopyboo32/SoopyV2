@@ -10,7 +10,8 @@ if (!GlStateManager) {
     var GlStateManager = Java.type("net.minecraft.client.renderer.GlStateManager");
 }
 const Essential = Java.type("gg.essential.Essential")
-const EssentialCosmeticSlot = Java.type("gg.essential.cosmetics.CosmeticSlot")
+const EssentialCosmeticSlot = Java.type("gg.essential.mod.cosmetics.CosmeticSlot")
+const EssentialBone = Java.type("gg.essential.model.Bone")
 
 const FACING = Java.type("net.minecraft.block.BlockDirectional").field_176387_N
 let dragon = new ModelDragon(0) //too lazy to make my own model so i just yoink it from modelDragon lmfao
@@ -367,23 +368,34 @@ class DragonWings extends Cosmetic {
     }
 
     removeEssentialCosmetics() {
-        if (!this.player.getPlayer() || !this.player.getPlayer().getEssentialCosmetics || !this.player.getPlayer().getEssentialCosmetics()) return
-
-        let wingCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.WINGS)
+        if (!this.player.getPlayer() || !this.player.getPlayer().getCosmeticsState || !this.player.getPlayer().getCosmeticsState() || !this.player.getPlayer().getCosmeticsState().getCosmetics || !this.player.getPlayer().getCosmeticsState().getCosmetics()) return
+        //player.()
+        let wingCosmetic = this.player.getPlayer().getCosmeticsState().getCosmetics().get(EssentialCosmeticSlot.WINGS)
         if (wingCosmetic !== null) {
-            if (this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic))) {
-                this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic)).getModel().getModel().boneList.forEach(b => {
-                    b.isHidden = true
+            let cosmetic = this.player.getPlayer().getCosmeticsState().getModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(wingCosmetic))
+            if (cosmetic) {
+                let model = cosmetic.getModel().getModel()
+
+                let bones = model.getBones(model.getRootBone())
+
+                bones.forEach(b => {
+                    setField(b, "showModel", false)
+
                     this.parent.hiddenEssentialCosmetics.push(b)
                 })
             }
         } else {
-            let fullBodyCosmetic = this.player.getPlayer().getEssentialCosmetics().get(EssentialCosmeticSlot.FULL_BODY)
+            let fullBodyCosmetic = this.player.getPlayer().getCosmeticsState().getCosmetics().get(EssentialCosmeticSlot.FULL_BODY)
             if (fullBodyCosmetic === "DRAGON_ONESIE_2") {
-                if (this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic))) {
-                    this.player.getPlayer().getEssentialCosmeticModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic)).getModel().getModel().boneList.forEach(b => {
+                let cosmetic = this.player.getPlayer().getCosmeticsState().getModels().get(Essential.instance.getConnectionManager().getCosmeticsManager().getCosmetic(fullBodyCosmetic))
+                if (cosmetic) {
+                    let model = cosmetic.getModel().getModel()
+
+                    let bones = model.getBones(model.getRootBone())
+
+                    bones.forEach(b => {
                         if (b.boxName === "wing_left_1" || b.boxName === "wing_right_1") {
-                            b.isHidden = true
+                            setField(b, "showModel", false)
 
                             this.parent.hiddenEssentialCosmetics.push(b)
                         }
@@ -451,6 +463,15 @@ function getField(e, field) {
     field2.setAccessible(true)
 
     return field2.get(e)
+}
+
+function setField(e, field, value) {
+
+    let field2 = e.class.getDeclaredField(field);
+
+    field2.setAccessible(true)
+
+    return field2.set(e, value)
 }
 
 let a = 0

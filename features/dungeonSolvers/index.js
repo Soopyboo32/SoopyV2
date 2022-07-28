@@ -399,7 +399,7 @@ class DungeonSolvers extends Feature {
 	}
 
 	timerThing(position) {
-		this.timersData.push([position, Date.now() + 5000])
+		this.timersData.push([position, Date.now() + 5000]) //TODO: 1.5s less on m6
 	}
 
 	areaUpdated() {

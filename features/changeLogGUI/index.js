@@ -16,7 +16,7 @@ const File = Java.type("java.io.File")
 const URL = Java.type("java.net.URL");
 const PrintStream = Java.type("java.io.PrintStream");
 const Byte = Java.type("java.lang.Byte");
-
+//global.soopyv2featuremanagerthing.features.changeLogGUI.class.ChangelogPage.downloadUpdate()
 class ChangeLogGui extends Feature {
     constructor() {
         super()
