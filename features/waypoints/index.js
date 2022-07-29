@@ -161,7 +161,7 @@ class Waypoints extends Feature {
             this.locations[area || loc[0].area] = loc;
         }
         let lastLoc = [0, 0, 0]
-        let lastTp = 0
+        this.lastTp = 0
         this.registerEvent("tick", () => {
             try {
                 if (Scoreboard.getLines().length < 2) return;
@@ -176,9 +176,10 @@ class Waypoints extends Feature {
                 minewaypoints_socket.setServer(server, World.getWorld().func_82737_E())
 
                 let loc = [Player.getX(), Player.getY(), Player.getZ()]
-                if (calculateDistanceQuick(lastLoc, loc) > 25) {
+                if (calculateDistanceQuick(lastLoc, loc) > 20 ** 2) {
                     this.lastTp = Date.now()
                 }
+                lastLoc = loc
 
                 if (Date.now() - this.lastSend > 1000 && Date.now() - this.lastTp > 5000) {
                     Scoreboard.getLines().forEach(line => {

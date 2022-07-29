@@ -37,7 +37,6 @@ class MineWayPointsServer extends WebsiteCommunicator {
 
         this.lastSend = Date.now()
         this.hypixelServer = server
-
         this.sendData({
             type: "setServer",
             server: server,
