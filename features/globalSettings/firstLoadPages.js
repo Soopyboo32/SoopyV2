@@ -12,6 +12,7 @@ class WelcomePage extends FirstLoadPage {
 
         this.addChild(new SoopyTextElement().setText("§0Welcome to SoopyV2!").setLocation(0.1, 0.05, 0.8, 0.1).setMaxTextScale(10));
 
+        this.addChild(new SoopyTextElement().setText("§7This menu will guide you through important settings").setLocation(0.1, 0.15, 0.8, 0.075).setMaxTextScale(10));
         // this.addChild(new SoopyTextElement().setText("§7First lets get privacy settings out of the way.").setLocation(0.1, 0.15,0.8,0.075).setMaxTextScale(10));
 
         this.settingsArea = new SoopyGuiElement().setLocation(0.1, 0.25, 0.8, 0.75);
@@ -38,7 +39,7 @@ class ApiKeyPage extends FirstLoadPage {
     constructor() {
         super()
 
-        this.addChild(new SoopyTextElement().setText("§0Next lets setup your api key!").setLocation(0.1, 0.05, 0.8, 0.1).setMaxTextScale(10));
+        this.addChild(new SoopyTextElement().setText("§0First lets setup your api key!").setLocation(0.1, 0.05, 0.8, 0.1).setMaxTextScale(10));
 
         this.addChild(new SoopyTextElement().setText("§7You can skip this but some features may not work").setLocation(0.1, 0.15, 0.8, 0.075).setMaxTextScale(10));
 
