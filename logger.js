@@ -4,7 +4,7 @@
 class Logger {
     constructor() {
         this.isDev = isDev()
-        this.loglevel = this.isDev ? 4 : 2 //0=none, 1=error, 2=warn, 3=info, 4=debug
+        this.loglevel = this.isDev ? 3 : 2 //0=none, 1=error, 2=warn, 3=info, 4=debug
         this.logToMcChat = false
         this.logPrefixes = [
             "[SOOPYADDONS]       ",

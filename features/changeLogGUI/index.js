@@ -247,7 +247,7 @@ class ChangelogPage extends GuiPage {
 
             height += changes.getHeight()
 
-            height += 0.1
+            height += 0.05
         })
     }
 }

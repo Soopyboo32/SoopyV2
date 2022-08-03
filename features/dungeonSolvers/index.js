@@ -280,6 +280,12 @@ class DungeonSolvers extends Feature {
 			this.area = -1
 			this.areaUpdated()
 		})
+		this.registerEvent("worldLoad", () => {
+			if (this.area !== -1) {
+				this.area = -1
+				this.areaUpdated()
+			}
+		})
 		this.registerChat("[BOSS] Goldor: Who dares trespass into my domain?", () => {
 			this.area = 0
 			this.areaUpdated()

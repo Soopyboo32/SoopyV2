@@ -10,7 +10,7 @@ class WelcomePage extends FirstLoadPage {
     constructor() {
         super()
 
-        this.addChild(new SoopyTextElement().setText("§0Welcome to SoopyAddons V2!").setLocation(0.1, 0.05, 0.8, 0.1).setMaxTextScale(10));
+        this.addChild(new SoopyTextElement().setText("§0Welcome to SoopyV2!").setLocation(0.1, 0.05, 0.8, 0.1).setMaxTextScale(10));
 
         // this.addChild(new SoopyTextElement().setText("§7First lets get privacy settings out of the way.").setLocation(0.1, 0.15,0.8,0.075).setMaxTextScale(10));
 

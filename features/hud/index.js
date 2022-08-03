@@ -284,7 +284,7 @@ class Hud extends Feature {
             this.lastSwappedPet = Date.now()
         })
         this.registerChat("&r&aYour &r${pet} &r&alevelled up to level &r&9${level}&r&a!&r", (pet, level) => {
-            if (this.petText.split("] ")[1] === pet) {
+            if (ChatLib.removeFormatting(this.petText.split("] ")[1].trim()) === ChatLib.removeFormatting(pet.trim())) {
                 this.petElement.setText("&6Pet&7> &7[Lvl " + (level || "??") + "] " + pet)
                 this.petText = "&6Pet&7> &7[Lvl " + (level || "??") + "] " + pet
                 this.lastSwappedPet = Date.now()

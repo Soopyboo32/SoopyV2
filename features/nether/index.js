@@ -55,17 +55,6 @@ class Nether extends Feature {
 		this.disciplineOverlay = new ToggleSetting("Show overlay for zombies in dojo discipline", "", true, "dojo_discipline", this).contributor("Empa")
 		this.hostageWaypoints = new ToggleSetting("Show hostage waypoints", "Waypoint for location of hostage in rescue missions", true, "hostage_waypoint", this)
 		this.slugfishTimer = new ToggleSetting("Show timer over rod", "This may help with fishing slugfish", false, "slugfish_timer", this)
-		let packetRecieved = this.registerCustom("packetReceived", this.packetReceived).registeredWhen(() => this.isInDojo())
-
-		try {
-			packetRecieved.trigger.setPacketClasses([net.minecraft.network.play.server.S23PacketBlockChange, net.minecraft.network.play.server.S22PacketMultiBlockChange])
-		} catch (e) { }//older ct version
-
-		this.registerStep(true, 1, this.step1S).registeredWhen(() => this.isInNether())
-		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInNether())
-
-		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDojo());
-		this.registerEvent("tick", this.tick).registeredWhen(() => this.isInNether())
 
 		this.todoE = []
 		this.todoE2 = []
@@ -88,6 +77,17 @@ class Nether extends Feature {
 		this.lastBlock = undefined
 		this.hookThrown = 0
 
+		let packetRecieved = this.registerCustom("packetReceived", this.packetReceived).registeredWhen(() => this.isInDojo())
+
+		try {
+			packetRecieved.trigger.setPacketClasses([net.minecraft.network.play.server.S23PacketBlockChange, net.minecraft.network.play.server.S22PacketMultiBlockChange])
+		} catch (e) { }//older ct version
+
+		this.registerStep(true, 1, this.step1S).registeredWhen(() => this.isInNether())
+		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInNether())
+
+		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDojo());
+		this.registerEvent("tick", this.tick).registeredWhen(() => this.isInNether())
 		this.registerChat("&r&r&r                    &r&aTest of Swiftness &r&e&lOBJECTIVES&r", () => {
 			if (this.speedNextBlock.getValue()) {
 				this.inSwiftness = true

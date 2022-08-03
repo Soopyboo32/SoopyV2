@@ -27,8 +27,6 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.cookieData = undefined
         this.cookieDataUpdated = 0
 
-        this.inApiQ = false
-
         this.chEvent = ["???", "???"]
 
         register("step", () => {
@@ -40,9 +38,6 @@ class SoopyV2Server extends WebsiteCommunicator {
     }
 
     joinApiQ() {
-        if (this.inApiQ) return
-        this.inApiQ = true
-
         this.sendData({
             type: "apiready"
         })
@@ -114,7 +109,6 @@ class SoopyV2Server extends WebsiteCommunicator {
             this.chEvent = data.event
         }
         if (data.type === "api") {
-            this.inApiQ = false
 
             if (this.apithingo) this.apithingo(data.uuid, data.packetId)
         }
@@ -130,7 +124,6 @@ class SoopyV2Server extends WebsiteCommunicator {
             })
         })
         this.errorsToReport = []
-        this.inApiQ = false
     }
 
     updateCosmeticsData(data) {
