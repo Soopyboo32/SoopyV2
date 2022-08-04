@@ -8,13 +8,13 @@ import firstLoadPages from "./firstLoadPages";
 import GuiPage from "../soopyGui/GuiPage"
 import Notification from "../../../guimanager/Notification";
 import logger from "../../logger";
-import soopyV2Server from "../../socketConnection";
 import { numberWithCommas } from "../../utils/numberUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
 import { fetch } from "../../utils/networkUtils";
 import socketConnection from "../../socketConnection";
 import renderLibs from "../../../guimanager/renderLibs";
 import { f } from "../../../mappings/mappings";
+import { addLore, getSBUUID } from "../../utils/utils";
 const Files = Java.type("java.nio.file.Files")
 const Paths = Java.type("java.nio.file.Paths")
 const JavaString = Java.type("java.lang.String")
@@ -48,6 +48,7 @@ class GlobalSettings extends Feature {
 
         this.hideFallingBlocks = new ToggleSetting("Hide falling blocks", "NOTE: this may cause more lag because of render entity event", false, "hide_falling_sand", this)
         this.twitchCommands = new ToggleSetting("Ingame twitch bot commands", "Allows u to use twitch bot commands ingame (eg -sa)", true, "twitch_commands_ingame", this)
+        this.itemWorth = new ToggleSetting("(Approximate) Item worth in lore", "Accounts for stuff like enchants/recombs ect", false, "item_worth", this)
 
         this.privacySettings = []
 
@@ -84,6 +85,12 @@ class GlobalSettings extends Feature {
             this.currentPlayerNetworth = {}
             this.registerEvent("tick", this.fixNEU)
         }
+
+        this.requestingPrices = new Set()
+        this.registerStep(false, 1, this.updateItemPrices)
+        this.registerEvent("worldLoad", () => {
+            this.requestingPrices.clear()
+        })
 
         try { //This enables links from soopy.dev to be shown in patcher image preview
             let hasHost = false
@@ -157,6 +164,34 @@ class GlobalSettings extends Feature {
                     sendMessage.reduce((c, curr) => c.addTextComponent(curr), new Message().addTextComponent(new TextComponent(this.FeatureManager.messagePrefix))).chat()
                 })
             }
+        })
+    }
+
+    updateItemPrices() {
+        if (!this.itemWorth.getValue()) return;
+
+        [...Player.getInventory().getItems(), ...Player.getContainer().getItems()].forEach(i => {
+            let uuid = getSBUUID(i)
+            if (!uuid) return
+
+            let a = socketConnection.itemPricesCache.get(uuid)
+
+            if (!a && socketConnection.itemPricesCache2.get(uuid)) {
+                a = socketConnection.itemPricesCache2.get(uuid)
+                socketConnection.itemPricesCache.set(uuid, a)
+            }
+
+            if (a) {
+                addLore(i, "§eWorth: ", "§6$" + numberWithCommas(Math.round(a)))
+                return
+            }
+
+            if (this.requestingPrices.has(uuid)) return
+
+            this.requestingPrices.add(uuid)
+
+            let json = i.getNBT().toObject()
+            socketConnection.requestItemPrice(json, uuid)
         })
     }
 

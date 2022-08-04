@@ -23,6 +23,9 @@ class SoopyV2Server extends WebsiteCommunicator {
 
         this.eventData = undefined
 
+        this.itemPricesCache = new Map()
+        this.itemPricesCache2 = new Map()
+
         this.cookieCount = 0
         this.cookieData = undefined
         this.cookieDataUpdated = 0
@@ -35,6 +38,22 @@ class SoopyV2Server extends WebsiteCommunicator {
                 this.cookieDataUpdated = 0
             }
         }).setDelay(60)
+
+        register("worldLoad", () => {
+            this.itemPricesCache2.clear()
+            for (let val of this.itemPricesCache.values()) {
+                this.itemPricesCache2.set(val[0], val[1])
+            }
+            this.itemPricesCache.clear()
+        })
+    }
+
+    requestItemPrice(json, uuid) {
+        this.sendData({
+            type: "loadItemWorth",
+            id: uuid,
+            itemData: json
+        })
     }
 
     joinApiQ() {
@@ -109,8 +128,10 @@ class SoopyV2Server extends WebsiteCommunicator {
             this.chEvent = data.event
         }
         if (data.type === "api") {
-
             if (this.apithingo) this.apithingo(data.uuid, data.packetId)
+        }
+        if (data.type === "itemWorth") {
+            this.itemPricesCache.set(data.id, data.price)
         }
     }
 

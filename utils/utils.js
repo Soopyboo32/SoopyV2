@@ -32,6 +32,9 @@ let utils = {
     getSBID: function (item) {
         return item?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getString("id") || null
     },
+    getSBUUID: function (item) {
+        return item?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getString("uuid") || null
+    },
     getSBEnchant: function (item, enchant) {
         return item?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getCompoundTag("enchantments")?.getInteger(enchant) || null
     },
