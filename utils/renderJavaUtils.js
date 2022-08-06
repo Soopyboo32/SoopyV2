@@ -16,7 +16,11 @@ let RenderBeaconC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.Beacon")
 let HudPointsC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.HudPoints")
 let HudTextC = Java.type("me.soopyboo32.soopyv2forge.RenderTypes.HudText")
 
-if (!global.soopyv2RenderWorldThings) global.soopyv2RenderWorldThings = new Set()
+let addFix = false
+if (!global.soopyv2RenderWorldThings) {
+    global.soopyv2RenderWorldThings = new Set()
+    addFix = true
+}
 if (!global.soopyv2RenderHudThings) global.soopyv2RenderHudThings = new Set()
 
 register("gameUnload", () => {
@@ -403,3 +407,7 @@ register("worldLoad", () => {
         ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
     }
 })
+
+if (addFix) {
+    new Box([-1000000000, 0, 0], 0, 0, 0, 0, 0, 0, false).startRender()
+}

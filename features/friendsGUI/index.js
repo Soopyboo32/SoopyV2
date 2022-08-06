@@ -132,7 +132,7 @@ class SettingPage extends GuiPage {
             elements.push(new SoopyTextElement().setText("§0" + commands[i]).setLocation(0.2, 0.4 + i * 0.05, 0.6, 0.05))
 
             this.runCommand(commands[i], () => {
-                progressBar.setProgress(i2 / (commands.length - 1), 1000)
+                progressBar.setProgress((i2 + 1) / (commands.length), 1000)
 
                 let e = elements.shift()
                 this.sidebarCustomPage.removeChild(e)

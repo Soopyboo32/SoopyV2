@@ -985,9 +985,6 @@ class SpiritLeapOverlay {
 
         this.soopyGui = new SoopyGui()
 
-        this.buttonsContainer = new SoopyGuiElement().setLocation(0.2, 0.2, 0.6, 0.3)
-        this.soopyGui.element.addChild(this.buttonsContainer)
-
         let renderThing = new soopyGuiMapRendererThing(this).setLocation(0, 0, 1, 1)
         this.soopyGui.element.addChild(renderThing)
 
@@ -996,6 +993,9 @@ class SpiritLeapOverlay {
                 this.soopyGui.close()
             }
         }))
+
+        this.buttonsContainer = new SoopyGuiElement().setLocation(0.2, 0.2, 0.6, 0.3)
+        this.soopyGui.element.addChild(this.buttonsContainer)
 
         this.items = {}
 
