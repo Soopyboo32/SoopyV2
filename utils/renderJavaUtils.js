@@ -409,5 +409,5 @@ register("worldLoad", () => {
 })
 
 if (addFix) {
-    new Box([-1000000000, 0, 0], 0, 0, 0, 0, 0, 0, false).startRender()
+    new Box([-1000000000, 0, 0], 0, 0, 0, 0, 0, 1, false).startRender()
 }
