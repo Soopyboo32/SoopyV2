@@ -24,7 +24,7 @@ class WelcomePage extends FirstLoadPage {
     load() {
         let y = 0
 
-        this.guiPage.mainThing.privacySettings.forEach(setting => {
+        this.guiPage.mainThing.firstPageSettings.forEach(setting => {
             setting = setting.getGuiObject()
 
             setting.location.location.y.set(y, 0)
