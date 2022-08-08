@@ -147,7 +147,7 @@ class StatNextToName extends Feature {
 
         nameTagString += " &2["
         if (stats.usingSoopyv2) nameTagString += "&d⚝&2"
-        if (stats.exists && stats[this.statToShow.getValue()]) {
+        if (stats.exists && stats[this.statToShow.getValue()] !== undefined && stats[this.statToShow.getValue()] !== null) {
             if (this.decimals[this.statToShow.getValue()] === "small") {
                 nameTagString += numberUtils.addNotation("oneLetters", Math.round(stats[this.statToShow.getValue()]))
             } else {
@@ -174,6 +174,14 @@ class StatNextToName extends Feature {
     playerStatsLoaded(stats) {
         stats.bestiary /= 10
         this.userStats[stats.uuid] = stats
+
+
+        World.getAllPlayers().forEach(player => {
+            if (player.getUUID().toString().replace(/-/g, "") === stats.uuid) {
+                this.updatePlayerNametag(player)
+                return
+            }
+        })
     }
 
     onDisable() {

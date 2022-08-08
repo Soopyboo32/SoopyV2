@@ -64,7 +64,11 @@ class DungeonSolvers extends Feature {
 		this.spiritBearSpawnTimer = new ToggleSetting("Timer for when the spirit bear will spawn", "", true, "spirit_bear_spawn_timer", this);
 		this.spiritBearSpawnElement = new HudTextElement().setToggleSetting(this.spiritBearSpawnTimer).setLocationSetting(new LocationSetting("Spirit bear spawn timer location", "Allows you to edit the location of the timer", "spirit_bear_spawn_location", this, [10, 70, 3, 1]).requires(this.spiritBearSpawnTimer).editTempText("&dBear spawned in: &c1.57s"));
 
+		this.fireFreezeTimer = new ToggleSetting("Timer for when to fire freeze in m3/f3", "", true, "ff_timer", this);
+		this.fireFreezeTimerElement = new HudTextElement().setToggleSetting(this.fireFreezeTimer).setLocationSetting(new LocationSetting("Fire freeze timer location", "Allows you to edit the location of the timer", "fire_freeze_location", this, [10, 80, 3, 1]).requires(this.fireFreezeTimer).editTempText("&dFire freeze in: &c1.57s"));
+
 		this.hudElements.push(this.spiritBearSpawnElement);
+		this.hudElements.push(this.fireFreezeTimerElement);
 		this.hudElements.push(this.spiritBowDestroyElement);
 
 		this.bloodCampAssist = new ToggleSetting("Assist blood camp", "Helps guess where and when blood mobs will spawn", true, "blood_camp_assist", this);
@@ -292,6 +296,15 @@ class DungeonSolvers extends Feature {
 		})
 
 		this.loadf7data()
+
+		this.ffCountdownTo = 0
+		register('chat', (key) => {
+			this.ffCountdownTo = Date.now() + 5000
+
+			delay(5000, () => {
+				this.ffCountdownTo = 0
+			})
+		}).setCriteria("[BOSS] The Professor: Oh? You found my Guardians one weakness?").setContains();
 
 		this.registerChat("${name} activated a lever! (${start}/${end})", (name, start, end) => {
 			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
@@ -711,6 +724,7 @@ class DungeonSolvers extends Feature {
 		}
 		this.spiritBowPickUps = []
 		this.bearSpawning = 0
+		this.ffCountdownTo = 0
 		this.startSpawningTime = 0;
 		this.spawnIdThing = 0;
 		this.eMovingThing = {};
@@ -735,6 +749,12 @@ class DungeonSolvers extends Feature {
 	}
 
 	step2() {
+
+		if (this.ffCountdownTo && this.ffCountdownTo > 0) {
+			this.fireFreezeTimerElement.setText("&dFire freeze in: &c" + (Math.max(0, this.ffCountdownTo - Date.now()) / 1000).toFixed(2) + "s");
+		} else {
+			this.fireFreezeTimerElement.setText("");
+		}
 		if (this.bearSpawning && this.bearSpawning > 0 && this.isInDungeon()) {
 			this.spiritBearSpawnElement.setText("&dBear spawned in: &c" + (Math.max(0, this.bearSpawning - Date.now()) / 1000).toFixed(2) + "s");
 		} else {
@@ -937,6 +957,13 @@ class DungeonSolvers extends Feature {
 	}
 
 	step() {
+
+		if (this.ffCountdownTo && this.ffCountdownTo > 0) {
+			this.fireFreezeTimerElement.setText("&dFire freeze in: &c" + (Math.max(0, this.ffCountdownTo - Date.now()) / 1000).toFixed(2) + "s");
+		} else {
+			this.fireFreezeTimerElement.setText("");
+		}
+
 		if (this.bearSpawning && this.bearSpawning > 0) {
 			this.spiritBearSpawnElement.setText("&dBear spawned in: &c" + (Math.max(0, this.bearSpawning - Date.now()) / 1000).toFixed(2) + "s");
 		} else {
