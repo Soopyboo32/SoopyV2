@@ -298,13 +298,13 @@ class DungeonSolvers extends Feature {
 		this.loadf7data()
 
 		this.ffCountdownTo = 0
-		register('chat', (key) => {
+		this.registerChat("[BOSS] The Professor: Oh? You found my Guardians one weakness?", () => {
 			this.ffCountdownTo = Date.now() + 5000
 
 			delay(5000, () => {
 				this.ffCountdownTo = 0
 			})
-		}).setCriteria("[BOSS] The Professor: Oh? You found my Guardians one weakness?").setContains();
+		})
 
 		this.registerChat("${name} activated a lever! (${start}/${end})", (name, start, end) => {
 			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
