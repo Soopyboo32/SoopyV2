@@ -418,7 +418,7 @@ class DungeonSolvers extends Feature {
 	}
 
 	timerThing(position) {
-		this.timersData.push([position, Date.now() + 5000]) //TODO: 1.5s less on m6
+		this.timersData.push([position, Date.now() + (this.FeatureManager.features["dataLoader"].class.dungeonFloor[0] === "M" ? 3500 : 5000)])
 	}
 
 	areaUpdated() {
