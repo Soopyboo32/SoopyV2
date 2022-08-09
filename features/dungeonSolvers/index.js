@@ -116,19 +116,7 @@ class DungeonSolvers extends Feature {
 			this.spiritMaskTimer = 0;
 			this.eraseBonzoTimer = true;
 		});
-		this.registerChat("${prefix}\"mode\":\"dungeon\",\"map\":\"Dungeon\"}&r", () => {
-			[...Player.getInventory().getItems()].forEach(i => {
-                if (!i) return
-                let itemName = i.getName()
-                if (itemName.removeFormatting().includes("Bonzo's Mask")) {
-                    i.getLore().forEach(line => {
-                        if (line.includes("Cooldown:")) {
-                            this.bonzoMaskCooldown = Number(line.removeFormatting().split("n: ")[1].replace("s", ""))
-                        }
-                    })
-                }
-            })
-		})
+		this.registerStep(false, 30, this.getBonzoMaskCooldown());
 		this.bonzoSpiritMaskTimer = new ToggleSetting("Timer for when bonzo/spirit mask will be ready", "works for both bonzo masks, hides bonzo masks' timers after you leave the run", false, "bonzo_mask_timer", this);
 		this.bonzoSpiritMaskTimerElement = new HudTextElement().setToggleSetting(this.bonzoSpiritMaskTimer).setLocationSetting(new LocationSetting("Bonzo/Spirit Mask timer location", "Allows you to edit the location of the timer", "bonzo_mask_timer_location", this, [10, 100, 1, 1]).requires(this.bonzoSpiritMaskTimer).editTempText("&9Bonzo's Mask: &c157s"));
 		this.hudElements.push(this.bonzoSpiritMaskTimerElement);
@@ -474,6 +462,19 @@ class DungeonSolvers extends Feature {
 			packetRecieved.trigger.setPacketClasses([net.minecraft.network.play.server.S23PacketBlockChange, net.minecraft.network.play.server.S22PacketMultiBlockChange])
 		} catch (e) { }//older ct version
 
+	}
+	getBonzoMaskCooldown() {
+		[...Player.getInventory().getItems()].forEach(i => {
+			if (!i) return
+			let itemName = i.getName()
+			if (itemName.removeFormatting().includes("Bonzo's Mask")) {
+				i.getLore().forEach(line => {
+					if (line.includes("Cooldown:")) {
+						this.bonzoMaskCooldown = Number(line.removeFormatting().split("n: ")[1].replace("s", ""))
+					}
+				})
+			}
+		})
 	}
 	getCurrentRoomId() {
 		if (Scoreboard.getLines().length === 0) return
