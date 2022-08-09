@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
-import { numberWithCommas } from "../../utils/numberUtils";
+import { addNotation, numberWithCommas } from "../../utils/numberUtils";
 import * as renderUtils from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
@@ -12,6 +12,8 @@ import { delay } from "../../utils/delayUtils";
 import { Waypoint } from "../../utils/renderJavaUtils";
 import { calculateDistanceQuick } from "../../utils/utils";
 import { drawLinePoints } from "../../utils/renderUtils";
+
+const entityGuardian = Java.type("net.minecraft.entity.monster.EntityGuardian")
 
 const MCBlock = Java.type("net.minecraft.block.Block");
 const EntityBlaze = Java.type("net.minecraft.entity.monster.EntityBlaze");
@@ -696,6 +698,16 @@ class DungeonSolvers extends Feature {
 			Tessellator.drawString(((time - Date.now()) / 1000).toFixed(1) + "s", position.getX(), position.getY() + 0.5, position.getZ(), Renderer.color(0, 255, 50), false, 0.025, false)
 		}
 		for (let i = 0; i < shifts; i++) this.timersData.shift()
+
+		if (this.FeatureManager.features["dataLoader"].class.dungeonFloor[1] === "3") {
+			let es = World.getAllEntitiesOfType(entityGuardian)
+
+			for (let e of es) {
+				if (e.getEntity().func_110143_aJ() < 1000) continue
+
+				Tessellator.drawString(addNotation("oneLetters", Math.round(e.getEntity().func_110143_aJ())), e.getX(), e.getY() + 0.25, e.getZ(), Renderer.color(0, 255, 0), false, 0.1, false)
+			}
+		}
 	}
 
 	renderEntity(entity, position, ticks, event) {

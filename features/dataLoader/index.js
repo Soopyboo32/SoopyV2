@@ -104,6 +104,7 @@ class DataLoader extends Feature {
     worldLoad() {
         this.area = undefined
         this.areaFine = undefined
+        this.dungeonFloor = undefined
         this.loadApiData("skyblock", false)
     }
 
@@ -190,7 +191,6 @@ class DataLoader extends Feature {
             this.isInDungeon = false
         }
 
-        this.dungeonFloor = undefined
         this.slayerXpToSpawn = undefined
         Scoreboard.getLines().forEach(line => {
             let name = ChatLib.removeFormatting(line.getName()).replace(/[^A-z0-9 \:\(\)\.]/g, "")
