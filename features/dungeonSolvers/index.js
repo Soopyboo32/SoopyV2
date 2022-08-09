@@ -7,6 +7,7 @@ import * as renderUtils from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
+import TextSetting from "../settings/settingThings/textSetting";
 import { fetch } from "../../utils/networkUtils";
 import { delay } from "../../utils/delayUtils";
 import { Waypoint } from "../../utils/renderJavaUtils";
