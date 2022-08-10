@@ -49,6 +49,34 @@ class GlobalSettings extends Feature {
         this.hideFallingBlocks = new ToggleSetting("Hide falling blocks", "NOTE: This setting is a bit laggy", false, "hide_falling_sand", this)
         this.twitchCommands = new ToggleSetting("Ingame twitch bot commands", "Allows u to use twitch bot commands ingame (eg -sa)", true, "twitch_commands_ingame", this)
         this.itemWorth = new ToggleSetting("(Approximate) Item worth in lore", "Accounts for stuff like enchants/recombs ect", false, "item_worth", this)
+        this.oldMasterStars = new ToggleSetting("Use Old Master Stars", "replaces the ugly new master star on item name with the old fashion one", false, "old_master_star", this)
+
+        this.registerEvent('itemTooltip', (lore, i, e) => {
+            if (!this.oldMasterStars.getValue()) return
+            if (!i) return
+            let itemName = i.getName()
+            let itemNameReformat = itemName.removeFormatting()
+            if (itemNameReformat.endsWith("➊")) {
+                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➊", "&c✪&6✪✪✪✪"))
+                return
+            }
+            if (itemNameReformat.endsWith("➋")) {
+                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➋", "&c✪✪&6✪✪✪"))
+                return
+            }
+            if (itemNameReformat.endsWith("➌")) {
+                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➌", "&c✪✪✪&6✪✪"))
+                return
+            }
+            if (itemNameReformat.endsWith("➍")) {
+                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➍", "&c✪✪✪✪&6✪"))
+                return
+            }
+            if (itemNameReformat.endsWith("➎")) {
+                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➎", "&c✪✪✪✪✪"))
+                return
+            }
+        })
 
         this.firstPageSettings = [this.darkTheme]
 
