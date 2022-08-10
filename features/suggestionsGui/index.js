@@ -103,7 +103,7 @@ class SuggestionPage extends GuiPage {
                     if (suggestion.uuid !== Player.getUUID().toString().replace(/-/g, "") && !allowed.has(Player.getUUID().toString().replace(/-/g, ""))) return
                 }
 
-                let box = new SoopyBoxElement().setLocation(0, 0.225 * i, 1, 0.2).setLore(["Click for more information + vote buttons"])
+                let box = new SoopyBoxElement().setLocation(0, 0.175 * i, 1, 0.15).setLore(["Click for more information + vote buttons"])
                 this.suggestionsArea.addChild(box)
 
                 let title = new SoopyTextElement().setText("§0" + suggestion.title + " §7(" + this.tags.suggestionTags[suggestion.tag] + ")").setMaxTextScale(2).setLocation(0, 0, 0.8, 1)

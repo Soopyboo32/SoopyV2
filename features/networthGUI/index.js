@@ -226,12 +226,12 @@ class NetworthPage extends GuiPage {
             this.leaderboardArea.clearChildren()
             data.data.data.forEach((user, i) => {
                 this.leaderboardArea.addChild(
-                    new SoopyTextElement().setText("§0#" + numberWithCommas(i + 1 + page * 100) + ": " + user.username).setMaxTextScale(1.5).setLocation(0.05, i * 0.1, 0.5, 0.1).setLore(["Click to show detailed stats"]).addEvent(new SoopyMouseClickEvent().setHandler(() => {
+                    new SoopyTextElement().setText("§0#" + numberWithCommas(i + 1 + page * 100) + ": " + user.username).setMaxTextScale(1.5).setLocation(0.05, i * 0.05, 0.5, 0.05).setLore(["Click to show detailed stats"]).addEvent(new SoopyMouseClickEvent().setHandler(() => {
                         this.updateData(user.uuid)
                     }))
                 )
                 this.leaderboardArea.addChild(
-                    new SoopyTextElement().setText("§2$" + numberWithCommas(Math.round(user.networth)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.6, i * 0.1, 0.35, 0.1)
+                    new SoopyTextElement().setText("§2$" + numberWithCommas(Math.round(user.networth)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.6, i * 0.05, 0.35, 0.05)
                 )
             })
         })

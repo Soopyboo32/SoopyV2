@@ -37,7 +37,7 @@ class ToggleSetting extends SettingBase {
 
                 this.toggleObject.triggerEvent(Enum.EVENT.CONTENT_CHANGE, [this.temp_val, false, () => { }])
 
-                this.guiObject.location.size.y.set(0.2, 500)
+                this.guiObject.location.size.y.set(0.15, 500)
             } else {
                 this.temp_val = this.getValue()
                 this.setValue(false)

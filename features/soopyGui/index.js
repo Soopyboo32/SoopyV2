@@ -39,7 +39,7 @@ class SoopyGui extends Feature {
         this.registerCommand("snoopyv2", this.openCommand)
         this.registerCommand("snoopy", this.openCommand)
 
-        this.mainWindowElement = new SoopyBoxElement().setLocation(0.25, 0.2, 0.5, 0.6)
+        this.mainWindowElement = new SoopyBoxElement().setLocation(0.25, 0.1, 0.5, 0.8)
 
         this.mainWindowElement.addEvent(new SoopyOpenGuiEvent().setHandler(() => { this.goToPageNum(0, false) }))
 
@@ -52,7 +52,7 @@ class SoopyGui extends Feature {
         let title = new SoopyTextElement().setText("§0SoopyV2!").setMaxTextScale(3).setLocation(0.1, 0.05, 0.5, 0.1)
         this.categoryPage.addChild(title)
 
-        let discordButton = new ButtonWithArrow().setText("§0Discord").setLocation(0.7, 0.05, 0.25, 0.1)
+        let discordButton = new ButtonWithArrow().setText("§0Discord").setLocation(0.7, 0.05 + 0.0125, 0.25, 0.075)
         discordButton.addEvent(new SoopyMouseClickEvent().setHandler(() => {
             java.awt.Desktop.getDesktop().browse(
                 new java.net.URI("https://discord.gg/dfSMq96RSN")
@@ -73,7 +73,7 @@ class SoopyGui extends Feature {
 
         this.mainWindowElement.addChild(this.categoryPage)
 
-        this.sidebarPage = new SoopyBoxElement().setLocation(0.3, 0.2, 0.3, 0.6)
+        this.sidebarPage = new SoopyBoxElement().setLocation(0.3, 0.1, 0.3, 0.8)
         // this.sidebarPage.visable = false
 
         this.gui.element.addChild(this.sidebarPage)
@@ -106,7 +106,7 @@ class SoopyGui extends Feature {
         this.buttonListElm.children = []
 
         if (this.getPages()) this.getPages().forEach((p, i) => {
-            let settingsButton = new ButtonWithArrow().setText("§0" + p.name).setLocation(0, 0.225 * i, 1, 0.2)
+            let settingsButton = new ButtonWithArrow().setText("§0" + p.name).setLocation(0, 0.175 * i, 1, 0.15)
             settingsButton.addEvent(new SoopyMouseClickEvent().setHandler(() => { this.clickedOpen(p) }))
             this.buttonListElm.addChild(settingsButton)
         })

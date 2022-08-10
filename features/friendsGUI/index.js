@@ -74,7 +74,7 @@ class SettingPage extends GuiPage {
 
         this.sidebarMainPage = new SoopyGuiElement().setLocation(0, 0, 1, 1)
 
-        this.heightPerFriend = 0.2
+        this.heightPerFriend = 0.15
         this.loadingElement = new BoxWithLoading().setLocation(0, 0, 1, 0.175)
         this.lastLoadedPage = 0
         this.maxLoadedPage = 0
@@ -129,7 +129,7 @@ class SettingPage extends GuiPage {
         for (let i = 0; i < commands.length; i++) {
             let i2 = i
 
-            elements.push(new SoopyTextElement().setText("§0" + commands[i]).setLocation(0.2, 0.4 + i * 0.05, 0.6, 0.05))
+            elements.push(new SoopyTextElement().setText("§0" + commands[i]).setLocation(0.2, 0.4 + i * 0.025, 0.6, 0.025))
 
             this.runCommand(commands[i], () => {
                 progressBar.setProgress((i2 + 1) / (commands.length), 1000)
@@ -138,7 +138,7 @@ class SettingPage extends GuiPage {
                 this.sidebarCustomPage.removeChild(e)
 
                 elements.forEach((e, i) => {
-                    e.location.location.y.set(0.4 + i * 0.05, 500)
+                    e.location.location.y.set(0.4 + i * 0.025, 500)
                 })
 
                 if (i2 === commands.length - 1) {
@@ -195,7 +195,7 @@ class SettingPage extends GuiPage {
         } else {
             if (!this.allFriendsLoaded) {
                 this.sidebarMainPage.addChild(
-                    new ButtonWithArrow().setText("§0Load all friends").setLocation(0.1, 0.1, 0.8, 0.2)
+                    new ButtonWithArrow().setText("§0Load all friends").setLocation(0.1, 0.1, 0.8, 0.15)
                         .addEvent(new SoopyMouseClickEvent().setHandler(() => {
                             this.loadAllFriends()
 
@@ -203,7 +203,7 @@ class SettingPage extends GuiPage {
                         })))
             } else {
                 this.sidebarMainPage.addChild(
-                    new ButtonWithArrow().setText("§0Select all").setLocation(0.1, 0.1, 0.8, 0.2)
+                    new ButtonWithArrow().setText("§0Select all").setLocation(0.1, 0.1, 0.8, 0.15)
                         .addEvent(new SoopyMouseClickEvent().setHandler(() => {
 
                             Object.keys(this.loadedFriends).forEach((ign, i) => {

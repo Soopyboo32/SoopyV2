@@ -10,8 +10,8 @@ import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement";
 import TextBox from "../../../guimanager/GuiElement/TextBox";
 import Feature from "../../featureClass/class";
 import socketConnection from "../../socketConnection";
-import { timeSince } from "../../utils/numberUtils";
-import { firstLetterCapital } from "../../utils/stringUtils";
+import { numberWithCommas, timeSince } from "../../utils/numberUtils";
+import { firstLetterCapital, firstLetterWordCapital } from "../../utils/stringUtils";
 import GuiPage from "../soopyGui/GuiPage";
 
 class EventsGui extends Feature {
@@ -100,7 +100,7 @@ class EventsPage extends GuiPage {
         this.pages[0].addChild(new SoopyTextElement().setText("§0You are curently in an event managed by §6" + data.admin).setMaxTextScale(3).setLocation(0.1, 0.05, 0.8, 0.2))
 
         if (!data.members[Player.getUUID().toString().replace(/-/g, "")]) {
-            this.pages[0].addChild(new ButtonWithArrow().setText("Join").setLocation(0.05, 0.2, 0.1, 0.05).addEvent(new SoopyMouseClickEvent().setHandler(() => {
+            this.pages[0].addChild(new ButtonWithArrow().setText("§0Join").setLocation(0.2, 0.2, 0.6, 0.1).addEvent(new SoopyMouseClickEvent().setHandler(() => {
                 this.pages[0].clearChildren()
                 this.pages[0].addChild(new BoxWithLoading().setLocation(0.3, 0.3, 0.4, 0.4))
 
@@ -130,10 +130,27 @@ class EventsPage extends GuiPage {
 
             if (isPlayer) playerPosition = i + 1
 
-            let nameLine = new SoopyTextElement().setText(`${isPlayer ? "§d" : "§0"}#${i + 1} ${m.username}`).setLocation(0, i * 0.05, 0.5, 0.05).setLore(["Last updated " + timeSince(m.timestamp) + " ago"])
+            let nameLine = new SoopyTextElement().setText(`${isPlayer ? "§d" : "§0"}#${i + 1} ${m.username}`).setLocation(0, i * 0.05, 0.5, 0.05).setLore(["Last updated " + timeSince(m.timestamp) + " ago", "Currently: " + (m.online ? "§aOnline" : "§cOffline")])
             nameLine.timestamp = m.timestamp
+            nameLine.online = m.online
             leaderboard.addChild(nameLine)
-            leaderboard.addChild(new SoopyTextElement().setText(`§0+${Math.floor(m.progress)}`).setLocation(0.5, i * 0.05, 0.5, 0.05))
+
+            let lore = [
+                `TOTAL: §e${numberWithCommas(Math.floor(m.progress))}`,
+                ` `
+            ]
+            Object.keys(m.current.weights).map(w => {
+                let progress = m.current.weights[w] - m.starting.weights[w]
+
+                return [w, progress]
+            }).sort((a, b) => b[1] - a[1]).forEach((l, i) => {
+                if (i > 10) return
+
+                lore.push(firstLetterWordCapital(l[0].replace(/_/g, " ").replace(/^.+? /, "")) + ": §e" + numberWithCommas(Math.floor(l[1])))
+            })
+
+
+            leaderboard.addChild(new SoopyTextElement().setText(`§0+${numberWithCommas(Math.floor(m.progress))}`).setLocation(0.5, i * 0.05, 0.5, 0.05).setLore(lore))
         })
 
         this.leaderboardChildren = [...leaderboard.children]
@@ -189,7 +206,7 @@ class EventsPage extends GuiPage {
 
             this.leaderboardChildren.forEach(c => {
                 if (c.timestamp) {
-                    c.setLore(["Last updated " + timeSince(c.timestamp) + " ago"])
+                    c.setLore(["Last updated " + timeSince(c.timestamp) + " ago", "Currently: " + (c.online ? "§aOnline" : "§cOffline")])
                 }
             })
         }

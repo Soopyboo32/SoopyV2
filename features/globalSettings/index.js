@@ -201,9 +201,11 @@ class GlobalSettings extends Feature {
     }
 
     updateItemLores() {
-        if (!this.itemWorth.getValue()) return;
+        if (!this.itemWorth.getValue() && !this.showChampion.getValue() && !this.showHecatomb.getValue()) return;
 
-        [...Player.getInventory().getItems(), ...Player.getContainer().getItems()].forEach(i => {
+        let items = [...Player.getInventory().getItems(), ...Player.getContainer().getItems()]
+
+        items.forEach(i => {
             let uuid = getSBUUID(i)
             if (!uuid) return
 
@@ -217,15 +219,15 @@ class GlobalSettings extends Feature {
 
                 if (a) {
                     addLore(i, "§eWorth: ", "§6$" + numberWithCommas(Math.round(a)))
-                    return
+                } else {
+                    if (!this.requestingPrices.has(uuid)) {
+                        this.requestingPrices.add(uuid)
+
+                        let json = i.getNBT().toObject()
+                        socketConnection.requestItemPrice(json, uuid)
+                    }
                 }
 
-                if (this.requestingPrices.has(uuid)) return
-
-                this.requestingPrices.add(uuid)
-
-                let json = i.getNBT().toObject()
-                socketConnection.requestItemPrice(json, uuid)
             }
 
             if (this.showChampion.getValue() && i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getDouble("champion_combat_xp")) {

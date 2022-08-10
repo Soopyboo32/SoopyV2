@@ -21,9 +21,9 @@ class SettingBase {
 
         this.val = defaultVal;
 
-        this.guiObject = new BoxWithTextAndDescription().setDesc("§0" + this.description.replace(/\n/g, "\n§0")).setText("§0" + this.name).setLocation(0, 0, 1, 0.175)
+        this.guiObject = new BoxWithTextAndDescription().setDesc("§0" + this.description.replace(/\n/g, "\n§0")).setText("§0" + this.name).setLocation(0, 0, 1, 0.15)
 
-        this.settingObject = new SoopyGuiElement().setLocation(0.8, 0, 0.2, 1)
+        this.settingObject = new SoopyGuiElement().setLocation(0.8, 0, 0.15, 1)
 
         this.guiObject.addChild(this.settingObject)
 
@@ -130,7 +130,7 @@ class SettingBase {
 
         toggleSetting.toggleObject.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun) => {
             if (newVal) {
-                this.guiObject.location.size.y.set(0.2, 500)
+                this.guiObject.location.size.y.set(0.15, 500)
             } else {
                 this.guiObject.location.size.y.set(0, 500)
             }

@@ -73,15 +73,15 @@ class StreamPage extends GuiPage {
                 let stream = streams.twitch[channel]
 
                 if (i % 2 === 0) {
-                    let element = new StreamElement().setLocation(0, y, 0.45, 0.55).setStreamPage(this)
+                    let element = new StreamElement().setLocation(0, y, 0.45, 0.4).setStreamPage(this)
                     this.streamsBox.addChild(element)
                     element.setStream(stream, true)
                 }
                 if (i % 2 === 1) {
-                    let element = new StreamElement().setLocation(0.55, y, 0.45, 0.55).setStreamPage(this)
+                    let element = new StreamElement().setLocation(0.55, y, 0.45, 0.4).setStreamPage(this)
                     this.streamsBox.addChild(element)
                     element.setStream(stream, true)
-                    y += 0.6
+                    y += 0.45
                 }
             })
         })

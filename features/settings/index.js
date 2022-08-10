@@ -132,7 +132,7 @@ class SettingPage extends GuiPage {
         let settingsCategoryTitle = new SoopyTextElement().setText("§0Settings").setMaxTextScale(3).setLocation(0.1, 0.05, 0.5, 0.1)
         this.pages[0].addChild(settingsCategoryTitle)
 
-        this.settingsCategorySearch = new TextBox().setPlaceholder("Search...").setLocation(0.6, 0.05, 0.3, 0.1)
+        this.settingsCategorySearch = new TextBox().setPlaceholder("Search...").setLocation(0.6, 0.05 + 0.0125, 0.3, 0.075)
         this.pages[0].addChild(this.settingsCategorySearch)
 
         this.settingsCategorySearch.text.addEvent(new SoopyContentChangeEvent().setHandler(() => {
@@ -208,12 +208,12 @@ class SettingPage extends GuiPage {
             }
             if (isHidden) return
 
-            let category = new ButtonWithArrowAndDescription().setText("&0" + meta.name).setDesc("&0" + meta.description).setLocation(0, height, 1, 0.2)
+            let category = new ButtonWithArrowAndDescription().setText("&0" + meta.name).setDesc("&0" + meta.description).setLocation(0, height, 1, 0.15)
             category.addEvent(new SoopyMouseClickEvent().setHandler(() => { this.clickedOpenCategory(f) }))
 
             this.settingsCategoryArea.addChild(category)
 
-            height += 0.225
+            height += 0.175
 
 
             if (search.length > 0) {
@@ -246,7 +246,7 @@ class SettingPage extends GuiPage {
         let height = 0
 
         if (meta.isTogglable) {
-            let toggle = new BoxWithToggleAndDescription().setLocation(0, height, 1, 0.2).setText("&0Main toggle").setDesc("&0This is the main toggle for the whole category")
+            let toggle = new BoxWithToggleAndDescription().setLocation(0, height, 1, 0.15).setText("&0Main toggle").setDesc("&0This is the main toggle for the whole category")
             this.settingsArea.addChild(toggle)
 
             toggle.toggle.setValue(this.FeatureManager.isFeatureLoaded(category), 0)
@@ -282,7 +282,7 @@ class SettingPage extends GuiPage {
 
             //only show if feature issnt loaded
 
-            let textBox = new SoopyBoxElement().setLocation(0, height, 1, 0.2)
+            let textBox = new SoopyBoxElement().setLocation(0, height, 1, 0.15)
                 .addChild(new SoopyTextElement().setText("&0Feature not loaded").setLocation(0, 0, 1, 0.5))
                 .addChild(new SoopyTextElement().setText("&0Load feature to access settings").setLocation(0, 0.5, 1, 0.5))
             this.settingsArea.addChild(textBox)

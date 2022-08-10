@@ -133,7 +133,7 @@ class LocationSetting extends ButtonSetting {
 
         toggleSetting.toggleObject.addEvent(new SoopyContentChangeEvent().setHandler((newVal, oldVal, resetFun) => {
             if (newVal) {
-                this.guiObject.location.size.y.set(0.2, 500)
+                this.guiObject.location.size.y.set(0.15, 500)
             } else {
                 this.guiObject.location.size.y.set(0, 500)
             }
