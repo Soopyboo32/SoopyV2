@@ -20,6 +20,9 @@ const Paths = Java.type("java.nio.file.Paths")
 const JavaString = Java.type("java.lang.String")
 const JavaLong = Java.type("java.lang.Long")
 
+let hecatombLevels = [2, 5, 10, 20, 30, 40, 60, 80, 100]
+let championLevels = [50000, 100000, 250000, 500000, 1000000, 1500000, 2000000, 2500000, 3000000]
+
 class GlobalSettings extends Feature {
     constructor() {
         super()
@@ -49,6 +52,8 @@ class GlobalSettings extends Feature {
         this.hideFallingBlocks = new ToggleSetting("Hide falling blocks", "NOTE: This setting is a bit laggy", false, "hide_falling_sand", this)
         this.twitchCommands = new ToggleSetting("Ingame twitch bot commands", "Allows u to use twitch bot commands ingame (eg -sa)", true, "twitch_commands_ingame", this)
         this.itemWorth = new ToggleSetting("(Approximate) Item worth in lore", "Accounts for stuff like enchants/recombs ect", false, "item_worth", this)
+        this.showHecatomb = new ToggleSetting("Show hecatomb enchant info in lore", "", true, "show_hecatomb", this)
+        this.showChampion = new ToggleSetting("Show champion enchant info in lore", "", true, "show_champion", this)
 
         this.firstPageSettings = [this.darkTheme]
 
@@ -87,7 +92,7 @@ class GlobalSettings extends Feature {
         }
 
         this.requestingPrices = new Set()
-        this.registerStep(false, 1, this.updateItemPrices)
+        this.registerStep(false, 1, this.updateItemLores)
         this.registerEvent("worldLoad", () => {
             this.requestingPrices.clear()
         })
@@ -167,31 +172,56 @@ class GlobalSettings extends Feature {
         })
     }
 
-    updateItemPrices() {
+    updateItemLores() {
         if (!this.itemWorth.getValue()) return;
 
         [...Player.getInventory().getItems(), ...Player.getContainer().getItems()].forEach(i => {
             let uuid = getSBUUID(i)
             if (!uuid) return
 
-            let a = socketConnection.itemPricesCache.get(uuid)
+            if (this.itemWorth.getValue()) {
+                let a = socketConnection.itemPricesCache.get(uuid)
 
-            if (!a && socketConnection.itemPricesCache2.get(uuid)) {
-                a = socketConnection.itemPricesCache2.get(uuid)
-                socketConnection.itemPricesCache.set(uuid, a)
+                if (!a && socketConnection.itemPricesCache2.get(uuid)) {
+                    a = socketConnection.itemPricesCache2.get(uuid)
+                    socketConnection.itemPricesCache.set(uuid, a)
+                }
+
+                if (a) {
+                    addLore(i, "§eWorth: ", "§6$" + numberWithCommas(Math.round(a)))
+                    return
+                }
+
+                if (this.requestingPrices.has(uuid)) return
+
+                this.requestingPrices.add(uuid)
+
+                let json = i.getNBT().toObject()
+                socketConnection.requestItemPrice(json, uuid)
             }
 
-            if (a) {
-                addLore(i, "§eWorth: ", "§6$" + numberWithCommas(Math.round(a)))
-                return
+            if (this.showChampion.getValue() && i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getDouble("champion_combat_xp")) {
+                let xp = i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getDouble("champion_combat_xp")
+
+                let level = 1
+                championLevels.forEach(l => {
+                    if (xp >= l) level++
+                })
+                let xpNext = championLevels[level - 1]
+
+                addLore(i, "§eChampion: ", "§d" + level + " §6" + numberWithCommas(Math.round(xp)) + (xpNext ? " §7/ §6" + numberWithCommas(Math.round(xpNext)) : ""))
             }
+            if (this.showHecatomb.getValue() && i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getInteger("hecatomb_s_runs")) {
+                let runs = i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getInteger("hecatomb_s_runs")
 
-            if (this.requestingPrices.has(uuid)) return
+                let level = 1
+                hecatombLevels.forEach(l => {
+                    if (runs >= l) level++
+                })
+                let xpNext = hecatombLevels[level - 1]
 
-            this.requestingPrices.add(uuid)
-
-            let json = i.getNBT().toObject()
-            socketConnection.requestItemPrice(json, uuid)
+                addLore(i, "§eHecatomb: ", "§d" + level + " §6" + numberWithCommas(Math.round(runs)) + (xpNext ? " §7/ §6" + numberWithCommas(Math.round(xpNext)) : ""))
+            }
         })
     }
 
