@@ -130,6 +130,7 @@ class GlobalSettings extends Feature {
                     let oldItem = this.oldItemData[j]
                     let newItem = i
                     if (!oldItem && !newItem) return //they both are air
+                    if (j > 36 || j == 9) return //sbmenu and armors (when switching wardrobe it goes brrr w/o this)
                     let oldItemAmount = oldItem ? oldItem.getNBT().toObject()?.Count : 0
                     let oldItemName = oldItem ? oldItem.getName() : ""
                     let newItemAmount = newItem ? newItem.getNBT().toObject()?.Count : 0
