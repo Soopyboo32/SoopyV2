@@ -171,12 +171,12 @@ class GlobalSettings extends Feature {
         //2 chat registeries below prevents pickup log to go brrr when warping
         this.registerChat("&eSkyBlock Dungeon Warp${p}", () => {
             this.clearLog = true
-            delay(10000, () => { this.clearLog = false })
+            delay(12500, () => { this.clearLog = false })
         })
 
         this.registerChat("&r&7Warping...${island}", () => {
             this.clearLog = true
-            delay(10000, () => { this.clearLog = false })
+            delay(12500, () => { this.clearLog = false })
         })
 
         this.firstPageSettings = [this.darkTheme]
