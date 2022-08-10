@@ -59,7 +59,7 @@ class GlobalSettings extends Feature {
         this.showChampion = new ToggleSetting("Show champion enchant info in lore", "", true, "show_champion", this)
 
         this.oldMasterStars = new ToggleSetting("Use Old Master Stars", "replaces the ugly new master star on item name with the old fashion one", false, "old_master_star", this)
-        this.sbaItemPickUpLog = new ToggleSetting("Sba Item Pick Up Log", "Same as sba item pick up log, but fixes old master stars making it go brrr", true, "sba_item_log", this);
+        this.sbaItemPickUpLog = new ToggleSetting("Sba Item Pick Up Log", "Same as sba item pick up log, but fixes old master stars making it go brrr", false, "sba_item_log", this);
         this.sbaItemPickUpLogElement = new HudTextElement()
             .setText("")
             .setToggleSetting(this.sbaItemPickUpLog)
@@ -207,7 +207,7 @@ class GlobalSettings extends Feature {
                             return
                         }
                         //positive and negative prefix colors
-                        todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
+                        if (todoText.length < 12) todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
                     })
                 } else {
                     this.todoPickUpLog = {};
@@ -226,6 +226,13 @@ class GlobalSettings extends Feature {
             this.clearLog = true
             delay(12500, () => { this.clearLog = false })
         })
+
+        this.registerChat("&r&c ☠ ${info} and became a ghost&r&7.&r", (info, e) => {
+            if (info.includes("You")) {
+                this.clearLog = true
+                delay(12500, () => { this.clearLog = false })
+            }
+        });
 
         this.firstPageSettings = [this.darkTheme]
 
