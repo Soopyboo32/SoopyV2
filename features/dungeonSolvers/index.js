@@ -1182,7 +1182,7 @@ class DungeonSolvers extends Feature {
 				let MobName = ChatLib.removeFormatting(name.getName())
 				if (MobName.includes("Ice Spray Wand") && name.getTicksExisted() <= 199) {
 					Client.showTitle(`&r&6&l[&b&l&kO&6&l] ${MobName.toUpperCase()} &6&l[&b&l&kO&6&l]`, "", 0, 40, 10);
-					ChatLib.chat(`&6&lRARE DROP! &r${name}`)
+					ChatLib.chat(`&6&lRARE DROP! &r${name.getName()}`)
 				}
 			})
 		}
