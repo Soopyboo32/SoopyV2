@@ -175,13 +175,13 @@ class GlobalSettings extends Feature {
                     let newItem = i
                     if (!oldItem && !newItem) return //they both are air
                     if (j > 36 || j == 9) return //sbmenu and armors (when switching wardrobe it goes brrr w/o this)
-                    let oldItemAmount = oldItem ? oldItem.getNBT().toObject()?.Count : 0
+                    let oldItemAmount = oldItem ? oldItem.getNBT().toObject()?.Count : undefined
                     let oldItemName = oldItem ? oldItem.getName() : ""
-                    let newItemAmount = newItem ? newItem.getNBT().toObject()?.Count : 0
+                    let newItemAmount = newItem ? newItem.getNBT().toObject()?.Count : undefined
                     let newItemName = newItem ? newItem.getName() : ""
                     this.oldItemData[j] = newItem
                     if (oldItemName === newItemName) { //only amount is changed
-                        if (oldItemAmount === newItemAmount) return
+                        if (oldItemAmount === newItemAmount || !newItemAmount || !oldItemAmount) return
                         this.addToTodoPickUpLog(now, oldItemName, newItemAmount - oldItemAmount)
                         return //so it doesn't provide duplicate message
                     }
@@ -189,9 +189,11 @@ class GlobalSettings extends Feature {
                     let newuuid = getSBUUID(newItem)
                     if (oldItemAmount == 1 && olduuid == newuuid) return // fixes using old master star making sba go brrr
                     if (oldItemName) { //thing removed from that inventory slot
+                        if (!oldItemAmount) return
                         this.addToTodoPickUpLog(now, oldItemName, (-1) * oldItemAmount)
                     }
                     if (newItemName) { //thing being placed into that inventory slot
+                        if (!newItemAmount) return
                         this.addToTodoPickUpLog(now, newItemName, newItemAmount)
                     }
                 }
@@ -200,12 +202,12 @@ class GlobalSettings extends Feature {
             if (!this.clearLog) {
                 if (pick) {
                     Object.keys(this.todoPickUpLog).forEach((i) => {
-                        if (Math.abs(this.todoPickUpLog[i].timeStamp - now) > 5000 || !this.todoPickUpLog[i].Amount) {
+                        if (Math.abs(this.todoPickUpLog[i].timeStamp - now) > 5000 || !this.todoPickUpLog[i].Amount || this.todoPickUpLog[i].Amount == 0) {
                             delete this.todoPickUpLog[i]
                             return
                         }
                         //positive and negative prefix colors
-                        todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount == 0 ? 1 : this.todoPickUpLog[i].Amount) + "x &r" + i)
+                        todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
                     })
                 } else {
                     this.todoPickUpLog = {};
