@@ -109,6 +109,8 @@ class DungeonSolvers extends Feature {
 
 		this.IceSprayWarn = new ToggleSetting("Ice Spray Drop Ping", "Renders a big title so you don't miss ice spray wands", false, "ice_spray_ping", this).contributor("EmeraldMerchant");
 
+		this.guardianHp = new ToggleSetting("m3/f3 guardian hp", "", true, "guardian_hp", this);
+
 		this.registerChat("&r&c ☠ &r${player} were killed by Withermancer&r&7 and became a ghost&r&7.&r", (player, e) => {
 			if (this.forgorEnabled.getValue()) {
 				cancel(e);
@@ -699,11 +701,11 @@ class DungeonSolvers extends Feature {
 		}
 		for (let i = 0; i < shifts; i++) this.timersData.shift()
 
-		if (this.FeatureManager.features["dataLoader"].class.dungeonFloor[1] === "3") {
+		if (this.guardianHp.getValue() && this.FeatureManager.features["dataLoader"].class.dungeonFloor?.[1] === "3") {
 			let es = World.getAllEntitiesOfType(entityGuardian)
 
 			for (let e of es) {
-				if (e.getEntity().func_110143_aJ() < 1000) continue
+				if (e.getEntity().func_110143_aJ() < 1000) continue //getHealth
 
 				Tessellator.drawString(addNotation("oneLetters", Math.round(e.getEntity().func_110143_aJ())), e.getX(), e.getY() + 0.25, e.getZ(), Renderer.color(0, 255, 0), false, 0.1, false)
 			}
