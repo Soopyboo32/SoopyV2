@@ -116,7 +116,7 @@ class DungeonSolvers extends Feature {
 			this.spiritMaskTimer = 0;
 			this.eraseBonzoTimer = true;
 		});
-		this.registerStep(false, 30, this.getBonzoMaskCooldown());
+		this.registerStep(false, 30, this.getBonzoMaskCooldown);
 		this.bonzoSpiritMaskTimer = new ToggleSetting("Timer for when bonzo/spirit mask will be ready", "works for both bonzo masks, hides bonzo masks' timers after you leave the run", false, "bonzo_mask_timer", this);
 		this.bonzoSpiritMaskTimerElement = new HudTextElement().setToggleSetting(this.bonzoSpiritMaskTimer).setLocationSetting(new LocationSetting("Bonzo/Spirit Mask timer location", "Allows you to edit the location of the timer", "bonzo_mask_timer_location", this, [10, 100, 1, 1]).requires(this.bonzoSpiritMaskTimer).editTempText("&9Bonzo's Mask: &c157s"));
 		this.hudElements.push(this.bonzoSpiritMaskTimerElement);
@@ -1182,7 +1182,7 @@ class DungeonSolvers extends Feature {
 				let MobName = ChatLib.removeFormatting(name.getName())
 				if (MobName.includes("Ice Spray Wand") && name.getTicksExisted() <= 199) {
 					Client.showTitle(`&r&6&l[&b&l&kO&6&l] ${MobName.toUpperCase()} &6&l[&b&l&kO&6&l]`, "", 0, 40, 10);
-					ChatLib.chat(`&6&lRARE DROP! &r${MobName}`)
+					ChatLib.chat(`&6&lRARE DROP! &r${name}`)
 				}
 			})
 		}
