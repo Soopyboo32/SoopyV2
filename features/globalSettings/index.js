@@ -185,11 +185,13 @@ class GlobalSettings extends Feature {
                         this.addToTodoPickUpLog(now, oldItemName, newItemAmount - oldItemAmount)
                         return //so it doesn't provide duplicate message
                     }
-                    if (getSBUUID(oldItem) === getSBUUID(newItem) && oldItem) return // fixes using old master star making sba go brrr
-                    if (oldItem) { //thing removed from that inventory slot
+                    let olduuid = getSBUUID(oldItem)
+                    let newuuid = getSBUUID(newItem)
+                    if (oldItemAmount == 1 && olduuid == newuuid) return // fixes using old master star making sba go brrr
+                    if (oldItemName) { //thing removed from that inventory slot
                         this.addToTodoPickUpLog(now, oldItemName, (-1) * oldItemAmount)
                     }
-                    if (newItem) { //thing being placed into that inventory slot
+                    if (newItemName) { //thing being placed into that inventory slot
                         this.addToTodoPickUpLog(now, newItemName, newItemAmount)
                     }
                 }
