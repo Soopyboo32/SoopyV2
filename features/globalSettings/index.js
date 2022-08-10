@@ -103,6 +103,48 @@ class GlobalSettings extends Feature {
             }
         })
 
+        this.registerEvent('worldLoad', () => {
+            if (!this.oldMasterStars.getValue()) return
+            let j = 0;
+            [...Player.getInventory().getItems()].forEach(i => {
+                j++;
+                if (j > 8) return //only do the 1-8 hot bar slots
+                if (!i) return
+                let itemName = i.getName()
+                let itemNameReformat = itemName.removeFormatting()
+                if (itemNameReformat.endsWith("➊")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➊", "§c✪§6✪✪✪✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+                if (itemNameReformat.endsWith("➋")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➋", "§c✪✪§6✪✪✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+                if (itemNameReformat.endsWith("➌")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➌", "§c✪✪✪§6✪✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+                if (itemNameReformat.endsWith("➍")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➍", "§c✪✪✪✪§6✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+                if (itemNameReformat.endsWith("➎")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➎", "§c✪✪✪✪✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+            })
+        })
+
         this.itemData = {};
         this.oldItemData = {};
         this.initOldItemData();
