@@ -422,34 +422,6 @@ class GlobalSettings extends Feature {
         }
     }
 
-    updateItemPrices() {
-        if (!this.itemWorth.getValue()) return;
-
-        [...Player.getInventory().getItems(), ...Player.getContainer().getItems()].forEach(i => {
-            let uuid = getSBUUID(i)
-            if (!uuid) return
-
-            let a = socketConnection.itemPricesCache.get(uuid)
-
-            if (!a && socketConnection.itemPricesCache2.get(uuid)) {
-                a = socketConnection.itemPricesCache2.get(uuid)
-                socketConnection.itemPricesCache.set(uuid, a)
-            }
-
-            if (a) {
-                addLore(i, "§eWorth: ", "§6$" + numberWithCommas(Math.round(a)))
-                return
-            }
-
-            if (this.requestingPrices.has(uuid)) return
-
-            this.requestingPrices.add(uuid)
-
-            let json = i.getNBT().toObject()
-            socketConnection.requestItemPrice(json, uuid)
-        })
-    }
-
     // renderWebpage() {
     //     let url = this.getField(Client.currentGui.get(), f.linkText)
 
