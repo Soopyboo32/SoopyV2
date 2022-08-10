@@ -7,6 +7,7 @@ import * as renderUtils from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
+import TextSetting from "../settings/settingThings/textSetting";
 import { fetch } from "../../utils/networkUtils";
 import { delay } from "../../utils/delayUtils";
 import { Waypoint } from "../../utils/renderJavaUtils";
@@ -49,6 +50,12 @@ class DungeonSolvers extends Feature {
 			Purple: "&5",
 			Arcade: "&e",
 		};
+
+		this.bonzoMaskTimer = 0;
+		this.fraggedBonzoMaskTimer = 0;
+		this.spiritMaskTimer = 0;
+		this.eraseBonzoTimer = true;
+		this.bonzoMaskCooldown = 0;
 
 		this.lastWorldload = Date.now()
 		this.lividFindEnabled = new ToggleSetting("Correct livid finder", "Finds the real livid to kill in the f5 boss fight", true, "livid_find_enabled", this);
@@ -103,7 +110,80 @@ class DungeonSolvers extends Feature {
 			if (this.lastDungFinishes.length > 5) {
 				this.lastDungFinishes.shift();
 			}
+
+			this.bonzoMaskTimer = 0;
+			this.fraggedBonzoMaskTimer = 0;
+			this.spiritMaskTimer = 0;
+			this.eraseBonzoTimer = true;
 		});
+		this.registerStep(false, 30, this.getBonzoMaskCooldown);
+		this.bonzoSpiritMaskTimer = new ToggleSetting("Timer for when bonzo/spirit mask will be ready", "works for both bonzo masks, hides bonzo masks' timers after you leave the run", false, "bonzo_mask_timer", this);
+		this.bonzoSpiritMaskTimerElement = new HudTextElement().setToggleSetting(this.bonzoSpiritMaskTimer).setLocationSetting(new LocationSetting("Bonzo/Spirit Mask timer location", "Allows you to edit the location of the timer", "bonzo_mask_timer_location", this, [10, 100, 1, 1]).requires(this.bonzoSpiritMaskTimer).editTempText("&9Bonzo's Mask: &c157s"));
+		this.hudElements.push(this.bonzoSpiritMaskTimerElement);
+		this.spiritMaskOutsideDungeon = new ToggleSetting("Spirit Mask Timer Outside Dungeons", "should spirit mask timer be shown outside dungeon?", false, "spirit_mask_timer", this).requires(this.bonzoSpiritMaskTimer);
+
+		this.normalBonzoMask = new ToggleSetting("Bonzo Mask Proc'ed Alert", "Enable this to change the message", true, "bonzo_mask_alert", this).requires(this.bonzoSpiritMaskTimer);
+		this.normalBonzoMaskMessage = new TextSetting("Bonzo Mask Proc'ed Message", "change bonzo mask proc message here", "&cBonzo Mask Used", "bonzo_mask_alert_message", this, "&cBonzo Mask Used", false).requires(this.normalBonzoMask);
+		this.fraggedBonzoMask = new ToggleSetting("⚚ Bonzo Mask Proc'ed Alert", "Enable this to change the message", true, "fragged_bonzo_mask_alert", this).requires(this.bonzoSpiritMaskTimer);
+		this.fraggedBonzoMaskMessage = new TextSetting("⚚ Bonzo Mask Proc'ed Message", "change bonzo mask proc message here", "&c⚚ Bonzo Mask Used", "fragged_bonzo_mask_alert_message", this, "&c⚚ Bonzo Mask Used", false).requires(this.fraggedBonzoMask);
+		this.spiritMask = new ToggleSetting("Spirit Mask Proc'ed Alert", "Enable this to change the message", true, "spirit_mask_alert", this).requires(this.bonzoSpiritMaskTimer);
+		this.spiritMaskMessage = new TextSetting("Spirit Mask Proc'ed Message", "change spirit mask proc message here", "&cSpirit Mask Used", "spirit_mask_alert_message", this, "&cSpirit Mask Used", false).requires(this.spiritMask);
+
+		this.registerChat("&r&aYour &r&9Bonzo's Mask &r&asaved your life!&r", () => {
+			this.eraseBonzoTimer = false;
+			if (this.bonzoSpiritMaskTimer.getValue()) {
+				this.bonzoMaskTimer = Date.now() + this.bonzoMaskCooldown * 1000;
+			}
+			if (this.normalBonzoMask.getValue()) {
+				let m = this.normalBonzoMaskMessage.getValue()
+				Client.showTitle(m ? m : "&cBonzo Mask Used", "", 0, 60, 10)
+			}
+		})
+
+		this.registerChat("&r&aYour &r&9⚚ Bonzo's Mask &r&asaved your life!&r", () => {
+			this.eraseBonzoTimer = false;
+			if (this.bonzoSpiritMaskTimer.getValue()) {
+				this.fraggedBonzoMaskTimer = Date.now() + this.bonzoMaskCooldown * 1000;
+			}
+			if (this.fraggedBonzoMask.getValue()) {
+				let m = this.fraggedBonzoMaskMessage.getValue()
+				Client.showTitle(m ? m : "&c⚚ Bonzo Mask Used", "", 0, 60, 10)
+			}
+		})
+
+		this.registerChat("&r&6Second Wind Activated&r&a! &r&aYour Spirit Mask saved your life!&r", () => {
+			if (this.bonzoSpiritMaskTimer.getValue()) {
+				if (this.spiritMaskOutsideDungeon.getValue() ? true : !this.eraseBonzoTimer) {
+					this.spiritMaskTimer = Date.now() + 30 * 1000;
+				}
+			}
+			if (this.fraggedBonzoMask.getValue()) {
+				let m = this.spiritMaskMessage.getValue()
+				Client.showTitle((m ? m : "&cSpirit Mask Used"), "", 0, 60, 10)
+			}
+		})
+
+		this.registerStep(true, 10, () => {
+			if (!this.bonzoSpiritMaskTimer.getValue()) return
+			let timerText = ""
+			if (this.spiritMaskOutsideDungeon.getValue() ? true : !this.eraseBonzoTimer) {
+				if (this.spiritMask.getValue()) {
+					let timer1 = Math.round((this.spiritMaskTimer - Date.now())/100)/10
+					timerText += "&5Spirit Mask: " + (timer1 > 0 ? "&c" + timer1 + "&6s" : "&6READY") + "\n"
+				}
+			}
+			if (!this.eraseBonzoTimer) {
+				if (this.normalBonzoMask.getValue()) {
+					let timer2 = Math.round((this.bonzoMaskTimer - Date.now())/100)/10
+					timerText += "&9Bonzo's Mask: " + (timer2 > 0 ? "&c" + timer2 + "&6s" : "&6READY") + "\n"
+				}
+				if (this.fraggedBonzoMask.getValue()) {
+					let timer3 = Math.round((this.fraggedBonzoMaskTimer - Date.now())/100)/10
+					timerText += "&9⚚ Bonzo's Mask: " + (timer3 > 0 ? "&c" + timer3 + "&6s" : "&6READY")
+				}
+			}
+			this.bonzoSpiritMaskTimerElement.setText(timerText)
+		})
 		this.forgorEnabled = new ToggleSetting("Change withermancer death message to forgor ", "", true, "withermancer_forgor", this);
 		this.f7waypoints = new ToggleSetting("Waypoints for P3 F7/M7", "(Only shows unfinished ones)", true, "f7_waypoints", this);
 
@@ -382,6 +462,19 @@ class DungeonSolvers extends Feature {
 			packetRecieved.trigger.setPacketClasses([net.minecraft.network.play.server.S23PacketBlockChange, net.minecraft.network.play.server.S22PacketMultiBlockChange])
 		} catch (e) { }//older ct version
 
+	}
+	getBonzoMaskCooldown() {
+		[...Player.getInventory().getItems()].forEach(i => {
+			if (!i) return
+			let itemName = i.getName()
+			if (itemName.removeFormatting().includes("Bonzo's Mask")) {
+				i.getLore().forEach(line => {
+					if (line.includes("Cooldown:")) {
+						this.bonzoMaskCooldown = Number(line.removeFormatting().split("n: ")[1].replace("s", ""))
+					}
+				})
+			}
+		})
 	}
 	getCurrentRoomId() {
 		if (Scoreboard.getLines().length === 0) return
@@ -1089,7 +1182,7 @@ class DungeonSolvers extends Feature {
 				let MobName = ChatLib.removeFormatting(name.getName())
 				if (MobName.includes("Ice Spray Wand") && name.getTicksExisted() <= 199) {
 					Client.showTitle(`&r&6&l[&b&l&kO&6&l] ${MobName.toUpperCase()} &6&l[&b&l&kO&6&l]`, "", 0, 40, 10);
-					ChatLib.chat(`&6&lRARE DROP! &r${MobName}`)
+					ChatLib.chat(`&6&lRARE DROP! &r${name.getName()}`)
 				}
 			})
 		}
