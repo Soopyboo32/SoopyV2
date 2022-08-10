@@ -4,6 +4,8 @@ import Feature from "../../featureClass/class";
 import ButtonSetting from "../settings/settingThings/button";
 import TextSetting from "../settings/settingThings/textSetting";
 import ToggleSetting from "../settings/settingThings/toggle";
+import HudTextElement from "../hud/HudTextElement";
+import LocationSetting from "../settings/settingThings/location";
 import firstLoadPages from "./firstLoadPages";
 import GuiPage from "../soopyGui/GuiPage"
 import Notification from "../../../guimanager/Notification";
@@ -54,7 +56,14 @@ class GlobalSettings extends Feature {
         this.itemWorth = new ToggleSetting("(Approximate) Item worth in lore", "Accounts for stuff like enchants/recombs ect", false, "item_worth", this)
         this.showHecatomb = new ToggleSetting("Show hecatomb enchant info in lore", "", true, "show_hecatomb", this)
         this.showChampion = new ToggleSetting("Show champion enchant info in lore", "", true, "show_champion", this)
+
         this.oldMasterStars = new ToggleSetting("Use Old Master Stars", "replaces the ugly new master star on item name with the old fashion one", false, "old_master_star", this)
+        this.sbaItemPickUpLog = new ToggleSetting("Sba Item Pick Up Log", "Same as sba item pick up log, but fixes old master stars making it go brrr", true, "sba_item_log", this);
+        this.sbaItemPickUpLogElement = new HudTextElement()
+            .setText("")
+            .setToggleSetting(this.sbaItemPickUpLog)
+            .setLocationSetting(new LocationSetting("Sba Item Pick Up Log location", "Allows you to change location of this display", "sba_item_log_location", this, [10, 100, 1, 1]).requires(this.sbaItemPickUpLog).editTempText(`&a+ 1x &dHeroic Hyperion &c✪✪✪✪✪\n&c- 1x &dHeroic Hyperion &6✪✪✪✪✪`));
+        this.hudElements.push(this.sbaItemPickUpLogElement);
 
         this.registerEvent('itemTooltip', (lore, i, e) => {
             if (!this.oldMasterStars.getValue()) return
@@ -62,25 +71,96 @@ class GlobalSettings extends Feature {
             let itemName = i.getName()
             let itemNameReformat = itemName.removeFormatting()
             if (itemNameReformat.endsWith("➊")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➊", "&c✪&6✪✪✪✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➊", "§c✪§6✪✪✪✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
             if (itemNameReformat.endsWith("➋")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➋", "&c✪✪&6✪✪✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➋", "§c✪✪§6✪✪✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
             if (itemNameReformat.endsWith("➌")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➌", "&c✪✪✪&6✪✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➌", "§c✪✪✪§6✪✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
             if (itemNameReformat.endsWith("➍")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➍", "&c✪✪✪✪&6✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➍", "§c✪✪✪✪§6✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
             if (itemNameReformat.endsWith("➎")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➎", "&c✪✪✪✪✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➎", "§c✪✪✪✪✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
+        })
+
+        this.itemData = {};
+        this.oldItemData = {};
+        this.initOldItemData();
+        this.todoPickUpLog = [];
+
+        this.registerStep(true, 5, () => {
+            let old = this.oldMasterStars.getValue();
+            let pick = this.sbaItemPickUpLog.getValue();
+            if (!old && !pick) return
+            let j = 0;
+            let now = Date.now();
+            [...Player.getInventory().getItems()].forEach(i => {
+                j++;
+                if (i) {
+                    let uuid = getSBUUID(i)
+                    if (old) {
+                        if (uuid && this.itemData.hasOwnProperty(uuid)) {
+                            let newName = this.itemData[uuid]
+                            if (i.getName() != newName) {
+                                i.setName(newName)
+                            }
+                        }
+                    }
+                }
+                if (pick) {
+                    let oldItem = this.oldItemData[j]
+                    let newItem = i
+                    if (!oldItem && !newItem) return //they both are air
+                    let oldItemAmount = oldItem ? oldItem.getNBT().toObject()?.Count : 0
+                    let oldItemName = oldItem ? oldItem.getName() : ""
+                    let newItemAmount = newItem ? newItem.getNBT().toObject()?.Count : 0
+                    let newItemName = newItem ? newItem.getName() : ""
+                    this.oldItemData[j] = newItem
+                    if (oldItemName === newItemName) { //only amount is changed
+                        if (oldItemAmount === newItemAmount) return
+                        this.addToTodoPickUpLog(now, oldItemName, newItemAmount - oldItemAmount)
+                        return //so it doesn't provide duplicate message
+                    }
+                    if (getSBUUID(oldItem) === getSBUUID(newItem) && oldItem) return // fixes using old master star making sba go brrr
+                    if (oldItem) { //thing removed from that inventory slot
+                        this.addToTodoPickUpLog(now, oldItemName, (-1) * oldItemAmount)
+                    }
+                    if (newItem) { //thing being placed into that inventory slot
+                        this.addToTodoPickUpLog(now, newItemName, newItemAmount)
+                    }
+                }
+            })
+            let todoText = [];
+            if (pick) {
+                this.todoPickUpLog.forEach((i, index, array) => { //positive and negative prefix colors
+                    if (Math.abs(i.timeStamp - now) > 5000) {
+                        array.splice(index, 1)
+                    }
+                    todoText.push((i.Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(i.Amount) + "x &r" + i.itemName)
+                });
+            } else {
+                this.todoPickUpLog = [];
+            } // doesn't need to put setText() in if (pick) cuz if (!pick) it clears the todo log list
+            this.sbaItemPickUpLogElement.setText(todoText.join("\n"))
         })
 
         this.firstPageSettings = [this.darkTheme]
@@ -252,6 +332,56 @@ class GlobalSettings extends Feature {
 
                 addLore(i, "§eHecatomb: ", "§d" + level + " §6" + numberWithCommas(Math.round(runs)) + (xpNext ? " §7/ §6" + numberWithCommas(Math.round(xpNext)) : ""))
             }
+        })
+    }
+
+    addToTodoPickUpLog(timestamp, itemname, amount) {
+        this.todoPickUpLog.push({
+            timeStamp: timestamp,
+            itemName: itemname,
+            Amount: amount
+        })
+    }
+
+    initOldItemData() {
+        let j = 0;
+        [...Player.getInventory().getItems()].forEach(i => {
+            j++;
+            this.oldItemData[j] = i
+        })
+    }
+
+    saveItemData(uuid, newName) {
+        if (!this.itemData[uuid]) {
+            this.itemData[uuid] = newName
+        }
+    }
+
+    updateItemPrices() {
+        if (!this.itemWorth.getValue()) return;
+
+        [...Player.getInventory().getItems(), ...Player.getContainer().getItems()].forEach(i => {
+            let uuid = getSBUUID(i)
+            if (!uuid) return
+
+            let a = socketConnection.itemPricesCache.get(uuid)
+
+            if (!a && socketConnection.itemPricesCache2.get(uuid)) {
+                a = socketConnection.itemPricesCache2.get(uuid)
+                socketConnection.itemPricesCache.set(uuid, a)
+            }
+
+            if (a) {
+                addLore(i, "§eWorth: ", "§6$" + numberWithCommas(Math.round(a)))
+                return
+            }
+
+            if (this.requestingPrices.has(uuid)) return
+
+            this.requestingPrices.add(uuid)
+
+            let json = i.getNBT().toObject()
+            socketConnection.requestItemPrice(json, uuid)
         })
     }
 
@@ -606,7 +736,12 @@ class GlobalSettings extends Feature {
         this.apiKeySetting.setValue(key)
     }
 
+    initVariables() {
+        this.hudElements = [];
+    }
+
     onDisable() {
+        this.hudElements.forEach(h => h.delete())
         this.initVariables()
     }
 }
