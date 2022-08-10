@@ -17,6 +17,7 @@ import socketConnection from "../../socketConnection";
 import renderLibs from "../../../guimanager/renderLibs";
 import { f } from "../../../mappings/mappings";
 import { addLore, getSBUUID } from "../../utils/utils";
+import { delay } from "../../utils/delayUtils";
 const Files = Java.type("java.nio.file.Files")
 const Paths = Java.type("java.nio.file.Paths")
 const JavaString = Java.type("java.lang.String")
@@ -106,6 +107,7 @@ class GlobalSettings extends Feature {
         this.oldItemData = {};
         this.initOldItemData();
         this.todoPickUpLog = [];
+        this.clearLog = false;
 
         this.registerStep(true, 5, () => {
             let old = this.oldMasterStars.getValue();
@@ -151,17 +153,30 @@ class GlobalSettings extends Feature {
                 }
             })
             let todoText = [];
-            if (pick) {
-                this.todoPickUpLog.forEach((i, index, array) => { //positive and negative prefix colors
-                    if (Math.abs(i.timeStamp - now) > 5000) {
-                        array.splice(index, 1)
-                    }
-                    todoText.push((i.Amount > -1 ? "&r&a+ " : "&r&c- ") + Math.abs(i.Amount == 0 ? 1 : i.Amount) + "x &r" + i.itemName)
-                });
-            } else {
-                this.todoPickUpLog = [];
-            } // doesn't need to put setText() in if (pick) cuz if (!pick) it clears the todo log list
+            if (!this.clearLog) {
+                if (pick) {
+                    this.todoPickUpLog.forEach((i, index, array) => { //positive and negative prefix colors
+                        if (Math.abs(i.timeStamp - now) > 5000) {
+                            array.splice(index, 1)
+                        }
+                        todoText.push((i.Amount > -1 ? "&r&a+ " : "&r&c- ") + Math.abs(i.Amount == 0 ? 1 : i.Amount) + "x &r" + i.itemName)
+                    });
+                } else {
+                    this.todoPickUpLog = [];
+                }
+            }
+            // doesn't need to put setText() in if (pick) cuz if (!pick) it clears the todo log list
             this.sbaItemPickUpLogElement.setText(todoText.join("\n"))
+        })
+        //2 chat registeries below prevents pickup log to go brrr when warping
+        this.registerChat("&eSkyBlock Dungeon Warp${p}", () => {
+            this.clearLog = true
+            delay(10000, () => { this.clearLog = false })
+        })
+
+        this.registerChat("&r&7Warping...${island}", () => {
+            this.clearLog = true
+            delay(10000, () => { this.clearLog = false })
         })
 
         this.firstPageSettings = [this.darkTheme]
