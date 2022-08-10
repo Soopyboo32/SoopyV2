@@ -159,7 +159,7 @@ class GlobalSettings extends Feature {
                         if (Math.abs(i.timeStamp - now) > 5000) {
                             array.splice(index, 1)
                         }
-                        todoText.push((i.Amount > -1 ? "&r&a+ " : "&r&c- ") + Math.abs(i.Amount == 0 ? 1 : i.Amount) + "x &r" + i.itemName)
+                        todoText.push((i.Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(i.Amount == 0 ? 1 : i.Amount) + "x &r" + i.itemName)
                     });
                 } else {
                     this.todoPickUpLog = [];
