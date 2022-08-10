@@ -148,7 +148,7 @@ class GlobalSettings extends Feature {
         this.itemData = {};
         this.oldItemData = {};
         this.initOldItemData();
-        this.todoPickUpLog = [];
+        this.todoPickUpLog = {};
         this.clearLog = false;
 
         this.registerStep(true, 5, () => {
@@ -197,14 +197,16 @@ class GlobalSettings extends Feature {
             let todoText = [];
             if (!this.clearLog) {
                 if (pick) {
-                    this.todoPickUpLog.forEach((i, index, array) => { //positive and negative prefix colors
-                        if (Math.abs(i.timeStamp - now) > 5000) {
-                            array.splice(index, 1)
+                    Object.keys(this.todoPickUpLog).forEach((i) => {
+                        if (Math.abs(this.todoPickUpLog[i].timeStamp - now) > 5000 || !this.todoPickUpLog[i].Amount) {
+                            delete this.todoPickUpLog[i]
+                            return
                         }
-                        todoText.push((i.Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(i.Amount == 0 ? 1 : i.Amount) + "x &r" + i.itemName)
-                    });
+                        //positive and negative prefix colors
+                        todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount == 0 ? 1 : this.todoPickUpLog[i].Amount) + "x &r" + i)
+                    })
                 } else {
-                    this.todoPickUpLog = [];
+                    this.todoPickUpLog = {};
                 }
             }
             // doesn't need to put setText() in if (pick) cuz if (!pick) it clears the todo log list
@@ -394,11 +396,16 @@ class GlobalSettings extends Feature {
     }
 
     addToTodoPickUpLog(timestamp, itemname, amount) {
-        this.todoPickUpLog.push({
+        let basicValue = 0
+        if (this.todoPickUpLog[itemname]) {
+            if (this.todoPickUpLog[itemname].Amount > 0) {
+                basicValue = this.todoPickUpLog[itemname].Amount
+            }
+        }
+        this.todoPickUpLog[itemname] = {
             timeStamp: timestamp,
-            itemName: itemname,
-            Amount: amount
-        })
+            Amount: basicValue + amount
+        }
     }
 
     initOldItemData() {
