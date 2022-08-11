@@ -4,6 +4,8 @@ import Feature from "../../featureClass/class";
 import ButtonSetting from "../settings/settingThings/button";
 import TextSetting from "../settings/settingThings/textSetting";
 import ToggleSetting from "../settings/settingThings/toggle";
+import HudTextElement from "../hud/HudTextElement";
+import LocationSetting from "../settings/settingThings/location";
 import firstLoadPages from "./firstLoadPages";
 import GuiPage from "../soopyGui/GuiPage"
 import Notification from "../../../guimanager/Notification";
@@ -15,6 +17,7 @@ import socketConnection from "../../socketConnection";
 import renderLibs from "../../../guimanager/renderLibs";
 import { f } from "../../../mappings/mappings";
 import { addLore, getSBUUID } from "../../utils/utils";
+import { delay } from "../../utils/delayUtils";
 const Files = Java.type("java.nio.file.Files")
 const Paths = Java.type("java.nio.file.Paths")
 const JavaString = Java.type("java.lang.String")
@@ -54,7 +57,14 @@ class GlobalSettings extends Feature {
         this.itemWorth = new ToggleSetting("(Approximate) Item worth in lore", "Accounts for stuff like enchants/recombs ect", false, "item_worth", this)
         this.showHecatomb = new ToggleSetting("Show hecatomb enchant info in lore", "", true, "show_hecatomb", this)
         this.showChampion = new ToggleSetting("Show champion enchant info in lore", "", true, "show_champion", this)
+
         this.oldMasterStars = new ToggleSetting("Use Old Master Stars", "replaces the ugly new master star on item name with the old fashion one", false, "old_master_star", this)
+        this.sbaItemPickUpLog = new ToggleSetting("Sba Item Pick Up Log", "Same as sba item pick up log, but fixes old master stars making it go brrr", false, "sba_item_log", this);
+        this.sbaItemPickUpLogElement = new HudTextElement()
+            .setText("")
+            .setToggleSetting(this.sbaItemPickUpLog)
+            .setLocationSetting(new LocationSetting("Sba Item Pick Up Log location", "Allows you to change location of this display", "sba_item_log_location", this, [10, 100, 1, 1]).requires(this.sbaItemPickUpLog).editTempText(`&a+ 1x &dHeroic Hyperion &c✪✪✪✪✪\n&c- 1x &dHeroic Hyperion &6✪✪✪✪✪`));
+        this.hudElements.push(this.sbaItemPickUpLogElement);
 
         this.registerEvent('itemTooltip', (lore, i, e) => {
             if (!this.oldMasterStars.getValue()) return
@@ -62,26 +72,200 @@ class GlobalSettings extends Feature {
             let itemName = i.getName()
             let itemNameReformat = itemName.removeFormatting()
             if (itemNameReformat.endsWith("➊")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➊", "&c✪&6✪✪✪✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➊", "§c✪§6✪✪✪✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
             if (itemNameReformat.endsWith("➋")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➋", "&c✪✪&6✪✪✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➋", "§c✪✪§6✪✪✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
             if (itemNameReformat.endsWith("➌")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➌", "&c✪✪✪&6✪✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➌", "§c✪✪✪§6✪✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
             if (itemNameReformat.endsWith("➍")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➍", "&c✪✪✪✪&6✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➍", "§c✪✪✪✪§6✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
             if (itemNameReformat.endsWith("➎")) {
-                i.setName(itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➎", "&c✪✪✪✪✪"))
+                let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➎", "§c✪✪✪✪✪")
+                i.setName(newItemName)
+                this.saveItemData(getSBUUID(i), newItemName)
                 return
             }
         })
+
+        this.registerEvent('worldLoad', () => {
+            if (!this.oldMasterStars.getValue()) return
+            let j = 0;
+            [...Player.getInventory().getItems()].forEach(i => {
+                j++;
+                if (j > 8) return //only do the 1-8 hot bar slots
+                if (!i) return
+                let itemName = i.getName()
+                let itemNameReformat = itemName.removeFormatting()
+                if (itemNameReformat.endsWith("➊")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➊", "§c✪§6✪✪✪✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+                if (itemNameReformat.endsWith("➋")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➋", "§c✪✪§6✪✪✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+                if (itemNameReformat.endsWith("➌")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➌", "§c✪✪✪§6✪✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+                if (itemNameReformat.endsWith("➍")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➍", "§c✪✪✪✪§6✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+                if (itemNameReformat.endsWith("➎")) {
+                    let newItemName = itemName.replace("§6✪§6✪§6✪§6✪§6✪§c➎", "§c✪✪✪✪✪")
+                    i.setName(newItemName)
+                    this.saveItemData(getSBUUID(i), newItemName)
+                    return
+                }
+            })
+        })
+
+        this.itemData = {};
+        this.oldItemData = {};
+        this.initOldItemData();
+        this.todoPickUpLog = {};
+        this.clearLog = false;
+        this.maxAmount = 12;
+
+        this.registerStep(true, 5, () => {
+            let old = this.oldMasterStars.getValue();
+            let pick = this.sbaItemPickUpLog.getValue();
+            if (!old && !pick) return
+            let j = 0;
+            let now = Date.now();
+            [...Player.getInventory().getItems()].forEach(i => {
+                j++;
+                if (i) {
+                    let uuid = getSBUUID(i)
+                    if (old) {
+                        if (uuid && this.itemData.hasOwnProperty(uuid)) {
+                            let newName = this.itemData[uuid]
+                            if (i.getName() != newName) {
+                                i.setName(newName)
+                            }
+                        }
+                    }
+                }
+                if (pick) {
+                    let oldItem = this.oldItemData[j]
+                    let newItem = i
+                    if (!oldItem && !newItem) return //they both are air
+                    if (j > 36 || j == 9) return //sbmenu and armors (when switching wardrobe it goes brrr w/o this)
+                    let oldItemAmount = oldItem ? oldItem.getNBT().toObject()?.Count : undefined
+                    let oldItemName = oldItem ? oldItem.getName() : ""
+                    let newItemAmount = newItem ? newItem.getNBT().toObject()?.Count : undefined
+                    let newItemName = newItem ? newItem.getName() : ""
+                    this.oldItemData[j] = newItem
+                    if (oldItemName === newItemName) { //only amount is changed
+                        if (oldItemAmount === newItemAmount || !newItemAmount || !oldItemAmount) return
+                        this.addToTodoPickUpLog(now, oldItemName, newItemAmount - oldItemAmount)
+                        return //so it doesn't provide duplicate message
+                    }
+                    let olduuid = getSBUUID(oldItem)
+                    let newuuid = getSBUUID(newItem)
+                    if (oldItemAmount == 1 && olduuid == newuuid) return // fixes using old master star making sba go brrr
+                    if (oldItemName) { //thing removed from that inventory slot
+                        if (!oldItemAmount) return
+                        this.addToTodoPickUpLog(now, oldItemName, (-1) * oldItemAmount)
+                    }
+                    if (newItemName) { //thing being placed into that inventory slot
+                        if (!newItemAmount) return
+                        this.addToTodoPickUpLog(now, newItemName, newItemAmount)
+                    }
+                }
+            })
+            let todoText = [];
+            let inGui = Client.isInGui();
+            if (inGui || this.warpedAgain) {
+                this.todoPickUpLog = {};
+            }
+            if (pick) {
+                Object.keys(this.todoPickUpLog).forEach((i) => {
+                    if (Math.abs(this.todoPickUpLog[i].timeStamp - now) > 5000 || !this.todoPickUpLog[i].Amount || this.todoPickUpLog[i].Amount == 0) {
+                        delete this.todoPickUpLog[i]
+                        return
+                    }
+                    //positive and negative prefix colors
+                    if (todoText.length < this.maxAmount) todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
+                })
+            } else {
+                this.todoPickUpLog = {};
+            }
+            // doesn't need to put setText() in if (pick) cuz if (!pick) it clears the todo log list
+            this.sbaItemPickUpLogElement.setText(inGui ? "" : (todoText.join("\n")))
+        })
+        //2 chat registeries below prevents pickup log to go brrr when warping
+        this.warpedAgain = false
+        this.registerChat("&eSkyBlock Dungeon Warp${p}", () => {
+            this.maxAmount = 0
+            this.warpedAgain = true
+            delay(8000, () => {
+                if (this.warpedAgain) {
+                    this.warpedAgain = false
+                    this.maxAmount = 12
+                }
+            })
+        })
+
+        this.registerChat("&r&7Warping...${island}", () => {
+            this.maxAmount = 0
+            this.warpedAgain = true
+            delay(8000, () => {
+                if (this.warpedAgain) {
+                    this.warpedAgain = false
+                    this.maxAmount = 12
+                }
+            })
+        })
+
+        this.registerChat("&r&c ☠ ${info} and became a ghost&r&7.&r", (info, e) => {
+            if (info.includes("You")) {
+                this.maxAmount = 0
+                this.warpedAgain = true
+                delay(5000, () => {
+                    if (this.warpedAgain) {
+                        this.warpedAgain = false
+                        this.maxAmount = 12
+                    }
+                })
+            }
+        });
+
+        this.registerChat("${info}You were revived by ${info2}", () => {
+            this.maxAmount = 0
+            this.warpedAgain = true
+            delay(5000, () => {
+                if (this.warpedAgain) {
+                    this.warpedAgain = false
+                    this.maxAmount = 12
+                }
+            })
+        });
 
         this.firstPageSettings = [this.darkTheme]
 
@@ -253,6 +437,33 @@ class GlobalSettings extends Feature {
                 addLore(i, "§eHecatomb: ", "§d" + level + " §6" + numberWithCommas(Math.round(runs)) + (xpNext ? " §7/ §6" + numberWithCommas(Math.round(xpNext)) : ""))
             }
         })
+    }
+
+    addToTodoPickUpLog(timestamp, itemname, amount) {
+        let basicValue = 0
+        if (this.todoPickUpLog[itemname]) {
+            if (this.todoPickUpLog[itemname].Amount > 0) {
+                basicValue = this.todoPickUpLog[itemname].Amount
+            }
+        }
+        this.todoPickUpLog[itemname] = {
+            timeStamp: timestamp,
+            Amount: basicValue + amount
+        }
+    }
+
+    initOldItemData() {
+        let j = 0;
+        [...Player.getInventory().getItems()].forEach(i => {
+            j++;
+            this.oldItemData[j] = i
+        })
+    }
+
+    saveItemData(uuid, newName) {
+        if (!this.itemData[uuid]) {
+            this.itemData[uuid] = newName
+        }
     }
 
     // renderWebpage() {
@@ -606,7 +817,12 @@ class GlobalSettings extends Feature {
         this.apiKeySetting.setValue(key)
     }
 
+    initVariables() {
+        this.hudElements = [];
+    }
+
     onDisable() {
+        this.hudElements.forEach(h => h.delete())
         this.initVariables()
     }
 }
