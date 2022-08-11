@@ -703,7 +703,7 @@ class Hud extends Feature {
     }
 
     updateHudThingos() {
-        let insb = this.FeatureManager.features["dataLoader"].class.isInSkyblock
+        let insb = !!this.FeatureManager.features["dataLoader"]?.class?.isInSkyblock
 
         this.hudStat.forEach(stat => {
             if (stat.enabled.getValue()) {
