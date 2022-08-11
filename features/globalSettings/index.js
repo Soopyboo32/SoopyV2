@@ -200,11 +200,9 @@ class GlobalSettings extends Feature {
                 }
             })
             let todoText = [];
-            if (this.guiOpened) {
-                this.maxAmount = 0
+            let inGui = Client.isInGui();
+            if (inGui) {
                 this.todoPickUpLog = {};
-            } else if (!this.warpedAgain) {
-                this.maxAmount = 12
             }
             if (pick) {
                 Object.keys(this.todoPickUpLog).forEach((i) => {
@@ -219,7 +217,7 @@ class GlobalSettings extends Feature {
                 this.todoPickUpLog = {};
             }
             // doesn't need to put setText() in if (pick) cuz if (!pick) it clears the todo log list
-            this.sbaItemPickUpLogElement.setText(todoText.join("\n"))
+            this.sbaItemPickUpLogElement.setText(inGui ? "" : (todoText.join("\n")))
         })
         //2 chat registeries below prevents pickup log to go brrr when warping
         this.warpedAgain = false
@@ -268,13 +266,6 @@ class GlobalSettings extends Feature {
                 }
             })
         });
-        this.guiOpened = false;
-        this.registerEvent('guiOpened', () => {
-            this.guiOpened = true
-        })
-        this.registerEvent('guiClosed', () => {
-            this.guiOpened = false
-        })
 
         this.firstPageSettings = [this.darkTheme]
 
