@@ -201,7 +201,7 @@ class GlobalSettings extends Feature {
             })
             let todoText = [];
             let inGui = Client.isInGui();
-            if (inGui) {
+            if (inGui || this.warpedAgain) {
                 this.todoPickUpLog = {};
             }
             if (pick) {
