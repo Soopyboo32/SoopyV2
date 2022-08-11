@@ -200,6 +200,12 @@ class GlobalSettings extends Feature {
                 }
             })
             let todoText = [];
+            if (this.guiOpened) {
+                this.maxAmount = 0
+                this.todoPickUpLog = {};
+            } else if (!this.warpedAgain) {
+                this.maxAmount = 12
+            }
             if (pick) {
                 Object.keys(this.todoPickUpLog).forEach((i) => {
                     if (Math.abs(this.todoPickUpLog[i].timeStamp - now) > 5000 || !this.todoPickUpLog[i].Amount || this.todoPickUpLog[i].Amount == 0) {
@@ -210,9 +216,6 @@ class GlobalSettings extends Feature {
                     if (todoText.length < this.maxAmount) todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
                 })
             } else {
-                this.todoPickUpLog = {};
-            }
-            if (this.guiOpened) {
                 this.todoPickUpLog = {};
             }
             // doesn't need to put setText() in if (pick) cuz if (!pick) it clears the todo log list
