@@ -325,11 +325,8 @@ class GlobalSettings extends Feature {
                 }
                 if (thunder) {
                     if (ItemName.removeFormatting().includes("Empty Thunder Bottle")) {
-                        i.getLore().forEach(Line => {
-                            if (Line.includes("Charge:")) {
-                                thunderText.push("&5Thunder Bottle " + Line)
-                            }
-                        })
+                        let charges = i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getDouble("thunder_charge")
+                        thunderText.push("&5Thunder Bottle Charges: &e" + numberWithCommas(charges) + "&6/&e50,000")
                     }
                 }
             }
@@ -338,9 +335,9 @@ class GlobalSettings extends Feature {
                 let newItem = i
                 if (!oldItem && !newItem) return //they both are air
                 if (j > 36 || j == 9) return //sbmenu and armors (when switching wardrobe it goes brrr w/o this)
-                let oldItemAmount = oldItem ? oldItem.getNBT().toObject()?.Count : undefined
+                let oldItemAmount = oldItem ? oldItem.getNBT().getDouble("Count") : undefined
                 let oldItemName = oldItem ? oldItem.getName() : ""
-                let newItemAmount = newItem ? newItem.getNBT().toObject()?.Count : undefined
+                let newItemAmount = newItem ? newItem.getNBT().getDouble("Count") : undefined
                 let newItemName = newItem ? newItem.getName() : ""
                 this.oldItemData[j] = newItem
                 if (oldItemName === newItemName) { //only amount is changed
