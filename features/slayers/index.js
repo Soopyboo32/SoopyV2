@@ -25,7 +25,7 @@ function getKeyBindFromKey(key, description) {
 }
 
 function distanceTo(entity) {
-	return Math.sqrt((Player.getX()-entity.getX())**2+(Player.getY()-entity.getY())**2+(Player.getZ()-entity.getZ())**2)
+	return Math.sqrt((Player.getX() - entity.getX()) ** 2 + (Player.getY() - entity.getY()) ** 2 + (Player.getZ() - entity.getZ()) ** 2)
 }
 
 class Slayers extends Feature {
@@ -132,7 +132,7 @@ class Slayers extends Feature {
 					if (this.disableWhenNotYourBoss.getValue() ? (this.bossSpawnedMessage && this.emanBoss) : true) {
 						let candidatesDist = []
 						this.candidateBoss?.forEach(candidate => {
-							candidatesDist.push(Math.round(parseFloat(distanceTo(candidate))*10))
+							candidatesDist.push(Math.round(parseFloat(distanceTo(candidate)) * 10))
 						})
 						this.emanBoss = this.candidateBoss[candidatesDist.indexOf(Math.min(...candidatesDist))]
 					}
@@ -790,7 +790,7 @@ class Slayers extends Feature {
 		let runsperHour = (60000 * 60) / averageLength;
 		let expPerHour = averageExp * runsperHour;
 
-		if (Date.now() - this.lastSlayerFinishes[this.lastSlayerFinishes.length - 1] < 60000 * 5 || (this.FeatureManager.features["dataLoader"].class.slayerXpToSpawn && this.FeatureManager.features["dataLoader"].class.slayerXpToSpawn[0] !== 0)) {
+		if (Date.now() - this.lastSlayerFinishes[this.lastSlayerFinishes.length - 1] < 60000 * 5 || (this.FeatureManager.features["dataLoader"]?.class?.slayerXpToSpawn && this.FeatureManager.features["dataLoader"].class.slayerXpToSpawn[0] !== 0)) {
 			if (this.lastSlayerFinishes.length > 1) {
 				this.slayerSpeedRatesElement.setText("&6Slayer speed&7> &f" + Math.floor(averageLength / 60000) + ":" + ((Math.floor(averageLength / 1000) % 60 < 10 ? "0" : "") + (Math.floor(averageLength / 1000) % 60)) + "\n&6Exp/hour&7> &f" + numberWithCommas(Math.round(expPerHour)) + "\n&6Kills/hour&7> &f" + Math.floor(runsperHour));
 			} else {
