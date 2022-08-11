@@ -150,6 +150,7 @@ class GlobalSettings extends Feature {
         this.initOldItemData();
         this.todoPickUpLog = {};
         this.clearLog = false;
+        this.maxAmount = 12;
 
         this.registerStep(true, 5, () => {
             let old = this.oldMasterStars.getValue();
@@ -199,40 +200,78 @@ class GlobalSettings extends Feature {
                 }
             })
             let todoText = [];
-            if (!this.clearLog) {
-                if (pick) {
-                    Object.keys(this.todoPickUpLog).forEach((i) => {
-                        if (Math.abs(this.todoPickUpLog[i].timeStamp - now) > 5000 || !this.todoPickUpLog[i].Amount || this.todoPickUpLog[i].Amount == 0) {
-                            delete this.todoPickUpLog[i]
-                            return
-                        }
-                        //positive and negative prefix colors
-                        if (todoText.length < 12) todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
-                    })
-                } else {
-                    this.todoPickUpLog = {};
-                }
+            if (pick) {
+                Object.keys(this.todoPickUpLog).forEach((i) => {
+                    if (Math.abs(this.todoPickUpLog[i].timeStamp - now) > 5000 || !this.todoPickUpLog[i].Amount || this.todoPickUpLog[i].Amount == 0) {
+                        delete this.todoPickUpLog[i]
+                        return
+                    }
+                    //positive and negative prefix colors
+                    if (todoText.length < this.maxAmount) todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
+                })
+            } else {
+                this.todoPickUpLog = {};
+            }
+            if (this.guiOpened) {
+                this.todoPickUpLog = {};
             }
             // doesn't need to put setText() in if (pick) cuz if (!pick) it clears the todo log list
             this.sbaItemPickUpLogElement.setText(todoText.join("\n"))
         })
         //2 chat registeries below prevents pickup log to go brrr when warping
+        this.warpedAgain = false
         this.registerChat("&eSkyBlock Dungeon Warp${p}", () => {
-            this.clearLog = true
-            delay(12500, () => { this.clearLog = false })
+            this.maxAmount = 0
+            this.warpedAgain = true
+            delay(8000, () => {
+                if (this.warpedAgain) {
+                    this.warpedAgain = false
+                    this.maxAmount = 12
+                }
+            })
         })
 
         this.registerChat("&r&7Warping...${island}", () => {
-            this.clearLog = true
-            delay(12500, () => { this.clearLog = false })
+            this.maxAmount = 0
+            this.warpedAgain = true
+            delay(8000, () => {
+                if (this.warpedAgain) {
+                    this.warpedAgain = false
+                    this.maxAmount = 12
+                }
+            })
         })
 
         this.registerChat("&r&c ☠ ${info} and became a ghost&r&7.&r", (info, e) => {
             if (info.includes("You")) {
-                this.clearLog = true
-                delay(12500, () => { this.clearLog = false })
+                this.maxAmount = 0
+                this.warpedAgain = true
+                delay(5000, () => {
+                    if (this.warpedAgain) {
+                        this.warpedAgain = false
+                        this.maxAmount = 12
+                    }
+                })
             }
         });
+
+        this.registerChat("${info}You were revived by ${info2}", () => {
+            this.maxAmount = 0
+            this.warpedAgain = true
+            delay(5000, () => {
+                if (this.warpedAgain) {
+                    this.warpedAgain = false
+                    this.maxAmount = 12
+                }
+            })
+        });
+        this.guiOpened = false;
+        this.registerEvent('guiOpened', () => {
+            this.guiOpened = true
+        })
+        this.registerEvent('guiClosed', () => {
+            this.guiOpened = false
+        })
 
         this.firstPageSettings = [this.darkTheme]
 
