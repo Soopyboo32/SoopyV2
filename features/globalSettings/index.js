@@ -73,6 +73,7 @@ class GlobalSettings extends Feature {
             .setToggleSetting(this.sbaItemPickUpLog)
             .setLocationSetting(new LocationSetting("Sba Item Pick Up Log location", "Allows you to change location of this display", "sba_item_log_location", this, [10, 100, 1, 1]).requires(this.sbaItemPickUpLog).editTempText(`&a+ 1x &dHeroic Hyperion &c✪✪✪✪✪\n&c- 1x &dHeroic Hyperion &6✪✪✪✪✪`));
         this.hudElements.push(this.sbaItemPickUpLogElement);
+        this.maxAmount = new TextSetting("Pickup Log Line Limit", "Basically after this length it doesn't log anymore", "20", "item_log_max_amount", this, "20", false).requires(this.sbaItemPickUpLog);
 
         this.fancyVanquisherAlert = new ToggleSetting("Fancy Vanquisher Alert", "Alert when a Vanquisher spawned", false, "fancy_vanquisher_alert", this);
         this.fancySeaCreaturesAlert = new ToggleSetting("Fancy Sea Creatures Alert", "Alert when you caught x creature (this is the main toggle)", false, "fancy_sc_alert", this);
@@ -123,18 +124,14 @@ class GlobalSettings extends Feature {
         this.initOldItemData();
         this.todoPickUpLog = {};
         this.clearLog = false;
-        this.maxAmount = 12;
 
         this.registerStep(true, 5, this.step5Fps)
         //4 chat registeries below prevents pickup log to go brrr when warping
-        this.warpedAgain = false
-        this.registerChat("&eSkyBlock Dungeon Warp${p}", this.warpCap)
-        this.registerChat("&r&7Warping...${island}", this.warpCap)
         this.registerChat("&r&c ☠ ${info} and became a ghost&r&7.&r", (info, e) => {
-            if (info.includes("You")) this.warpCap();
+            if (info.includes("You")) this.preventGoingBrrr();
         });
-        this.registerChat("${info}You were revived by ${info2}", this.warpCap);
-        
+        this.registerChat("${info}You were revived by ${info2}", this.preventGoingBrrr);
+
         this.registerChat("&r&e> Your bottle of thunder has fully charged!&r", () => {
             if (this.thunderBottleFull.getValue()) {
                 Client.showTitle("&6Bottle of Thunder Fully Charged", "", 0, 100, 10);
@@ -181,9 +178,6 @@ class GlobalSettings extends Feature {
 
         this.requestingPrices = new Set()
         this.registerStep(false, 1, this.updateItemLores)
-        this.registerEvent("worldLoad", () => {
-            this.requestingPrices.clear()
-        })
 
         try { //This enables links from soopy.dev to be shown in patcher image preview
             let hasHost = false
@@ -261,6 +255,9 @@ class GlobalSettings extends Feature {
     }
 
     worldLoad() {
+        this.requestingPrices.clear();
+        this.initOldItemData();
+        this.preventGoingBrrr();
         if (!this.oldMasterStars.getValue()) return
         let j = 0;
         [...Player.getInventory().getItems()].forEach(i => {
@@ -306,7 +303,16 @@ class GlobalSettings extends Feature {
         let old = this.oldMasterStars.getValue();
         let pick = this.sbaItemPickUpLog.getValue();
         let thunder = this.thunderBottle.getValue();
+        let max = this.maxAmount.getValue();
+        if (max) {
+            max = Number(max)
+            if (max < 0 || isNaN(max)) this.maxAmount.setValue("0");
+        }
+        let inGui = Client.isInGui();
         if (!old && !pick && !thunder) return
+        if (inGui) {
+            this.todoPickUpLog = {};
+        }
         let j = 0;
         let now = Date.now();
         let thunderText = [];
@@ -330,7 +336,7 @@ class GlobalSettings extends Feature {
                     }
                 }
             }
-            if (pick) {
+            if (pick && !inGui) {
                 let oldItem = this.oldItemData[j]
                 let newItem = i
                 if (!oldItem && !newItem) return //they both are air
@@ -366,10 +372,6 @@ class GlobalSettings extends Feature {
             }
         }
         let todoText = [];
-        let inGui = Client.isInGui();
-        if (inGui || this.warpedAgain) {
-            this.todoPickUpLog = {};
-        }
         if (pick) {
             Object.keys(this.todoPickUpLog).forEach((i) => {
                 if (Math.abs(this.todoPickUpLog[i].timeStamp - now) > 5000 || !this.todoPickUpLog[i].Amount || this.todoPickUpLog[i].Amount == 0) {
@@ -377,13 +379,13 @@ class GlobalSettings extends Feature {
                     return
                 }
                 //positive and negative prefix colors
-                if (todoText.length < this.maxAmount) todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
+                if (todoText.length < max) todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
             })
         } else {
             this.todoPickUpLog = {};
         }
         // doesn't need to put setText() in if (pick) cuz if (!pick) it clears the todo log list
-        this.sbaItemPickUpLogElement.setText(inGui ? "" : (todoText.join("\n")))
+        this.sbaItemPickUpLogElement.setText((inGui || this.clearLog) ? "" : (todoText.join("\n")))
     }
 
     mobThings() {
@@ -417,13 +419,11 @@ class GlobalSettings extends Feature {
         })
     }
 
-    warpCap() {
-        this.maxAmount = 0
-        this.warpedAgain = true
+    preventGoingBrrr() {
+        this.clearLog = true
         delay(8000, () => {
-            if (this.warpedAgain) {
-                this.warpedAgain = false
-                this.maxAmount = 12
+            if (this.clearLog) {
+                this.clearLog = false
             }
         })
     }
@@ -486,7 +486,7 @@ class GlobalSettings extends Feature {
     addToTodoPickUpLog(timestamp, itemname, amount) {
         let basicValue = 0
         if (this.todoPickUpLog[itemname]) {
-            if (this.todoPickUpLog[itemname].Amount > 0) {
+            if (this.todoPickUpLog[itemname].Amount != 0) {
                 basicValue = this.todoPickUpLog[itemname].Amount
             }
         }
