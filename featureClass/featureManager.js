@@ -357,7 +357,12 @@ class FeatureManager {
             return;
         }
 
-        data = JSON.parse(data)
+        try {
+            data = JSON.parse(data)
+        } catch (e) {
+            ChatLib.chat(this.messagePrefix + "&cYour settings file corrupted and could not be read! Resetting to defaults.")
+            data = {}
+        }
 
         this.featureSettingsData = data
 
@@ -541,7 +546,7 @@ class FeatureManager {
         let event = this.registerCustom("command", func, context)
 
         event.trigger.setName(commandName, true)
-        
+
         if (completions) event.trigger.setName(commandName, true).setTabCompletions(completions)
 
         return event

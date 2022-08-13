@@ -26,7 +26,7 @@ class EventsGui extends Feature {
 
         // this.registerChat("&9&m-----------------------------------------------------&r&9${*}&r&9             ${*} &6Friends (Page ${pagenum} of ${maxpages})${friendslist}&r&9&m-----------------------------------------------------&r", (...args) => { this.GuiPage.friendListMessageEvent.call(this.GuiPage, ...args) })
         this.registerStep(true, 5, () => { this.GuiPage.regenGuiElements.call(this.GuiPage) })
-        this.registerStep(false, 60, () => { this.GuiPage.pollData.call(this.GuiPage) })
+        this.registerStep(false, 10, () => { this.GuiPage.pollData.call(this.GuiPage) })
     }
 
     eventsDataUpdated(data) {
