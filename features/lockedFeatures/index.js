@@ -79,7 +79,7 @@ class LockedFeatures extends Feature {
                 text += "§6#" + (i + 1)
                 text += "§7 - "
                 text += "§e" + u.username
-                text += "&7: §r" + numberWithCommas(Math.round(parseFloat(u.startingAmount)))
+                text += "&7: §f" + numberWithCommas(Math.round(parseFloat(u.startingAmount)))
                 if (u.progress) text += " §7(" + (u.progress > 0 ? "+" : "-") + Math.abs(Math.round(u.progress)) + "/h)"
                 text += "\n"
             }

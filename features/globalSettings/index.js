@@ -62,7 +62,7 @@ class GlobalSettings extends Feature {
         this.thunderBottleElement = new HudTextElement()
             .setText("")
             .setToggleSetting(this.thunderBottle)
-            .setLocationSetting(new LocationSetting("Thunder Bottle Progress location", "Allows you to change location of this display", "thunder_bottle_location", this, [20, 100, 1, 1]).requires(this.thunderBottle).editTempText(`&5Thunder Bottle &7Charge: &e49,999&6/&e50,000`));
+            .setLocationSetting(new LocationSetting("Thunder Bottle Progress location", "Allows you to change location of this display", "thunder_bottle_location", this, [20, 100, 1, 1]).requires(this.thunderBottle).editTempText(`&6Thunder Charge&7> &f49,999&7/&750,000`));
         this.hudElements.push(this.thunderBottleElement);
         this.thunderBottleFull = new ToggleSetting("Thunder Bottle Full Alert", "Alert when your thunder bottle is fully charged", false, "thunder_bottle_full", this);
 
@@ -332,7 +332,7 @@ class GlobalSettings extends Feature {
                 if (thunder) {
                     if (ItemName.removeFormatting().includes("Empty Thunder Bottle")) {
                         let charges = i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getDouble("thunder_charge")
-                        thunderText.push("&5Thunder Bottle Charges: &e" + numberWithCommas(charges) + "&6/&e50,000")
+                        thunderText.push(`&6Thunder Charge&7> &f${numberWithCommas(charges)}&7/&750,000`)
                     }
                 }
             }

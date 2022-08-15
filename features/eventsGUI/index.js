@@ -167,6 +167,12 @@ class EventsPage extends GuiPage {
 
         sideBarElm.addChild(new SoopyTextElement().setText("§0Event Settings").setMaxTextScale(3).setLocation(0.1, 0, 0.8, 0.2))
 
+        if (Player.getUUID().toString().replace(/-/g, "") === data.admin) {
+            sideBarElm.addChild(new ButtonWithArrow().setText("§0Change").setMaxTextScale(3).setLocation(0.1, 0.2, 0.8, 0.2).addEvent(new SoopyMouseClickEvent().setHandler(() => {
+
+            })))
+        }
+
         sideBarElm.addChild(new SoopyMarkdownElement().setLocation(0.05, 0.2, 0.9, 1).setText("# Tracking: \n" + data.settings.tracking.map(a => firstLetterCapital(a.replace(/\w+?_/, "").replace(/_/g, " "))).join("\n")))
 
         this.openSidebarPage(sideBarElm)
