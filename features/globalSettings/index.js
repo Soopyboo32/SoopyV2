@@ -379,7 +379,7 @@ class GlobalSettings extends Feature {
                     return
                 }
                 //positive and negative prefix colors
-                if (todoText.length < max) todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &r" + i)
+                if (todoText.length < max) todoText.push((this.todoPickUpLog[i].Amount > 0 ? "&r&a+ " : "&r&c- ") + Math.abs(this.todoPickUpLog[i].Amount) + "x &f" + i)
             })
         } else {
             this.todoPickUpLog = {};
