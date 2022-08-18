@@ -116,15 +116,35 @@ class Waypoints extends Feature {
             }
         })
 
+        this.ignorePlayers = new Set()
+
+        this.registerCommand("waypointignoreadd", (player) => {
+            this.ignorePlayers.add(player)
+            ChatLib.chat(this.FeatureManager.messagePrefix + "Added " + player + " to waypoint ignore list, this will be cleared next game start!")
+
+            this.patcherWaypoints = this.patcherWaypoints.filter(w => {
+                if (ChatLib.removeFormatting(w[1].params.name).trim().split(" ").pop() === player) {
+                    w[1].stopRender()
+                    return false
+                }
+
+                return true
+            })
+        })
+
         this.registerChat("&r${*} &8> ${player}&f: &rx: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
-            if (this.loadWaypointsFromSendCoords.getValue()) {
+            let p = ChatLib.removeFormatting(player).trim().split(" ").pop()
+            if (this.loadWaypointsFromSendCoords.getValue() && !this.ignorePlayers.has(p)) {
+                new TextComponent(this.FeatureManager.messagePrefix + "Loaded waypoint from &6" + p + "&7, &cCLICK HERE &7to ignore waypoints from them.").setClick("run_command", "/waypointignoreadd " + p).chat()
                 this.patcherWaypoints.push([Date.now(), new Waypoint(parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), 0, 0, 1, { name: ChatLib.addColor(player), showDist: true }).startRender()])
                 if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()[1].stopRender()
             }
         })
         this.registerChat("${player}&r&f: x: ${x}, y: ${y}, z: ${z}", (player, x, y, z, e) => {
             if (player.includes(">")) return
-            if (this.loadWaypointsFromSendCoords.getValue()) {//parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)
+            let p = ChatLib.removeFormatting(player).trim().split(" ").pop()
+            if (this.loadWaypointsFromSendCoords.getValue() && !this.ignorePlayers.has(p)) {//parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), ChatLib.addColor(player)
+                new TextComponent(this.FeatureManager.messagePrefix + "Loaded waypoint from &6" + p + "&7, &cCLICK HERE &7to ignore waypoints from them.").setClick("run_command", "/waypointignoreadd " + p).chat()
                 this.patcherWaypoints.push([Date.now(), new Waypoint(parseInt(x), parseInt(y), parseInt(ChatLib.removeFormatting(z)), 0, 0, 1, { name: ChatLib.addColor(player), showDist: true }).startRender()])
                 if (this.patcherWaypoints.length > 10) this.patcherWaypoints.shift()[1].stopRender()
             }
