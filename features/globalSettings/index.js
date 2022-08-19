@@ -224,7 +224,7 @@ class GlobalSettings extends Feature {
                 packetMoves = 0
             })
 
-            delay(3000, () => {
+            delay(time * 1000, () => {
                 packetReceived.unregister()
                 tick.unregister()
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Tps: " + (ticks / time).toFixed(1))
