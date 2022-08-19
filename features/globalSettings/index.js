@@ -431,6 +431,8 @@ class GlobalSettings extends Feature {
     updateItemLores() {
         if (!this.itemWorth.getValue() && !this.showChampion.getValue() && !this.showHecatomb.getValue()) return;
 
+        if (!Client.currentGui.get()) return
+
         let items = [...Player.getInventory().getItems(), ...Player.getContainer().getItems()]
 
         items.forEach(i => {

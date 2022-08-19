@@ -165,6 +165,7 @@ class Hud extends Feature {
             "experience_skill_enchanting": 60,
             "experience_skill_mining": 60,
             "experience_skill_taming": 50,
+            "experience_skill_carpentry": 50,
         };
 
         this.lastSkillLevel = {
@@ -176,6 +177,7 @@ class Hud extends Feature {
             "experience_skill_enchanting": undefined,
             "experience_skill_mining": undefined,
             "experience_skill_taming": undefined,
+            "experience_skill_carpentry": undefined,
         }
 
         this.spotifyProcessId = -1

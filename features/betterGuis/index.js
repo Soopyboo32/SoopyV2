@@ -155,6 +155,7 @@ class BetterGuis extends Feature {
         //&c2532/2532❤     &a798&a❈ Defense     &b2525/2525✎ &31ʬ&r (100)
         //&c2532/2532❤     &f20&f❂ True Defense     &b2414/2414✎ &3600ʬ&r (13)
         //&c2665/2665❤     &a972&a❈ Defense     &b2145/2145✎ &3600ʬ&r
+        //&c2,806/2,806❤     &a1,050&a❈ Defense     &b1,945/1,945✎ &3600ʬ&r
         this.registerEvent("guiRender", this.postGuiRender).registeredWhen(() => this.chestSearchBar.getValue())
         this.registerEvent("guiMouseClick", this.guiMouseClick).registeredWhen(() => this.chestSearchBar.getValue())
         this.registerEvent("guiKey", this.guiKey).registeredWhen(() => this.chestSearchBar.getValue())
@@ -166,13 +167,13 @@ class BetterGuis extends Feature {
         if (curr.includes("Mana")) {
             curr = curr.split("&b").pop()
         }
-        this.mana.set(parseInt(curr), 500)
-        this.maxMana.set(parseInt(max), 500)
+        this.mana.set(parseInt(curr.replace(/,/g, "")), 500)
+        this.maxMana.set(parseInt(max.replace(/,/g, "")), 500)
         if (Date.now() - this.lastOverFlow > 1000) this.overflowMana.set(0, 500)
     }
 
     actionbarOverflowMana(curr) {
-        this.overflowMana.set(parseInt(curr), 500)
+        this.overflowMana.set(parseInt(curr.replace(/,/g, "")), 500)
         this.lastOverFlow = Date.now()
     }
 
