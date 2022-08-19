@@ -209,6 +209,27 @@ class GlobalSettings extends Feature {
         this.registerCommand("lobbyday", () => {
             ChatLib.chat(this.FeatureManager.messagePrefix + "Current lobby is day " + (World.getTime() / 20 / 60 / 20).toFixed(2))
         })
+        this.registerCommand("tps", (time = "3") => {
+            time = parseInt(time)
+            ChatLib.chat(this.FeatureManager.messagePrefix + "Loading tps... this will take " + time + "s")
+
+            let packetMoves = 0
+            let ticks = 0
+            let packetReceived = register("packetReceived", () => {
+                packetMoves++
+            })
+
+            let tick = register("tick", () => {
+                if (packetMoves > 0) ticks++
+                packetMoves = 0
+            })
+
+            delay(3000, () => {
+                packetReceived.unregister()
+                tick.unregister()
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Tps: " + (ticks / time).toFixed(1))
+            })
+        })
 
         this.lastCookies = 0
 
