@@ -308,7 +308,7 @@ class GlobalSettings extends Feature {
             max = Number(max)
             if (max < 0 || isNaN(max)) this.maxAmount.setValue("0");
         }
-        let inGui = Client.isInGui();
+        let inGui = Client.isInGui()
         if (!old && !pick && !thunder) return
         if (inGui) {
             this.todoPickUpLog = {};
@@ -342,9 +342,9 @@ class GlobalSettings extends Feature {
                 if (!oldItem && !newItem) return //they both are air
                 if (j > 36 || j == 9) return //sbmenu and armors (when switching wardrobe it goes brrr w/o this)
                 let oldItemAmount = oldItem ? oldItem.getNBT().getDouble("Count") : undefined
-                let oldItemName = oldItem ? oldItem.getName() : ""
+                let oldItemName = oldItem ? oldItem.getName().replace(/ §8x\d+$/, "") : ""
                 let newItemAmount = newItem ? newItem.getNBT().getDouble("Count") : undefined
-                let newItemName = newItem ? newItem.getName() : ""
+                let newItemName = newItem ? newItem.getName().replace(/ §8x\d+$/, "") : ""
                 this.oldItemData[j] = newItem
                 if (oldItemName === newItemName) { //only amount is changed
                     if (oldItemAmount === newItemAmount || !newItemAmount || !oldItemAmount) return
@@ -431,7 +431,7 @@ class GlobalSettings extends Feature {
     updateItemLores() {
         if (!this.itemWorth.getValue() && !this.showChampion.getValue() && !this.showHecatomb.getValue()) return;
 
-        if (!Client.currentGui.get()) return
+        if (Client.isInGui()) return
 
         let items = [...Player.getInventory().getItems(), ...Player.getContainer().getItems()]
 
