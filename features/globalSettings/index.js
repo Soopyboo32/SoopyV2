@@ -452,7 +452,7 @@ class GlobalSettings extends Feature {
     updateItemLores() {
         if (!this.itemWorth.getValue() && !this.showChampion.getValue() && !this.showHecatomb.getValue()) return;
 
-        if (Client.isInGui()) return
+        if (!Client.isInGui()) return
 
         let items = [...Player.getInventory().getItems(), ...Player.getContainer().getItems()]
 
