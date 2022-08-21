@@ -800,14 +800,15 @@ class Slayers extends Feature {
 		
 		if (this.MinibossGuiElement.getValue() && !this.bossSpawnedMessage && this.minibossEntity.length > 0) {
 			let PY = Player.getY()
+			let minis = this.minibossEntity
 			let tempArray = []
 			let tempEntity = []
-			this.minibossEntity.forEach((x) => {//this.SlayerHeight[slayerType] values are negative
-				if (tempEntity.includes(x)) return
+			minis.forEach((x) => {//this.SlayerHeight[slayerType] values are negative
+				if (tempEntity.includes(x[0])) return
 				if (Math.abs((x[0].getY() + this.SlayerHeight[x[1]] - PY)) > 6) return
 				let name = x[0].getName()
 				if (name.split(" ")[2] === "§e0§c❤") return
-				tempEntity.push(x)
+				tempEntity.push(x[0])
 				tempArray.push(name)
 			})
 			this.MinibossElement.setText(tempArray.join("\n"))
