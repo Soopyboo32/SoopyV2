@@ -54,6 +54,7 @@ class Slayers extends Feature {
 		this.MinibossAlert = new ToggleSetting("Alert when miniboss spawned nearby", "Pops up notification when a miniboss spawned", false, "miniboss_title_ping", this).contributor("EmeraldMerchant");
 		this.MinibossPing = new ToggleSetting("Also make a sound when miniboss spawned", "Sound ping when a miniboss spawned", false, "miniboss_sound_ping", this).contributor("EmeraldMerchant");
 		this.BoxAroundMiniboss = new ToggleSetting("Draws boxes around minibosses.", "If they are too far away it doesnt draw.", false, "box_around_miniboss", this).contributor("EmeraldMerchant");
+		this.BoxAroundAreaMiniboss = new ToggleSetting("Draws boxes around area minibosses", "eg. Voidling Extremist in void sepulture", false, "box_around_area_mini", this).contributor("EmeraldMerchant");
 		this.MinibossOffWhenBoss = new ToggleSetting("Disable miniboss features when your boss spawned", "this will boost your fps a little bit during boss", true, "miniboss_off_when_boss", this).contributor("EmeraldMerchant");
 
 		this.betterHideDeadEntity = new ToggleSetting("Also hides mob nametag when it's dead.", "An improvement for Skytils's hide dead entity", false, "hide_dead_mob_nametag", this);
@@ -246,6 +247,7 @@ class Slayers extends Feature {
 		this.beaconLocations = {};
 		this.eyeE = [];
 		this.minibossEntity = [];
+		this.areaMiniEntity = [];
 		this.todoE2 = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined
@@ -270,6 +272,13 @@ class Slayers extends Feature {
 			enderman: new Set(["Voidling Devotee", "Voidling Radical", "Voidcrazed Maniac"]),
 			blaze: new Set(["Flare Demon", "Kindleheart Demon", "Burningsoul Demon"])
 		}
+		//dont think spider has an area mini
+		this.areaMini = {
+			zombie: new Set(["Golden Ghoul"]),
+			wolf: new Set(["Old Wolf", "Soul of the Alpha"]),
+			enderman: new Set(["Voidling Extremist"]),
+			blaze: new Set(["Millenia-Aged Blaze"])
+		}
 
 		this.SlayerWidth = {
 			zombie: 1,
@@ -284,6 +293,28 @@ class Slayers extends Feature {
 			wolf: -1,
 			enderman: -3,
 			blaze: -2
+		}
+		this.areaColor = {
+			zombie: {
+				r: 1,
+				g: 0.67,
+				b: 0
+			},
+			wolf: {
+				r: 0,
+				g: 0.67,
+				b: 0.67
+			},
+			enderman: {
+				r: 1,
+				g: 0.33,
+				b: 1
+			},
+			blaze: {
+				r: 0.67,
+				g: 0,
+				b: 0
+			}
 		}
 		//the volume of miniboss spawning is 0.6000000238418579
 		this.registerSoundPlay("random.explode", (pos, name, vol, pitch, categoryName, event) => {
@@ -341,6 +372,7 @@ class Slayers extends Feature {
 		this.beaconLocations = {};
 		this.eyeE = [];
 		this.minibossEntity = [];
+		this.areaMiniEntity = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined;
 		this.hideSummons = false
@@ -377,7 +409,12 @@ class Slayers extends Feature {
 	}
 	renderWorld(ticks) {
 		this.minibossEntity.forEach((x) => {
-			drawBoxAtEntity(x[0], 0, 255, 0, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
+			drawBoxAtEntity(x[0], 0, 1, 0, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
+		})
+
+		
+		this.areaMiniEntity.forEach((x) => {
+			drawBoxAtEntity(x[0], this.areaColor[x[1]].r, this.areaColor[x[1]].g, this.areaColor[x[1]].b, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
 		})
 
 		if (this.emanBoss && this.boxAroundEmanBoss.getValue()) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false);
@@ -430,7 +467,7 @@ class Slayers extends Feature {
 			this.renderEntityEvent.unregister();
 		}
 
-		if (this.BoxAroundMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonHPGuiElement.getValue() || this.summonsLowWarning.getValue() || (this.isCorrectBind && this.bossBindDefault.getValue() != "CHAR_NONE")) {
+		if (this.BoxAroundMiniboss.getValue() || this.BoxAroundAreaMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonHPGuiElement.getValue() || this.summonsLowWarning.getValue() || (this.isCorrectBind && this.bossBindDefault.getValue() != "CHAR_NONE")) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
 				let nameRemoveFormat = name.getName().removeFormatting()
 				if (this.cannotFindEmanBoss) {
@@ -449,6 +486,8 @@ class Slayers extends Feature {
 				}
 				let nameSplit = nameRemoveFormat.split(" ")
 				let MobName = `${nameSplit[0]} ${nameSplit[1]}`
+				let MobName12 = `${nameSplit[1]} ${nameSplit[2]}`
+				let MobName1234 = `${nameSplit[1]} ${nameSplit[2]} ${nameSplit[3]} ${nameSplit[4]}` //so cringe that soul of the alpha is 4 words
 				if (this.summonEntity.length !== parseInt(this.maxSummons.getValue())) {
 					if (this.summonsHideNametag.getValue() || this.summonsLowWarning.getValue() || this.summonHPGuiElement.getValue()) {
 						// 2nd statement makes it to support both tank zombie and super tank zombie
@@ -462,6 +501,9 @@ class Slayers extends Feature {
 				if (this.MinibossOffWhenBoss.getValue() && !this.bossSpawnedMessage) {
 					if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
 						this.minibossEntity.push([name, this.lastSlayerType]);
+					}
+					if (this.BoxAroundAreaMiniboss.getValue() && !this.bossSpawnedMessage && (this.areaMini[this.lastSlayerType]?.has(MobName12) || this.areaMini[this.lastSlayerType]?.has(MobName1234)) && !this.areaMiniEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
+						this.areaMiniEntity.push([name, this.lastSlayerType]);
 					}
 					if (this.betterHideDeadEntity.getValue()) {
 						if (nameSplit[nameSplit.length - 1].startsWith("0") && nameSplit[nameSplit.length - 1].endsWith("❤")) {
@@ -536,10 +578,18 @@ class Slayers extends Feature {
 				}
 
 				if (!this.bossSpawnedMessage && e instanceof net.minecraft.entity.item.EntityArmorStand) {
-					let mobName = `${e[m.getCustomNameTag]().removeFormatting().split(" ")[0]} ${e[m.getCustomNameTag]().removeFormatting().split(" ")[1]}`
+					let nameSplit = e[m.getCustomNameTag]().removeFormatting().split(" ")
+					let mobName = `${nameSplit[0]} ${nameSplit[1]}`
+					let MobName12 = `${nameSplit[1]} ${nameSplit[2]}`
+					let MobName1234 = `${nameSplit[1]} ${nameSplit[2]} ${nameSplit[3]} ${nameSplit[4]}`
 					if (this.Miniboss[this.lastSlayerType]?.has(mobName)) {
 						if (this.BoxAroundMiniboss.getValue() && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
 							this.minibossEntity.push([new Entity(e), this.lastSlayerType]);
+						}
+					}
+					if (this.areaMini[this.lastSlayerType]?.has(MobName12) || this.areaMini[this.lastSlayerType]?.has(MobName1234)) {
+						if (this.BoxAroundAreaMiniboss.getValue() && !this.areaMiniEntity.map(a => a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
+							this.areaMiniEntity.push([new Entity(e), this.lastSlayerType]);
 						}
 					}
 				}
@@ -610,6 +660,11 @@ class Slayers extends Feature {
 		this.minibossEntity.forEach((eArray) => {
 			if (eArray[0].getEntity()[f.isDead]) {
 				this.minibossEntity.splice(this.minibossEntity.indexOf(eArray))
+			}
+		})
+		this.areaMiniEntity.forEach((eArray) => {
+			if (eArray[0].getEntity()[f.isDead]) {
+				this.areaMiniEntity.splice(this.areaMiniEntity.indexOf(eArray))
 			}
 		})
 		this.eyeE = this.eyeE.filter((e) => !e.getEntity()[f.isDead]);
@@ -900,6 +955,7 @@ class Slayers extends Feature {
 		this.emanStartedSittingTime = undefined
 		this.eyeE = undefined;
 		this.minibossEntity = undefined;
+		this.areaMiniEntity = undefined;
 		this.nextIsBoss = undefined;
 		this.hudElements = [];
 		this.entityAttackEventLoaded = undefined;
