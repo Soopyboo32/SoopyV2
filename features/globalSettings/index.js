@@ -147,6 +147,8 @@ class GlobalSettings extends Feature {
         this.GuiPage = new FirstLoadingPage(this)
 
         // soopyV2Server.reportErrorsSetting = this.reportErrorsSetting
+        this.registerEvent("itemTooltip", this.itemTooltipEvent).registeredWhen(() => this.itemWorth.getValue() || this.showChampion.getValue() || this.showHecatomb.getValue())
+
 
         this.registerChat("&aYour new API key is &r&b${key}&r", this.newKey)
         const EntityFallingBlock = Java.type("net.minecraft.entity.item.EntityFallingBlock");
@@ -449,10 +451,49 @@ class GlobalSettings extends Feature {
         })
     }
 
-    updateItemLores() {
-        if (!this.itemWorth.getValue() && !this.showChampion.getValue() && !this.showHecatomb.getValue()) return;
+    itemTooltipEvent(lore, i, event) {
+        let uuid = getSBUUID(i)
+        if (!uuid) return
 
-        if (!Client.isInGui()) return
+        if (this.itemWorth.getValue()) {
+            let a = socketConnection.itemPricesCache.get(uuid)
+
+            if (!a && socketConnection.itemPricesCache2.get(uuid)) {
+                a = socketConnection.itemPricesCache2.get(uuid)
+                socketConnection.itemPricesCache.set(uuid, a)
+            }
+
+            if (a) {
+                addLore(i, "§eWorth: ", "§6$" + numberWithCommas(Math.round(a)))
+            }
+        }
+
+        if (this.showChampion.getValue() && i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getDouble("champion_combat_xp")) {
+            let xp = i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getDouble("champion_combat_xp")
+
+            let level = 1
+            championLevels.forEach(l => {
+                if (xp >= l) level++
+            })
+            let xpNext = championLevels[level - 1]
+
+            addLore(i, "§eChampion: ", "§d" + level + " §6" + numberWithCommas(Math.round(xp)) + (xpNext ? " §7/ §6" + numberWithCommas(Math.round(xpNext)) : ""))
+        }
+        if (this.showHecatomb.getValue() && i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getInteger("hecatomb_s_runs")) {
+            let runs = i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getInteger("hecatomb_s_runs")
+
+            let level = 1
+            hecatombLevels.forEach(l => {
+                if (runs >= l) level++
+            })
+            let xpNext = hecatombLevels[level - 1]
+
+            addLore(i, "§eHecatomb: ", "§d" + level + " §6" + numberWithCommas(Math.round(runs)) + (xpNext ? " §7/ §6" + numberWithCommas(Math.round(xpNext)) : ""))
+        }
+    }
+
+    updateItemLores() {
+        if (!this.itemWorth.getValue()) return;
 
         let items = [...Player.getInventory().getItems(), ...Player.getContainer().getItems()]
 
@@ -468,9 +509,7 @@ class GlobalSettings extends Feature {
                     socketConnection.itemPricesCache.set(uuid, a)
                 }
 
-                if (a) {
-                    addLore(i, "§eWorth: ", "§6$" + numberWithCommas(Math.round(a)))
-                } else {
+                if (!a) {
                     if (!this.requestingPrices.has(uuid)) {
                         this.requestingPrices.add(uuid)
 
@@ -481,28 +520,6 @@ class GlobalSettings extends Feature {
 
             }
 
-            if (this.showChampion.getValue() && i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getDouble("champion_combat_xp")) {
-                let xp = i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getDouble("champion_combat_xp")
-
-                let level = 1
-                championLevels.forEach(l => {
-                    if (xp >= l) level++
-                })
-                let xpNext = championLevels[level - 1]
-
-                addLore(i, "§eChampion: ", "§d" + level + " §6" + numberWithCommas(Math.round(xp)) + (xpNext ? " §7/ §6" + numberWithCommas(Math.round(xpNext)) : ""))
-            }
-            if (this.showHecatomb.getValue() && i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getInteger("hecatomb_s_runs")) {
-                let runs = i?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getInteger("hecatomb_s_runs")
-
-                let level = 1
-                hecatombLevels.forEach(l => {
-                    if (runs >= l) level++
-                })
-                let xpNext = hecatombLevels[level - 1]
-
-                addLore(i, "§eHecatomb: ", "§d" + level + " §6" + numberWithCommas(Math.round(runs)) + (xpNext ? " §7/ §6" + numberWithCommas(Math.round(xpNext)) : ""))
-            }
         })
     }
 
