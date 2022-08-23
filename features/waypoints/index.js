@@ -38,7 +38,12 @@ class Waypoints extends Feature {
         this.loadWaypointsFromSendCoords = new ToggleSetting("Load waypoints from /patcher sendcoords messages", "Will dissapear after 1min", true, "load_waypoints_from_sendcoords", this)
         this.mineWaypointsSetting = new ToggleSetting("CH waypoints", "Will sync between users", true, "minwaypoints", this)
 
-        this.userWaypoints = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2userwaypoints.json") || "{}")
+        try {
+            this.userWaypoints = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2userwaypoints.json") || "{}")
+        } catch (e) {
+            ChatLib.chat(this.messagePrefix + "&cYour waypoints file corrupted and could not be read! Resetting to defaults.")
+            this.userWaypoints = {}
+        }
         this.userWaypointsHash = {}
         this.userWaypointsAll = []
         this.lastArea = undefined
