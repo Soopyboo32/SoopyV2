@@ -78,12 +78,15 @@ class PowderAndScatha extends Feature {
         }
         this.miningData = JSON.parse(FileLib.read("soopyAddonsData", "miningData.json") || "{}") || {}
         if (!this.miningData.powder) this.miningData.powder = { chests: 0, mithril: 0, gemstone: 0 }
+        this.expRateInfo = []
+        this.mythrilRate = 0
+        this.gemstoneRate = 0
         //TODO if (!this.miningData.scatha) this.miningData.scatha = {}
         this.saveMiningData();
 
         this.registerCommand("resetpowderdata", () => {
             this.resetMiningData("powder");
-            ChatLib.chat(`&6[SOOPY V2] &aSuccessfully reset powder data.`)
+            ChatLib.chat(this.FeatureManager.messagePrefix + "Successfully reset powder data.")
         }, this)
 
         this.registerChat("&r&aYou uncovered a treasure chest!&r", (e) => {
@@ -103,6 +106,15 @@ class PowderAndScatha extends Feature {
         this.inCHfromChest = false;
         this.registerChat("&r&6You have successfully picked the lock on this chest!&r", (e) => {
             this.miningData.powder.chests++
+            delay(100, () => {
+                this.expRateInfo.push([Date.now(), this.miningData.powder.mithril, this.miningData.powder.gemstone])
+                if (this.expRateInfo.length > 10) this.expRateInfo.shift()
+
+                let [time, mythril, gemstone] = this.expRateInfo[0]
+
+                this.mythrilRate = (this.miningData.powder.mithril - mythril) / (Date.now() - time)
+                this.gemstoneRate = (this.miningData.powder.gemstone - gemstone) / (Date.now() - time)
+            })
         })
         this.registerChat("&r&aYou received &r&b+${amount} &r&aMithril Powder&r", (amount, e) => {
             this.miningData.powder.mithril += (this.dPowder ? 2 : 1) * parseInt(amount)
@@ -164,23 +176,31 @@ class PowderAndScatha extends Feature {
             this.overlayLeft.push(`&b2x Powder: ${this.dPowder ? "&aACTIVE" : "&cINACTIVE"}`)
             this.overlayRight.push("")
 
-            if (this.miningData.powder.chests && this.miningData.powder.chests > 0) {
+            if (this.miningData.powder.chests) {
                 let c = this.miningData.powder.chests
 
                 this.overlayLeft.push(`&aChests:`)
                 this.overlayRight.push(`&b${numberWithCommas(c)}`)
             }
-            if (this.miningData.powder.mithril && this.miningData.powder.mithril > 0) {
+            if (this.miningData.powder.mithril) {
                 let m = this.miningData.powder.mithril
 
                 this.overlayLeft.push(`&bMithril:`)
                 this.overlayRight.push(`&d${numberWithCommas(m)}`)
             }
-            if (this.miningData.powder.gemstone && this.miningData.powder.gemstone > 0) {
+            if (this.miningData.powder.gemstone) {
                 let g = this.miningData.powder.gemstone
 
                 this.overlayLeft.push(`&bGems:`)
                 this.overlayRight.push(`&d${numberWithCommas(g)}`)
+            }
+            if (this.mythrilRate) {
+                this.overlayLeft.push(`&bMithril/h:`)
+                this.overlayRight.push(`&d${numberWithCommas(Math.round(this.mythrilRate * 1000 * 60 * 60))}`)
+            }
+            if (this.gemstoneRate) {
+                this.overlayLeft.push(`&bGems/h:`)
+                this.overlayRight.push(`&d${numberWithCommas(Math.round(this.gemstoneRate * 1000 * 60 * 60))}`)
             }
         }
     }
