@@ -48,7 +48,7 @@ class Slayers extends Feature {
 		this.slayerXpElement = new HudTextElement()
 			.setText("&6Slayer&7> &fLoading...")
 			.setToggleSetting(this.slayerXpGuiElement)
-			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of you current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&6Enderman&7> &d&l2,147,483,647 XP").contributor("EmeraldMerchant"));
+			.setLocationSetting(new LocationSetting("Slayer Xp Location", "Allows you to edit the location of your current slayer xp", "slayer_xp_location", this, [10, 50, 1, 1]).requires(this.slayerXpGuiElement).editTempText("&6Enderman&7> &d&l2,147,483,647 XP").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.slayerXpElement);
 
 		this.MinibossAlert = new ToggleSetting("Alert when miniboss spawned nearby", "Pops up notification when a miniboss spawned", false, "miniboss_title_ping", this).contributor("EmeraldMerchant");
@@ -56,6 +56,13 @@ class Slayers extends Feature {
 		this.BoxAroundMiniboss = new ToggleSetting("Draws boxes around minibosses.", "If they are too far away it doesnt draw.", false, "box_around_miniboss", this).contributor("EmeraldMerchant");
 		this.BoxAroundAreaMiniboss = new ToggleSetting("Draws boxes around area minibosses", "eg. Voidling Extremist in void sepulture", false, "box_around_area_mini", this).contributor("EmeraldMerchant");
 		this.MinibossOffWhenBoss = new ToggleSetting("Disable miniboss features when your boss spawned", "this will boost your fps a little bit during boss", true, "miniboss_off_when_boss", this).contributor("EmeraldMerchant");
+
+		this.MinibossGuiElement = new ToggleSetting("Lists Nearby Miniboss HP on Screen", "This will help you to know if theres miniboss nearby/ know their hp", true, "miniboss_hud", this).contributor("EmeraldMerchant");
+		this.MinibossElement = new HudTextElement()
+			.setText("")
+			.setToggleSetting(this.MinibossGuiElement)
+			.setLocationSetting(new LocationSetting("Nearby Miniboss HP Location", "Allows you to edit the location of Nearby Miniboss HP hud", "miniboss_hud_location", this, [10, 50, 1, 1]).requires(this.MinibossGuiElement).editTempText("&5Voidling Radical &a25M&c❤").contributor("EmeraldMerchant"));
+		this.hudElements.push(this.MinibossElement);
 
 		this.betterHideDeadEntity = new ToggleSetting("Also hides mob nametag when it's dead.", "An improvement for Skytils's hide dead entity", false, "hide_dead_mob_nametag", this);
 
@@ -412,7 +419,7 @@ class Slayers extends Feature {
 			drawBoxAtEntity(x[0], 0, 1, 0, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
 		})
 
-		
+
 		this.areaMiniEntity.forEach((x) => {
 			drawBoxAtEntity(x[0], this.areaColor[x[1]].r, this.areaColor[x[1]].g, this.areaColor[x[1]].b, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
 		})
@@ -506,7 +513,8 @@ class Slayers extends Feature {
 						this.areaMiniEntity.push([name, this.lastSlayerType]);
 					}
 					if (this.betterHideDeadEntity.getValue()) {
-						if (nameSplit[nameSplit.length - 1].startsWith("0") && nameSplit[nameSplit.length - 1].endsWith("❤")) {
+						let lastArgs = nameSplit[nameSplit.length - 1]
+						if (lastArgs.startsWith("0") && lastArgs.endsWith("❤")) {
 							name.getEntity()[m.setAlwaysRenderNameTag](false)
 						}
 					}
@@ -789,6 +797,22 @@ class Slayers extends Feature {
 		} else {
 			this.emanHpElement.setText("");
 		}
+		
+		if (this.MinibossGuiElement.getValue() && !this.bossSpawnedMessage && this.minibossEntity.length > 0) {
+			let PY = Player.getY()
+			let minis = this.minibossEntity
+			let tempArray = []
+			let tempEntity = []
+			minis.forEach((x) => {//this.SlayerHeight[slayerType] values are negative
+				if (tempEntity.includes(x[0])) return
+				if (Math.abs((x[0].getY() + this.SlayerHeight[x[1]] - PY)) > 6) return
+				let name = x[0].getName()
+				if (name.split(" ")[2] === "§e0§c❤") return
+				tempEntity.push(x[0])
+				tempArray.push(name)
+			})
+			this.MinibossElement.setText(tempArray.join("\n"))
+		} else this.MinibossElement.setText("")
 
 		if (this.pillerE) {
 			if (this.pillerE.getEntity()[f.isDead]) this.pillerE = undefined
