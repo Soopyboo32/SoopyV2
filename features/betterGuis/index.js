@@ -204,20 +204,21 @@ class BetterGuis extends Feature {
         let left = Renderer.screen.getWidth() / 2 - 91;
         let top = Renderer.screen.getHeight() - 40;
 
-        Renderer.retainTransforms(true)
-        Renderer.translate(left, top)
+        Renderer.retainTransforms(true);
+        Renderer.translate(left, top);
 
-        let totalAmt = Math.max(Player.getPlayer()[m.getMaxHealth](), Player.getHP() + Player.getPlayer()[m.getAbsorptionAmount]())
+        let totalAmt = Math.max(Player.asPlayerMP().getMaxHP(), Player.getHP() + Player.asPlayerMP().getAbsorption());
 
-        let hpPercent = Player.getHP() / totalAmt
-        let abPercent = Player.getPlayer()[m.getAbsorptionAmount]() / totalAmt
+        let hpPercent = Player.getHP() / totalAmt;
+        let abPercent = Player.asPlayerMP().getAbsorption() / totalAmt;
 
 
-        Renderer.drawRect(Renderer.color(0, 0, 0), 0, 0, 80, 10)
-        Renderer.drawRect(Renderer.color(50, 50, 50), 2, 2, 76, 6)
-        Renderer.drawRect(Renderer.color(255, 0, 0), 2, 2, hpPercent * 76, 6)
-        Renderer.drawRect(Renderer.color(255, 255, 0), 2 + hpPercent * 76, 2, abPercent * 76, 6)
-        Renderer.retainTransforms(false)
+        Renderer.drawRect(Renderer.color(0, 0, 0), 0, 0, 80, 10);
+        Renderer.drawRect(Renderer.color(50, 50, 50), 2, 2, 76, 6);
+        Renderer.drawRect(Renderer.color(255, 0, 0), 2, 2, hpPercent * 76, 6);
+        Renderer.drawRect(Renderer.color(255, 255, 0), 2 + hpPercent * 76, 2, abPercent * 76, 6);
+        
+        Renderer.retainTransforms(false);
     }
 
     postGuiRender(x, y, gui) {
