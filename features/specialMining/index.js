@@ -108,7 +108,7 @@ class PowderAndScatha extends Feature {
             this.miningData.powder.chests++
             delay(100, () => {
                 this.expRateInfo.push([Date.now(), this.miningData.powder.mithril, this.miningData.powder.gemstone])
-                if (this.expRateInfo.length > 10) this.expRateInfo.shift()
+                if (this.expRateInfo.length > 20) this.expRateInfo.shift()
 
                 let [time, mythril, gemstone] = this.expRateInfo[0]
 
