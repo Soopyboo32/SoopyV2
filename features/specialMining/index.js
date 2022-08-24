@@ -20,7 +20,7 @@ class PowderAndScatha extends Feature {
         this.PowderOverlayElement = new HudTextElement()
             .setText("")
             .setToggleSetting(this.PowderElement)
-            .setLocationSetting(new LocationSetting("Powder Mining Info Hud Location", "Allows you to edit the location of Powder Mining Info Hud", "powder_mining_hud_location", this, [10, 50, 1, 1]).requires(this.PowderElement).editTempText(`&b2x Powder: "&cINACTIVE"\n&aChests: &b32\n&bMithril: &d12,768\n&bGems: &d21,325`).contributor("EmeraldMerchant"));
+            .setLocationSetting(new LocationSetting("Powder Mining Info Hud Location", "Allows you to edit the location of Powder Mining Info Hud", "powder_mining_hud_location", this, [10, 50, 1, 1]).requires(this.PowderElement).editTempText(`&b2x Powder: &cINACTIVE\n&aChests: &b32\n&bMithril: &d12,768\n&bGems: &d21,325`).contributor("EmeraldMerchant"));
         this.hudElements.push(this.PowderOverlayElement);
         this.PowderOverlayElement.disableRendering()
 
@@ -156,8 +156,13 @@ class PowderAndScatha extends Feature {
 
     spawnParticle(particle, type, event) {
         if (this.inCrystalHollows && this.chestUnlockHelper.getValue() && particle.toString().startsWith("EntityCrit2FX,")) {
-            this.chests.set(Math.floor(particle.getX()) + "," + Math.floor(particle.getY()) + "," + Math.floor(particle.getZ()), [Date.now(), particle.getX(), particle.getY(), particle.getZ()])
-            cancel(event)
+            if (World.getBlockAt(particle.getX() + 1, particle.getY(), particle.getZ()).type.getID() === 54
+                || World.getBlockAt(particle.getX() - 1, particle.getY(), particle.getZ()).type.getID() === 54
+                || World.getBlockAt(particle.getX(), particle.getY(), particle.getZ() + 1).type.getID() === 54
+                || World.getBlockAt(particle.getX(), particle.getY(), particle.getZ() - 1).type.getID() === 54) {
+                this.chests.set(Math.floor(particle.getX()) + "," + Math.floor(particle.getY()) + "," + Math.floor(particle.getZ()), [Date.now(), particle.getX(), particle.getY(), particle.getZ()])
+                cancel(event)
+            }
         }
     }
 
@@ -182,11 +187,11 @@ class PowderAndScatha extends Feature {
             Renderer.translate(x / scale, y / scale)
 
             this.overlayLeft.forEach((l, i) => {
-                Renderer.drawString(l, 0, 10 * i)
+                Renderer.drawStringWithShadow(l, 0, 10 * i)
             })
 
             this.overlayRight.forEach((l, i) => {
-                Renderer.drawString(l, width - Renderer.getStringWidth(l), 10 * i)
+                Renderer.drawStringWithShadow(l, width - Renderer.getStringWidth(l), 10 * i)
             })
 
             Renderer.retainTransforms(false)
