@@ -5,6 +5,8 @@ import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import { delay } from "../../utils/delayUtils";
+import { drawBoxAtBlock, drawFilledBox } from "../../utils/renderUtils";
+import RenderLib2D from "../../utils/renderLib2d";
 
 class PowderAndScatha extends Feature {
     constructor() {
@@ -14,7 +16,7 @@ class PowderAndScatha extends Feature {
     onEnable() {
         this.initVariables();
         new SettingBase("Chest Miner", "Powder mining feature here are made mainly for powder chest grinding", undefined, "chest_mining_info", this);
-        this.PowderElement = new ToggleSetting("Powder Mining Info Hud (MAIN TOGGLE)", "This will show your current powder mining section (only in CH)", false, "powder_mining_hud", this).contributor("EmeraldMerchant");
+        this.PowderElement = new ToggleSetting("Powder Mining Info Hud (MAIN TOGGLE)", "This will show your current powder mining section (only in CH)", true, "powder_mining_hud", this).contributor("EmeraldMerchant");
         this.PowderOverlayElement = new HudTextElement()
             .setText("")
             .setToggleSetting(this.PowderElement)
@@ -26,6 +28,7 @@ class PowderAndScatha extends Feature {
         this.resetPowderWhenLeaveCH = new ToggleSetting("Reset Powder When Left CH", "Should it reset powder hud whenever you left ch", false, "reset_powder_when_left_ch", this).requires(this.PowderElement);
         this.resetPowderWhenLeaveGame = new ToggleSetting("Reset Powder When Left Game", "Should it reset powder hud whenever you left game", false, "reset_powder_when_left_game", this).requires(this.PowderElement);
         this.chestUncoverAlert = new ToggleSetting("Alert When You Dug a Chest Out", "so you don't miss it", false, "chest_uncover_alert", this).requires(this.PowderElement);
+        this.chestUnlockHelper = new ToggleSetting("Chest unlock helper", "so you don't miss it", true, "chest_unlock_help", this).requires(this.PowderElement);
         this.chestUncoverAlertSound = new ToggleSetting("Alert Sound for Chest Alert", "should the alert also play a sound? (sound: levelup)", false, "chest_uncover_alert_sound", this).requires(this.chestUncoverAlert);
         this.hideGemstoneMessage = new ToggleSetting("Gemstone Messages Hider", "like: &r&aYou received &r&f16 &r&f❈ &r&fRough Amethyst Gemstone&r&a.&r", false, "gemstone_message_hider", this).requires(this.PowderElement)
         this.showFlawlessGemstone = new ToggleSetting("Gemstone Messages Hider Show Flawless", "should the hider ^ ignore flawless gemstones?", false, "gemstone_show_flawless", this).requires(this.hideGemstoneMessage)
@@ -67,6 +70,7 @@ class PowderAndScatha extends Feature {
                 if (this.resetPowderWhenLeaveCH.getValue()) {
                     this.resetMiningData("powder")
                 }
+                this.chests.clear()
             } else this.leftCH = false
         })
 
@@ -123,13 +127,36 @@ class PowderAndScatha extends Feature {
             this.miningData.powder.gemstone += (this.dPowder ? 2 : 1) * parseInt(amount)
         })
 
+        this.chests = new Map()
+
+
         this.registerEvent("renderOverlay", this.renderOverlay)
+        this.registerEvent("renderWorld", () => {
+            if (!this.inCrystalHollows || !this.chestUnlockHelper.getValue()) return
+
+            let del = []
+            for (let key of this.chests.keys()) {
+                let pos = this.chests.get(key)
+                let { x1, y1, x2, y2 } = RenderLib2D.calculateBoundingBox(new net.minecraft.util.AxisAlignedBB(pos[1] - 0.05, pos[2] - 0.05, pos[3] - 0.05, pos[1] + 0.05, pos[2] + 0.05, pos[3] + 0.05))
+
+                let hovered = (x1 < Renderer.screen.getWidth() / 2 && x2 > Renderer.screen.getWidth() / 2 && y1 < Renderer.screen.getHeight() / 2 && y2 > Renderer.screen.getHeight() / 2)
+
+                drawFilledBox(pos[1], pos[2], pos[3], 0.1, 0.1, hovered ? 0 : 255, hovered ? 255 : 0, 0, 1, false)
+
+                if (Date.now() - pos[0] > 5000) {
+                    del.push(key)
+                }
+            }
+
+            del.forEach(k => this.chests.delete(k))
+        })
         this.registerEvent("spawnParticle", this.spawnParticle)
     }
 
     spawnParticle(particle, type, event) {
-        if (particle.toString().startsWith("EntityCritFX,")) {
-
+        if (this.inCrystalHollows && this.chestUnlockHelper.getValue() && particle.toString().startsWith("EntityCrit2FX,")) {
+            this.chests.set(Math.floor(particle.getX()) + "," + Math.floor(particle.getY()) + "," + Math.floor(particle.getZ()), [Date.now(), particle.getX(), particle.getY(), particle.getZ()])
+            cancel(event)
         }
     }
 

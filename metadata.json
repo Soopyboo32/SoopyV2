@@ -12,6 +12,7 @@
     "soopyAddonsData",
     "guimanager",
     "mappings",
-    "BeaconBeam"
+    "BeaconBeam",
+    "RenderLib2D"
   ]
 }
