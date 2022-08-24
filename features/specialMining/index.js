@@ -141,7 +141,7 @@ class PowderAndScatha extends Feature {
 
                 let hovered = (x1 < Renderer.screen.getWidth() / 2 && x2 > Renderer.screen.getWidth() / 2 && y1 < Renderer.screen.getHeight() / 2 && y2 > Renderer.screen.getHeight() / 2)
 
-                drawFilledBox(pos[1], pos[2], pos[3], 0.1, 0.1, hovered ? 0 : 255, hovered ? 255 : 0, 0, 1, false)
+                drawFilledBox(pos[1], pos[2] - 0.05, pos[3], 0.1, 0.1, hovered ? 0 : 255, hovered ? 255 : 0, 0, 1, false)
 
                 if (Date.now() - pos[0] > 5000) {
                     del.push(key)
