@@ -220,7 +220,7 @@ class PowderAndScatha extends Feature {
         this.hudElements = [];
         this.inCrystalHollows = false;
         this.foundWither = true;
-        this.dPowder = false;
+        this.dPowder = 0;
     }
 
     onDisable() {
