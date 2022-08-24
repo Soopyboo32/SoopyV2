@@ -137,11 +137,12 @@ class PowderAndScatha extends Feature {
             let del = []
             for (let key of this.chests.keys()) {
                 let pos = this.chests.get(key)
-                let { x1, y1, x2, y2 } = RenderLib2D.calculateBoundingBox(new net.minecraft.util.AxisAlignedBB(pos[1] - 0.05, pos[2] - 0.05, pos[3] - 0.05, pos[1] + 0.05, pos[2] + 0.05, pos[3] + 0.05))
+                let size = 0.2
+                let { x1, y1, x2, y2 } = RenderLib2D.calculateBoundingBox(new net.minecraft.util.AxisAlignedBB(pos[1] - size / 2, pos[2] - size / 2, pos[3] - size / 2, pos[1] + size / 2, pos[2] + size / 2, pos[3] + size / 2))
 
                 let hovered = (x1 < Renderer.screen.getWidth() / 2 && x2 > Renderer.screen.getWidth() / 2 && y1 < Renderer.screen.getHeight() / 2 && y2 > Renderer.screen.getHeight() / 2)
 
-                drawFilledBox(pos[1], pos[2] - 0.05, pos[3], 0.1, 0.1, hovered ? 0 : 255, hovered ? 255 : 0, 0, 1, false)
+                drawFilledBox(pos[1], pos[2] - size / 2, pos[3], size, size, hovered ? 0 : 255, hovered ? 255 : 0, 0, 1, false)
 
                 if (Date.now() - pos[0] > 5000) {
                     del.push(key)
