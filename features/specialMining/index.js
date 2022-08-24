@@ -1,6 +1,6 @@
 import Feature from "../../featureClass/class";
 import SettingBase from "../settings/settingThings/settingBase";
-import { numberWithCommas } from "../../utils/numberUtils";
+import { numberWithCommas, timeNumber } from "../../utils/numberUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
@@ -48,11 +48,11 @@ class PowderAndScatha extends Feature {
                 }
             } else if (this.inCHfromChest) {
                 this.inCrystalHollows = true
-                this.dPowder = false
+                this.dPowder = 0
                 this.inCHfromChest = false
             }
         })
-        this.dPowder = false;
+        this.dPowder = 0;
         this.registerStep(true, 2, this.step2fps);
         this.sL = Renderer.getStringWidth(" ")
 
@@ -100,8 +100,8 @@ class PowderAndScatha extends Feature {
 
         this.registerChat("&r&r&r${space}&r&b&l2X POWDER ${status}!&r", (space, status, e) => {
             if (status.removeFormatting() === "STARTED") {
-                this.dPowder = true
-            } else this.dPowder = false
+                this.dPowder = Date.now() + 15 * 1000 * 60
+            } else this.dPowder = 0
         })
         this.inCHfromChest = false;
         this.registerChat("&r&6You have successfully picked the lock on this chest!&r", (e) => {
@@ -124,8 +124,14 @@ class PowderAndScatha extends Feature {
         })
 
         this.registerEvent("renderOverlay", this.renderOverlay)
+        this.registerEvent("spawnParticle", this.spawnParticle)
     }
 
+    spawnParticle(particle, type, event) {
+        if (particle.toString().startsWith("EntityCritFX,")) {
+
+        }
+    }
 
     resetMiningData(type) {
         if (type === "powder") {
@@ -137,7 +143,7 @@ class PowderAndScatha extends Feature {
 
     renderOverlay() {
         if (this.PowderOverlayElement.isEnabled()) {
-            let width = Renderer.getStringWidth(this.overlayLeft[0])
+            let width = Renderer.getStringWidth("&b2x Powder: &cINACTIVE")
 
             let x = this.PowderOverlayElement.locationSetting.x
             let y = this.PowderOverlayElement.locationSetting.y
@@ -163,7 +169,12 @@ class PowderAndScatha extends Feature {
         if (!this.foundWither) {
             World.getAllEntitiesOfType(net.minecraft.entity.boss.EntityWither)?.forEach(e => {
                 if (e.getName().includes("§e§lPASSIVE EVENT §b§l2X POWDER §e§lRUNNING FOR §a§l")) {
-                    this.dPowder = true;
+                    this.dPowder = Date.now();
+                    let time = ChatLib.removeFormatting(e.getName()).split("RUNNING FOR ").pop()
+
+                    let [m, s] = time.split(":")
+                    this.dPowder += 1000 * parseInt(s)
+                    this.dPowder += 60 * 1000 * parseInt(m)
                 };
                 this.foundWither = true;
             });
@@ -173,8 +184,8 @@ class PowderAndScatha extends Feature {
         this.overlayRight = []
 
         if (this.PowderElement.getValue() && this.inCrystalHollows) {
-            this.overlayLeft.push(`&b2x Powder: ${this.dPowder ? "&aACTIVE" : "&cINACTIVE"}`)
-            this.overlayRight.push("")
+            this.overlayLeft.push(`&b2x Powder:`)
+            this.overlayRight.push(this.dPowder ? "&a" + timeNumber(this.dPowder - Date.now()) : "&cINACTIVE")
 
             if (this.miningData.powder.chests) {
                 let c = this.miningData.powder.chests
