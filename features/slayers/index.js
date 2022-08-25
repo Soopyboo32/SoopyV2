@@ -505,7 +505,7 @@ class Slayers extends Feature {
 						}
 					}
 				}
-				if (this.MinibossOffWhenBoss.getValue() && !this.bossSpawnedMessage) {
+				if (this.MinibossOffWhenBoss.getValue() ? !this.bossSpawnedMessage : true) {
 					if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
 						this.minibossEntity.push([name, this.lastSlayerType]);
 					}
@@ -583,23 +583,6 @@ class Slayers extends Feature {
 						this.cannotFindEmanBoss = false
 					}
 
-				}
-
-				if (!this.bossSpawnedMessage && e instanceof net.minecraft.entity.item.EntityArmorStand) {
-					let nameSplit = e[m.getCustomNameTag]().removeFormatting().split(" ")
-					let mobName = `${nameSplit[0]} ${nameSplit[1]}`
-					let MobName12 = `${nameSplit[1]} ${nameSplit[2]}`
-					let MobName1234 = `${nameSplit[1]} ${nameSplit[2]} ${nameSplit[3]} ${nameSplit[4]}`
-					if (this.Miniboss[this.lastSlayerType]?.has(mobName)) {
-						if (this.BoxAroundMiniboss.getValue() && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
-							this.minibossEntity.push([new Entity(e), this.lastSlayerType]);
-						}
-					}
-					if (this.areaMini[this.lastSlayerType]?.has(MobName12) || this.areaMini[this.lastSlayerType]?.has(MobName1234)) {
-						if (this.BoxAroundAreaMiniboss.getValue() && !this.areaMiniEntity.map(a => a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
-							this.areaMiniEntity.push([new Entity(e), this.lastSlayerType]);
-						}
-					}
 				}
 
 				if (e instanceof net.minecraft.entity.item.EntityArmorStand && e[m.getCustomNameTag]() && this.blazeTowerDink.getValue()) {
