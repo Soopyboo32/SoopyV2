@@ -16,7 +16,7 @@ import { fetch } from "../../utils/networkUtils";
 import socketConnection from "../../socketConnection";
 import renderLibs from "../../../guimanager/renderLibs";
 import { f } from "../../../mappings/mappings";
-import { addLore, getSBUUID } from "../../utils/utils";
+import { addLore, getSBUUID, toMessageWithLinks } from "../../utils/utils";
 import { delay } from "../../utils/delayUtils";
 const Files = Java.type("java.nio.file.Files")
 const Paths = Java.type("java.nio.file.Paths")
@@ -263,15 +263,7 @@ class GlobalSettings extends Feature {
                 ChatLib.addToSentMessageHistory(message)
                 fetch("http://soopy.dev/api/soopyv2/botcommand?m=" + encodeURIComponent(message.replace("-", "")) + "&u=" + Player.getName()).text(text => {
                     ChatLib.chat(this.FeatureManager.messagePrefix + "&7" + message)
-                    let sendMessage = text
-                    sendMessage = sendMessage.split(" ").map(a => {
-                        if (a.match(/(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm)) {
-                            return new TextComponent("&f&n" + a + ' ').setHover("show_text", "Click to open " + a).setClick("open_url", a)
-                        } else {
-                            return new TextComponent("&f" + a + ' ')
-                        }
-                    })
-                    sendMessage.reduce((c, curr) => c.addTextComponent(curr), new Message().addTextComponent(new TextComponent(this.FeatureManager.messagePrefix))).chat()
+                    toMessageWithLinks(this.FeatureManager.messagePrefix + text, "7").chat()
                 })
             }
         })

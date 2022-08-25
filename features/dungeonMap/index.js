@@ -675,7 +675,9 @@ class DungeonMap extends Feature {
                     if (bytes[x + y * 128] === 30
                         && bytes[x + 1 + y * 128] === 30
                         && bytes[x + 2 + y * 128] === 30
-                        && bytes[x + 3 + y * 128] === 30) {
+                        && bytes[x + 3 + y * 128] === 30
+                        && bytes[x + 5 + y * 128] === 30
+                        && bytes[x + 10 + y * 128] === 30) {
                         rx = x
                         ry = y
                         while (bytes[(rx - 1) + ry * 128] === 30) {
@@ -689,7 +691,6 @@ class DungeonMap extends Feature {
                 }
                 if (rx) break;
             }
-
             let x = rx
             while (bytes[x + ry * 128] === 30) {
                 x++
@@ -700,6 +701,7 @@ class DungeonMap extends Feature {
                 y++
                 roomWidth1++
             }
+
             let roomWidth = Math.floor(Math.max(roomWidth1, roomWidth2) * 5 / 4)
 
             this.mapScale = 32 / roomWidth

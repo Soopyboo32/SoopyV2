@@ -118,6 +118,23 @@ let utils = {
         var result = [];
         p(array, []);
         return result;
+    },
+    toMessageWithLinks: function (text, color = "f") {
+        return text.split(" ").reduce((c, curr) => {
+            if (curr.match(/(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm)) {
+                c.push(curr)
+                c.push("&" + color)
+            } else {
+                c[c.length - 1] += (c[c.length - 1].length === 2 ? "" : " ") + curr
+            }
+            return c
+        }, ["&" + color]).map(a => {
+            if (a.match(/(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm)) {
+                return new TextComponent("&" + color + "&n" + a + "&" + color + ' ').setHover("show_text", "Click to open " + a.trim()).setClick("open_url", a.trim())
+            } else {
+                return new TextComponent(a + ' ')
+            }
+        }).reduce((c, curr) => c.addTextComponent(curr), new Message())
     }
 }
 

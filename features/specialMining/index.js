@@ -63,7 +63,7 @@ class PowderAndScatha extends Feature {
         this.overlayRight = []
 
         this.leftCH = false;
-        this.registerChat("&7Sending to server ${s}&r", (s, e) => {
+        this.registerEvent("worldLoad", () => {
             if (this.inCrystalHollows) {
                 this.leftCH = true;
                 this.inCrystalHollows = false;
@@ -169,6 +169,7 @@ class PowderAndScatha extends Feature {
     resetMiningData(type) {
         if (type === "powder") {
             Object.keys(this.miningData.powder).forEach(thing => this.miningData.powder[thing] = 0)
+            this.expRateInfo = []
         } else if (type === "scatha") {
             //TODO
         }
