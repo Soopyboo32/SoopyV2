@@ -505,7 +505,7 @@ class Slayers extends Feature {
 						}
 					}
 				}
-				if (this.MinibossOffWhenBoss.getValue() ? !this.bossSpawnedMessage : true) {
+				if ((this.MinibossOffWhenBoss.getValue() && !this.bossSpawnedMessage) || true) {
 					if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
 						this.minibossEntity.push([name, this.lastSlayerType]);
 					}
