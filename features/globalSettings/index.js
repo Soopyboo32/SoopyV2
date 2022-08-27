@@ -15,7 +15,7 @@ import { firstLetterCapital } from "../../utils/stringUtils";
 import { fetch } from "../../utils/networkUtils";
 import socketConnection from "../../socketConnection";
 import renderLibs from "../../../guimanager/renderLibs";
-import { f } from "../../../mappings/mappings";
+import { f, m } from "../../../mappings/mappings";
 import { addLore, getSBUUID, toMessageWithLinks } from "../../utils/utils";
 import { delay } from "../../utils/delayUtils";
 const Files = Java.type("java.nio.file.Files")
@@ -54,6 +54,7 @@ class GlobalSettings extends Feature {
 
         this.hideFallingBlocks = new ToggleSetting("Hide falling blocks", "NOTE: This setting is a bit laggy", false, "hide_falling_sand", this)
         this.twitchCommands = new ToggleSetting("Ingame twitch bot commands", "Allows u to use twitch bot commands ingame (eg -sa)", true, "twitch_commands_ingame", this)
+        this.handChat = new ToggleSetting("Replace [hand] with ur currently held item", "Only shows for soopy users", true, "hand_chat", this)
         this.itemWorth = new ToggleSetting("(Approximate) Item worth in lore", "Accounts for stuff like enchants/recombs ect", false, "item_worth", this)
         this.showHecatomb = new ToggleSetting("Show hecatomb enchant info in lore", "", true, "show_hecatomb", this)
         this.showChampion = new ToggleSetting("Show champion enchant info in lore", "", true, "show_champion", this)
@@ -256,16 +257,68 @@ class GlobalSettings extends Feature {
         })
 
         this.registerEvent("messageSent", (message, event) => {
-            if (!this.twitchCommands.getValue()) return
-
-            if (message.startsWith("-") && message[1].toLowerCase().match(/[a-z]/)) {
+            if (this.twitchCommands.getValue() && message.startsWith("-") && message[1].toLowerCase().match(/[a-z]/)) {
                 cancel(event)
                 ChatLib.addToSentMessageHistory(message)
                 fetch("http://soopy.dev/api/soopyv2/botcommand?m=" + encodeURIComponent(message.replace("-", "")) + "&u=" + Player.getName()).text(text => {
                     ChatLib.chat(this.FeatureManager.messagePrefix + "&7" + message)
                     toMessageWithLinks(this.FeatureManager.messagePrefix + text, "7").chat()
                 })
+                return;
             }
+
+            // if (/\[ITEM:[0-9]+\]/g.test(message)) {
+
+
+            // }
+            if (message.toLowerCase().includes("[hand]")) {
+                cancel(event)
+                ChatLib.addToSentMessageHistory(message)
+
+                fetch("http://soopy.dev/api/soopyv2/itemup", {
+                    postData: {
+                        name: Player.getHeldItem().getName(),
+                        lore: Player.getHeldItem().getLore().join("\n")
+                    }
+                }).text(text => {
+                    if (text.length > 20) {
+                        ChatLib.chat(this.FeatureManager.messagePrefix + "There was an error uploading the item data!")
+                        return
+                    }
+
+                    ChatLib.say(message.replace(/\[hand\]/gi, "[ITEM:" + text + "]"))
+                })
+                return;
+            }
+        })
+
+        this.registerChat("${*}[ITEM:${*}", (event) => {
+            cancel(event)
+            let message = new Message(event)
+
+            let [_] = message.getUnformattedText().match(/\[ITEM:([0-9]+)\]/g)
+            let id = _.replace("[ITEM:", "").replace(/\]$/g, "")
+
+            fetch("http://soopy.dev/api/soopyv2/itemdown/" + id).json(([name, lore]) => {
+                console.log(JSON.stringify(lore, undefined, 2))
+                for (let i = 0; i < message.getMessageParts().length; i++) {
+                    let component = message.getMessageParts()[i]
+
+                    if (component.getText().match(/\[ITEM:([0-9]+)\]/g)) {
+                        let [_] = component.getText().match(/\[ITEM:([0-9]+)\]/g)
+                        let id = _.replace("[ITEM:", "").replace(/\]$/g, "")
+
+                        message.setTextComponent(i, new TextComponent(component.getText().replace("[ITEM:" + id + "]", name + "&r")).setHover("show_text", lore))
+                    }
+                }
+                message.setRecursive(true)
+                message.chat()
+            }).error(() => {
+                ChatLib.chat(this.FeatureManager.messagePrefix + "There was an error downloading the item data!")
+                message.setRecursive(true)
+                message.chat()
+            })
+
         })
     }
 
