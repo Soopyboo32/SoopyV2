@@ -3,6 +3,6 @@
     "description": "Features nice for guilds, eg bridge formatting",
     "isHidden": false,
     "isTogglable": true,
-    "defaultEnabled": true,
+    "defaultEnabled": false,
     "sortA": 1
 }

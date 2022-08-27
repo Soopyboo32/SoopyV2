@@ -45,8 +45,8 @@ class Guild extends Feature {
                     message = `&2B${this.shortenPrefix.getValue() ? "" : "ridge"} > &7⤷&f ${msg.trim()}`
                 }
             } else {
-                if (msg.match(/^@\w+, [\w\W]+[,.]+/)) {
-                    let [_, name2, reply] = msg.match(/^@(\w+?), ([\w\W]+?)[,.]+/)
+                if (msg.match(/^@\w+, [\w\W]+[,.]+$/)) {
+                    let [_, name2, reply] = msg.match(/^@(\w+?), ([\w\W]+?)[,.]+$/)
                     message = `&2B${this.shortenPrefix.getValue() ? "" : "ridge"} > &b${name2} &7⤷&f ${reply.trim()}`
                 } else {
                     message = `&2G${this.shortenPrefix.getValue() ? "" : "uild"} > ${rank}${ign}${grank || ""}&f: ${msg}`
