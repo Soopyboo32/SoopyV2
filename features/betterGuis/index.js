@@ -12,32 +12,32 @@ import SoopyNumber from "../../../guimanager/Classes/SoopyNumber";
 
 class BetterGuis extends Feature {
     constructor() {
-        super()
+        super();
     }
 
     inSkyblock() {
-        return this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.isInSkyblock
+        return this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.isInSkyblock;
     }
 
     onEnable() {
-        this.initVariables()
+        this.initVariables();
 
-        this.museumGui = new MuseumGui()
-        this.dungeonReady = new DungeonReadyGui()
+        this.museumGui = new MuseumGui();
+        this.dungeonReady = new DungeonReadyGui();
 
-        this.replaceSbMenuClicks = new ToggleSetting("Improve Clicks on SBMENU", "This will change clicks to middle clicks, AND use commands where possible (eg /pets)", true, "sbmenu_clicks", this)
+        this.replaceSbMenuClicks = new ToggleSetting("Improve Clicks on SBMENU", "This will change clicks to middle clicks, AND use commands where possible (eg /pets)", true, "sbmenu_clicks", this);
         this.reliableSbMenuClicks = { getValue: () => false }//removed because hypixel fixed, code kept incase hypixel adds back bug later //new ToggleSetting("Make SBMENU clicks reliable", "This will delay clicks on sbmenu to time them so they dont get canceled", true, "sbmenu_time", this)
 
-        this.museumGuiEnabled = new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this)
-        this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI", "Custom gui for the dungeon ready up menu", false, "custom_dungeon_ready_enabled", this)
+        this.museumGuiEnabled = new ToggleSetting("Custom Museum GUI", "Custom gui for the Museum", true, "custom_museum_enabled", this);
+        this.dungeonReadyGuiEnabled = new ToggleSetting("Custom Dungeon Ready GUI", "Custom gui for the dungeon ready up menu", false, "custom_dungeon_ready_enabled", this);
 
-        this.chestSearchBar = new ToggleSetting("Inventory Search Bar", "use '&' to make it filter by stuff that contains multiple things", false, "inv_search", this)
-        this.customBars = new ToggleSetting("Custom hp and mana bar", "Also hides stuff like armor bar", false, "custom_bars", this)
+        this.chestSearchBar = new ToggleSetting("Inventory Search Bar", "use '&' to make it filter by stuff that contains multiple things", false, "inv_search", this);
+        this.customBars = new ToggleSetting("Custom hp and mana bar", "Also hides stuff like armor bar", false, "custom_bars", this);
 
-        this.lastWindowId = 0
-        this.shouldHold = 10
-        this.clickSlot = -1
-        this.clickSlotTime = 0
+        this.lastWindowId = 0;
+        this.shouldHold = 10;
+        this.clickSlot = -1;
+        this.clickSlotTime = 0;
 
         this.middleClickGuis = [
             "Your SkyBlock Profile",
@@ -99,107 +99,103 @@ class BetterGuis extends Feature {
             "Mining",
             "Woods & Fishes",
             "Oddities"
-        ]
+        ];
         this.middleClickEndsWith = [
             "Recipe",
             "Recipes",
             ") Pets",
             "Collection",
             "Active Effects"
-        ]
+        ];
 
-        this.registerChat("&r&aDungeon starts in 1 second.&r", () => {
-            this.dungeonReady.readyInOneSecond.call(this.dungeonReady)
-        })
-        this.registerChat("&r&aDungeon starts in 1 second. Get ready!&r", () => {
-            this.dungeonReady.readyInOneSecond.call(this.dungeonReady)
-        })
-        this.registerEvent("guiMouseClick", this.guiClicked)
+        this.registerChat("&r&aDungeon starts in 1 second.&r", () => 
+            this.dungeonReady.readyInOneSecond.call(this.dungeonReady));
+        this.registerChat("&r&aDungeon starts in 1 second. Get ready!&r", () =>
+            this.dungeonReady.readyInOneSecond.call(this.dungeonReady));
+        this.registerEvent("guiMouseClick", this.guiClicked);
         this.registerEvent("guiOpened", (event) => {
-            if (this.museumGuiEnabled.getValue()) this.museumGui.guiOpened.call(this.museumGui, event)
-            if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.guiOpened.call(this.dungeonReady, event)
-        })
-        this.registerEvent("worldLoad", () => {
-            this.dungeonReady.reset()
-        })
+            if (this.museumGuiEnabled.getValue()) this.museumGui.guiOpened.call(this.museumGui, event);
+            if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.guiOpened.call(this.dungeonReady, event);
+        });
+        this.registerEvent("worldLoad", () => this.dungeonReady.reset());
         this.registerChat("&e${*} &r&cThe Catacombs &r&ewith &r&9${players}/5 players &r&eon &r${*}&r", (players) => {
-            if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.joinedDungeon.call(this.dungeonReady, ~~players)
+            if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.joinedDungeon.call(this.dungeonReady, ~~players);
         })
         this.registerChat("&eSkyBlock Dungeon Warp &r&7(${players} players)&r", (players) => {
             if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.joinedDungeon.call(this.dungeonReady, ~~players)
         })
         this.registerStep(true, 10, this.step)
-        this.registerEvent("worldUnload", () => { this.museumGui.saveMuseumCache.call(this.museumGui) })
-        this.registerStep(false, 30, () => { this.museumGui.saveMuseumCache.call(this.museumGui) })
+        this.registerEvent("worldUnload", () => this.museumGui.saveMuseumCache.call(this.museumGui));
+        this.registerStep(false, 30, () => this.museumGui.saveMuseumCache.call(this.museumGui));
 
 
-        this.invSearchSoopyGui = new SoopyGui()
-        this.invSearchSoopyGui._renderBackground = () => { }
+        this.invSearchSoopyGui = new SoopyGui();
+        this.invSearchSoopyGui._renderBackground = () => { };
 
-        this.invSearchTextBox = new TextBox().setPlaceholder("Click to search").setLocation(0.4, 0.05, 0.2, 0.05)
-        this.invSearchSoopyGui.element.addChild(this.invSearchTextBox)
+        this.invSearchTextBox = new TextBox().setPlaceholder("Click to search").setLocation(0.4, 0.05, 0.2, 0.05);
+        this.invSearchSoopyGui.element.addChild(this.invSearchTextBox);
 
-        this.mana = new SoopyNumber(0)
-        this.overflowMana = new SoopyNumber(0)
-        this.maxMana = new SoopyNumber(0)
-        this.lastOverFlow = Date.now()
+        this.mana = new SoopyNumber(0);
+        this.overflowMana = new SoopyNumber(0);
+        this.maxMana = new SoopyNumber(0);
+        this.lastOverFlow = Date.now();
 
-        this.slotMatches = new Map()
-        this.registerEvent("renderHealth", this.renderHealth).registeredWhen(() => this.inSkyblock() && this.customBars.getValue())
-        this.registerEvent("renderFood", cancel).registeredWhen(() => this.inSkyblock() && this.customBars.getValue())
-        this.registerEvent("renderArmor", this.renderMana).registeredWhen(() => this.inSkyblock() && this.customBars.getValue())
-        let registerActionBar = this.registerCustom("actionbar", this.actionbarMana)
+        this.slotMatches = new Map();
+        this.registerEvent("renderHealth", this.renderHealth).registeredWhen(() => this.inSkyblock() && this.customBars.getValue());
+        this.registerEvent("renderFood", cancel).registeredWhen(() => this.inSkyblock() && this.customBars.getValue());
+        this.registerEvent("renderArmor", this.renderMana).registeredWhen(() => this.inSkyblock() && this.customBars.getValue());
+        let registerActionBar = this.registerCustom("actionbar", this.actionbarMana);
         registerActionBar.trigger.setCriteria('&b${curr}/${max}✎').setParameter('contains');
-        let registerActionBar2 = this.registerCustom("actionbar", this.actionbarOverflowMana)
+        let registerActionBar2 = this.registerCustom("actionbar", this.actionbarOverflowMana);
         registerActionBar2.trigger.setCriteria('&3${curr}ʬ').setParameter('contains');
         //&c2532/2532❤     &a798&a❈ Defense     &b2525/2525✎ &31ʬ&r (100)
         //&c2532/2532❤     &f20&f❂ True Defense     &b2414/2414✎ &3600ʬ&r (13)
         //&c2665/2665❤     &a972&a❈ Defense     &b2145/2145✎ &3600ʬ&r
         //&c2,806/2,806❤     &a1,050&a❈ Defense     &b1,945/1,945✎ &3600ʬ&r
-        this.registerEvent("guiRender", this.postGuiRender).registeredWhen(() => this.chestSearchBar.getValue())
-        this.registerEvent("guiMouseClick", this.guiMouseClick).registeredWhen(() => this.chestSearchBar.getValue())
-        this.registerEvent("guiKey", this.guiKey).registeredWhen(() => this.chestSearchBar.getValue())
-        this.registerEvent("renderSlot", this.renderSlot).registeredWhen(() => this.chestSearchBar.getValue())
-        this.registerEvent("guiOpened", this.guiOpened).registeredWhen(() => this.chestSearchBar.getValue())
+        this.registerEvent("guiRender", this.postGuiRender).registeredWhen(() => this.chestSearchBar.getValue());
+        this.registerEvent("guiMouseClick", this.guiMouseClick).registeredWhen(() => this.chestSearchBar.getValue());
+        this.registerEvent("guiKey", this.guiKey).registeredWhen(() => this.chestSearchBar.getValue());
+        this.registerEvent("renderSlot", this.renderSlot).registeredWhen(() => this.chestSearchBar.getValue());
+        this.registerEvent("guiOpened", this.guiOpened).registeredWhen(() => this.chestSearchBar.getValue());
     }
 
     actionbarMana(curr, max) {
-        if (curr.includes("Mana")) {
-            curr = curr.split("&b").pop()
-        }
-        this.mana.set(parseInt(curr.replace(/,/g, "")), 500)
-        this.maxMana.set(parseInt(max.replace(/,/g, "")), 500)
-        if (Date.now() - this.lastOverFlow > 1000) this.overflowMana.set(0, 500)
+        if (curr.includes("Mana")) 
+            curr = curr.split("&b").pop();
+
+        this.mana.set(parseInt(curr.replace(/,/g, "")), 500);
+        this.maxMana.set(parseInt(max.replace(/,/g, "")), 500);
+        if (Date.now() - this.lastOverFlow > 1000) this.overflowMana.set(0, 500);
     }
 
     actionbarOverflowMana(curr) {
-        this.overflowMana.set(parseInt(curr.replace(/,/g, "")), 500)
-        this.lastOverFlow = Date.now()
+        this.overflowMana.set(parseInt(curr.replace(/,/g, "")), 500);
+        this.lastOverFlow = Date.now();
     }
 
     renderMana(event) {
-        cancel(event)
+        cancel(event);
 
         let left = Renderer.screen.getWidth() / 2 + 91 - 80;
         let top = Renderer.screen.getHeight() - 40;
 
-        Renderer.retainTransforms(true)
-        Renderer.translate(left, top)
+        Renderer.retainTransforms(true);
+        Renderer.translate(left, top);
 
-        let totalAmt = Math.max(this.maxMana.get(), this.mana.get() + this.overflowMana.get())
+        let totalAmt = Math.max(this.maxMana.get(), this.mana.get() + this.overflowMana.get());
 
-        let manaPercent = this.mana.get() / totalAmt
-        let ofPercent = this.overflowMana.get() / totalAmt
+        let manaPercent = this.mana.get() / totalAmt;
+        let ofPercent = this.overflowMana.get() / totalAmt;
 
-        Renderer.drawRect(Renderer.color(0, 0, 0), 0, 0, 80, 10)
-        Renderer.drawRect(Renderer.color(50, 50, 50), 2, 2, 76, 6)
-        Renderer.drawRect(Renderer.color(0, 0, 255), 2, 2, manaPercent * 76, 6)
-        Renderer.drawRect(Renderer.color(0, 255, 255), 2 + manaPercent * 76, 2, ofPercent * 76, 6)
-        Renderer.retainTransforms(false)
+        Renderer.drawRect(Renderer.color(0, 0, 0), 0, 0, 80, 10);
+        Renderer.drawRect(Renderer.color(50, 50, 50), 2, 2, 76, 6);
+        Renderer.drawRect(Renderer.color(0, 0, 255), 2, 2, manaPercent * 76, 6);
+        Renderer.drawRect(Renderer.color(0, 255, 255), 2 + manaPercent * 76, 2, ofPercent * 76, 6);
+        Renderer.retainTransforms(false);
     }
 
     renderHealth(event) {
-        cancel(event)
+        cancel(event);
 
         let left = Renderer.screen.getWidth() / 2 - 91;
         let top = Renderer.screen.getHeight() - 40;
@@ -240,7 +236,7 @@ class BetterGuis extends Feature {
         }
     }
     guiOpened() {
-        this.slotMatches.clear()
+        this.slotMatches.clear();
     }
 
     renderSlot(slot, gui, event) {
