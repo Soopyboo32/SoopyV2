@@ -217,12 +217,12 @@ class BetterGuis extends Feature {
         Renderer.drawRect(Renderer.color(50, 50, 50), 2, 2, 76, 6);
         Renderer.drawRect(Renderer.color(255, 0, 0), 2, 2, hpPercent * 76, 6);
         Renderer.drawRect(Renderer.color(255, 255, 0), 2 + hpPercent * 76, 2, abPercent * 76, 6);
-        
+
         Renderer.retainTransforms(false);
     }
 
     postGuiRender(x, y, gui) {
-        if (gui instanceof class net.minecraft.client.gui.inventory.GuiChest)
+        if (gui instanceof net.minecraft.client.gui.inventory.GuiChest)
             this.invSearchSoopyGui._render(x, y, 0);
     }
     guiMouseClick(x, y, button, gui) {
@@ -244,7 +244,7 @@ class BetterGuis extends Feature {
     }
 
     renderSlot(slot, gui, event) {
-        if (!(gui instanceof class net.minecraft.client.gui.inventory.GuiChest)) return;
+        if (!(gui instanceof net.minecraft.client.gui.inventory.GuiChest)) return;
         if (!this.invSearchTextBox.getText()) return;
 
         let searchText = this.invSearchTextBox.getText().toLowerCase();
@@ -278,7 +278,7 @@ class BetterGuis extends Feature {
     }
 
     guiClicked(mouseX, mouseY, button, gui, event) {
-        if (!(gui instanceof class net.minecraft.client.gui.inventory) || button !== 0 || !this.replaceSbMenuClicks.getValue()) return;
+        if (!(gui instanceof net.minecraft.client.gui.inventory) || button !== 0 || !this.replaceSbMenuClicks.getValue()) return;
 
         let hoveredSlot = gui.getSlotUnderMouse();
         if (!hoveredSlot) return;
@@ -297,7 +297,7 @@ class BetterGuis extends Feature {
 
         if (!this.replaceSbMenuClicks.getValue()) return
         if (Player.getContainer() && Player.getContainer().getName() !== "SkyBlock Menu") {
-             this.lastWindowId = 0;
+            this.lastWindowId = 0;
             return;
         }
         if (this.lastWindowId === 0) {

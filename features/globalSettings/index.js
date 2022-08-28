@@ -535,6 +535,8 @@ class GlobalSettings extends Feature {
     updateItemLores() {
         if (!this.itemWorth.getValue()) return;
 
+        if (!Player.getInventory()) return
+
         let items = [...Player.getInventory().getItems(), ...Player.getContainer().getItems()]
 
         items.forEach(i => {

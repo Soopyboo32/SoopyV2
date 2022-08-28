@@ -14,6 +14,7 @@ import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement"
 import TextBox from "../../../guimanager/GuiElement/TextBox"
 import Notification from "../../../guimanager/Notification"
 import renderLibs from "../../../guimanager/renderLibs"
+import { m } from "../../../mappings/mappings"
 import * as utils from "../../utils/utils"
 
 
@@ -432,7 +433,28 @@ class MuseumGui {
         let itempages = ["Weapons", "Armor Sets", "Rarities", "Special Items"]
         if (itempages.includes(this.replacePage[Player.getContainer().getName().split("➜").pop()])) {
             let page = this.replacePage[Player.getContainer().getName().split("➜").pop()]
-            let [currPage, pageNum] = Player.getContainer().getName().includes("/") ? Player.getContainer().getName().split(")")[0].split("(")[1].split("/").map(a => parseInt(a)) : [1, 1]
+            let currPage = 0
+            let pageNum = Player.getContainer().getStackInSlot(4) ? Math.ceil(ChatLib.removeFormatting(Player.getContainer().getStackInSlot(4).getLore().pop().split("/").pop()) / 28) : 0
+
+            // {
+            //     let item = Player.getContainer().getStackInSlot(45)
+            //     if (item) {
+            //         let lore = item.getLore()
+            //         let lastLine = ChatLib.removeFormatting(lore[lore.length - 1]).trim()
+            //         let num = lastLine.match(/(\d+)$/g)
+            //         currPage = parseInt(num) + 1
+            //     }
+            // }
+            // {
+            //     let item = Player.getContainer().getStackInSlot(53)
+            //     if (item) {
+            //         let lore = item.getLore()
+            //         let lastLine = ChatLib.removeFormatting(lore[lore.length - 1]).trim()
+            //         let num = lastLine.match(/(\d+)$/g)
+            //         currPage = parseInt(num) - 1
+            //     }
+            // }
+            console.log(currPage, pageNum)
 
             if (!this.searchText) {
                 if (currPage > 1) {
@@ -450,10 +472,12 @@ class MuseumGui {
             let oldDonateItems = JSON.stringify(this.donateItems)
             this.donateItems = []
             let donateArmorSets = {}
-            Player.getContainer().getItems().forEach((item, slot) => {
-                if (!item) return
-                if (item.getID() === -1) return
-                item.getLore().forEach(line => {
+            let slot = 0
+            for (let item of Player.getContainer().getItems()) {
+                if (!item) continue
+                if (item.getID() === -1) continue
+                let lore = item.itemStack[m.getTooltip](Player.getPlayer(), false)
+                for (let line of lore) {
                     if (ChatLib.removeFormatting(line) === "Click to donate item!") {
                         let sb_id = utils.getSBID(item)
 
@@ -483,8 +507,9 @@ class MuseumGui {
                         }
 
                     }
-                })
-            })
+                }
+                slot++
+            }
             if (oldDonateItems !== JSON.stringify(this.donateItems)) {
                 this.regenDonateItems()
             }
