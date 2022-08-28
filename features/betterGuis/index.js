@@ -222,23 +222,21 @@ class BetterGuis extends Feature {
     }
 
     postGuiRender(x, y, gui) {
-        if (gui.class.toString() !== "class net.minecraft.client.gui.inventory.GuiChest") return
-
-        this.invSearchSoopyGui._render(x, y, 0)
+        if (gui instanceof class net.minecraft.client.gui.inventory.GuiChest)
+            this.invSearchSoopyGui._render(x, y, 0);
     }
     guiMouseClick(x, y, button, gui) {
-        if (gui.class.toString() !== "class net.minecraft.client.gui.inventory.GuiChest") return
-
-        this.invSearchSoopyGui._onClick(x, y, button)
+        if (gui instanceof net.minecraft.client.gui.inventory.GuiChest)
+            this.invSearchSoopyGui._onClick(x, y, button);
     }
     guiKey(char, code, gui, event) {
-        if (gui.class.toString() !== "class net.minecraft.client.gui.inventory.GuiChest") return
+        if (!(gui instanceof net.minecraft.client.gui.inventory.GuiChest)) return;
 
-        this.invSearchSoopyGui._onKeyPress(char, code)
+        this.invSearchSoopyGui._onKeyPress(char, code);
 
         if (this.invSearchTextBox.text.selected) {
-            cancel(event)
-            this.slotMatches.clear()
+            cancel(event);
+            this.slotMatches.clear();
         }
     }
     guiOpened() {
@@ -246,81 +244,79 @@ class BetterGuis extends Feature {
     }
 
     renderSlot(slot, gui, event) {
-        if (gui.class.toString() !== "class net.minecraft.client.gui.inventory.GuiChest") return
-        if (!this.invSearchTextBox.getText()) return
+        if (!(gui instanceof class net.minecraft.client.gui.inventory.GuiChest)) return;
+        if (!this.invSearchTextBox.getText()) return;
 
-        let searchText = this.invSearchTextBox.getText().toLowerCase()
+        let searchText = this.invSearchTextBox.getText().toLowerCase();
 
-        let isMatching = false
-        let slotMatches = this.slotMatches.get(slot.getIndex())
+        let isMatching = false;
+        let slotMatches = this.slotMatches.get(slot.getIndex());
         if (slotMatches && Date.now() - slotMatches.timestamp < 500) {
             if (!slotMatches.isMatching) {
-                Renderer.translate(0, 0, 100)
-                Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 8 * Renderer.screen.getScale(), 8 * Renderer.screen.getScale())
+                Renderer.translate(0, 0, 100);
+                Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 8 * Renderer.screen.getScale(), 8 * Renderer.screen.getScale());
             }
-            return
+            return;
         }
-        let item = slot.getItem()
+        let item = slot.getItem();
         if (item) {
             isMatching = !searchText.split("&").map(a => {
-                a = a.trim()
-                let isMatching2 = false
-                if (ChatLib.removeFormatting(item.getName()).toLowerCase().includes(a)) isMatching2 = true
-                if (!isMatching2 && item.getLore().some(b => ChatLib.removeFormatting(b).toLowerCase().includes(a))) isMatching2 = true
-                return isMatching2
-            }).includes(false)
+                a = a.trim();
+                let isMatching2 = false;
+                if (ChatLib.removeFormatting(item.getName()).toLowerCase().includes(a)) isMatching2 = true;
+                if (!isMatching2 && item.getLore().some(b => ChatLib.removeFormatting(b).toLowerCase().includes(a))) isMatching2 = true;
+                return isMatching2;
+            }).includes(false);
         }
 
-        this.slotMatches.set(slot.getIndex(), { isMatching, timestamp: Date.now() })
+        this.slotMatches.set(slot.getIndex(), { isMatching, timestamp: Date.now() });
 
         if (!isMatching) {
-            Renderer.translate(0, 0, 100)
-            Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 8 * Renderer.screen.getScale(), 8 * Renderer.screen.getScale())
+            Renderer.translate(0, 0, 100);
+            Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 8 * Renderer.screen.getScale(), 8 * Renderer.screen.getScale());
         }
     }
 
     guiClicked(mouseX, mouseY, button, gui, event) {
-        if (gui.class.toString() === "class net.minecraft.client.gui.inventory.GuiChest" && button === 0 && this.replaceSbMenuClicks.getValue()) {
+        if (!(gui instanceof class net.minecraft.client.gui.inventory) || button !== 0 || !this.replaceSbMenuClicks.getValue()) return;
 
-            let hoveredSlot = gui.getSlotUnderMouse()
-            if (!hoveredSlot) return
+        let hoveredSlot = gui.getSlotUnderMouse();
+        if (!hoveredSlot) return;
 
-            let hoveredSlotId = hoveredSlot[f.slotNumber]
+        let hoveredSlotId = hoveredSlot[f.slotNumber];
 
-            // logger.logMessage(hoveredSlotId, 4)
+        // logger.logMessage(hoveredSlotId, 4)
 
-            if (this.guiSlotClicked(ChatLib.removeFormatting(Player.getContainer().getName()), hoveredSlotId)) {
-                cancel(event)
-            }
-        }
+        if (this.guiSlotClicked(ChatLib.removeFormatting(Player.getContainer().getName()), hoveredSlotId))
+            cancel(event);
     }
 
     step() {
-        if (this.museumGuiEnabled.getValue()) this.museumGui.tick.call(this.museumGui)
-        if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.tick.call(this.dungeonReady)
+        if (this.museumGuiEnabled.getValue()) this.museumGui.tick.call(this.museumGui);
+        if (this.dungeonReadyGuiEnabled.getValue()) this.dungeonReady.tick.call(this.dungeonReady);
 
-        if (this.replaceSbMenuClicks.getValue()) {
-            if (Player.getContainer() && Player.getContainer().getName() === "SkyBlock Menu") {
-                if (this.lastWindowId === 0) {
-                    this.lastWindowId = Player.getContainer().getWindowId()
-                    return;
-                }
-                if (Player.getContainer().getWindowId() !== this.lastWindowId) {
-                    this.lastWindowId = Player.getContainer().getWindowId()
-                    this.shouldHold += 10
-                    if (Date.now() - this.clickSlotTime > 1000) {
-                        this.clickSlot = -1
-                    }
-                    if (this.clickSlot && this.clickSlot != -1) {
-                        Player.getContainer().click(this.clickSlot, false, "MIDDLE")
-                        this.clickSlot = -1
-                    }
-                } else {
-                    this.shouldHold--
-                }
-            } else {
-                this.lastWindowId = 0
-            }
+        if (!this.replaceSbMenuClicks.getValue()) return
+        if (Player.getContainer() && Player.getContainer().getName() !== "SkyBlock Menu") {
+             this.lastWindowId = 0;
+            return;
+        }
+        if (this.lastWindowId === 0) {
+            this.lastWindowId = Player.getContainer().getWindowId();
+            return;
+        }
+        if (Player.getContainer().getWindowId() === this.lastWindowId) {
+            this.shouldHold--
+            return;
+        }
+
+        this.lastWindowId = Player.getContainer().getWindowId();
+        this.shouldHold += 10;
+        if (Date.now() - this.clickSlotTime > 1000) {
+            this.clickSlot = -1;
+        }
+        if (this.clickSlot && this.clickSlot != -1) {
+            Player.getContainer().click(this.clickSlot, false, "MIDDLE");
+            this.clickSlot = -1;
         }
     }
 
@@ -369,23 +365,23 @@ class BetterGuis extends Feature {
     }
 
     initVariables() {
-        this.replaceSbMenuClicks = undefined
-        this.lastWindowId = undefined
-        this.shouldHold = undefined
-        this.clickSlot = undefined
-        this.clickSlotTime = undefined
-        this.reliableSbMenuClicks = undefined
-        this.middleClickGuis = undefined
-        this.middleClickStartsWith = undefined
-        this.middleClickEndsWith = undefined
+        this.replaceSbMenuClicks = undefined;
+        this.lastWindowId = undefined;
+        this.shouldHold = undefined;
+        this.clickSlot = undefined;
+        this.clickSlotTime = undefined;
+        this.reliableSbMenuClicks = undefined;
+        this.middleClickGuis = undefined;
+        this.middleClickStartsWith = undefined;
+        this.middleClickEndsWith = undefined;
 
-        this.museumGui = undefined
+        this.museumGui = undefined;
     }
 
     onDisable() {
-        this.initVariables()
+        this.initVariables();
 
-        this.invSearchSoopyGui.delete()
+        this.invSearchSoopyGui.delete();
     }
 }
 

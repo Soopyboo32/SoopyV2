@@ -91,7 +91,6 @@ class Slayers extends Feature {
 		this.summonFeatureMaster = new ToggleSetting("Summon Features Main Toggle", "enable this to use summon features", false, "summons_master", this).contributor("EmeraldMerchant");
 		this.summonsHideNametag = new ToggleSetting("Hide your summons' nametags", "so u can see your boss more clearly", false, "hide_summons_nametags", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
 		this.summonsLowWarning = new ToggleSetting("Warns you when a summon is low", "this warns you after a delay after each bosses, until you respawn them", false, "warn_when_summon_low", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
-		this.warnDelay = new TextSetting("Delay for warning", "How long should it wait after the boss to warn you a summon is low", "3", "summon_warn_delay", this, "(seconds)", false).requires(this.summonsLowWarning).contributor("EmeraldMerchant");
 		this.summonPercentage = new TextSetting("When will it start warning you", "Below how many % hp (your summons) should it start warning you", "30", "summon_warn_percentage", this, "(%)", false).requires(this.summonsLowWarning).contributor("EmeraldMerchant");
 		this.summonHPGuiElement = new ToggleSetting("Render the HP of your summons on your screen", "This will help you to know how much HP your summons have left while hide summons nametags is on", false, "summon_hp_hud", this).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
 		this.summonHPElement = new HudTextElement()
@@ -99,8 +98,6 @@ class Slayers extends Feature {
 			.setToggleSetting(this.summonHPGuiElement)
 			.setLocationSetting(new LocationSetting("Summon HP Location", "Allows you to edit the location of your summons' HP info", "summon_hp_location", this, [10, 50, 1, 1]).requires(this.summonHPGuiElement).editTempText("&a160k&c❤ &a160k&c❤ &a160k&c❤ &a160k&c❤").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.summonHPElement);
-		this.maxSummons = new TextSetting("Maximum amount of your summons", "How many summons you are using", "", "max_summons", this, "Max Summons (1-8)", false).requires(this.summonFeatureMaster).contributor("EmeraldMerchant");
-
 		this.emanLazerTimer = new ToggleSetting("Adds a timer for the boss lazer phase", "The timer will be inside the boss's body during the phase", true, "eman_lazer_timer", this);
 
 		this.slayerSpeedRates = new ToggleSetting("Show slayer speed and exp rates", "(Slayer speed includes downtime inbetween slayers, only shows while doing slayers)", true, "slayer_speed_rates", this);
@@ -190,19 +187,6 @@ class Slayers extends Feature {
 				}
 			}
 			this.lastBossSlain = Date.now();
-
-			if (this.summonFeatureMaster.getValue() && this.summonsLowWarning.getValue() && this.warnAfterBoss) {
-				this.warnAfterBoss = false
-				let delayForWarn = parseInt(this.warnDelay.getValue()) * 1000
-				if (delayForWarn < 0 || delayForWarn > 10000) {
-					ChatLib.chat("&6[MVP&0++&6] Soopyboo32&7: &dMan idk why you use such short/long delay, so I set it to 3 seconds for you.\n&6[MVP&0++&6] Soopyboo32&7: &cPlease use a number between 0 and 10!\n&6[MVP&0++&6] Soopyboo32&7: &c&lDon't dm me i didn't make this warning LMAO!")
-					delayForWarn = 3000
-				}
-				delay(delayForWarn, () => {
-					Client.showTitle("&c!ONE OF THE SUMMON IS LOW!", "", 0, 40, 10);
-					World.playSound("random.orb", 1, 1);
-				})
-			}
 		});
 
 		this.registerChat("&r  &r&c&lSLAYER QUEST FAILED!&r", () => {
@@ -227,16 +211,6 @@ class Slayers extends Feature {
 			} else if (!this.summonsHideNametag.getValue() && !this.summonHPGuiElement.getValue() && !this.summonsLowWarning.getValue()) {
 				return
 			}
-			if (!soul.removeFormatting().includes("Tank Zombie")) {
-				if (!this.wrongSummons) {
-					delay(300, () => {
-						ChatLib.chat("&6[MVP&0++&6] Soopyboo32&7: &dMy mod only support Tank Zombie summons!\n&6[MVP&0++&6] Soopyboo32&7: &cPlease either use them or DISABLE the feature!\n&6[MVP&0++&6] Soopyboo32&7: &c&lDon't dm me i didn't make this warning LMAO!")
-						this.wrongSummons = false
-					})
-				}
-				this.wrongSummons = true
-				return
-			}
 			if (this.summonAtHPShouldWarn != 0 && !this.canCaptureSummonHPInfo) {
 				this.canCaptureSummonHPInfo = true
 			}
@@ -245,6 +219,16 @@ class Slayers extends Feature {
 		this.registerChat("&r&cYou have despawned your monsters!&r", () => {
 			this.summonAtHPShouldWarn = 0
 			this.canCaptureSummonHPInfo = false
+			this.shouldWarn = false
+		})
+
+		this.registerStep(true, 4, () => {
+			if (this.summonFeatureMaster.getValue() && this.summonsLowWarning.getValue()) {
+				if (this.shouldWarn) {
+					Client.showTitle("&c!ONE OF THE SUMMON IS LOW!", "", 0, 3, 1);
+					World.playSound("random.orb", 1, 1);
+				}
+			}
 		})
 
 		this.todoE = [];
@@ -268,7 +252,6 @@ class Slayers extends Feature {
 		this.hasQuest = false
 		this.summonEntity = []
 		this.summonAtHPShouldWarn = 0
-		this.warnAfterBoss = false
 		this.canCaptureSummonHPInfo = false
 		this.wrongSummons = false
 
@@ -332,8 +315,6 @@ class Slayers extends Feature {
 			}
 		})
 
-		this.summonHPPossibilities = new Set(["60000❤", "105k❤", "160k❤", "180k❤", "300k❤", "525k❤", "1M❤"])
-
 		this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent).registeredWhen(() => this.hasQuest && this.lastSlayerType === "enderman")
 		this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
 		this.renderEntityEvent.unregister();
@@ -386,7 +367,6 @@ class Slayers extends Feature {
 
 		this.slayerLocationDataH = {}
 		this.summonEntity = []
-		this.warnAfterBoss = false
 		this.canCaptureSummonHPInfo = false
 		this.cannotFindEmanBoss = false
 		this.candidateBoss = []
@@ -495,17 +475,14 @@ class Slayers extends Feature {
 				let MobName = `${nameSplit[0]} ${nameSplit[1]}`
 				let MobName12 = `${nameSplit[1]} ${nameSplit[2]}`
 				let MobName1234 = `${nameSplit[1]} ${nameSplit[2]} ${nameSplit[3]} ${nameSplit[4]}` //so cringe that soul of the alpha is 4 words
-				if (this.summonEntity.length !== parseInt(this.maxSummons.getValue())) {
-					if (this.summonsHideNametag.getValue() || this.summonsLowWarning.getValue() || this.summonHPGuiElement.getValue()) {
-						// 2nd statement makes it to support both tank zombie and super tank zombie
-						if (nameSplit[0] === `${Player.getName()}'s` && `${nameSplit[nameSplit.length - 3]} ${nameSplit[nameSplit.length - 2]}` === "Tank Zombie") {
-							if (!this.summonEntity?.map(a => a.getUUID().toString()).includes(name.getUUID().toString())) {
-								this.summonEntity.push(name)
-							}
+				if (this.summonsHideNametag.getValue() || this.summonsLowWarning.getValue() || this.summonHPGuiElement.getValue()) {
+					if (nameRemoveFormat.startsWith(this.summonNamePrefixs)) {
+						if (!this.summonEntity?.map(a => a.getUUID().toString()).includes(name.getUUID().toString())) {
+							this.summonEntity.push(name)
 						}
 					}
 				}
-				if (this.MinibossOffWhenBoss.getValue() && !this.bossSpawnedMessage) {
+				if ((this.MinibossOffWhenBoss.getValue() && !this.bossSpawnedMessage) || !this.MinibossOffWhenBoss.getValue()) {
 					if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString())) {
 						this.minibossEntity.push([name, this.lastSlayerType]);
 					}
@@ -585,23 +562,6 @@ class Slayers extends Feature {
 
 				}
 
-				if (!this.bossSpawnedMessage && e instanceof net.minecraft.entity.item.EntityArmorStand) {
-					let nameSplit = e[m.getCustomNameTag]().removeFormatting().split(" ")
-					let mobName = `${nameSplit[0]} ${nameSplit[1]}`
-					let MobName12 = `${nameSplit[1]} ${nameSplit[2]}`
-					let MobName1234 = `${nameSplit[1]} ${nameSplit[2]} ${nameSplit[3]} ${nameSplit[4]}`
-					if (this.Miniboss[this.lastSlayerType]?.has(mobName)) {
-						if (this.BoxAroundMiniboss.getValue() && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
-							this.minibossEntity.push([new Entity(e), this.lastSlayerType]);
-						}
-					}
-					if (this.areaMini[this.lastSlayerType]?.has(MobName12) || this.areaMini[this.lastSlayerType]?.has(MobName1234)) {
-						if (this.BoxAroundAreaMiniboss.getValue() && !this.areaMiniEntity.map(a => a[0].getUUID().toString()).includes(e[m.getEntityId.Entity]().toString())) {
-							this.areaMiniEntity.push([new Entity(e), this.lastSlayerType]);
-						}
-					}
-				}
-
 				if (e instanceof net.minecraft.entity.item.EntityArmorStand && e[m.getCustomNameTag]() && this.blazeTowerDink.getValue()) {
 					let name = ChatLib.removeFormatting(e[m.getCustomNameTag]())
 					let isPiller = true
@@ -635,6 +595,7 @@ class Slayers extends Feature {
 		}
 
 		summonHpFloatText = ""
+		shouldWarnNow = false
 		this.summonEntity?.forEach((eArray) => {
 			let splitted = eArray.getName().split(" ")
 			let summonHP = splitted[splitted.length - 1]
@@ -648,19 +609,16 @@ class Slayers extends Feature {
 
 			}
 			if (this.summonsLowWarning.getValue()) {
-				if (this.formatNumber(summonHP) <= this.summonAtHPShouldWarn && !this.warnAfterBoss) {
-					this.warnAfterBoss = true
+				if (this.formatNumber(summonHP) <= this.summonAtHPShouldWarn) {
+					shouldWarnNow = true
 				}
 				if (this.canCaptureSummonHPInfo) {
-					if (this.summonHPPossibilities.has(summonHP.removeFormatting())) {
-						this.canCaptureSummonHPInfo = false
-						this.summonAtHPShouldWarn = this.formatNumber(summonHP) * (parseInt(this.summonPercentage.getValue()) / 100)
-					} else {
-						this.canCaptureSummonHPInfo = false
-					}
+					this.canCaptureSummonHPInfo = false
+					this.summonAtHPShouldWarn = this.formatNumber(summonHP) * (parseInt(this.summonPercentage.getValue()) / 100)
 				}
 			}
 		})
+		this.shouldWarn = shouldWarnNow
 		this.summonEntity = this.summonEntity?.filter((e) => !e.getEntity()[f.isDead]);
 		if (this.summonHPGuiElement.getValue()) {
 			this.summonHPElement.setText(summonHpFloatText)
@@ -797,7 +755,7 @@ class Slayers extends Feature {
 		} else {
 			this.emanHpElement.setText("");
 		}
-		
+
 		if (this.MinibossGuiElement.getValue() && !this.bossSpawnedMessage && this.minibossEntity.length > 0) {
 			let PY = Player.getY()
 			let minis = this.minibossEntity
@@ -987,10 +945,11 @@ class Slayers extends Feature {
 		this.entityAttackEventE = undefined;
 		this.hideSummons = false;
 		this.summonAtHPShouldWarn = undefined;
-		this.warnAfterBoss = false
 		this.canCaptureSummonHPInfo = false
 		this.cannotFindEmanBoss = false
 		this.candidateBoss = []
+		this.summonNamePrefixs = `${Player.getName()}'s`;
+		this.shouldWarn = false;
 	}
 
 	onDisable() {
