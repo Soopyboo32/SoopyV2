@@ -269,7 +269,7 @@ class DungeonReadyGui {
         }
     }
 
-    keyPress(_, keyId) {
+    keyPress(key, keyId) {
         if (keyId === 1) //escape key
             // this.dontOpen = 1
             Client.currentGui.close();
