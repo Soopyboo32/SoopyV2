@@ -202,27 +202,27 @@ class DungeonReadyGui {
 
 
                 //select class buttons
-                if (!Player.getContainer().getStackInSlot(2 + 4 * 9 + i)) clickingClassButton = i;
-                
-                this.classBoxes[i].setColor(253, 255, 227);
-                if (Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getDamage() === 10) 
-                    this.classBoxes[i].setColor(250, 255, 150);
-                
-                this.classBoxes[i]
-                    .setText("§0" + Object.keys(this.classes)[i] + "§7 - " + ChatLib.removeFormatting(Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getName().split(" ")[0]))
-                    .setLore(Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getLore());
+                if (Player.getContainer().getStackInSlot(2 + 4 * 9 + i)) {
+                    this.classBoxes[i].setColor(253, 255, 227);
+                    if (Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getDamage() === 10)
+                        this.classBoxes[i].setColor(250, 255, 150);
 
-                let isPlayerClass = false;
-                Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getLore().forEach(line => {
-                    if (!ChatLib.removeFormatting(line).startsWith(" - ")) return;
-                    if (ChatLib.removeFormatting(line.split(" ").pop()) === Player.getName())
-                        isPlayerClass = true;
-                })
+                    this.classBoxes[i]
+                        .setText("§0" + Object.keys(this.classes)[i] + "§7 - " + ChatLib.removeFormatting(Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getName().split(" ")[0]))
+                        .setLore(Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getLore());
+
+                    let isPlayerClass = false;
+                    Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getLore().forEach(line => {
+                        if (!ChatLib.removeFormatting(line).startsWith(" - ")) return;
+                        if (ChatLib.removeFormatting(line.split(" ").pop()) === Player.getName())
+                            isPlayerClass = true;
+                    })
 
                     if (isPlayerClass) {
                         this.currentPlayerClass = i;
                         this.classBoxes[i].setColor(150, 255, 150);
                     }
+                } else clickingClassButton = i;
             }
 
             if (clickingClassButton !== -1) {
@@ -252,7 +252,7 @@ class DungeonReadyGui {
             name = event.gui.field_147002_h.func_85151_d().func_145748_c_().func_150260_c();
         
         if (this.soopyGui.ctGui.isOpen()) {
-            if (!event.gui && !event.gui.field_147002_h) return;
+            if (!event.gui || !event.gui.field_147002_h) return;
             Player.getPlayer().field_71070_bA = event.gui.field_147002_h
 
             if (!Player.getContainer().getName().startsWith("Catacombs - Floor ")) return;
@@ -269,7 +269,7 @@ class DungeonReadyGui {
         }
     }
 
-    keyPress(key, keyId) {
+    keyPress(_, keyId) {
         if (keyId === 1) //escape key
             // this.dontOpen = 1
             Client.currentGui.close();
