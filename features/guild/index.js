@@ -24,7 +24,8 @@ class Guild extends Feature {
         //&r&2Guild > &6[MVP&0++&6] zZzSNOW &e[STAFF]&f: &r@niftynathan7, niftynathan7's weight: 20 087 (#1 198) (Skill: 8 771, Slayer: 1 263, Dungeons: 10 053)  ,.,,,..,.,,.,,,....,,,,,,,,,..,,,,,..,,,..,,,.,,.,,.,..,,....,,....,,..,.&r
         //&r&2Guild > &6[MVP&4++&6] Soopyboo32 &e[STAFF]&f: &rasd&r
         //&r&2Guild > &6[MVP&1++&6] niftynathan7 &e[E]&f: &r@Soopyboo32, Soopyboo32's networth: $8 424 131 866 (#2 592)  ,..,...,....,.,,,....,,,...,,,,,,,..,,.,,..,,.,.,,,.........,.....,,,,.....,..,,...,.,.,...,.,&r
-        this.registerChat('&r&2Guild > ${player}&f: &r${msg}&r', (player, msg, event) => {
+        let ev = this.registerChat('&r&2Guild > ${player}&f: &r${msg}&r', (player, msg, event) => {
+            if (msg.includes("[ITEM:")) return
             if (player.includes(":")) return; //stop people sending weard messages to troll using this
 
             //player = &6[MVP&0++&6] zZzSNOW &e[STAFF]
@@ -56,6 +57,7 @@ class Guild extends Feature {
 
             toMessageWithLinks(message).chat()
         })
+        ev.trigger.triggerIfCanceled(false)
     }
 
     onDisable() {

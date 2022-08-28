@@ -54,7 +54,7 @@ class GlobalSettings extends Feature {
 
         this.hideFallingBlocks = new ToggleSetting("Hide falling blocks", "NOTE: This setting is a bit laggy", false, "hide_falling_sand", this)
         this.twitchCommands = new ToggleSetting("Ingame twitch bot commands", "Allows u to use twitch bot commands ingame (eg -sa)", true, "twitch_commands_ingame", this)
-        this.handChat = new ToggleSetting("Replace [hand] with ur currently held item", "Only shows for soopy users", true, "hand_chat", this)
+        this.handChat = new ToggleSetting("Replace [hand] with ur currently held item", "Idea from Synthesis im only adding cus i dont have D:", true, "hand_chat", this)
         this.itemWorth = new ToggleSetting("(Approximate) Item worth in lore", "Accounts for stuff like enchants/recombs ect", false, "item_worth", this)
         this.showHecatomb = new ToggleSetting("Show hecatomb enchant info in lore", "", true, "show_hecatomb", this)
         this.showChampion = new ToggleSetting("Show champion enchant info in lore", "", true, "show_champion", this)
@@ -267,11 +267,7 @@ class GlobalSettings extends Feature {
                 return;
             }
 
-            // if (/\[ITEM:[0-9]+\]/g.test(message)) {
-
-
-            // }
-            if (message.toLowerCase().includes("[hand]")) {
+            if (this.handChat.getValue() && message.toLowerCase().includes("[hand]")) {
                 cancel(event)
                 ChatLib.addToSentMessageHistory(message)
 
@@ -292,7 +288,7 @@ class GlobalSettings extends Feature {
             }
         })
 
-        this.registerChat("${*}[ITEM:${*}", (event) => {
+        let ev = this.registerChat("${*}[ITEM:${*}", (event) => {
             cancel(event)
             let message = new Message(event)
 
@@ -300,7 +296,6 @@ class GlobalSettings extends Feature {
             let id = _.replace("[ITEM:", "").replace(/\]$/g, "")
 
             fetch("http://soopy.dev/api/soopyv2/itemdown/" + id).json(([name, lore]) => {
-                console.log(JSON.stringify(lore, undefined, 2))
                 for (let i = 0; i < message.getMessageParts().length; i++) {
                     let component = message.getMessageParts()[i]
 
@@ -315,11 +310,11 @@ class GlobalSettings extends Feature {
                 message.chat()
             }).error(() => {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "There was an error downloading the item data!")
-                message.setRecursive(true)
                 message.chat()
             })
 
         })
+        ev.trigger.setPriority(Priority.HIGHEST)
     }
 
     worldLoad() {

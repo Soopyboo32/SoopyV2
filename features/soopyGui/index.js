@@ -10,6 +10,7 @@ import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseCl
 import SoopyOpenGuiEvent from "../../../guimanager/EventListener/SoopyOpenGuiEvent";
 import SoopyGui2 from "../../../guimanager/SoopyGui";
 import categoryManager from "./categoryManager";
+import SoopyImageElement from "../../../guimanager/GuiElement/SoopyImageElement";
 
 
 class SoopyGui extends Feature {
