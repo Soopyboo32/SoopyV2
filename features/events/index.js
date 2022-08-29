@@ -80,6 +80,8 @@ class Events extends Feature {
 		this.dingIndex = 0
 		this.dingSlope = []
 
+		this.ignorePlayers = new Set()
+
 		new SettingBase("There is also a hotkey to warp near", "see minecraft controls menu", true, "warp_info_hotkey", this)
 		this.warpBindDefault = new TextSetting("Default warp keybind", "Eg KEY_F", "CHAR_NONE", "inquis_keybind_default", this, "", false)
 
@@ -125,6 +127,14 @@ class Events extends Feature {
 
 		this.registerStep(true, 1, this.step_1fps)
 		this.registerStep(true, 10, this.step_10fps)
+
+
+		this.registerCommand("inqwaypointignoreadd", (player) => {
+			this.ignorePlayers.add(player)
+			ChatLib.chat(this.FeatureManager.messagePrefix + "Added " + player + " to inquis waypoint ignore list, this will be cleared next game start!")
+
+			delete this.slayerLocationDataH[player]
+		})
 	}
 
 	step_1fps() {
@@ -161,7 +171,7 @@ class Events extends Feature {
 		this.slayerLocationDataH[user] = [loc, Date.now()]
 		if (this.otherInquisPing.getValue()) {
 			Client.showTitle("&r&6&l[&b&l&kO&6&l] MINOS INQUISITOR [&b&l&kO&6&l]", `${user}'s Inquisitor`, 0, 50, 10);
-			ChatLib.chat(this.FeatureManager.messagePrefix + `${user} spawned an inquis &7(waypoint added)`)
+			new TextComponent(this.FeatureManager.messagePrefix + `${user} spawned an inquis &7(waypoint added), &cCLICK HERE &7to ignore waypoints from them.`).setClick("run_command", "/inqwaypointignoreadd " + user).chat()
 		}
 	}
 
