@@ -18,8 +18,7 @@ let warpData = {
 	"castle": [-250, 130, 45],
 	"da": [91, 75, 176],
 	"museum": [-75, 76, 80],
-	"hub": [-2, 70, -69],
-	"worldload": undefined
+	"hub": [-2, 70, -69]
 }
 function getKeyBindFromKey(key, description) {
 	var mcKeyBind = undefined //MinecraftVars.getKeyBindFromKey(key);
@@ -95,7 +94,6 @@ class Events extends Feature {
 		this.todoE = []
 
 		this.hasWarps = new Set()
-		this.hasWarps.add("worldload")
 
 		this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 
@@ -127,11 +125,6 @@ class Events extends Feature {
 
 		this.registerStep(true, 1, this.step_1fps)
 		this.registerStep(true, 10, this.step_10fps)
-
-		this.registerCommand("sethubwarp", () => {
-			warpData.worldload = [Player.getX(), Player.getY(), Player.getZ()]
-			ChatLib.chat(this.FeatureManager.messagePrefix + "Set /hub location!")
-		})
 	}
 
 	step_1fps() {
@@ -300,7 +293,6 @@ class Events extends Feature {
 			let d = calculateDistance(warpData[w], this.guessPoint)
 			if (d < minDist) {
 				warp = "warp " + w
-				if (w === "worldload") warp = "hub"
 				minDist = d
 			}
 		})
@@ -313,7 +305,6 @@ class Events extends Feature {
 	}
 
 	worldLoad() {
-		warpData.worldload = [Player.getX(), Player.getY(), Player.getZ()]
 
 		this.burrialData.points = []
 		this.burrialData.locations = []

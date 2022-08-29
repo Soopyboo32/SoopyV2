@@ -315,6 +315,49 @@ class GlobalSettings extends Feature {
 
         })
         ev.trigger.setPriority(Priority.HIGHEST)
+
+        this.ahAlerts = [
+            // { //TODO: add a command/gui to add these
+            //     id: "ATTRIBUTE_SHARD",
+            //     maxPrice: 1500000,
+            //     nbt: [
+            //         "tag.ExtraAttributes.attributes.mana_pool"
+            //     ]
+            // }
+        ]
+
+        this.registerStep(false, 60, () => {
+            if (this.ahAlerts.length === 0) return
+            fetch("https://moulberry.codes/auction.json").json(data => { //TODO: use https://moulberry.codes/auction.json.gz
+                if (!data.success) return
+
+                data.new_auctions.forEach(a => {
+                    let itemData = decompress(a.item_bytes)
+                    let itemJSON = itemData.toObject().i[0]
+                    let itemId = itemJSON.tag.ExtraAttributes.id
+
+                    if (a.bin && this.ahAlerts.some(al => {
+                        let ret = al.id === itemId && a.starting_bid <= al.maxPrice
+
+                        if (ret && al.nbt) {
+                            if (al.nbt.some(nbtr => {
+                                let steps = nbtr.split(".")
+                                let o = itemJSON
+                                steps.forEach(s => {
+                                    o = o?.[s]
+                                })
+
+                                return !o
+                            })) ret = false
+                        }
+
+                        return ret
+                    })) {
+                        new TextComponent(this.FeatureManager.messagePrefix + "Bin found " + numberWithCommas(a.starting_bid) + " " + a.item_name).setClick("run_command", "/viewauction " + a.uuid).chat()
+                    }
+                })
+            })
+        })
     }
 
     worldLoad() {
@@ -1004,4 +1047,16 @@ class FirstLoadingPage extends GuiPage {
 
 module.exports = {
     class: new GlobalSettings()
+}
+
+
+const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream")
+const Base64 = Java.type("java.util.Base64")
+const CompressedStreamTools = Java.type("net.minecraft.nbt.CompressedStreamTools")
+function decompress(compressed) {
+    if (compressed === null || compressed.length == 0) {
+        return null
+    }
+
+    return new NBTTagCompound(CompressedStreamTools.func_74796_a(new ByteArrayInputStream(Base64.getDecoder().decode(compressed))))
 }
