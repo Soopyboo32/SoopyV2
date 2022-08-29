@@ -87,7 +87,7 @@ class Events extends Feature {
 			this.warpBind = getKeyBindFromKey(Keyboard[this.warpBindDefault.getValue()], "Warp to nearest location to burrial guess");
 		} catch (e) {
 			ChatLib.chat(this.FeatureManager.messagePrefix + this.warpBindDefault.getValue() + " is an invalid keyboard key, see https://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html")
-			this.warpBind = getKeyBindFromKey("CHAR_NONE", "Warp to nearest location to burrial guess");
+			this.warpBind = getKeyBindFromKey(Keyboard.CHAR_NONE, "Warp to nearest location to burrial guess");
 		}
 
 		this.slayerLocationDataH = {}
