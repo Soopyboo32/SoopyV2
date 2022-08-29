@@ -125,6 +125,9 @@ class Slayers extends Feature {
 		this.disableWhenNotYourBoss = new ToggleSetting("Disable KeyBind", "when the boss is not yours", false, "boss_bind_disable", this)
 		this.isCorrectBind = true
 		this.candidateBoss = []
+		this.arachneKeeperMain = new ToggleSetting("Main Toggle for Arachne Keepers", "this is the main toggle of the arachne keeper category", false, "arachne_keeper_main", this)
+		this.boxAroundArachneKeeper = new ToggleSetting("Box Around Arachne Keeper", "red box", false, "arachne_keeper_box", this).requires(this.arachneKeeperMain)
+		this.arachneKeeperSpawnAlert = new ToggleSetting("Arachne Keeper Spawned Alert", "tell you if one of them spawned", false, "arachne_keeper_alert", this).requires(this.arachneKeeperMain)
 		try {
 			this.bossBind = getKeyBindFromKey(Keyboard[this.bossBindDefault.getValue()], "Choose the nearest eman boss as your boss.");
 		} catch (e) {
@@ -238,6 +241,7 @@ class Slayers extends Feature {
 		this.beaconLocations = {};
 		this.eyeE = [];
 		this.minibossEntity = [];
+		this.arachneKeeperEntity = [];
 		this.areaMiniEntity = [];
 		this.todoE2 = [];
 		this.emanBoss = undefined;
@@ -268,6 +272,13 @@ class Slayers extends Feature {
 			wolf: new Set(["Old Wolf", "Soul of the Alpha"]),
 			enderman: new Set(["Voidling Extremist"]),
 			blaze: new Set(["Millenia-Aged Blaze"])
+		}
+		this.arachneKeeper = {
+			width: 1.5,
+			height: -1,
+			r: 0.67,
+			g: 0,
+			b: 0
 		}
 
 		this.SlayerWidth = {
@@ -361,6 +372,7 @@ class Slayers extends Feature {
 		this.eyeE = [];
 		this.minibossEntity = [];
 		this.areaMiniEntity = [];
+		this.arachneKeeperEntity = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined;
 		this.hideSummons = false
@@ -399,6 +411,9 @@ class Slayers extends Feature {
 			drawBoxAtEntity(x[0], 0, 1, 0, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
 		})
 
+		this.arachneKeeperEntity.forEach((x) => {
+			drawBoxAtEntity(x, this.arachneKeeper.r, this.arachneKeeper.g, this.arachneKeeper.b, this.arachneKeeper.width, this.arachneKeeper.height, ticks, 4, false);
+		})
 
 		this.areaMiniEntity.forEach((x) => {
 			drawBoxAtEntity(x[0], this.areaColor[x[1]].r, this.areaColor[x[1]].g, this.areaColor[x[1]].b, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
@@ -454,9 +469,23 @@ class Slayers extends Feature {
 			this.renderEntityEvent.unregister();
 		}
 
-		if (this.BoxAroundMiniboss.getValue() || this.BoxAroundAreaMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonHPGuiElement.getValue() || this.summonsLowWarning.getValue() || (this.isCorrectBind && this.bossBindDefault.getValue() != "CHAR_NONE")) {
+		if (this.BoxAroundMiniboss.getValue() || this.BoxAroundAreaMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonHPGuiElement.getValue() || this.summonsLowWarning.getValue() || (this.isCorrectBind && this.bossBindDefault.getValue() != "CHAR_NONE") || this.arachneKeeperMain.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
-				let nameRemoveFormat = name.getName().removeFormatting()
+				let Name = name.getName()
+				let nameRemoveFormat = Name.removeFormatting()
+				if (this.arachneKeeperMain.getValue() && Name.startsWith("§8[§7Lv100§8] §4§lArachne's Keeper§r")) {
+					let shouldPing = this.arachneKeeperSpawnAlert.getValue() && (name.getY() - Player.getY()) <= 15
+					if (!this.arachneKeeperEntity?.map(a => a.getUUID().toString()).includes(name.getUUID().toString())) {
+						this.arachneKeeperEntity.push(name)
+						if (shouldPing) {
+							if (this.MinibossPing.getValue()) World.playSound('note.pling', 1, 1);
+						}
+					}
+					if (shouldPing) {
+						if (this.MinibossAlert.getValue()) Client.showTitle("&c&lArachne's Keeper!", "", 0, 20, 10);
+					}
+					return
+				}
 				if (this.cannotFindEmanBoss) {
 					if (!this.bossSpawnedMessage) {
 						this.emanBoss = undefined
@@ -633,6 +662,7 @@ class Slayers extends Feature {
 				this.areaMiniEntity.splice(this.areaMiniEntity.indexOf(eArray))
 			}
 		})
+		this.arachneKeeperEntity = this.arachneKeeperEntity.filter((e) => !e.getEntity()[f.isDead]);
 		this.eyeE = this.eyeE.filter((e) => !e.getEntity()[f.isDead]);
 		this.candidateBoss = this.candidateBoss.filter((e) => !e[f.isDead]);
 		this.beaconE = this.beaconE.filter((e) => {
@@ -938,6 +968,7 @@ class Slayers extends Feature {
 		this.eyeE = undefined;
 		this.minibossEntity = undefined;
 		this.areaMiniEntity = undefined;
+		this.arachneKeeperEntity = undefined;
 		this.nextIsBoss = undefined;
 		this.hudElements = [];
 		this.entityAttackEventLoaded = undefined;
