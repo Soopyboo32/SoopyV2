@@ -63,12 +63,12 @@ class DungeonReadyGui {
 
         this.classBoxes = [];
         this.currentPlayerClass = -1;
-        this.classes = { 
-            "Healer": new Item("minecraft:potion"), 
-            "Mage": new Item("minecraft:blaze_rod"), 
-            "Berserker": new Item("minecraft:iron_sword"), 
-            "Archer": new Item("minecraft:bow"), 
-            "Tank": new Item("minecraft:leather_chestplate") 
+        this.classes = {
+            "Healer": new Item("minecraft:potion"),
+            "Mage": new Item("minecraft:blaze_rod"),
+            "Berserker": new Item("minecraft:iron_sword"),
+            "Archer": new Item("minecraft:bow"),
+            "Tank": new Item("minecraft:leather_chestplate")
         };
         Object.keys(this.classes).forEach((clas, i) => {
             let classBox = new BoxWithTextAndDescription()
@@ -85,7 +85,7 @@ class DungeonReadyGui {
                 .setHandler(() => {
                     let scale = 16 / Math.min(classBox.location.getWidthExact(), classBox.location.getHeightExact() / 2) * 3;
                     this.classes[clas].draw(classBox.location.getXExact() + classBox.location.getWidthExact() / 2 - 16 * scale / 2, classBox.location.getYExact() + classBox.location.getHeightExact() - 16 * scale - 4, scale);
-                })).addEvent(new SoopyMouseClickEvent().setHandler(() => 
+                })).addEvent(new SoopyMouseClickEvent().setHandler(() =>
                     this.clickedClass(classIndex)
                 ));
 
@@ -97,7 +97,7 @@ class DungeonReadyGui {
             .setLocation(0.33, 0.33, 0.33, 0.33)
             .setColor(255, 150, 150)
             .addEvent(new SoopyMouseClickEvent()
-            .setHandler(() => this.ready()));
+                .setHandler(() => this.ready()));
         this.mainPage.addChild(this.playerReadyButton);
     }
 
@@ -189,11 +189,11 @@ class DungeonReadyGui {
                     } else {
                         let boxId = this.nameToId[ChatLib.removeFormatting(Player.getContainer().getStackInSlot(3 + i).getName().split(" ").pop())];
 
-                        if (boxId) { 
+                        if (boxId) {
                             this.readyBoxes[boxId].setColor(255, 150, 150);
                             if (ChatLib.removeFormatting(Player.getContainer().getStackInSlot(12 + i).getName()) === "Ready")
                                 this.readyBoxes[boxId].setColor(150, 255, 150);
-                            
+
                             this.readyBoxes[boxId].setLore(Player.getContainer().getStackInSlot(3 + i).getLore());
                             this.readyBoxes[boxId].setDesc("§0" + ChatLib.removeFormatting(Player.getContainer().getStackInSlot(3 + i).getLore()[2]));
                         }
@@ -248,9 +248,9 @@ class DungeonReadyGui {
 
     guiOpened(event) {
         let name = "";
-        if (event.gui && event.gui.field_147002_h instanceof ContainerChest) 
+        if (event.gui && event.gui.field_147002_h instanceof ContainerChest)
             name = event.gui.field_147002_h.func_85151_d().func_145748_c_().func_150260_c();
-        
+
         if (this.soopyGui.ctGui.isOpen()) {
             if (!event.gui || !event.gui.field_147002_h) return;
             Player.getPlayer().field_71070_bA = event.gui.field_147002_h
@@ -259,6 +259,7 @@ class DungeonReadyGui {
 
             event.gui = this.soopyGui.ctGui
             this.soopyGui.ctGui.open();
+            return
         }
 
         if (name === "Start Dungeon?" || name.startsWith("Catacombs - Floor ")) {
@@ -276,7 +277,7 @@ class DungeonReadyGui {
 
         if (keyId === 18) //'e' key
             Client.currentGui.close();
-        
+
     }
 }
 
