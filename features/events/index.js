@@ -164,6 +164,7 @@ class Events extends Feature {
 	}
 
 	inquisData(loc, user) {
+		if (this.ignorePlayers.has(user)) return
 		if (!loc) {
 			delete this.slayerLocationDataH[user]
 			return
