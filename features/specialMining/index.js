@@ -288,7 +288,7 @@ class PowderAndScatha extends Feature {
 
         if (this.PowderElement.getValue() && this.inCrystalHollows) {
             this.overlayLeft.push(`&b2x Powder:`)
-            this.overlayRight.push(this.dPowder ? "&a" + timeNumber(this.dPowder - Date.now()) : "&cINACTIVE")
+            this.overlayRight.push(this.dPowder ? "&a" + timeNumber(Math.max(0, this.dPowder - Date.now())) : "&cINACTIVE")
 
             if (this.miningData.powder.chests) {
                 let c = this.miningData.powder.chests
