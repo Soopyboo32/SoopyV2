@@ -230,7 +230,7 @@ class GlobalSettings extends Feature {
             delay(time * 1000, () => {
                 packetReceived.unregister()
                 tick.unregister()
-                ChatLib.chat(this.FeatureManager.messagePrefix + "Tps: " + (ticks / time).toFixed(1))
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Tps: " + Math.min(20, ticks / time).toFixed(1))
             })
         })
 
@@ -353,6 +353,8 @@ class GlobalSettings extends Feature {
 
                         return ret
                     })) {
+                        Client.showTitle("SNIPE THING", "CHECK CHAT", 20, 60, 20)
+
                         new TextComponent(this.FeatureManager.messagePrefix + "Bin found " + numberWithCommas(a.starting_bid) + " " + a.item_name).setClick("run_command", "/viewauction " + a.uuid).chat()
                     }
                 })

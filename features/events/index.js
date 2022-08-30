@@ -135,6 +135,12 @@ class Events extends Feature {
 
 			delete this.slayerLocationDataH[player]
 		})
+		this.registerCommand("cleardianawaypoints", () => {
+			this.burrialData.points = []
+			this.burrialData.locations = []
+			this.burrialData.historicalLocations = []
+			ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all diana waypoints!")
+		})
 	}
 
 	step_1fps() {
@@ -215,7 +221,7 @@ class Events extends Feature {
 
 		if (this.otherInquisWaypoints.getValue()) {
 			Object.keys(this.slayerLocationDataH).forEach(key => {
-				drawCoolWaypoint(this.slayerLocationDataH[key][0][0], this.slayerLocationDataH[key][0][1], this.slayerLocationDataH[key][0][2], 255, 0, 0, { name: "§c" + key + "'s inquis" })
+				drawCoolWaypoint(this.slayerLocationDataH[key][0][0] || 0, this.slayerLocationDataH[key][0][1] || 0, this.slayerLocationDataH[key][0][2] || 0, 255, 0, 0, { name: "§c" + (key || "ERROR") + "'s inquis" })
 			})
 		}
 	}
