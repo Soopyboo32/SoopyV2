@@ -206,8 +206,9 @@ class PowderAndScatha extends Feature {
         this.registerChat("&r&7&oYou hear the sound of something approaching...&r", this.wormSpawning);
         this.wormSpawnedChatMessage = new ToggleSetting("Worm/Scatha Spawned Chat Message", "if a chat info should be sent when a worm/scatha spawned", false, "worm_spawned_chat_message", this).requires(this.scathaMain);
         this.petDroppedAlert = new ToggleSetting("Pet Dropped Alert", "Big title when a scatha pet dropped", false, "scatha_pet_dropped_alert", this).requires(this.scathaMain);
-        this.colorToRarity = { "&9": "rare", "&5": "epic", "&6": "legandary" }
-        this.registerChat("&r&6&lPET DROP! &r${rarity}Scatha &r&b(+${mf}% ✯ Magic Find!)&r", (rarity, mf, e) => {
+        this.colorToRarity = { 9: "rare", 5: "epic", 6: "legandary" }
+        //&r&6&lPET DROP! &r&9Scatha &r&b(+&r&b291% &r&b✯ Magic Find&r&b)&r
+        this.registerChat("&r&6&lPET DROP! &r&${rarity}Scatha &r&b(+&r&b${mf}% &r&b✯ Magic Find${end}", (rarity, mf, end, e) => {
             let r = this.colorToRarity[rarity]
             this.miningData.scatha[r]++
             this.miningData.scatha.since_pet = 0
@@ -217,7 +218,7 @@ class PowderAndScatha extends Feature {
                 Client.showTitle(`${rarity}${r.toUpperCase()} SCATHA PET!`, ChatLib.getChatMessage(e), 0, 100, 10);
             }
         })
- 
+
         this.registerStep(true, 2, this.step2fps);
         this.registerStep(true, 3, this.wormStep);
     }
@@ -287,7 +288,7 @@ class PowderAndScatha extends Feature {
 
         if (this.PowderElement.getValue() && this.inCrystalHollows) {
             this.overlayLeft.push(`&b2x Powder:`)
-            this.overlayRight.push(this.dPowder ? "&a" + timeNumber(Math.max(0, this.dPowder - Date.now())) : "&cINACTIVE")
+            this.overlayRight.push(this.dPowder ? "&a" + timeNumber(this.dPowder - Date.now()) : "&cINACTIVE")
 
             if (this.miningData.powder.chests) {
                 let c = this.miningData.powder.chests
