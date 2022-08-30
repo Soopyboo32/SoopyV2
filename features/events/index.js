@@ -62,6 +62,7 @@ class Events extends Feature {
 		this.otherInquisWaypoints = new ToggleSetting("Show other users inquis locations", "If disabled others wont be able to see urs", true, "inquis_location_other", this).requires(this.loadFromParticles)
 		this.otherInquisPing = new ToggleSetting("Show cool title when someone's inquis spawned", "May be usefull for loot share", true, "inquis_ping_other", this).requires(this.loadFromParticles)
 		this.limitPMemb = new ToggleSetting("Only send inquis ping to party members", "If not in a party it works as default", true, "inquis_ping_party", this).requires(this.otherInquisPing)
+		this.limitPMembRecieve = new ToggleSetting("Only RECIEVE inquis ping from party members", "To prevent trolling for streamers", false, "recieve_inquis_ping_party", this).requires(this.otherInquisPing)
 		this.shinyBlocks = []
 
 		this.MythMobsHPGuiElement = new ToggleSetting("Render Mythological Mobs hp on your screen", "This will help you to know their HP.", true, "myth_mobs_hp", this).contributor("EmeraldMerchant");
@@ -174,6 +175,10 @@ class Events extends Feature {
 		if (!loc) {
 			delete this.slayerLocationDataH[user]
 			return
+		}
+
+		if (this.limitPMembRecieve.getValue()) {
+			if (!this.FeatureManager.features["dataLoader"].class.partyMembers.has(user)) return
 		}
 		this.slayerLocationDataH[user] = [loc, Date.now()]
 		if (this.otherInquisPing.getValue()) {
