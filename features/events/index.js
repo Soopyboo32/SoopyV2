@@ -171,7 +171,7 @@ class Events extends Feature {
 	}
 
 	inquisData(loc, user) {
-		if (this.ignorePlayers.has(user)) return
+		if (this.ignorePlayers.has(user) && user !== Player.getName()) return
 		if (!loc) {
 			delete this.slayerLocationDataH[user]
 			return

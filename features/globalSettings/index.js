@@ -319,7 +319,7 @@ class GlobalSettings extends Feature {
         this.ahAlerts = [
             // { //TODO: add a command/gui to add these
             //     id: "ATTRIBUTE_SHARD",
-            //     maxPrice: 1500000,
+            //     maxPrice: 1300000,
             //     nbt: [
             //         "tag.ExtraAttributes.attributes.mana_pool"
             //     ]
