@@ -142,6 +142,18 @@ class Events extends Feature {
 			this.burrialData.historicalLocations = []
 			ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all diana waypoints!")
 		})
+
+		// this.locs = []
+		// this.registerEvent("renderWorld", () => {
+		// 	for (let loc of this.locs) {
+		// 		drawBoxAtBlock(loc[0], loc[1], loc[2], 255, 0, 0, 0.05, 0.05)
+		// 	}
+		// })
+
+		// this.registerCommand("clearlocs", () => {
+		// 	this.locs = []
+		// 	ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all locs!")
+		// })
 	}
 
 	step_1fps() {
@@ -400,11 +412,13 @@ class Events extends Feature {
 
 	spawnParticle(particle, type, event) {
 		if (this.showingWaypoints && this.showBurrialGuess.getValue() && particle.toString().startsWith("EntityDropParticleFX,")) {
+			// this.locs.push([particle.getX(), particle.getY(), particle.getZ()])
 			let run = false
 			if (this.lastSoundPoint && !run && Math.abs(particle.getX() - this.lastSoundPoint[0]) < 2 && Math.abs(particle.getY() - this.lastSoundPoint[1]) < 0.5 && Math.abs(particle.getZ() - this.lastSoundPoint[2]) < 2) {
 				run = true
 			}
 			if (run) {
+
 				if (this.lastParticlePoint === undefined) {
 					this.firstParticlePoint = [particle.getX(), particle.getY(), particle.getZ()]
 				}
