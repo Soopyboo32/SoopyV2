@@ -18,6 +18,8 @@ import renderLibs from "../../../guimanager/renderLibs";
 import { f, m } from "../../../mappings/mappings";
 import { addLore, getSBUUID, toMessageWithLinks } from "../../utils/utils";
 import { delay } from "../../utils/delayUtils";
+import { SoopyGui } from "../../../guimanager";
+import SoopyImageElement from "../../../guimanager/GuiElement/SoopyImageElement";
 const Files = Java.type("java.nio.file.Files")
 const Paths = Java.type("java.nio.file.Paths")
 const JavaString = Java.type("java.lang.String")
@@ -383,6 +385,10 @@ class GlobalSettings extends Feature {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Final price: " + numberWithCommas(Math.round(json.price)))
             })
         })
+
+        let zoogui = new SoopyGui().setOpenCommand("zoo")
+
+        zoogui.element.addChild(new SoopyImageElement().setImage("https://img.freepik.com/premium-photo/portrait-monkey-wild_397170-44.jpg?w=1380").setLocation(0, 0, 1, 1))
     }
 
     worldLoad() {
