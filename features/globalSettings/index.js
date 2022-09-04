@@ -360,6 +360,29 @@ class GlobalSettings extends Feature {
                 })
             })
         })
+
+        this.registerCommand("price", () => {
+
+            fetch("http://soopy.dev/api/soopyv2/itemPriceDetailed", {
+                postData: {
+                    item: Player.getHeldItem().getNBT().toObject()
+                }
+            }).json(json => {
+                ChatLib.chat(this.FeatureManager.messagePrefix + "PRICE ANALASIS:")
+                json.details.sort((a, b) => {
+                    if (typeof (a) === "string") return 1
+                    if (typeof (b) === "string") return -1
+                    return a[1] - b[1]
+                }).forEach(d => {
+                    if (typeof (d) === "string") {
+                        ChatLib.chat(d)
+                    } else {
+                        ChatLib.chat("&f" + d[0] + "&7: &6" + numberWithCommas(Math.round(d[1])))
+                    }
+                })
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Final price: " + numberWithCommas(Math.round(json.price)))
+            })
+        })
     }
 
     worldLoad() {
