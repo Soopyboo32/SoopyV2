@@ -3,6 +3,6 @@
     "description": "A couple of features to help clean up your chat",
     "isHidden": false,
     "isTogglable": true,
-    "defaultEnabled": true,
+    "defaultEnabled": false,
     "sortA": 1
 }
