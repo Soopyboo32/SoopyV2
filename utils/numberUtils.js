@@ -5,7 +5,7 @@ let utils = {
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         return parts.join(".");
     },
-    addNotation: function (type, value, joiner="") {
+    addNotation: function (type, value, joiner = "") {
         let returnVal = value;
         let notList = [];
         if (type === "shortScale") {
@@ -87,6 +87,14 @@ let utils = {
     timeNumber: (time) => {
         let mins = Math.floor(time / 1000 / 60)
         let secs = Math.floor(time / 1000) % 60
+
+        if (mins === 0) return secs + "s"
+        return `${mins}m ${secs}s`
+    },
+    timeNumberDetailed: (time, decimalPoint) => {
+        let mins = Math.floor(time / 1000 / 60)
+        let tenToDecimalPower = 10 ** decimalPoint
+        let secs = Math.floor((time / 1000) * tenToDecimalPower)/tenToDecimalPower % 60
 
         if (mins === 0) return secs + "s"
         return `${mins}m ${secs}s`
