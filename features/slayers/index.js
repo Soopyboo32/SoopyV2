@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import { f, m } from "../../../mappings/mappings";
-import { numberWithCommas, timeNumber } from "../../utils/numberUtils";
+import { numberWithCommas, timeNumber, timeNumberDetailed } from "../../utils/numberUtils";
 import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawFilledBox, drawLine } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
@@ -42,8 +42,24 @@ class Slayers extends Feature {
 		this.expOnKill = new ToggleSetting("Show slayer exp on boss kill", "Says your slayer exp in chat when you kill a boss, also says time taken to spawn+kill", true, "slayer_xp", this);
 		this.slainAlert = new ToggleSetting("Show boss slain alert", "This helps you to not kill mobs for ages with an inactive quest", true, "boss_slain_alert", this);
 		this.spawnAlert = new ToggleSetting("Show boss spawned alert", "This helps you to not miss your boss when you spawn it", true, "boss_spawn_alert", this);
+		this.spawnKillSetting = {
+			"0": "0",
+			"1": "1",
+			"2": "2",
+			"3": "3",
+			"4": "4"
+		}
 		this.bossSpawnKillTime = new ToggleSetting("Show boss spawn and kill time", "tells you your slayer boss speed", true, "Slayer_spawn_kill_time", this).contributor("EmeraldMerchant");
+		this.bossSpawnKillTimeDetalied = new DropdownSetting("Boss spawn & kill time using Decimal Point", "0 = 5s, 1 = 5.1s, 2 = 5.15s etc.", "full number", "slayer_spawn_kill_time_decimal_point", this, this.spawnKillSetting).requires(this.bossSpawnKillTime).contributor("EmeraldMerchant");
+		this.killSetting = {
+			"0": "0",
+			"1": "1",
+			"2": "2",
+			"3": "3",
+			"4": "4"
+		}
 		this.bossKillTime = new ToggleSetting("Shows you bosses kill time", "tells you your slayer boss kill time", true, "slayer_kill_time", this).requires(this.bossSpawnKillTime).contributor("EmeraldMerchant");
+		this.bossKillTimeDetalied = new DropdownSetting("Boss kill time using Decimal Point", "0 = 5s, 1 = 5.1s, 2 = 5.15s etc.", "full number", "slayer_kill_time_decimal_point", this, this.killSetting).requires(this.bossKillTime).contributor("EmeraldMerchant");
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
 			.setText("&6Slayer&7> &fLoading...")
@@ -143,6 +159,7 @@ class Slayers extends Feature {
 							candidatesDist.push(Math.round(parseFloat(distanceTo(candidate)) * 10))
 						})
 						this.emanBoss = this.candidateBoss[candidatesDist.indexOf(Math.min(...candidatesDist))]
+						assignActualEmanBoss(this.emanBoss)
 					}
 				}
 			})
@@ -183,10 +200,16 @@ class Slayers extends Feature {
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(this.slayerExp[this.lastSlayerType]) + " " + this.lastSlayerType + " XP&r&7!&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t) => t + a, 0)) + " total XP&r&7!&r");
 				if (this.bossSpawnKillTime.getValue() && Date.now() - this.lastBossSlain < 60000 * 10) {
-					ChatLib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`);
+					let time = timeNumber(Date.now() - this.lastBossSlain);
+					let v = parseInt(this.bossSpawnKillTimeDetalied.getValue()) || 0
+					if (v > 0) time = timeNumberDetailed(Date.now() - this.lastBossSlain, v);
+					ChatLib.chat(`&r   &r&aBoss took &d${time} &ato spawn and kill&r&7!`);
 				}
 				if (this.bossKillTime.getValue() && Date.now() - this.lastBossSpawned < 60000 * 4.6) {
-					ChatLib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSpawned)} &ato kill&r&7!`);
+					let time = timeNumber(Date.now() - this.lastBossSpawned);
+					let v = parseInt(this.bossKillTimeDetalied.getValue()) || 0
+					if (v > 0) time = timeNumberDetailed(Date.now() - this.lastBossSpawned, v);
+					ChatLib.chat(`&r   &r&aBoss took &d${time} &ato kill&r&7!`);
 				}
 			}
 			this.lastBossSlain = Date.now();
@@ -406,6 +429,20 @@ class Slayers extends Feature {
 			}
 		}
 	}
+
+	assignActualEmanBoss(entity) {
+		if (this.bossSpawnedMessage) {
+			World.getAllEntitiesOfType(net.minecraft.entity.monster.EntityEnderman).forEach((e) => {
+				if (e.getName().includes("Voidgloom Seraph")) {
+					//if distance from e to entity < 5
+					if ((e.getX() - entity.getX()) ** 2 + (e.getY() - entity.getY()) ** 2 + (e.getZ() - entity.getZ()) ** 2 < 25) {
+						this.actualEmanBoss = e;
+					}
+				}
+			})
+		}
+	}
+
 	renderWorld(ticks) {
 		this.minibossEntity.forEach((x) => {
 			drawBoxAtEntity(x[0], 0, 1, 0, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
@@ -492,6 +529,7 @@ class Slayers extends Feature {
 						this.cannotFindEmanBoss = false
 					} else if (nameRemoveFormat.includes("Voidgloom Seraph") && ((name.getX() - Player.getX()) ** 2 + (name.getY() - Player.getY()) ** 2 + (name.getZ() - Player.getZ()) ** 2 < 25)) {
 						this.emanBoss = name
+						assignActualEmanBoss(this.emanBoss)
 						this.cannotFindEmanBoss = false
 					}
 				}
@@ -582,10 +620,12 @@ class Slayers extends Feature {
 				if (e[m.getCustomNameTag]() && e[m.getCustomNameTag]().includes("Voidgloom Seraph")) {
 					if (Date.now() - this.nextIsBoss < 3000) {
 						this.emanBoss = new Entity(e);
+						assignActualEmanBoss(this.emanBoss)
 						this.nextIsBoss = false;
 					}
 					if (this.cannotFindEmanBoss && ((e[f.posX.Entity] - Player.getX()) ** 2 + (e[f.posY.Entity] - Player.getY()) ** 2 + (e[f.posZ.Entity] - Player.getZ()) ** 2 < 5)) {
 						this.emanBoss = new Entity(e);
+						assignActualEmanBoss(this.emanBoss)
 						this.cannotFindEmanBoss = false
 					}
 

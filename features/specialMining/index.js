@@ -8,6 +8,7 @@ import { delay } from "../../utils/delayUtils";
 import TextSetting from "../settings/settingThings/textSetting";
 import { drawBoxAtBlock, drawFilledBox } from "../../utils/renderUtils";
 import RenderLib2D from "../../utils/renderLib2d";
+import { f, m } from "../../../mappings/mappings";
 
 class PowderAndScatha extends Feature {
     constructor() {
@@ -196,6 +197,14 @@ class PowderAndScatha extends Feature {
             .setLocationSetting(new LocationSetting("Scatha Counter Hud Location", "Allows you to edit the location of Scatha Counter Hud", "scatha_mining_hud_location", this, [10, 50, 1, 1]).requires(this.scathaCounter).editTempText(`&6Scatha Counter\n&bKills: 1,000\n&bWorms: 800\n&bScathas: 200\n&bSince Scatha: 10\n&9Rare Scatha Pets: 5\n&5Epic Scatha Pets: 3\n&6Leg Scatha Pets: 1\n&bSince Pet: 20`));
         this.hudElements.push(this.scathaCounterElement);
 
+        this.wormEntity = undefined;
+        this.scathaHealth = new ToggleSetting("Scatha Health Hud", "This will show worm/scatha mob HP on screen", false, "scatha_hp_hud", this).requires(this.scathaMain).contributor("EmeraldMerchant");
+        this.scathaHealthElement = new HudTextElement()
+            .setText("")
+            .setToggleSetting(this.scathaHealth)
+            .setLocationSetting(new LocationSetting("Scatha Health Hud Location", "Allows you to edit the location of Scatha Health Hud", "scatha_hp_hud_location", this, [10, 50, 1, 1]).requires(this.scathaHealth).editTempText(`&8[&7Lv5&8] &cWorm &e5&c❤`));
+        this.hudElements.push(this.scathaHealthElement);
+
         new SettingBase("/scathaset <thing> <value>", "This command will change values in the counter", undefined, "scatha_cmd", this).requires(this.scathaMain);
         new SettingBase("/ss <thing> <value> works too", "you can press TAB for <thing> auto-complete", undefined, "scatha_cmd2", this).requires(this.scathaMain);
         this.scathaCmdComp = ["worms", "scathas", "rare", "epic", "legandary", "since_scatha", "since_pet"]
@@ -221,6 +230,7 @@ class PowderAndScatha extends Feature {
 
         this.registerStep(true, 2, this.step2fps);
         this.registerStep(true, 3, this.wormStep);
+        this.registerStep(true, 5, this.scathaHP);
     }
 
     spawnParticle(particle, type, event) {
@@ -240,7 +250,7 @@ class PowderAndScatha extends Feature {
             Object.keys(this.miningData.powder).forEach(thing => this.miningData.powder[thing] = 0)
             this.expRateInfo = []
         } else if (type === "scatha") {
-            //TODO
+            Object.keys(this.miningData.scatha).forEach(thing => this.miningData.scatha[thing] = 0)
         }
     }
 
@@ -382,24 +392,39 @@ class PowderAndScatha extends Feature {
             //§8[§7Lv5§8] §cWorm§r §e5§c❤
             if (name.startsWith("§8[§7Lv5§8] §cWorm")) {
                 if (this.wormSpawnedChatMessage.getValue()) ChatLib.chat("&c&lWorm Spawned. (Since Scatha: " + (this.miningData.scatha.since_scatha + 1) + ")");
-                if (this.wormSpawnedWarn.getValue()) Client.showTitle("&c&lWorm Spawned.", "", 0, 20, 10);
+                if (this.wormSpawnedWarn.getValue()) Client.showTitle("&c&lWorm Spawned!", "", 0, 20, 10);
                 this.miningData.scatha.total_worms++;
                 this.miningData.scatha.worms++;
                 this.miningData.scatha.since_scatha++;
                 this.saveMiningData()
                 this.wormSpawned = false;
+                if (this.scathaHealth.getValue()) this.wormEntity = entity
             }
             if (name.startsWith("§8[§7Lv10§8] §cScatha")) {
                 if (this.wormSpawnedChatMessage.getValue()) ChatLib.chat("&c&lScatha Spawned.");
-                if (this.wormSpawnedWarn.getValue()) Client.showTitle("&c&lScatha Spawned.", "", 0, 20, 10);
+                if (this.wormSpawnedWarn.getValue()) Client.showTitle("&c&lScatha Spawned!", "", 0, 20, 10);
                 this.miningData.scatha.total_worms++;
                 this.miningData.scatha.scathas++;
                 this.miningData.scatha.since_pet++;
                 this.miningData.scatha.since_scatha = 0
                 this.saveMiningData()
                 this.wormSpawned = false;
+                if (this.scathaHealth.getValue()) this.wormEntity = entity
             }
         });
+    }
+
+    scathaHP() {
+        let tempText = ""
+        if (this.scathaHealth.getValue()) {
+            if (this.wormEntity && this.wormEntity.getEntity()[f.isDead]) {
+                this.wormEntity = undefined;
+            }
+        } else if (this.wormEntity) {
+            this.wormEntity = undefined;
+        }
+        tempText = this.wormEntity.getName()
+        this.scathaHealthElement.setText(tempText)
     }
 
     initVariables() {
@@ -408,6 +433,7 @@ class PowderAndScatha extends Feature {
         this.foundWither = true;
         this.dPowder = 0;
         this.wormSpawned = false;
+        this.wormEntity = undefined;
     }
 
     onDisable() {
