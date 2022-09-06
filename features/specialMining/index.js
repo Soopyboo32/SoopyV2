@@ -196,7 +196,7 @@ class PowderAndScatha extends Feature {
             .setToggleSetting(this.scathaCounter)
             .setLocationSetting(new LocationSetting("Scatha Counter Hud Location", "Allows you to edit the location of Scatha Counter Hud", "scatha_mining_hud_location", this, [10, 50, 1, 1]).requires(this.scathaCounter).editTempText(`&6Scatha Counter\n&bKills: 1,000\n&bWorms: 800\n&bScathas: 200\n&bSince Scatha: 10\n&9Rare Scatha Pets: 5\n&5Epic Scatha Pets: 3\n&6Leg Scatha Pets: 1\n&bSince Pet: 20`));
         this.hudElements.push(this.scathaCounterElement);
-    
+
         this.wormEntity = undefined;
         this.scathaHealth = new ToggleSetting("Scatha Health Hud", "This will show worm/scatha mob HP on screen", false, "scatha_hp_hud", this).requires(this.scathaMain).contributor("EmeraldMerchant");
         this.scathaHealthElement = new HudTextElement()
@@ -335,11 +335,6 @@ class PowderAndScatha extends Feature {
             if (this.miningData.scatha.rare + this.miningData.scatha.epic + this.miningData.scatha.legandary > 0) tempText += `&bSince Pet: ${this.miningData.scatha.since_pet}`
             this.scathaCounterElement.setText(tempText)
         }
-        World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand)?.forEach(e => {
-            if (e.getName().includes("Brood Mother")) {
-                Client.showTitle("&cBROODMOTHER", "", 1, 5, 1);
-            };
-        });
     }
 
     compactPowderChat() {
@@ -397,7 +392,7 @@ class PowderAndScatha extends Feature {
             //§8[§7Lv5§8] §cWorm§r §e5§c❤
             if (name.startsWith("§8[§7Lv5§8] §cWorm")) {
                 if (this.wormSpawnedChatMessage.getValue()) ChatLib.chat("&c&lWorm Spawned. (Since Scatha: " + (this.miningData.scatha.since_scatha + 1) + ")");
-                if (this.wormSpawnedWarn.getValue()) Client.showTitle("&c&lWorm Spawned.", "", 0, 20, 10);
+                if (this.wormSpawnedWarn.getValue()) Client.showTitle("&c&lWorm Spawned!", "", 0, 20, 10);
                 this.miningData.scatha.total_worms++;
                 this.miningData.scatha.worms++;
                 this.miningData.scatha.since_scatha++;
@@ -407,7 +402,7 @@ class PowderAndScatha extends Feature {
             }
             if (name.startsWith("§8[§7Lv10§8] §cScatha")) {
                 if (this.wormSpawnedChatMessage.getValue()) ChatLib.chat("&c&lScatha Spawned.");
-                if (this.wormSpawnedWarn.getValue()) Client.showTitle("&c&lScatha Spawned.", "", 0, 20, 10);
+                if (this.wormSpawnedWarn.getValue()) Client.showTitle("&c&lScatha Spawned!", "", 0, 20, 10);
                 this.miningData.scatha.total_worms++;
                 this.miningData.scatha.scathas++;
                 this.miningData.scatha.since_pet++;
@@ -421,8 +416,13 @@ class PowderAndScatha extends Feature {
 
     scathaHP() {
         let tempText = ""
-        if (!this.wormEntity || !this.scathaHealth.getValue()) return
-        if (this.wormEntity.getEntity()[f.isDead]) this.wormEntity = undefined;
+        if (this.scathaHealth.getValue()) {
+            if (this.wormEntity && this.wormEntity.getEntity()[f.isDead]) {
+                this.wormEntity = undefined;
+            }
+        } else if (this.wormEntity) {
+            this.wormEntity = undefined;
+        }
         tempText = this.wormEntity.getName()
         this.scathaHealthElement.setText(tempText)
     }
