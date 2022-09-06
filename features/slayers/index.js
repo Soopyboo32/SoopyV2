@@ -159,6 +159,7 @@ class Slayers extends Feature {
 							candidatesDist.push(Math.round(parseFloat(distanceTo(candidate)) * 10))
 						})
 						this.emanBoss = this.candidateBoss[candidatesDist.indexOf(Math.min(...candidatesDist))]
+						assignActualEmanBoss(this.emanBoss)
 					}
 				}
 			})
@@ -428,6 +429,20 @@ class Slayers extends Feature {
 			}
 		}
 	}
+
+	assignActualEmanBoss(entity) {
+		if (this.bossSpawnedMessage) {
+			World.getAllEntitiesOfType(net.minecraft.entity.monster.EntityEnderman).forEach((e) => {
+				if (e.getName().includes("Voidgloom Seraph")) {
+					//if distance from e to entity < 5
+					if ((e.getX() - entity.getX()) ** 2 + (e.getY() - entity.getY()) ** 2 + (e.getZ() - entity.getZ()) ** 2 < 25) {
+						this.actualEmanBoss = e;
+					}
+				}
+			})
+		}
+	}
+
 	renderWorld(ticks) {
 		this.minibossEntity.forEach((x) => {
 			drawBoxAtEntity(x[0], 0, 1, 0, this.SlayerWidth[x[1]], this.SlayerHeight[x[1]], ticks, 4, false);
@@ -514,6 +529,7 @@ class Slayers extends Feature {
 						this.cannotFindEmanBoss = false
 					} else if (nameRemoveFormat.includes("Voidgloom Seraph") && ((name.getX() - Player.getX()) ** 2 + (name.getY() - Player.getY()) ** 2 + (name.getZ() - Player.getZ()) ** 2 < 25)) {
 						this.emanBoss = name
+						assignActualEmanBoss(this.emanBoss)
 						this.cannotFindEmanBoss = false
 					}
 				}
@@ -604,10 +620,12 @@ class Slayers extends Feature {
 				if (e[m.getCustomNameTag]() && e[m.getCustomNameTag]().includes("Voidgloom Seraph")) {
 					if (Date.now() - this.nextIsBoss < 3000) {
 						this.emanBoss = new Entity(e);
+						assignActualEmanBoss(this.emanBoss)
 						this.nextIsBoss = false;
 					}
 					if (this.cannotFindEmanBoss && ((e[f.posX.Entity] - Player.getX()) ** 2 + (e[f.posY.Entity] - Player.getY()) ** 2 + (e[f.posZ.Entity] - Player.getZ()) ** 2 < 5)) {
 						this.emanBoss = new Entity(e);
+						assignActualEmanBoss(this.emanBoss)
 						this.cannotFindEmanBoss = false
 					}
 
