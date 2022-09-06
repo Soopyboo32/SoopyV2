@@ -423,8 +423,12 @@ class PowderAndScatha extends Feature {
         } else if (this.wormEntity) {
             this.wormEntity = undefined;
         }
-        tempText = this.wormEntity.getName()
-        this.scathaHealthElement.setText(tempText)
+        if (this.wormEntity) {
+            tempText = this.wormEntity.getName()
+            this.scathaHealthElement.setText(tempText)
+        } else {
+            this.scathaHealthElement.setText("")
+        }
     }
 
     initVariables() {
