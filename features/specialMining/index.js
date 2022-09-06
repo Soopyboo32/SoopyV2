@@ -240,7 +240,7 @@ class PowderAndScatha extends Feature {
             Object.keys(this.miningData.powder).forEach(thing => this.miningData.powder[thing] = 0)
             this.expRateInfo = []
         } else if (type === "scatha") {
-            //TODO
+            Object.keys(this.miningData.scatha).forEach(thing => this.miningData.scatha[thing] = 0)
         }
     }
 
