@@ -242,6 +242,10 @@ class Mining extends Feature {
                         return
                     }
 
+                    if (this.predictedChestLocations.length === 0) {
+                        World.playSound("note.pling", 100, 2)
+                    }
+
                     this.predictedChestLocations.push([this.baseCoordinates[0] - coordinates[0], this.baseCoordinates[1] - coordinates[1], this.baseCoordinates[2] - coordinates[2]])
                 }
             });
