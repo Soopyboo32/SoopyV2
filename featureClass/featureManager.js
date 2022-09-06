@@ -747,6 +747,7 @@ class FeatureManager {
     }
 
     loadSoopy() {
+        ChatLib.chat(this.messagePrefix + "Loading SoopyV2...")
         this.loadFeatureMetas()
 
         this.loadFeatureSettings()
@@ -758,6 +759,7 @@ class FeatureManager {
         })
 
         this.finishedLoading = true
+        ChatLib.chat(this.messagePrefix + "SoopyV2 Loaded!")
     }
 
     loadFeature(feature) { //run in seperate thread so onenable can do network requests
