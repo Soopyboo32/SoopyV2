@@ -748,18 +748,30 @@ class FeatureManager {
 
     loadSoopy() {
         ChatLib.chat(this.messagePrefix + "Loading SoopyV2...")
+        let startLoading = Date.now()
         this.loadFeatureMetas()
 
         this.loadFeatureSettings()
 
+        let loadedFeatures = new Map()
+
         Object.keys(this.featureMetas).forEach((feature) => {
             if (this.featureSettingsData[feature] && this.featureSettingsData[feature].enabled) {
-                this.loadFeature(feature)
+                loadedFeatures.set(feature, false)
+                new Thread(() => {
+                    this.loadFeature(feature)
+                    loadedFeatures.set(feature, true)
+                }).start()
             }
         })
 
+        while ([...loadedFeatures.values()].some(a => !a)) {
+            Thread.sleep(100)
+        }
+
         this.finishedLoading = true
         ChatLib.chat(this.messagePrefix + "SoopyV2 Loaded!")
+        logger.logMessage("SoopyV2 took " + ((Date.now() - startLoading) / 1000).toFixed(2) + "s to load", 3)
     }
 
     loadFeature(feature) { //run in seperate thread so onenable can do network requests
