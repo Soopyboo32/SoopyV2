@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import { f, m } from "../../../mappings/mappings";
-import { numberWithCommas, timeNumber } from "../../utils/numberUtils";
+import { numberWithCommas, timeNumber, timeNumberDetailed } from "../../utils/numberUtils";
 import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawFilledBox, drawLine } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
@@ -43,7 +43,9 @@ class Slayers extends Feature {
 		this.slainAlert = new ToggleSetting("Show boss slain alert", "This helps you to not kill mobs for ages with an inactive quest", true, "boss_slain_alert", this);
 		this.spawnAlert = new ToggleSetting("Show boss spawned alert", "This helps you to not miss your boss when you spawn it", true, "boss_spawn_alert", this);
 		this.bossSpawnKillTime = new ToggleSetting("Show boss spawn and kill time", "tells you your slayer boss speed", true, "Slayer_spawn_kill_time", this).contributor("EmeraldMerchant");
+		this.bossSpawnKillTimeDetalied = new TextSetting("Boss spawn & kill time using Decimal Point", "empty = don't use, 1 = 5.1s, 2 = 5.15s etc. max: 4", "0", "slayer_spawn_kill_time_decimal_point", this, "default", false).requires(this.bossSpawnKillTime)
 		this.bossKillTime = new ToggleSetting("Shows you bosses kill time", "tells you your slayer boss kill time", true, "slayer_kill_time", this).requires(this.bossSpawnKillTime).contributor("EmeraldMerchant");
+		this.bossKillTimeDetalied = new TextSetting("Boss kill time using Decimal Point", "empty = don't use, 1 = 5.1s, 2 = 5.15s etc. max: 4", "0", "slayer_kill_time_decimal_point", this, "default", false).requires(this.bossKillTime)
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
 			.setText("&6Slayer&7> &fLoading...")
@@ -183,10 +185,20 @@ class Slayers extends Feature {
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(this.slayerExp[this.lastSlayerType]) + " " + this.lastSlayerType + " XP&r&7!&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t) => t + a, 0)) + " total XP&r&7!&r");
 				if (this.bossSpawnKillTime.getValue() && Date.now() - this.lastBossSlain < 60000 * 10) {
-					ChatLib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSlain)} &ato spawn and kill&r&7!`);
+					let time = timeNumber(Date.now() - this.lastBossSlain);
+					let v = this.bossSpawnKillTimeDetalied.getValue()
+					if (v && v !== "" && v >= 1 && v <= 4) {
+						time = timeNumberDetailed(Date.now() - this.lastBossSlain, parseInt(this.bossSpawnKillTimeDetalied.getValue()));
+					} else if (v && v !== "" && (v < 1 || v > 4)) ChatLib.chat(this.FeatureManager.messagePrefix + "&c Decimal Point must be full number between 1-4!")
+					ChatLib.chat(`&r   &r&aBoss took &d${time} &ato spawn and kill&r&7!`);
 				}
 				if (this.bossKillTime.getValue() && Date.now() - this.lastBossSpawned < 60000 * 4.6) {
-					ChatLib.chat(`&r   &r&aBoss took &d${timeNumber(Date.now() - this.lastBossSpawned)} &ato kill&r&7!`);
+					let time = timeNumber(Date.now() - this.lastBossSpawned);
+					let v = this.bossKillTimeDetalied.getValue()
+					if (v && v !== "" && v >= 1 && v <= 4) {
+						time = timeNumberDetailed(Date.now() - this.lastBossSpawned, parseInt(this.bossKillTimeDetalied.getValue()));
+					} else if (v && v !== "" && (v < 1 || v > 4)) ChatLib.chat(this.FeatureManager.messagePrefix + "&c Decimal Point must be full number between 1-4!")
+					ChatLib.chat(`&r   &r&aBoss took &d${time} &ato kill&r&7!`);
 				}
 			}
 			this.lastBossSlain = Date.now();
