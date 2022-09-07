@@ -50,7 +50,7 @@ class Slayers extends Feature {
 			"4": "4"
 		}
 		this.bossSpawnKillTime = new ToggleSetting("Show boss spawn and kill time", "tells you your slayer boss speed", true, "Slayer_spawn_kill_time", this).contributor("EmeraldMerchant");
-		this.bossSpawnKillTimeDetalied = new DropdownSetting("Boss spawn & kill time using Decimal Point", "0 = 5s, 1 = 5.1s, 2 = 5.15s etc.", "full number", "slayer_spawn_kill_time_decimal_point", this, this.spawnKillSetting).requires(this.bossSpawnKillTime).contributor("EmeraldMerchant");
+		this.bossSpawnKillTimeDetalied = new DropdownSetting("Boss spawn & kill time using Decimal Point", "0 = 5s, 1 = 5.1s, 2 = 5.15s etc.", "1", "slayer_spawn_kill_time_decimal_point", this, this.spawnKillSetting).requires(this.bossSpawnKillTime).contributor("EmeraldMerchant");
 		this.killSetting = {
 			"0": "0",
 			"1": "1",
@@ -59,7 +59,7 @@ class Slayers extends Feature {
 			"4": "4"
 		}
 		this.bossKillTime = new ToggleSetting("Shows you bosses kill time", "tells you your slayer boss kill time", true, "slayer_kill_time", this).requires(this.bossSpawnKillTime).contributor("EmeraldMerchant");
-		this.bossKillTimeDetalied = new DropdownSetting("Boss kill time using Decimal Point", "0 = 5s, 1 = 5.1s, 2 = 5.15s etc.", "full number", "slayer_kill_time_decimal_point", this, this.killSetting).requires(this.bossKillTime).contributor("EmeraldMerchant");
+		this.bossKillTimeDetalied = new DropdownSetting("Boss kill time using Decimal Point", "0 = 5s, 1 = 5.1s, 2 = 5.15s etc.", "1", "slayer_kill_time_decimal_point", this, this.killSetting).requires(this.bossKillTime).contributor("EmeraldMerchant");
 		this.slayerXpGuiElement = new ToggleSetting("Render the xp of your current slayer on your screen", "This will help you to know how much xp u have now w/o looking in chat", true, "slayer_xp_hud", this).contributor("EmeraldMerchant");
 		this.slayerXpElement = new HudTextElement()
 			.setText("&6Slayer&7> &fLoading...")
