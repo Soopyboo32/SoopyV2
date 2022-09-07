@@ -370,19 +370,43 @@ class GlobalSettings extends Feature {
                     item: Player.getHeldItem().getNBT().toObject()
                 }
             }).json(json => {
-                ChatLib.chat(this.FeatureManager.messagePrefix + "PRICE ANALASIS:")
-                json.details.sort((a, b) => {
+                ChatLib.chat(this.FeatureManager.messagePrefix + "PRICE ANALYSIS (Total: $" + numberWithCommas(Math.round(json.price)) + ")")
+                // json.details.sort((a, b) => {
+                //     if (typeof (a) === "string") return 1
+                //     if (typeof (b) === "string") return -1
+                //     return a[1] - b[1]
+                // }).forEach(d => {
+                //     if (typeof (d) === "string") {
+                //         ChatLib.chat(d)
+                //     } else {
+                //         ChatLib.chat("&f" + d[0] + "&7: &6" + numberWithCommas(Math.round(d[1])))
+                //     }
+                // })
+                // ChatLib.chat(this.FeatureManager.messagePrefix + "Final price: " + numberWithCommas(Math.round(json.price)))
+                json.details.sort((b, a) => {
                     if (typeof (a) === "string") return 1
                     if (typeof (b) === "string") return -1
-                    return a[1] - b[1]
+                    return a.price - b.price
                 }).forEach(d => {
                     if (typeof (d) === "string") {
                         ChatLib.chat(d)
                     } else {
-                        ChatLib.chat("&f" + d[0] + "&7: &6" + numberWithCommas(Math.round(d[1])))
+                        if (!d.price) return
+                        let lore = []
+                        d.items.sort((b, a) => {
+                            if (typeof (a) === "string") return 1
+                            if (typeof (b) === "string") return -1
+                            return a[1] - b[1]
+                        }).forEach(d2 => {
+                            if (typeof (d2) === "string") {
+                                lore.push(d2)
+                            } else {
+                                lore.push("&f" + d2[0] + "&7: $&6" + numberWithCommas(Math.round(d2[1])))
+                            }
+                        })
+                        new TextComponent("&d" + d.name + "&7: $&6" + numberWithCommas(Math.round(d.price))).setHover("show_text", lore.join("\n")).chat()
                     }
                 })
-                ChatLib.chat(this.FeatureManager.messagePrefix + "Final price: " + numberWithCommas(Math.round(json.price)))
             })
         })
 

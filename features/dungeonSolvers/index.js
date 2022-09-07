@@ -24,6 +24,13 @@ try {
 } catch (e) {
 	//player doesent have translate (using english default)
 }
+let wrongColorList = {
+	"light grey": "silver",
+	"wool": "white wool",
+	"ink": "black ink",
+	"lapis": "blue lapis",
+	"cocoa": "brown cocoa"
+}
 
 class DungeonSolvers extends Feature {
 	constructor() {
@@ -168,17 +175,17 @@ class DungeonSolvers extends Feature {
 			let timerText = ""
 			if (this.spiritMaskOutsideDungeon.getValue() ? true : !this.eraseBonzoTimer) {
 				if (this.spiritMask.getValue()) {
-					let timer1 = Math.round((this.spiritMaskTimer - Date.now())/100)/10
+					let timer1 = Math.round((this.spiritMaskTimer - Date.now()) / 100) / 10
 					timerText += "&5Spirit Mask: " + (timer1 > 0 ? "&c" + timer1 + "&6s" : "&6READY") + "\n"
 				}
 			}
 			if (!this.eraseBonzoTimer) {
 				if (this.normalBonzoMask.getValue()) {
-					let timer2 = Math.round((this.bonzoMaskTimer - Date.now())/100)/10
+					let timer2 = Math.round((this.bonzoMaskTimer - Date.now()) / 100) / 10
 					timerText += "&9Bonzo's Mask: " + (timer2 > 0 ? "&c" + timer2 + "&6s" : "&6READY") + "\n"
 				}
 				if (this.fraggedBonzoMask.getValue()) {
-					let timer3 = Math.round((this.fraggedBonzoMaskTimer - Date.now())/100)/10
+					let timer3 = Math.round((this.fraggedBonzoMaskTimer - Date.now()) / 100) / 10
 					timerText += "&9⚚ Bonzo's Mask: " + (timer3 > 0 ? "&c" + timer3 + "&6s" : "&6READY")
 				}
 			}
@@ -812,6 +819,64 @@ class DungeonSolvers extends Feature {
 					cancel(event);
 				}
 			}
+		}
+	}
+
+	/**
+	 * TODO: This is code from old soopyaddons, needs almost complete recode.
+	 * TODO: Also needs support for the new terminals, namely click at time
+	 * TODO: Make click on time scan even when terminal is throttled (update on chat msg)
+	 * TODO: Make all terminal solvers track when the server will accept the click and update on that
+	 */
+	findNeededClicks() {
+		let itemsHighlight = []
+		if (ChatLib.removeFormatting(Player.getContainer().getName()).startsWith("What starts with: '") && ChatLib.removeFormatting(Player.getContainer().getName()).endsWith("'?")) {
+			let letter = ChatLib.removeFormatting(Player.getContainer().getName()).substr(19, 1).toLowerCase()
+			let i = 0;
+			Player.getContainer().getItems().forEach((item) => {
+				if (ChatLib.removeFormatting(item.getName()).toLowerCase().startsWith(letter) && !item.isEnchanted()) {
+					itemsHighlight.push(i)
+				}
+				i++
+			})
+		}
+		if (ChatLib.removeFormatting(Player.getContainer().getName()).startsWith("Select all the ") && ChatLib.removeFormatting(Player.getContainer().getName()).endsWith(" items!")) {
+			let color = ChatLib.removeFormatting(Player.getContainer().getName()).substr(15).replace(" items!", "").toLowerCase()
+			let i = 0;//silver -> light grey die, white -> wool--
+			Player.getContainer().getItems().forEach((item) => {
+				let name = ChatLib.removeFormatting(item.getName()).toLowerCase()
+				Object.entries(wrongColorList).forEach(([from, to]) => {
+					name.replace(from, to)
+				})
+				if (name.replace("wool", "white wool").includes(color) && !item.isEnchanted()) {
+					itemsHighlight.push(i)
+				}
+				i++
+			})
+		}
+		if (ChatLib.removeFormatting(Player.getContainer().getName()) === "Click in order!") {
+			let i = 0;//silver -> light grey die, white -> wool--
+			let number = 100;
+			Player.getContainer().getItems().forEach((item, i) => {
+				if (parseInt(ChatLib.removeFormatting(item.getName())) < number && item.getMetadata() === 14) {
+					number = parseInt(ChatLib.removeFormatting(item.getName()))
+				}
+				i++
+			})
+			i = 0
+			Player.getContainer().getItems().forEach((item) => {
+				if (parseInt(ChatLib.removeFormatting(item.getName())) === number) {
+					itemsHighlight.push(i)
+				}
+				i++
+			})
+			i = 0
+			Player.getContainer().getItems().forEach((item) => {
+				if (parseInt(ChatLib.removeFormatting(item.getName())) === number + 1) {
+					itemsHighlight2.push(i)
+				}
+				i++
+			})
 		}
 	}
 
