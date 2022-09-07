@@ -64,6 +64,7 @@ class Events extends Feature {
 		this.limitPMemb = new ToggleSetting("Only send inquis ping to party members", "If not in a party it works as default", true, "inquis_ping_party", this).requires(this.otherInquisPing)
 		this.limitPMembRecieve = new ToggleSetting("Only RECIEVE inquis ping from party members", "To prevent trolling for streamers", false, "recieve_inquis_ping_party", this).requires(this.otherInquisPing)
 		this.shinyBlocks = []
+		this.glowingMushrooms = []
 
 		this.MythMobsHPGuiElement = new ToggleSetting("Render Mythological Mobs hp on your screen", "This will help you to know their HP.", true, "myth_mobs_hp", this).contributor("EmeraldMerchant");
 		this.MythMobsHP = new HudTextElement().setToggleSetting(this.MythMobsHPGuiElement).setLocationSetting(new LocationSetting("Mythological Mobs Hp Location", "Allows you to edit the location of Mythological Mobs hp", "myth_mobs_location", this, [10, 50, 1, 1]).requires(this.MythMobsHPGuiElement).editTempText("&8[&7Lv750&8] &2Exalted Minos Inquisitor &a40M&f/&a40M&c❤&r"));
@@ -99,10 +100,11 @@ class Events extends Feature {
 		this.hasWarps = new Set()
 
 		this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
+		this.showGlowingMushrooms = new ToggleSetting("Glowing mushrooms highlight", "Will highlight glowing mushrooms", false, "glowing_mushrooms_overlay", this)
 
 		this.registerEvent("worldLoad", this.worldLoad)
-		this.registerEvent("spawnParticle", this.spawnParticle).registeredWhen(() => this.showingWaypoints || this.shinyBlockOverlayEnabled.getValue())
-		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.showingWaypoints || this.shinyBlockOverlayEnabled.getValue())
+		this.registerEvent("spawnParticle", this.spawnParticle).registeredWhen(() => this.showingWaypoints || this.shinyBlockOverlayEnabled.getValue() || this.showGlowingMushrooms.getValue())
+		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.showingWaypoints || this.shinyBlockOverlayEnabled.getValue() || this.showGlowingMushrooms.getValue())
 		this.registerStep(true, 2, this.step)
 		this.registerStep(false, 5, this.step_5s)
 
@@ -203,6 +205,9 @@ class Events extends Feature {
 		this.shinyBlocks.forEach(([loc]) => {
 			drawBoxAtBlockNotVisThruWalls(loc[0], loc[1], loc[2], 0, 255, 0, 0.1, 0.1)
 		})
+		this.glowingMushrooms.forEach(([loc]) => {
+			drawBoxAtBlockNotVisThruWalls(loc[0] - 0.2, loc[1], loc[2] - 0.2, 0, 255, 0, 0.4, 0.4)
+		})
 		if (this.showingWaypoints) {
 			if (this.guessPoint && this.showBurrialGuess.getValue()) {
 				let warpLoc = this.getClosestWarp()
@@ -273,6 +278,9 @@ class Events extends Feature {
 
 		this.shinyBlocks = this.shinyBlocks.filter(([loc, time]) => {
 			return time > Date.now() - 5000
+		})
+		this.glowingMushrooms = this.glowingMushrooms.filter(([loc, time]) => {
+			return time > Date.now() - 1000 && World.getBlockAt(...loc.map(a => Math.floor(a))).type.getID() !== 0
 		})
 
 
@@ -442,6 +450,14 @@ class Events extends Feature {
 					if (arr.map(a => Math.abs(a % 1)).includes(0.25) || arr.map(a => Math.abs(a % 1)).includes(0.75)) {
 						this.shinyBlocks.push([[particle.getX(), particle.getY(), particle.getZ()], Date.now()])
 					}
+				}
+			}
+		}
+		if (this.showGlowingMushrooms.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "Glowing Mushroom Cave") {
+			if (particle.toString().startsWith("EntitySpellParticleFX,")) {
+				// console.log([particle.getX(), particle.getY(), particle.getZ()].map(a => a % 1))
+				if (Math.abs(particle.getX() % 1) === 0.5 && Math.abs(particle.getZ() % 1) === 0.5) {
+					this.glowingMushrooms.push([[particle.getX(), particle.getY(), particle.getZ()], Date.now()])
 				}
 			}
 		}
