@@ -141,6 +141,15 @@ class GlobalSettings extends Feature {
             }
         })
 
+        this.warps = JSON.parse(FileLib.read("SoopyV2", "features/globalSettings/warps.json"))
+        
+        this.registerCommand("warp", (...name) => {
+                //send command to server
+                ChatLib.command("warp " + (name[0] || ""));
+        }, (args) => {
+                return this.warps.filter(v => v.toLowerCase().startsWith(args[0]))
+        })
+
         this.registerStep(true, 4, this.mobThings)
 
         this.firstPageSettings = [this.darkTheme]
