@@ -84,20 +84,12 @@ let utils = {
         }
         return utils.timeNumber(time)
     },
-    timeNumber: (time) => {
+    timeNumber: (time, secondDecimals = 0) => {
         let mins = Math.floor(time / 1000 / 60)
         let secs = Math.floor(time / 1000) % 60
 
         if (mins === 0) return secs + "s"
-        return `${mins}m ${secs}s`
-    },
-    timeNumberDetailed: (time, decimalPoint) => {
-        let mins = Math.floor(time / 1000 / 60)
-        let tenToDecimalPower = 10 ** decimalPoint
-        let secs = Math.floor((time / 1000) * tenToDecimalPower)/tenToDecimalPower % 60
-
-        if (mins === 0) return secs + "s"
-        return `${mins}m ${secs}s`
+        return `${mins}m ${secs.toFixed(secondDecimals)}s`
     },
     timeNumber2: (time) => {
         let hours = Math.floor(time / 1000 / 60 / 60)

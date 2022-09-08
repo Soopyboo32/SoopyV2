@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import { f, m } from "../../../mappings/mappings";
-import { numberWithCommas, timeNumber, timeNumberDetailed } from "../../utils/numberUtils";
+import { numberWithCommas, timeNumber } from "../../utils/numberUtils";
 import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawFilledBox, drawLine } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
@@ -200,15 +200,17 @@ class Slayers extends Feature {
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(this.slayerExp[this.lastSlayerType]) + " " + this.lastSlayerType + " XP&r&7!&r");
 				ChatLib.chat("&r   &r&aYou have &d" + numberWithCommas(Object.values(this.slayerExp).reduce((a, t) => t + a, 0)) + " total XP&r&7!&r");
 				if (this.bossSpawnKillTime.getValue() && Date.now() - this.lastBossSlain < 60000 * 10) {
-					let time = timeNumber(Date.now() - this.lastBossSlain);
-					let v = parseInt(this.bossSpawnKillTimeDetalied.getValue()) || 0
-					if (v > 0) time = timeNumberDetailed(Date.now() - this.lastBossSlain, v);
+					let decimals = parseInt(this.bossSpawnKillTimeDetalied.getValue()) || 0
+
+					let time = timeNumber(Date.now() - this.lastBossSlain, decimals);
+
 					ChatLib.chat(`&r   &r&aBoss took &d${time} &ato spawn and kill&r&7!`);
 				}
 				if (this.bossKillTime.getValue() && Date.now() - this.lastBossSpawned < 60000 * 4.6) {
-					let time = timeNumber(Date.now() - this.lastBossSpawned);
-					let v = parseInt(this.bossKillTimeDetalied.getValue()) || 0
-					if (v > 0) time = timeNumberDetailed(Date.now() - this.lastBossSpawned, v);
+					let decimals = parseInt(this.bossKillTimeDetalied.getValue()) || 0
+
+					let time = timeNumber(Date.now() - this.lastBossSpawned, decimals);
+
 					ChatLib.chat(`&r   &r&aBoss took &d${time} &ato kill&r&7!`);
 				}
 			}
