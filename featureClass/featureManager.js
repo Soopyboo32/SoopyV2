@@ -547,7 +547,7 @@ class FeatureManager {
 
         event.trigger.setName(commandName, true)
 
-        if (completions) event.trigger.setName(commandName, true).setTabCompletions(completions)
+        if (completions) event.trigger.setTabCompletions(completions).setName(commandName, true)
 
         return event
     }
