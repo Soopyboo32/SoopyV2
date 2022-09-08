@@ -60,7 +60,6 @@ class GlobalSettings extends Feature {
         this.itemWorth = new ToggleSetting("(Approximate) Item worth in lore", "Accounts for stuff like enchants/recombs ect", false, "item_worth", this)
         this.showHecatomb = new ToggleSetting("Show hecatomb enchant info in lore", "", true, "show_hecatomb", this)
         this.showChampion = new ToggleSetting("Show champion enchant info in lore", "", true, "show_champion", this)
-        this.warpCompletions = new ToggleSetting("Autocomplete warp locations with tab", "", true, "show_champion", this)
 
         this.thunderBottle = new ToggleSetting("Thunder Bottle Progress Display", "shows you the progress of thunder bottle in your inventory", false, "thunder_bottle", this);
         this.thunderBottleElement = new HudTextElement()
@@ -148,10 +147,7 @@ class GlobalSettings extends Feature {
                 //send command to server
                 ChatLib.command("warp " + (name[0] || ""));
         }, (args) => {
-            if (this.warpCompletions.getValue())
-            {
                 return this.warps.filter(v => v.toLowerCase().startsWith(args[0]))
-            } else return []
         })
 
         this.registerStep(true, 4, this.mobThings)
