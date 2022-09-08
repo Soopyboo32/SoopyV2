@@ -145,17 +145,22 @@ class Events extends Feature {
 			ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all diana waypoints!")
 		})
 
-		// this.locs = []
-		// this.registerEvent("renderWorld", () => {
-		// 	for (let loc of this.locs) {
-		// 		drawBoxAtBlock(loc[0], loc[1], loc[2], 255, 0, 0, 0.05, 0.05)
-		// 	}
-		// })
+		this.locs = []
+		this.predictions = []
+		this.registerEvent("renderWorld", () => {
+			for (let loc of this.locs) {
+				drawBoxAtBlock(loc[0], loc[1], loc[2], 255, 0, 0, 0.05, 0.05)
+			}
+			for (let loc of this.predictions) {
+				drawBoxAtBlock(loc[0], loc[1], loc[2], 0, 255, 0, 0.05, 0.05)
+			}
+		})
 
-		// this.registerCommand("clearlocs", () => {
-		// 	this.locs = []
-		// 	ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all locs!")
-		// })
+		this.registerCommand("clearlocs", () => {
+			this.locs = []
+			this.predictions = []
+			ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all locs!")
+		})
 	}
 
 	step_1fps() {
@@ -418,9 +423,59 @@ class Events extends Feature {
 		this.guessPoint = [this.lastSoundPoint[0] + changes[0] * distance, this.lastSoundPoint[1] + changes[1] * distance, this.lastSoundPoint[2] + changes[2] * distance]
 	}
 
+	/**
+	 * Solves the equasion y=b/(x+a)+c
+	 * returns [a, b, c]
+	 */
+	solveEquasionThing(x, y) {
+		let x = [2, 5, 9]
+		let y = [0.20408243164745452, -0.327863161630501, -0.40346259488011876]
+
+		let a = (-y[0] * x[1] * x[0] - y[1] * x[1] * x[2] + y[1] * x[1] * x[0] + x[1] * x[2] * y[2] + x[0] * x[2] * y[0] - x[0] * x[2] * y[2]) / (x[1] * y[0] - x[1] * y[2] + x[0] * y[2] - y[0] * x[2] + y[1] * x[2] - y[1] * x[0])
+		let b = (y[0] - y[1]) * (x[0] + a) * (x[1] + a) / (x[1] - x[0])
+		let c = y[0] - b / (x[0] + a)
+		return [a, b, c]
+	}
+
 	spawnParticle(particle, type, event) {
 		if (this.showingWaypoints && this.showBurrialGuess.getValue() && particle.toString().startsWith("EntityDropParticleFX,")) {
-			// this.locs.push([particle.getX(), particle.getY(), particle.getZ()])
+
+			// {
+
+			// 	let currLoc = [particle.getX(), particle.getY(), particle.getZ()]
+			// 	{
+			// 		let lastPos = this.locs[this.locs.length - 1]
+			// 		console.log(Math.hypot(...currLoc.map((l, i) => {
+			// 			return (l - lastPos[i]) ** 2
+			// 		})))
+			// 	}
+			// 	this.locs.push(currLoc)
+			// 	if (this.locs.length > 4) {
+			// 		let slopeThing = this.locs.map((a, i) => {
+			// 			if (i === 0) return
+			// 			let lastLoc = this.locs[i - 1]
+			// 			let currLoc = a
+			// 			return y = Math.atan((currLoc[0] - lastLoc[0]) / (currLoc[2] - lastLoc[2]))
+			// 		})
+			// 		let [a, b, c] = this.solveEquasionThing([1, 2, 3], [slopeThing[1], slopeThing[2], slopeThing[3]])
+			// 		// console.log(a, b, c)
+
+			// 		this.predictions = []
+
+			// 		let lastPos = [this.locs[4][0], this.locs[4][1], this.locs[4][2]]
+			// 		for (let i = 3; i < 50; i++) {
+			// 			let y = b / (i + a) + c
+
+			// 			let xOff = 2 * Math.sin(y)
+			// 			let zOff = 2 * Math.cos(y)
+			// 			lastPos[0] += xOff
+			// 			lastPos[2] -= zOff
+			// 			this.predictions.push([...lastPos])
+			// 		}
+			// 		// console.log(this.predictions[1].join(" "))
+			// 	}
+
+			// }
 			let run = false
 			if (this.lastSoundPoint && !run && Math.abs(particle.getX() - this.lastSoundPoint[0]) < 2 && Math.abs(particle.getY() - this.lastSoundPoint[1]) < 0.5 && Math.abs(particle.getZ() - this.lastSoundPoint[2]) < 2) {
 				run = true

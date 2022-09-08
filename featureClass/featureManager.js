@@ -87,7 +87,7 @@ class FeatureManager {
                 ChatLib.chat(this.messagePrefix + "&cError: Could not connect to Soopy's server. This may cause issues with some features but will (hopefully) be back soon.")
             }
 
-            new Thread(() => {
+            new NonPooledThread(() => {
                 this.loadSoopy()
             }).start()
         }, true)
@@ -162,12 +162,12 @@ class FeatureManager {
             }).start()
         }, this)
         this.registerCommand("soopyload", () => {
-            new Thread(() => {
+            new NonPooledThread(() => {
                 this.loadSoopy()
             }).start()
         }, this)
         this.registerCommand("soopyreload", () => {
-            new Thread(() => {
+            new NonPooledThread(() => {
                 this.unloadSoopy()
                 this.loadSoopy()
             }).start()
@@ -200,7 +200,7 @@ class FeatureManager {
     }
 
     loadPerformanceData() {
-        new Thread(() => {
+        new NonPooledThread(() => {
             ChatLib.chat(this.messagePrefix + "Recording performance impact, this will take around 60 seconds to complete!")
             shouldRequireForceNoCache = true
             let eventLagData = this.loadEventLag()
