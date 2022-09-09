@@ -30,6 +30,27 @@ class DataLoader extends Feature {
 
         this.api_loaded_event = this.createCustomEvent("apiLoad")
 
+        this.checkingPing = false;
+        this.lastPingCheck = 0;
+        this.lastPings = [undefined, undefined, undefined];
+        this.ping = 0;
+        this.pingI = 0;
+
+        this.registerChat("&b&bYou are currently connected to server &6${*}&r", (e) => {
+            if (this.checkingPing) {
+                this.lastPings[this.pingI % 3] = Date.now() - this.lastPingCheck;
+                cancel(e);
+                this.checkingPing = false;
+
+                if (this.lastPings.includes(undefined)) {
+                    this.ping = this.lastPings[this.pingI % 3];
+                } else {
+                    this.ping = [...this.lastPings].sort((a, b) => a - b)[1];
+                }
+                this.pingI++;
+            }
+        });
+
         this.lastServer = undefined
         this.lastSentServer = 0
 
@@ -91,6 +112,15 @@ class DataLoader extends Feature {
         this.registerCommand("pmembdebug", () => {
             ChatLib.chat([...this.partyMembers].join(" | "))
         })
+    }
+
+    getPing() {
+        if (Date.now() - this.lastPingCheck > 60000 * 30 || (Date.now() - this.lastPingCheck > 60000 && this.lastPings.includes(undefined) && this.bloodX !== -1)) {
+            this.lastPingCheck = Date.now();
+            ChatLib.command("whereami");
+            this.checkingPing = true;
+        }
+        return this.ping || 0
     }
 
     step_5min() {

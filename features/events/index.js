@@ -146,21 +146,23 @@ class Events extends Feature {
 		})
 
 		this.locs = []
-		this.predictions = []
-		this.registerEvent("renderWorld", () => {
-			for (let loc of this.locs) {
-				drawBoxAtBlock(loc[0], loc[1], loc[2], 255, 0, 0, 0.05, 0.05)
-			}
-			for (let loc of this.predictions) {
-				drawBoxAtBlock(loc[0], loc[1], loc[2], 0, 255, 0, 0.05, 0.05)
-			}
-		})
+		// this.predictions = []
+		// this.predictionsOld = []
+		// this.registerEvent("renderWorld", () => {
+		// 	for (let loc of this.locs) {
+		// 		drawBoxAtBlock(loc[0], loc[1], loc[2], 255, 0, 0, 0.05, 0.05)
+		// 	}
+		// 	for (let loc of this.predictions) {
+		// 		drawBoxAtBlock(loc[0], loc[1], loc[2], 0, 255, 0, 0.05, 0.05)
+		// 	}
+		// })
 
-		this.registerCommand("clearlocs", () => {
-			this.locs = []
-			this.predictions = []
-			ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all locs!")
-		})
+		// this.registerCommand("clearlocs", () => {
+		// 	this.locs = []
+		// 	this.predictions = []
+		// 	// this.predictionsOld = []
+		// 	ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all locs!")
+		// })
 	}
 
 	step_1fps() {
@@ -216,7 +218,14 @@ class Events extends Feature {
 		if (this.showingWaypoints) {
 			if (this.guessPoint && this.showBurrialGuess.getValue()) {
 				let warpLoc = this.getClosestWarp()
-				drawCoolWaypoint(this.guessPoint[0], this.guessPoint[1], this.guessPoint[2], 255, 255, 0, { name: "§eGuess" + (warpLoc ? " §7(" + warpLoc + ")" : "") })
+				if (this.guessPoint2) {
+					let gY = 131
+					while (World.getBlockAt(this.guessPoint2[0], gY, this.guessPoint2[2]).getType().getID() !== 2 && gY > 70) {
+						gY--
+					}
+					drawCoolWaypoint(this.guessPoint2[0], gY, this.guessPoint2[2], 255, 255, 0, { name: "§eGuess" + (warpLoc ? " §7(" + warpLoc + ")" : "") })
+				}
+				// drawCoolWaypoint(this.guessPoint[0], this.guessPoint[1], this.guessPoint[2], 255, 255, 0, { name: "§7OLD Guess" + (warpLoc ? " §7(" + warpLoc + ")" : "") })
 			}
 			this.burrialData.locations.forEach((loc, i) => {
 
@@ -394,33 +403,48 @@ class Events extends Feature {
 			this.lastParticlePoint2 = undefined
 			this.lastSoundPoint = undefined
 			this.firstParticlePoint = undefined
+			this.distance = undefined
+			this.locs = []
+			// this.predictionsOld = this.predictions
 		}
 		if (this.lastDingPitch === 0) {
 			this.lastDingPitch = pitch
+			this.distance = undefined
 			this.lastParticlePoint = undefined
 			this.lastParticlePoint2 = undefined
 			this.lastSoundPoint = undefined
 			this.firstParticlePoint = undefined
+			this.locs = []
+			// this.predictionsOld = this.predictions
 			return
 		}
 		this.dingIndex++
 		if (this.dingIndex > 1) this.dingSlope.push(pitch - this.lastDingPitch)
-		if (this.dingSlope.length > 15) this.dingSlope.shift()
+		if (this.dingSlope.length > 20) this.dingSlope.shift()
 		let slope = this.dingSlope.reduce((a, b) => a + b, 0) / this.dingSlope.length
 		// console.log(this.dingSlope.join(","))
 		this.lastSoundPoint = [pos.getX(), pos.getY(), pos.getZ()]
 		this.lastDingPitch = pitch
 
 		if (!this.lastParticlePoint2 || !this.particlePoint || !this.firstParticlePoint) return
-		this.distance = Math.E / slope - Math.hypot(this.firstParticlePoint[0] - pos.getX(), this.firstParticlePoint[1] - pos.getY(), this.firstParticlePoint[2] - pos.getZ())
+		this.distance2 = Math.E / slope - Math.hypot(this.firstParticlePoint[0] - pos.getX(), this.firstParticlePoint[1] - pos.getY(), this.firstParticlePoint[2] - pos.getZ())
 		// console.log(this.dingIndex + "	" + this.dingSlope / this.dingIndex + "	" + pitch + "	" + (pitch - this.lastDingPitch))
 
 
 		let lineDist = Math.hypot(this.lastParticlePoint2[0] - this.particlePoint[0], this.lastParticlePoint2[1] - this.particlePoint[1], this.lastParticlePoint2[2] - this.particlePoint[2])
-		let distance = this.distance
+		let distance = this.distance2
 		let changes = [this.particlePoint[0] - this.lastParticlePoint2[0], this.particlePoint[1] - this.lastParticlePoint2[1], this.particlePoint[2] - this.lastParticlePoint2[2]]
 		changes = changes.map(a => a / lineDist)
 		this.guessPoint = [this.lastSoundPoint[0] + changes[0] * distance, this.lastSoundPoint[1] + changes[1] * distance, this.lastSoundPoint[2] + changes[2] * distance]
+		// let minD = Infinity
+		// for (let i = 0; i < this.predictions.length; i++) {
+		// 	let p = this.predictions[i]
+		// 	let d = (p[0] - this.guessPoint[0]) ** 2 + (p[2] - this.guessPoint[2]) ** 2
+		// 	if (d < minD) {
+		// 		minD = d
+		// 		this.guessPoint2 = [Math.floor(p[0]), 255, Math.floor(p[2])]
+		// 	}
+		// }
 	}
 
 	/**
@@ -428,9 +452,6 @@ class Events extends Feature {
 	 * returns [a, b, c]
 	 */
 	solveEquasionThing(x, y) {
-		let x = [2, 5, 9]
-		let y = [0.20408243164745452, -0.327863161630501, -0.40346259488011876]
-
 		let a = (-y[0] * x[1] * x[0] - y[1] * x[1] * x[2] + y[1] * x[1] * x[0] + x[1] * x[2] * y[2] + x[0] * x[2] * y[0] - x[0] * x[2] * y[2]) / (x[1] * y[0] - x[1] * y[2] + x[0] * y[2] - y[0] * x[2] + y[1] * x[2] - y[1] * x[0])
 		let b = (y[0] - y[1]) * (x[0] + a) * (x[1] + a) / (x[1] - x[0])
 		let c = y[0] - b / (x[0] + a)
@@ -440,48 +461,133 @@ class Events extends Feature {
 	spawnParticle(particle, type, event) {
 		if (this.showingWaypoints && this.showBurrialGuess.getValue() && particle.toString().startsWith("EntityDropParticleFX,")) {
 
-			// {
-
-			// 	let currLoc = [particle.getX(), particle.getY(), particle.getZ()]
-			// 	{
-			// 		let lastPos = this.locs[this.locs.length - 1]
-			// 		console.log(Math.hypot(...currLoc.map((l, i) => {
-			// 			return (l - lastPos[i]) ** 2
-			// 		})))
-			// 	}
-			// 	this.locs.push(currLoc)
-			// 	if (this.locs.length > 4) {
-			// 		let slopeThing = this.locs.map((a, i) => {
-			// 			if (i === 0) return
-			// 			let lastLoc = this.locs[i - 1]
-			// 			let currLoc = a
-			// 			return y = Math.atan((currLoc[0] - lastLoc[0]) / (currLoc[2] - lastLoc[2]))
-			// 		})
-			// 		let [a, b, c] = this.solveEquasionThing([1, 2, 3], [slopeThing[1], slopeThing[2], slopeThing[3]])
-			// 		// console.log(a, b, c)
-
-			// 		this.predictions = []
-
-			// 		let lastPos = [this.locs[4][0], this.locs[4][1], this.locs[4][2]]
-			// 		for (let i = 3; i < 50; i++) {
-			// 			let y = b / (i + a) + c
-
-			// 			let xOff = 2 * Math.sin(y)
-			// 			let zOff = 2 * Math.cos(y)
-			// 			lastPos[0] += xOff
-			// 			lastPos[2] -= zOff
-			// 			this.predictions.push([...lastPos])
-			// 		}
-			// 		// console.log(this.predictions[1].join(" "))
-			// 	}
-
-			// }
 			let run = false
 			if (this.lastSoundPoint && !run && Math.abs(particle.getX() - this.lastSoundPoint[0]) < 2 && Math.abs(particle.getY() - this.lastSoundPoint[1]) < 0.5 && Math.abs(particle.getZ() - this.lastSoundPoint[2]) < 2) {
 				run = true
 			}
 			if (run) {
 
+				if (this.locs.length === 0 || particle.getX() + particle.getY() + particle.getZ() !== this.locs[this.locs.length - 1][0] + this.locs[this.locs.length - 1][1] + this.locs[this.locs.length - 1][2]) {
+
+					let currLoc = [particle.getX(), particle.getY(), particle.getZ()]
+					let distMultiplier = 1
+					{
+						if (this.locs.length > 2) {
+
+							let predictedDist = 0.06507 * this.locs.length + 0.259
+
+							let lastPos = this.locs[this.locs.length - 1]
+							let actualDist = Math.hypot(...currLoc.map((l, i) => {
+								return (l - lastPos[i])
+							}))
+
+							distMultiplier = actualDist / predictedDist
+						}
+						// if (this.locs.length > 2 && !this.distance) {
+						// 	let lastPos = this.locs[this.locs.length - 1]
+						// 	let dist = Math.hypot(...currLoc.map((l, i) => {
+						// 		return (l - lastPos[i])
+						// 	}))
+						// 	let lastPos2 = this.locs[this.locs.length - 2]
+						// 	let dist2 = Math.hypot(...currLoc.map((l, i) => {
+						// 		return (lastPos[i] - lastPos2[i])
+						// 	}))
+						// 	// console.log("------")
+						// 	// console.log(dist - dist2)
+						// 	this.distance = 20 / (dist - dist2) - (dist - dist2) * 80
+						// 	console.log(this.distance)
+						// 	// this.distance -= Math.hypot(this.firstParticlePoint[0] - particle.getX(), this.firstParticlePoint[1] - particle.getY(), this.firstParticlePoint[2] - particle.getZ())
+
+						// 	// console.log(Math.sqrt((Player.getX() - this.firstParticlePoint[0]) ** 2 + (Player.getZ() - this.firstParticlePoint[2]) ** 2))
+						// }
+					}
+					this.locs.push(currLoc)
+					if (this.locs.length > 5 && this.guessPoint) {
+						let slopeThing = this.locs.map((a, i) => {
+							if (i === 0) return
+							let lastLoc = this.locs[i - 1]
+							let currLoc = a
+							return Math.atan((currLoc[0] - lastLoc[0]) / (currLoc[2] - lastLoc[2]))
+						})
+
+						let [a, b, c] = this.solveEquasionThing([slopeThing.length - 5, slopeThing.length - 3, slopeThing.length - 1], [slopeThing[slopeThing.length - 5], slopeThing[slopeThing.length - 3], slopeThing[slopeThing.length - 1]])
+						// console.log(a, b, c)
+
+						let pr1 = []
+						let pr2 = []
+
+						let start = slopeThing.length - 1
+						let lastPos = [this.locs[start][0], this.locs[start][1], this.locs[start][2]]
+						let lastPos2 = [this.locs[start][0], this.locs[start][1], this.locs[start][2]]
+
+						let distCovered = 0
+						// this.locs.forEach((l, i) => {
+						// 	if (i === 0) return
+
+						// 	distCovered += Math.hypot(this.locs[i][0] - this.locs[i - 1][0], this.locs[i][1] - this.locs[i - 1][1], this.locs[i][2] - this.locs[i - 1][2])
+						// })
+
+						let ySpeed = (this.locs[this.locs.length - 1][1] - this.locs[this.locs.length - 2][1]) / Math.hypot(this.locs[this.locs.length - 1][0] - this.locs[this.locs.length - 2][0], this.locs[this.locs.length - 1][2] - this.locs[this.locs.length - 2][2])
+
+						for (let i = start + 1; i < 100; i++) {
+							let y = b / (i + a) + c
+
+							let dist = distMultiplier * (0.06507 * i + 0.259) //This is where the inaccuracy's come from
+							//dist = distance between particles for guessed line
+
+							let xOff = dist * Math.sin(y)
+							let zOff = dist * Math.cos(y)
+
+
+
+							let dencity = 5
+							for (let o = 0; o < dencity; o++) {
+								lastPos[0] += xOff / dencity
+								lastPos[2] += zOff / dencity
+
+								lastPos[1] += ySpeed * dist / dencity
+								lastPos2[1] += ySpeed * dist / dencity
+
+								lastPos2[0] -= xOff / dencity
+								lastPos2[2] -= zOff / dencity
+
+								pr1.push([...lastPos])
+								pr2.push([...lastPos2])
+
+
+								// distCovered += Math.hypot(xOff, zOff) / dencity
+								distCovered = Math.hypot(lastPos[0] - this.lastSoundPoint[0], lastPos[2] - this.lastSoundPoint[2])
+								if (distCovered > this.distance2) break;
+							}
+							if (distCovered > this.distance2) break;
+						}
+						// this.predictions = [...pr1, ...pr2]
+						// let minD = Infinity
+
+						let p1 = pr1[pr1.length - 1]
+						let p2 = pr2[pr2.length - 1]
+
+						let d1 = (p1[0] - this.guessPoint[0]) ** 2 + (p1[2] - this.guessPoint[2]) ** 2
+						let d2 = (p2[0] - this.guessPoint[0]) ** 2 + (p2[2] - this.guessPoint[2]) ** 2
+
+						if (d1 < d2) {
+							this.guessPoint2 = [Math.floor(p1[0]), 255, Math.floor(p1[2])]
+						} else {
+							this.guessPoint2 = [Math.floor(p2[0]), 255, Math.floor(p2[2])]
+						}
+						// for (let i = 0; i < this.predictions.length; i++) {
+						// 	let p = this.predictions[i]
+						// 	let d2 = (p[0] - this.guessPoint[0]) ** 2 + (p[2] - this.guessPoint[2]) ** 2
+						// 	let d = Math.abs(this.distance ** 2 - (p[0] - this.firstParticlePoint[0]) ** 2 + (p[2] - this.firstParticlePoint[2]) ** 2)
+						// 	if (d < minD && d2 < 50 ** 2) {
+						// 		minD = d
+						// 		this.guessPoint2 = [Math.floor(p[0]), 255, Math.floor(p[2])]
+						// 	}
+						// }
+						// console.log(this.predictions[1].join(" "))
+					}
+
+				}
 				if (this.lastParticlePoint === undefined) {
 					this.firstParticlePoint = [particle.getX(), particle.getY(), particle.getZ()]
 				}
@@ -492,7 +598,7 @@ class Events extends Feature {
 				if (!this.lastParticlePoint2 || !this.particlePoint || !this.firstParticlePoint || !this.distance || !this.lastSoundPoint) return
 
 				let lineDist = Math.hypot(this.lastParticlePoint2[0] - this.particlePoint[0], this.lastParticlePoint2[1] - this.particlePoint[1], this.lastParticlePoint2[2] - this.particlePoint[2])
-				let distance = this.distance
+				let distance = this.distance2
 				let changes = [this.particlePoint[0] - this.lastParticlePoint2[0], this.particlePoint[1] - this.lastParticlePoint2[1], this.particlePoint[2] - this.lastParticlePoint2[2]]
 				changes = changes.map(a => a / lineDist)
 				this.guessPoint = [this.lastSoundPoint[0] + changes[0] * distance, this.lastSoundPoint[1] + changes[1] * distance, this.lastSoundPoint[2] + changes[2] * distance]
@@ -647,6 +753,9 @@ class Events extends Feature {
 	}
 
 	burrialClicked() {
+		this.locs = []
+		// this.predictions = []
+		// this.predictionsOld = []
 		if (this.inquisWaypointSpawned) {
 			socketConnection.sendInquisData({ loc: null });
 			this.inquisWaypointSpawned = false

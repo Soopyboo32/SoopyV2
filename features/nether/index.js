@@ -8,6 +8,7 @@ import ToggleSetting from "../settings/settingThings/toggle";
 const MCBlock = Java.type("net.minecraft.block.Block");
 const ArmorStand = Java.type("net.minecraft.entity.item.EntityArmorStand")
 const MCItem = Java.type("net.minecraft.item.Item");
+const EntitySkeleton = Java.type("net.minecraft.entity.monster.EntitySkeleton")
 
 let locationData = {
 	barbarian: {
@@ -53,6 +54,7 @@ class Nether extends Feature {
 		this.speedNextBlock = new ToggleSetting("Show next block to stand on for dojo swiftness", "", true, "dojo_swiftness", this)
 		this.tenacityLine = new ToggleSetting("Show line for fireball in dojo tenacity", "This may help you to dodge the fireballs", false, "dojo_tanacity", this)
 		this.disciplineOverlay = new ToggleSetting("Show overlay for zombies in dojo discipline", "", true, "dojo_discipline", this).contributor("Empa")
+		this.controlHelper = new ToggleSetting("Shows where you actually have to look for", "control dojo task (accounts for ping)", true, "control_helper", this)
 		this.hostageWaypoints = new ToggleSetting("Show hostage waypoints", "Waypoint for location of hostage in rescue missions", true, "hostage_waypoint", this)
 		this.slugfishTimer = new ToggleSetting("Show timer over rod", "This may help with fishing slugfish", false, "slugfish_timer", this)
 
@@ -76,6 +78,14 @@ class Nether extends Feature {
 		this.rescueMissionType = undefined
 		this.lastBlock = undefined
 		this.hookThrown = 0
+		this.controlSkeleton = undefined
+		this.controlLocLast = undefined
+		this.controlLoc = undefined
+		this.registerChat("                      Test of Control OBJECTIVES", () => {
+			this.controlSkeleton = undefined
+			this.controlLocLast = undefined
+			this.controlLoc = undefined
+		})
 
 		let packetRecieved = this.registerCustom("packetReceived", this.packetReceived).registeredWhen(() => this.isInDojo())
 
@@ -107,6 +117,10 @@ class Nether extends Feature {
 			this.inSwiftness = false
 			this.lastBlock = undefined
 			this.inDiscipline = false
+
+			this.controlLocLast = undefined
+			this.controlLoc = undefined
+			this.controlSkeleton = undefined
 		})
 
 		this.registerChat("You completed your rescue quest! Visit the Town Board to claim the rewards,", () => {
@@ -159,11 +173,32 @@ class Nether extends Feature {
 
 		this.todoE2 = this.todoE
 		this.todoE = []
+
+
+		if (this.controlHelper.getValue() && this.controlSkeleton) {
+			let ping = this.FeatureManager.features["dataLoader"].class.getPing() / 1000
+
+			let e = this.controlSkeleton
+			let x = e.getX() + (e.getX() - e.getLastX()) * (20 * ping)
+			let y = e.getY() + (e.getY() - e.getLastY()) * (20 * ping)
+			let z = e.getZ() + (e.getZ() - e.getLastZ()) * (20 * ping)
+			if (x === e.getX() && y === e.getY() && z === e.getZ()) return
+
+			while (World.getBlockAt(x, y, z).getType().getID() !== 0) { y += 0.2 }
+
+			if (this.controlLoc) this.controlLocLast = [...this.controlLoc]
+			this.controlLoc = [x - 0.5, y, z - 0.5]
+		} else {
+			this.controlLocLast = undefined
+			this.controlLoc = undefined
+		}
 	}
 
 	entityJoinWorldEvent(event) {
 		if (this.tenacityLine.getValue() && event.entity instanceof ArmorStand) this.todoE.push(event.entity)
 		if (this.disciplineOverlay.getValue() && this.inDiscipline && event.entity instanceof ArmorStand) this.todoF.push(new Entity(event.entity))
+
+		if (event.entity instanceof EntitySkeleton && !this.controlSkeleton) this.controlSkeleton = new Entity(event.entity)
 	}
 
 	packetReceived(packet, event) {
@@ -261,6 +296,10 @@ class Nether extends Feature {
 
 				Tessellator.drawString(((Date.now() - this.hookThrown) / 1000).toFixed(1) + "s", x, y + 0.5, z, Renderer.color(0, 255, 50), false, 0.025, false)
 			}
+		}
+
+		if (this.controlLoc && this.controlLocLast) {
+			drawBoxAtBlock(this.controlLoc[0] * ticks + this.controlLocLast[0] * (1 - ticks), this.controlLoc[1] * ticks + this.controlLocLast[1] * (1 - ticks), this.controlLoc[2] * ticks + this.controlLocLast[2] * (1 - ticks), 255, 0, 0, 1, 2)
 		}
 	}
 

@@ -241,11 +241,6 @@ class DungeonSolvers extends Feature {
 		this.totalPuzzleCount = 0;
 		this.completedPuzzleCount = 0;
 
-		this.checkingPing = false;
-		this.lastPingCheck = 0;
-		this.lastPings = [undefined, undefined, undefined];
-		this.ping = 0;
-		this.pingI = 0;
 		this.ezpz = false
 
 		this.arrows = [];
@@ -341,20 +336,6 @@ class DungeonSolvers extends Feature {
 		this.firstDeath = false
 		this.firstDeathHadSpirit = false
 
-		this.registerChat("&b&bYou are currently connected to server &6${*}&r", (e) => {
-			if (this.checkingPing) {
-				this.lastPings[this.pingI % 3] = Date.now() - this.lastPingCheck;
-				cancel(e);
-				this.checkingPing = false;
-
-				if (this.lastPings.includes(undefined)) {
-					this.ping = this.lastPings[this.pingI % 3];
-				} else {
-					this.ping = [...this.lastPings].sort((a, b) => a - b)[1];
-				}
-				this.pingI++;
-			}
-		});
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDungeon() && !this.inBoss);
 
@@ -754,12 +735,13 @@ class DungeonSolvers extends Feature {
 					let endPoint2 = this.eMovingThing[skull.getUUID().toString()].endPointLast;
 					let endPointUpdated = Math.min(Date.now() - this.eMovingThing[skull.getUUID().toString()].endPointUpdated, 100);
 					if (!endPoint2) return;
+					let ping = this.FeatureManager.features["dataLoader"].class.getPing()
 					let endPoint = [endPoint2[0] + ((endPoint1[0] - endPoint2[0]) * endPointUpdated) / 100, endPoint2[1] + ((endPoint1[1] - endPoint2[1]) * endPointUpdated) / 100, endPoint2[2] + ((endPoint1[2] - endPoint2[2]) * endPointUpdated) / 100];
-					let pingPoint = [startPoint[0] + xSpeed2 * this.ping, startPoint[1] + ySpeed2 * this.ping, startPoint[2] + zSpeed2 * this.ping];
+					let pingPoint = [startPoint[0] + xSpeed2 * ping, startPoint[1] + ySpeed2 * ping, startPoint[2] + zSpeed2 * ping];
 
 					renderUtils.drawLineWithDepth(startPoint[0], startPoint[1] + 2, startPoint[2], endPoint[0], endPoint[1] + 2, endPoint[2], 255, 0, 0, 2);
 
-					if (this.ping < time) {
+					if (ping < time) {
 						renderUtils.drawBoxAtBlockNotVisThruWalls(pingPoint[0] - 0.5, pingPoint[1] + 1.5, pingPoint[2] - 0.5, 0, 255, 0);
 						renderUtils.drawBoxAtBlockNotVisThruWalls(endPoint[0] - 0.5, endPoint[1] + 1.5, endPoint[2] - 0.5, 255, 0, 0);
 					} else {
@@ -1219,12 +1201,6 @@ class DungeonSolvers extends Feature {
 			});
 
 			this.todoE = [];
-
-			if (Date.now() - this.lastPingCheck > 60000 * 30 || (Date.now() - this.lastPingCheck > 60000 && this.lastPings.includes(undefined) && this.bloodX !== -1)) {
-				this.lastPingCheck = Date.now();
-				ChatLib.command("whereami");
-				this.checkingPing = true;
-			}
 		}
 
 		let averageExp = this.lastDungExps.reduce((a, b) => a + b, 0) / this.lastDungExps.length;
