@@ -430,6 +430,11 @@ class Events extends Feature {
 		this.distance2 = Math.E / slope - Math.hypot(this.firstParticlePoint[0] - pos.getX(), this.firstParticlePoint[1] - pos.getY(), this.firstParticlePoint[2] - pos.getZ())
 		// console.log(this.dingIndex + "	" + this.dingSlope / this.dingIndex + "	" + pitch + "	" + (pitch - this.lastDingPitch))
 
+		if (this.distance2 > 1000) {
+			this.distance2 = undefined
+			this.guessPoint = undefined
+			return
+		}
 
 		let lineDist = Math.hypot(this.lastParticlePoint2[0] - this.particlePoint[0], this.lastParticlePoint2[1] - this.particlePoint[1], this.lastParticlePoint2[2] - this.particlePoint[2])
 		let distance = this.distance2
@@ -530,7 +535,7 @@ class Events extends Feature {
 						let ySpeed = (this.locs[this.locs.length - 1][1] - this.locs[this.locs.length - 2][1]) / Math.hypot(this.locs[this.locs.length - 1][0] - this.locs[this.locs.length - 2][0], this.locs[this.locs.length - 1][2] - this.locs[this.locs.length - 2][2])
 
 						let i = start + 1
-						while (distCovered < this.distance2) {
+						while (distCovered < this.distance2 && i < 10000) {
 							let y = b / (i + a) + c
 
 							let dist = distMultiplier * (0.06507 * i + 0.259) //This is where the inaccuracy's come from
