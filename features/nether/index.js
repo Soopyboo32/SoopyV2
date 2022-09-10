@@ -3,7 +3,7 @@
 import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import socketConnection from "../../socketConnection";
-import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawLine, drawLineWithDepth, renderBeaconBeam } from "../../utils/renderUtils";
+import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawBoxAtEntity, drawCoolWaypoint, drawLine, drawLineWithDepth, renderBeaconBeam } from "../../utils/renderUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 const MCBlock = Java.type("net.minecraft.block.Block");
 const ArmorStand = Java.type("net.minecraft.entity.item.EntityArmorStand")
@@ -114,6 +114,15 @@ class Nether extends Feature {
 		})
 
 		this.registerChat("&r&r&r           ${*}&r&6Your Rank: &r${*}&r", () => {
+			this.inSwiftness = false
+			this.lastBlock = undefined
+			this.inDiscipline = false
+
+			this.controlLocLast = undefined
+			this.controlLoc = undefined
+			this.controlSkeleton = undefined
+		})
+		this.registerEvent("worldLoad", () => {
 			this.inSwiftness = false
 			this.lastBlock = undefined
 			this.inDiscipline = false
@@ -299,7 +308,7 @@ class Nether extends Feature {
 		}
 
 		if (this.controlLoc && this.controlLocLast) {
-			drawBoxAtBlock(this.controlLoc[0] * ticks + this.controlLocLast[0] * (1 - ticks), this.controlLoc[1] * ticks + this.controlLocLast[1] * (1 - ticks), this.controlLoc[2] * ticks + this.controlLocLast[2] * (1 - ticks), 255, 0, 0, 1, 2)
+			drawBoxAtBlockNotVisThruWalls(this.controlLoc[0] * ticks + this.controlLocLast[0] * (1 - ticks), this.controlLoc[1] * ticks + this.controlLocLast[1] * (1 - ticks), this.controlLoc[2] * ticks + this.controlLocLast[2] * (1 - ticks), 255, 0, 0, 1, 2)
 		}
 	}
 

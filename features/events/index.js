@@ -146,7 +146,7 @@ class Events extends Feature {
 		})
 
 		this.locs = []
-		// this.predictions = []
+		this.predictions = []
 		// this.predictionsOld = []
 		// this.registerEvent("renderWorld", () => {
 		// 	for (let loc of this.locs) {
@@ -223,7 +223,7 @@ class Events extends Feature {
 					while (World.getBlockAt(this.guessPoint2[0], gY, this.guessPoint2[2]).getType().getID() !== 2 && gY > 70) {
 						gY--
 					}
-					drawCoolWaypoint(this.guessPoint2[0], gY, this.guessPoint2[2], 255, 255, 0, { name: "§eGuess" + (warpLoc ? " §7(" + warpLoc + ")" : "") })
+					drawCoolWaypoint(this.guessPoint2[0], gY + 3, this.guessPoint2[2], 255, 255, 0, { name: "§eGuess" + (warpLoc ? " §7(" + warpLoc + ")" : "") })
 				}
 				// drawCoolWaypoint(this.guessPoint[0], this.guessPoint[1], this.guessPoint[2], 255, 255, 0, { name: "§7OLD Guess" + (warpLoc ? " §7(" + warpLoc + ")" : "") })
 			}
@@ -467,7 +467,7 @@ class Events extends Feature {
 			}
 			if (run) {
 
-				if (this.locs.length === 0 || particle.getX() + particle.getY() + particle.getZ() !== this.locs[this.locs.length - 1][0] + this.locs[this.locs.length - 1][1] + this.locs[this.locs.length - 1][2]) {
+				if (this.locs.length < 100 && this.locs.length === 0 || particle.getX() + particle.getY() + particle.getZ() !== this.locs[this.locs.length - 1][0] + this.locs[this.locs.length - 1][1] + this.locs[this.locs.length - 1][2]) {
 
 					let currLoc = [particle.getX(), particle.getY(), particle.getZ()]
 					let distMultiplier = 1
@@ -529,7 +529,8 @@ class Events extends Feature {
 
 						let ySpeed = (this.locs[this.locs.length - 1][1] - this.locs[this.locs.length - 2][1]) / Math.hypot(this.locs[this.locs.length - 1][0] - this.locs[this.locs.length - 2][0], this.locs[this.locs.length - 1][2] - this.locs[this.locs.length - 2][2])
 
-						for (let i = start + 1; i < 100; i++) {
+						let i = start + 1
+						while (distCovered < this.distance2) {
 							let y = b / (i + a) + c
 
 							let dist = distMultiplier * (0.06507 * i + 0.259) //This is where the inaccuracy's come from
@@ -559,9 +560,9 @@ class Events extends Feature {
 								distCovered = Math.hypot(lastPos[0] - this.lastSoundPoint[0], lastPos[2] - this.lastSoundPoint[2])
 								if (distCovered > this.distance2) break;
 							}
-							if (distCovered > this.distance2) break;
+							i++
 						}
-						// this.predictions = [...pr1, ...pr2]
+						this.predictions = [...pr1, ...pr2]
 						// let minD = Infinity
 
 						let p1 = pr1[pr1.length - 1]
@@ -754,7 +755,7 @@ class Events extends Feature {
 
 	burrialClicked() {
 		this.locs = []
-		// this.predictions = []
+		this.predictions = []
 		// this.predictionsOld = []
 		if (this.inquisWaypointSpawned) {
 			socketConnection.sendInquisData({ loc: null });
