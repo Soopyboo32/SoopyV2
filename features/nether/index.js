@@ -5,6 +5,8 @@ import Feature from "../../featureClass/class";
 import socketConnection from "../../socketConnection";
 import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawBoxAtEntity, drawCoolWaypoint, drawLine, drawLineWithDepth, renderBeaconBeam } from "../../utils/renderUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
+import HudTextElement from "../hud/HudTextElement";
+import LocationSetting from "../settings/settingThings/location";
 const MCBlock = Java.type("net.minecraft.block.Block");
 const ArmorStand = Java.type("net.minecraft.entity.item.EntityArmorStand")
 const MCItem = Java.type("net.minecraft.item.Item");
@@ -58,12 +60,23 @@ class Nether extends Feature {
 		this.hostageWaypoints = new ToggleSetting("Show hostage waypoints", "Waypoint for location of hostage in rescue missions", true, "hostage_waypoint", this)
 		this.slugfishTimer = new ToggleSetting("Show timer over rod", "This may help with fishing slugfish", false, "slugfish_timer", this)
 
+		this.minibossNametag = new ToggleSetting("Nether Miniboss Nametag Hud", "renders the HP of minibosses on screen (exclude Magma Boss)", false, "nether_mini_nametag_hud", this);
+		this.minibossNametagElement = new HudTextElement()
+			.setText("")
+			.setToggleSetting(this.minibossNametag)
+			.setLocationSetting(new LocationSetting("Nether Miniboss Nametag Hud location", "allows you to change the location of the hud", "nether_mini_nametag_hud_location", this, [10, 100, 1, 1]).requires(this.minibossNametag).editTempText("&5&lMage Outlaw &r&a70M&c❤"));
+		this.hudElements.push(this.minibossNametagElement);
+
+		this.registerStep(true, 5, this.minibossHPHud)
+
 		this.todoE = []
 		this.todoE2 = []
 		this.blocks = []
 
 		this.todoF = []
 		this.todoF2 = []
+		this.todoM = []
+		this.todoM2 = []
 		this.disciplineZombies = {
 			"Wood": [],
 			"Iron": [],
@@ -97,6 +110,7 @@ class Nether extends Feature {
 		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInNether())
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDojo());
+		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEventNether)
 		this.registerEvent("tick", this.tick).registeredWhen(() => this.isInNether())
 		this.registerChat("&r&r&r                    &r&aTest of Swiftness &r&e&lOBJECTIVES&r", () => {
 			if (this.speedNextBlock.getValue()) {
@@ -201,6 +215,18 @@ class Nether extends Feature {
 			this.controlLocLast = undefined
 			this.controlLoc = undefined
 		}
+
+		this.todoM2.forEach(e => {
+			let name = e.getName()
+			if (name) {
+				if (name.includes("Ashfang") || name.includes("Barbarian Duke X") || name.includes("Bladesoul") || name.includes("Mage Outlaw")) {
+					this.miniboss = e
+				}
+			}
+		})
+
+		this.todoM2 = this.todoM
+		this.todoM = []
 	}
 
 	entityJoinWorldEvent(event) {
@@ -208,6 +234,12 @@ class Nether extends Feature {
 		if (this.disciplineOverlay.getValue() && this.inDiscipline && event.entity instanceof ArmorStand) this.todoF.push(new Entity(event.entity))
 
 		if (event.entity instanceof EntitySkeleton && !this.controlSkeleton) this.controlSkeleton = new Entity(event.entity)
+	}
+
+	entityJoinWorldEventNether(event) {
+		if (this.minibossNametag.getValue() && event.entity instanceof ArmorStand) {
+			this.todoM.push(new Entity(event.entity))
+		}
 	}
 
 	packetReceived(packet, event) {
@@ -324,10 +356,40 @@ class Nether extends Feature {
 		return MCBlock[m.getStateId](state)
 	}
 
+	minibossHPHud() {
+		if (this.miniboss && this.miniboss.getEntity()[f.isDead]) this.miniboss = undefined
+		if (!this.minibossNametag.getValue() || !this.miniboss) {
+			this.minibossNametagElement.setText("")
+			return
+		}
+		let name = this.miniboss.getName()
+		let nameRemoveFormat = name.removeFormatting()
+		let mobName = ""
+		if (nameRemoveFormat.includes("Ashfang")) mobName = "&dAshfang"
+		if (nameRemoveFormat.includes("Bladesoul")) mobName = "&dBladesoul"
+		if (nameRemoveFormat.includes("Barbarian Duke X")) mobName = "&dBarbarian Duke X"
+		if (nameRemoveFormat.includes("Mage Outlaw")) mobName = "&dMage Outlaw"
+		if (!mobName) {
+			this.minibossNametagElement.setText("")
+			return
+		}
+		let indexOfHP = {
+			"&dAshfang": 3,
+			"&dBladesoul": 3,
+			"&dBarbarian Duke X": 5,
+			"&dMage Outlaw": 4
+		}
+		let HP = `&l${mobName} &r${name.split(" ")[indexOfHP[mobName]].split("/")[0]}&c❤`
+		this.minibossNametagElement.setText(HP)
+	}
+
 	initVariables() {
+		this.hudElements = [];
+		this.miniboss = undefined
 	}
 
 	onDisable() {
+		this.hudElements.forEach(h => h.delete())
 		this.initVariables();
 	}
 }
