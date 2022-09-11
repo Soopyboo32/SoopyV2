@@ -109,8 +109,7 @@ class Nether extends Feature {
 		this.registerStep(true, 1, this.step1S).registeredWhen(() => this.isInNether())
 		this.registerEvent("renderWorld", this.renderWorld).registeredWhen(() => this.isInNether())
 
-		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDojo());
-		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEventNether)
+		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.isInDojo() || (this.isInNether() && this.minibossNametag.getValue()));
 		this.registerEvent("tick", this.tick).registeredWhen(() => this.isInNether())
 		this.registerChat("&r&r&r                    &r&aTest of Swiftness &r&e&lOBJECTIVES&r", () => {
 			if (this.speedNextBlock.getValue()) {
@@ -217,7 +216,7 @@ class Nether extends Feature {
 		}
 
 		this.todoM2.forEach(e => {
-			let name = e.getName()
+			let name = e[m.getCustomNameTag]()
 			if (name) {
 				if (name.includes("Ashfang") || name.includes("Barbarian Duke X") || name.includes("Bladesoul") || name.includes("Mage Outlaw")) {
 					this.miniboss = e
@@ -234,11 +233,8 @@ class Nether extends Feature {
 		if (this.disciplineOverlay.getValue() && this.inDiscipline && event.entity instanceof ArmorStand) this.todoF.push(new Entity(event.entity))
 
 		if (event.entity instanceof EntitySkeleton && !this.controlSkeleton) this.controlSkeleton = new Entity(event.entity)
-	}
-
-	entityJoinWorldEventNether(event) {
 		if (this.minibossNametag.getValue() && event.entity instanceof ArmorStand) {
-			this.todoM.push(new Entity(event.entity))
+			this.todoM.push(event.entity)
 		}
 	}
 
