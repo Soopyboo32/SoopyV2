@@ -240,6 +240,7 @@ class Waypoints extends Feature {
 
         this.registerEvent("renderWorld", () => {
             if (!this.mineWaypointsSetting.getValue()) return
+            if (this.FeatureManager.features["dataLoader"].class.area !== "Crystal Hollows") return
             Object.values(this.locations).forEach(item => {
                 if (!item) return;
                 item.forEach(loc => {

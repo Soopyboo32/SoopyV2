@@ -573,6 +573,8 @@ class Events extends Feature {
 						let p1 = pr1[pr1.length - 1]
 						let p2 = pr2[pr2.length - 1]
 
+						if (!this.guessPoint) return
+
 						let d1 = (p1[0] - this.guessPoint[0]) ** 2 + (p1[2] - this.guessPoint[2]) ** 2
 						let d2 = (p2[0] - this.guessPoint[0]) ** 2 + (p2[2] - this.guessPoint[2]) ** 2
 
