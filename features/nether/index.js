@@ -219,7 +219,7 @@ class Nether extends Feature {
 			let name = e[m.getCustomNameTag]()
 			if (name) {
 				if (name.includes("Ashfang") || name.includes("Barbarian Duke X") || name.includes("Bladesoul") || name.includes("Mage Outlaw")) {
-					this.miniboss = e
+					this.miniboss = new Entity(e)
 				}
 			}
 		})
