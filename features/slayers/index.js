@@ -531,7 +531,7 @@ class Slayers extends Feature {
 						this.cannotFindEmanBoss = false
 					} else if (nameRemoveFormat.includes("Voidgloom Seraph") && ((name.getX() - Player.getX()) ** 2 + (name.getY() - Player.getY()) ** 2 + (name.getZ() - Player.getZ()) ** 2 < 25)) {
 						this.emanBoss = name
-						assignActualEmanBoss(this.emanBoss)
+						this.assignActualEmanBoss(this.emanBoss)
 						this.cannotFindEmanBoss = false
 					}
 				}
@@ -622,12 +622,12 @@ class Slayers extends Feature {
 				if (e[m.getCustomNameTag]() && e[m.getCustomNameTag]().includes("Voidgloom Seraph")) {
 					if (Date.now() - this.nextIsBoss < 3000) {
 						this.emanBoss = new Entity(e);
-						assignActualEmanBoss(this.emanBoss)
+						this.assignActualEmanBoss(this.emanBoss)
 						this.nextIsBoss = false;
 					}
 					if (this.cannotFindEmanBoss && ((e[f.posX.Entity] - Player.getX()) ** 2 + (e[f.posY.Entity] - Player.getY()) ** 2 + (e[f.posZ.Entity] - Player.getZ()) ** 2 < 5)) {
 						this.emanBoss = new Entity(e);
-						assignActualEmanBoss(this.emanBoss)
+						this.assignActualEmanBoss(this.emanBoss)
 						this.cannotFindEmanBoss = false
 					}
 
