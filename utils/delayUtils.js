@@ -8,8 +8,8 @@ if (!global.delayThingSoopy) {
 
     function delay(time, callback) {
         let id = functionId++
-        functionQueue.push(id, Date.now() + time)
         functions.set(id, callback)
+        functionQueue.push(id, Date.now() + time)
     }
 
     register("tick", () => {
