@@ -87,6 +87,7 @@ class PowderAndScatha extends Feature {
         this.expRateInfo = []
         this.mythrilRate = 0
         this.gemstoneRate = 0
+        this.chestRate = 0
         this.saveMiningData();
 
         this.registerCommand("resetpowderdata", () => {
@@ -119,6 +120,7 @@ class PowderAndScatha extends Feature {
 
                 this.mythrilRate = (this.miningData.powder.mithril - mythril) / (Date.now() - time)
                 this.gemstoneRate = (this.miningData.powder.gemstone - gemstone) / (Date.now() - time)
+                this.chestRate = (this.miningData.powder.chestRate - chestRate) / (Date.now() - time)
             })
         })
 
@@ -325,6 +327,10 @@ class PowderAndScatha extends Feature {
             if (this.gemstoneRate) {
                 this.overlayLeft.push(`&bGems/h:`)
                 this.overlayRight.push(`&d${numberWithCommas(Math.round(this.gemstoneRate * 1000 * 60 * 60))}`)
+            }
+            if (this.chestRate) {
+                this.overlayLeft.push(`&bChests/h:`)
+                this.overlayRight.push(`&d${numberWithCommas(Math.round(this.chestRate * 1000 * 60 * 60))}`)
             }
         }
         if (this.scathaCounter.getValue() && this.inCrystalHollows) {
