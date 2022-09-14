@@ -97,7 +97,6 @@ class Slayers extends Feature {
 
 		this.emanHpElement = new HudTextElement().setToggleSetting(this.emanHpGuiElement).setLocationSetting(new LocationSetting("Eman Hp Location", "Allows you to edit the location of the enderman hp", "eman_location", this, [10, 50, 1, 1]).requires(this.emanHpGuiElement).editTempText("&6Enderman&7> &f&l30 Hits"));
 		this.hudElements.push(this.emanHpElement);
-		this.hideSummonsForLoot = new ToggleSetting("Hides summons for 3s to see t4 drops", "This will make loots more visible.", false, "show_loot", this).contributor("EmeraldMerchant");
 
 		this.rcmDaeAxeSupport = new ToggleSetting("Eman Hyp hits before Dae axe swapping", "This will tell u how many clicks with hyp is needed before swapping to dae axe", true, "eman_rcm_support", this).requires(this.emanHpGuiElement).contributor("EmeraldMerchant");
 		this.rcmDamagePerHit = new TextSetting("Hyperion damage", "Your hyp's single hit damage w/o thunderlord/thunderbolt", "", "hyp_dmg", this, "Your hyp dmg (Unit: M)", false).requires(this.rcmDaeAxeSupport).contributor("EmeraldMerchant");
@@ -271,7 +270,6 @@ class Slayers extends Feature {
 		this.todoE2 = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined
-		this.hideSummons = false;
 		this.nextIsBoss = 0;
 		this.counter = 0;
 		this.emanStartedSittingTime = -1
@@ -352,8 +350,6 @@ class Slayers extends Feature {
 		})
 
 		this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent).registeredWhen(() => this.hasQuest && this.lastSlayerType === "enderman")
-		this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
-		this.renderEntityEvent.unregister();
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.hasQuest);
 		this.registerEvent("tick", this.tick);
@@ -400,19 +396,12 @@ class Slayers extends Feature {
 		this.arachneKeeperEntity = [];
 		this.emanBoss = undefined;
 		this.actualEmanBoss = undefined;
-		this.hideSummons = false
 
 		this.slayerLocationDataH = {}
 		this.summonEntity = []
 		this.canCaptureSummonHPInfo = false
 		this.cannotFindEmanBoss = false
 		this.candidateBoss = []
-	}
-
-	renderEntity(entity, pos, partialTicks, event) {
-		if (entity.getClassName() === "EntityZombie") {
-			cancel(event)
-		}
 	}
 
 	entityAttackEvent(event) {
@@ -502,12 +491,6 @@ class Slayers extends Feature {
 	}
 
 	step_4fps() {
-		if (this.hideSummonsForLoot.getValue() && this.hideSummons) {
-			this.renderEntityEvent.register();
-		} else if (this.hideSummonsForLoot.getValue()) {
-			this.renderEntityEvent.unregister();
-		}
-
 		if (this.BoxAroundMiniboss.getValue() || this.BoxAroundAreaMiniboss.getValue() || this.betterHideDeadEntity.getValue() || this.summonsHideNametag.getValue() || this.summonHPGuiElement.getValue() || this.summonsLowWarning.getValue() || (this.isCorrectBind && this.bossBindDefault.getValue() != "CHAR_NONE") || this.arachneKeeperMain.getValue()) {
 			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
 				let Name = name.getName()
@@ -657,10 +640,6 @@ class Slayers extends Feature {
 		}
 
 		if (this.emanBoss && this.emanBoss.getEntity()[f.isDead]) {
-			if (this.hideSummonsForLoot.getValue()) {
-				this.hideSummons = true
-				delay(2000, () => { this.hideSummons = false })
-			}
 			this.emanBoss = undefined
 			this.actualEmanBoss = undefined
 		}
@@ -804,11 +783,7 @@ class Slayers extends Feature {
 			let emanText = "&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim()
 			let emanHealth = ChatLib.removeFormatting(this.emanBoss.getName().split("Voidgloom Seraph")[1])
 			//only runs when t4's hp is <= 3m
-			if (emanHealth.includes("k") || (emanHealth.includes("M") && emanHealth.replace(/[^\d.]/g, "") <= 3)) {
-				this.hideSummons = true
-			} else if (emanHealth.replace(/[^\d.]/g, "") == 0) {
-				delay(2000, () => { this.hideSummons = false })
-			} else this.hideSummons = false
+
 			if (this.rcmDaeAxeSupport.getValue()) {
 				if (emanHealth.includes("k")) {
 					emanText += " &c0 Hits"
@@ -1016,7 +991,6 @@ class Slayers extends Feature {
 		this.entityAttackEventLoaded = undefined;
 		this.todoE2 = undefined;
 		this.entityAttackEventE = undefined;
-		this.hideSummons = false;
 		this.summonAtHPShouldWarn = undefined;
 		this.canCaptureSummonHPInfo = false
 		this.cannotFindEmanBoss = false
