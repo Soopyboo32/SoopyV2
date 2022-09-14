@@ -87,10 +87,9 @@ let utils = {
     timeNumber: (time, secondDecimals = 0) => {
         let mins = Math.floor(time / 1000 / 60)
         let secs = (time / 1000) % 60
-        let text = ""
-        if (mins === 0) text = `${secs.toFixed(secondDecimals)}s`
-        else text = `${mins}m ${secs.toFixed(secondDecimals)}s`
-        return text
+        
+        if (mins === 0) return `${secs.toFixed(secondDecimals)}s`
+        else return `${mins}m ${secs.toFixed(secondDecimals)}s`
     },
     timeNumber2: (time) => {
         let hours = Math.floor(time / 1000 / 60 / 60)
