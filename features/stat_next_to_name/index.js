@@ -54,7 +54,7 @@ class StatNextToName extends Feature {
             })
         }
 
-        this.registerStep(false, 5, this.loadPlayerStatsTick)
+        this.registerStep(false, 1, this.loadPlayerStatsTick)
         this.registerEvent("worldLoad", this.worldLoad)
 
         this.registerEvent("playerJoined", this.playerJoined)
