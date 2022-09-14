@@ -143,6 +143,7 @@ class Nether extends Feature {
 			this.controlLocLast = undefined
 			this.controlLoc = undefined
 			this.controlSkeleton = undefined
+            this.miniboss = undefined
 		})
 
 		this.registerChat("You completed your rescue quest! Visit the Town Board to claim the rewards,", () => {
