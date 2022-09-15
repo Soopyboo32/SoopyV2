@@ -558,6 +558,10 @@ class Slayers extends Feature {
 				}
 			});
 		}
+		if (this.MinibossOffWhenBoss.getValue() && this.bossSpawnedMessage && (this.minibossEntity.length > 0 || this.areaMiniEntity.length > 0)) {
+			this.minibossEntity.forEach(m => m.delete())
+			this.areaMiniEntity.forEach(m => m.delete())
+		}
 	}
 
 	tick() {
