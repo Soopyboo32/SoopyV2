@@ -108,7 +108,7 @@ class BetterGuis extends Feature {
             "Active Effects"
         ];
 
-        this.registerChat("&r&aDungeon starts in 1 second.&r", () => 
+        this.registerChat("&r&aDungeon starts in 1 second.&r", () =>
             this.dungeonReady.readyInOneSecond.call(this.dungeonReady));
         this.registerChat("&r&aDungeon starts in 1 second. Get ready!&r", () =>
             this.dungeonReady.readyInOneSecond.call(this.dungeonReady));
@@ -160,7 +160,7 @@ class BetterGuis extends Feature {
     }
 
     actionbarMana(curr, max) {
-        if (curr.includes("Mana")) 
+        if (curr.includes("Mana"))
             curr = curr.split("&b").pop();
 
         this.mana.set(parseInt(curr.replace(/,/g, "")), 500);
@@ -218,15 +218,15 @@ class BetterGuis extends Feature {
     }
 
     postGuiRender(x, y, gui) {
-        if (gui instanceof net.minecraft.client.gui.inventory.GuiChest)
+        if (gui instanceof net.minecraft.client.gui.inventory.GuiChest.GuiChest)
             this.invSearchSoopyGui._render(x, y, 0);
     }
     guiMouseClick(x, y, button, gui) {
-        if (gui instanceof net.minecraft.client.gui.inventory.GuiChest)
+        if (gui instanceof net.minecraft.client.gui.inventory.GuiChest.GuiChest)
             this.invSearchSoopyGui._onClick(x, y, button);
     }
     guiKey(char, code, gui, event) {
-        if (!(gui instanceof net.minecraft.client.gui.inventory.GuiChest)) return;
+        if (!(gui instanceof net.minecraft.client.gui.inventory.GuiChest.GuiChest)) return;
 
         this.invSearchSoopyGui._onKeyPress(char, code);
 
@@ -240,7 +240,7 @@ class BetterGuis extends Feature {
     }
 
     renderSlot(slot, gui, event) {
-        if (!(gui instanceof net.minecraft.client.gui.inventory.GuiChest)) return;
+        if (!(gui instanceof net.minecraft.client.gui.inventory.GuiChest.GuiChest)) return;
         if (!this.invSearchTextBox.getText()) return;
 
         let searchText = this.invSearchTextBox.getText().toLowerCase();
@@ -274,7 +274,7 @@ class BetterGuis extends Feature {
     }
 
     guiClicked(mouseX, mouseY, button, gui, event) {
-        if (!(gui instanceof net.minecraft.client.gui.inventory) || button !== 0 || !this.replaceSbMenuClicks.getValue()) return;
+        if (!(gui instanceof net.minecraft.client.gui.inventory.GuiChest) || button !== 0 || !this.replaceSbMenuClicks.getValue()) return;
 
         let hoveredSlot = gui.getSlotUnderMouse();
         if (!hoveredSlot) return;
