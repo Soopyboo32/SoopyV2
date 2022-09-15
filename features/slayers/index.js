@@ -113,7 +113,13 @@ class Slayers extends Feature {
 			.setToggleSetting(this.summonHPGuiElement)
 			.setLocationSetting(new LocationSetting("Summon HP Location", "Allows you to edit the location of your summons' HP info", "summon_hp_location", this, [10, 50, 1, 1]).requires(this.summonHPGuiElement).editTempText("&a160k&c❤ &a160k&c❤ &a160k&c❤ &a160k&c❤").contributor("EmeraldMerchant"));
 		this.hudElements.push(this.summonHPElement);
+
+		this.lazerTimerLocation = {
+			"inBoss": "inside the boss's body",
+			"onScreen": "below Eman boss hp hud"
+		}
 		this.emanLazerTimer = new ToggleSetting("Adds a timer for the boss lazer phase", "The timer will be inside the boss's body during the phase", true, "eman_lazer_timer", this);
+		this.emanLazerTimerLocation = new DropdownSetting("eman lazer phase timer location", "You can change where the timer would be here", "inBoss", "eman_lazer_timer_location", this, this.lazerTimerLocation).requires(this.emanLazerTimer);
 
 		this.slayerSpeedRates = new ToggleSetting("Show slayer speed and exp rates", "(Slayer speed includes downtime inbetween slayers, only shows while doing slayers)", true, "slayer_speed_rates", this);
 		this.slayerSpeedRatesElement = new HudTextElement()
@@ -350,6 +356,8 @@ class Slayers extends Feature {
 		})
 
 		this.registerForge(net.minecraftforge.event.entity.living.LivingAttackEvent, this.entityAttackEvent).registeredWhen(() => this.hasQuest && this.lastSlayerType === "enderman")
+		this.renderEntityEvent = this.registerEvent("renderEntity", this.renderEntity);
+		this.renderEntityEvent.unregister();
 
 		this.registerForge(net.minecraftforge.event.entity.EntityJoinWorldEvent, this.entityJoinWorldEvent).registeredWhen(() => this.hasQuest);
 		this.registerEvent("tick", this.tick);
@@ -449,7 +457,7 @@ class Slayers extends Feature {
 
 		if (this.emanBoss && this.boxAroundEmanBoss.getValue()) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false);
 
-		if (this.emanBoss && this.emanStartedSittingTime > 0 && this.emanLazerTimer.getValue()) {
+		if (this.emanBoss && this.emanStartedSittingTime > 0 && this.emanLazerTimer.getValue() && this.emanLazerTimerLocation.getValue === "inBoss") {
 			Tessellator.drawString(ChatLib.addColor("&a&lLazer: &c&l" + Math.max(0, 8.2 - (Date.now() - this.emanStartedSittingTime) / 1000).toFixed(1)), this.emanBoss.getX(), this.emanBoss.getY() - 1.2, this.emanBoss.getZ(), 0, true, 0.04, false);
 		}
 
@@ -549,6 +557,10 @@ class Slayers extends Feature {
 					}
 				}
 			});
+		}
+		if (this.MinibossOffWhenBoss.getValue() && this.bossSpawnedMessage && (this.minibossEntity.length > 0 || this.areaMiniEntity.length > 0)) {
+			this.minibossEntity.forEach(m => m.delete())
+			this.areaMiniEntity.forEach(m => m.delete())
 		}
 	}
 
@@ -780,10 +792,9 @@ class Slayers extends Feature {
 		});
 
 		if (this.emanBoss) {
+			let lazerTimer = (this.emanLazerTimerLocation.getValue() === "onScreen" && this.emanStartedSittingTime > 0 && this.emanLazerTimer.getValue()) ? ("&a&lLazer: &c&l" + Math.max(0, 8.2 - (Date.now() - this.emanStartedSittingTime) / 1000).toFixed(1)) : ""
 			let emanText = "&6Enderman&7> " + (this.emanBoss.getName().split("Voidgloom Seraph")[1] || "").trim()
 			let emanHealth = ChatLib.removeFormatting(this.emanBoss.getName().split("Voidgloom Seraph")[1])
-			//only runs when t4's hp is <= 3m
-
 			if (this.rcmDaeAxeSupport.getValue()) {
 				if (emanHealth.includes("k")) {
 					emanText += " &c0 Hits"
@@ -797,6 +808,7 @@ class Slayers extends Feature {
 					emanText += ` &c${Math.max(0, Math.floor(hits - 0.75))} Hits`
 				}
 			}
+			emanText += `\n${lazerTimer}`
 
 			this.emanHpElement.setText(emanText);
 		} else {
