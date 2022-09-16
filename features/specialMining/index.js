@@ -425,7 +425,7 @@ class PowderAndScatha extends Feature {
                     Object.keys(this.tempLoot.global).forEach(t => {
                         if (this.tempLoot.global[t] > 0) {
                             this.overlayLeft.push(`${this.treasureColored[t]}&b:`)
-                            this.overlayRight.push(`&b${this.tempLoot.global[t]}`)
+                            this.overlayRight.push(`&b${numberWithCommas(this.tempLoot.global[t])}`)
                         }
                     })
                 }
@@ -433,7 +433,7 @@ class PowderAndScatha extends Feature {
                     Object.keys(this.tempLoot[this.tempLocation]).forEach(t => {
                         if (this.tempLoot[this.tempLocation][t] > 0) {
                             this.overlayLeft.push(`${this.treasureColored[t]}&b:`)
-                            this.overlayRight.push(`&b${this.tempLoot[this.tempLocation][t]}`)
+                            this.overlayRight.push(`&b${numberWithCommas(this.tempLoot[this.tempLocation][t])}`)
                         }
                     })
                 }
