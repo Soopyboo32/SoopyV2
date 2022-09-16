@@ -41,7 +41,7 @@ class PowderAndScatha extends Feature {
         this.hideAscensionRope = new ToggleSetting("Ascension Rope Hider", "like: &r&aYou received &r&f1 &r&9Ascension Rope&r&a.&r", false, "ascension_rope_hider", this).requires(this.PowderElement)
         this.showAreaTreasure = new ToggleSetting("Show Area Treasure", "whether or not to show each sub zone's treasures from chests", false, "show_area_treasure", this).requires(this.PowderElement)
 
-        this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Lost_Precursor_City: {}, Mithril_Deposits: {} }
+        this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Precursor_Remnants: {}, Mithril_Deposits: {} }
         this.tempLocation = undefined
         //this will add the treasure and switch display location to it (it's from the most recent location)
         this.addTreasure = (Area, treasure, amount) => {
@@ -72,7 +72,13 @@ class PowderAndScatha extends Feature {
         }
         //&r&aYou received &r&f1 &r&a&r&aGreen Goblin Egg&r&a.&r
         this.registerChat("&r&aYou received ${thing}&r&a.&r", (thing, e) => {
-            if (this.hideGemstoneMessage.getValue() && thing.endsWith("Gemstone") && (this.showFlawlessGemstone.getValue() ? !thing.includes("Flawless") : true)) cancel(e)
+            if (this.hideGemstoneMessage.getValue() && thing.endsWith("Gemstone") && (this.showFlawlessGemstone.getValue() ? !thing.includes("Flawless") : true)) {
+                if (thing.includes("Amethyst")) this.tempLocation = "Jungle"
+                if (thing.includes("Sapphire")) this.tempLocation = "Precursor_Remnants"
+                if (thing.includes("Amber")) this.tempLocation = "Goblin_Holdout"
+                if (thing.includes("Jade")) this.tempLocation = "Mithril_Deposits"
+                cancel(e)
+            }
             if (this.hideWishingCompassMessage.getValue() && thing.endsWith("Wishing Compass")) cancel(e)
             if (this.hideAscensionRope.getValue() && thing.endsWith("Ascension Rope")) cancel(e)
             if (this.showAreaTreasure.getValue()) {
@@ -92,7 +98,7 @@ class PowderAndScatha extends Feature {
                     else if (thing.includes("Red")) treasure = "Red_Goblin_Egg"
                     else if (thing.includes("Yellow")) treasure = "Yellow_Goblin_Egg"
                     else if (thing.includes("Blue")) treasure = "Blue_Goblin_Egg"
-                    else treasure = "&9Goblin_Egg"
+                    else treasure = "Goblin_Egg"
                 }
                 if (treasure) {
                     this.addTreasure("Goblin_Holdout", treasure, amount)
@@ -107,7 +113,7 @@ class PowderAndScatha extends Feature {
                 if (thing.endsWith("Synthetic Heart")) treasure = "Synthetic_Heart"
                 if (thing.endsWith("Superlite Motor")) treasure = "Superlite_Motor"
                 if (treasure) {
-                    this.addTreasure("Lost_Precursor_City", treasure, amount)
+                    this.addTreasure("Precursor_Remnants", treasure, amount)
                     return
                 }
                 //mithril deposits
@@ -332,7 +338,7 @@ class PowderAndScatha extends Feature {
             Object.keys(this.miningData.powder).forEach(thing => this.miningData.powder[thing] = 0)
             this.expRateInfo = []
             this.tempLocation = undefined
-            this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Lost_Precursor_City: {}, Mithril_Deposits: {} }
+            this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Precursor_Remnants: {}, Mithril_Deposits: {} }
         } else if (type === "scatha") {
             Object.keys(this.miningData.scatha).forEach(thing => this.miningData.scatha[thing] = 0)
         }
@@ -340,7 +346,7 @@ class PowderAndScatha extends Feature {
 
     renderOverlay() {
         if (this.PowderOverlayElement.isEnabled()) {
-            let width = Renderer.getStringWidth("&b2x Powder: &cINACTIVE")
+            let width = Renderer.getStringWidth("&b2x Powder:       &cINACTIVE")
 
             let x = this.PowderOverlayElement.locationSetting.x
             let y = this.PowderOverlayElement.locationSetting.y
