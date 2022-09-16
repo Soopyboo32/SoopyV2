@@ -39,11 +39,91 @@ class PowderAndScatha extends Feature {
         this.showFlawlessGemstone = new ToggleSetting("Gemstone Messages Hider Show Flawless", "should the hider ^ ignore flawless gemstones?", false, "gemstone_show_flawless", this).requires(this.hideGemstoneMessage)
         this.hideWishingCompassMessage = new ToggleSetting("Wishing Compass Message Hider", "like: &r&aYou received &r&f1 &r&aWishing Compass&r&a.&r", false, "compass_message_hider", this).requires(this.PowderElement)
         this.hideAscensionRope = new ToggleSetting("Ascension Rope Hider", "like: &r&aYou received &r&f1 &r&9Ascension Rope&r&a.&r", false, "ascension_rope_hider", this).requires(this.PowderElement)
+        this.showAreaTreasure = new ToggleSetting("Show Area Treasure", "whether or not to show each sub zone's treasures from chests", false, "show_area_treasure", this).requires(this.PowderElement)
 
+        this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Lost_Precursor_City: {}, Mithril_Deposits: {} }
+        this.tempLocation = undefined
+        //this will add the treasure and switch display location to it (it's from the most recent location)
+        this.addTreasure = (Area, treasure, amount) => {
+            if (amount < 0 || !amount) return
+            if (this.tempLoot[Area][treasure]) this.tempLoot[Area][treasure] += amount
+            else this.tempLoot[Area][treasure] = amount
+            if (Area !== "global") this.tempLocation = Area
+        }
+
+        this.treasureColored = {
+            Sludge_Juice: "&aSludge Juice",
+            Oil_Barrel: "&aOil Barrel",
+            Jungle_Heart: "&6Jungle Heart",
+            Green_Goblin_Egg: "&aGreen Goblin Egg",
+            Red_Goblin_Egg: "&cRed Goblin Egg",
+            Yellow_Goblin_Egg: "&eYellow Goblin Egg",
+            Blue_Goblin_Egg: "&3Blue Goblin Egg",
+            Goblin_Egg: "&9Goblin Egg",
+            Control_Switch: "&9Control Switch",
+            FTX_3070: "&9FTX 3070",
+            Electron_Transmitter: "&9Electron Transmitter",
+            Robotron_Reflector: "&9Robotron Reflector",
+            Synthetic_Heart: "&9Synthetic Heart",
+            Superlite_Motor: "&9Superlite Motor",
+            Treasurite: "&5Treasurite",
+            Pickonimbus_2000: "&5Pickonimbus 2000",
+            Prehistoric_Egg: "&fPrehistoric Egg"
+        }
+        //&r&aYou received &r&f1 &r&a&r&aGreen Goblin Egg&r&a.&r
         this.registerChat("&r&aYou received ${thing}&r&a.&r", (thing, e) => {
             if (this.hideGemstoneMessage.getValue() && thing.endsWith("Gemstone") && (this.showFlawlessGemstone.getValue() ? !thing.includes("Flawless") : true)) cancel(e)
             if (this.hideWishingCompassMessage.getValue() && thing.endsWith("Wishing Compass")) cancel(e)
             if (this.hideAscensionRope.getValue() && thing.endsWith("Ascension Rope")) cancel(e)
+            if (this.showAreaTreasure.getValue()) {
+                let treasure = undefined
+                let amount = Math.floor(Number(thing.split(" ")[0].removeFormatting()))
+                //jungle
+                if (thing.endsWith("Sludge Juice")) treasure = "Sludge_Juice"
+                if (thing.endsWith("Oil Barrel")) treasure = "Oil_Barrel"
+                if (thing.endsWith("Jungle Heart")) treasure = "Jungle_Heart"
+                if (treasure) {
+                    this.addTreasure("Jungle", treasure, amount)
+                    return
+                }
+                //goblin holdout
+                if (thing.endsWith("Goblin Egg")) {
+                    if (thing.includes("Green")) treasure = "Green_Goblin_Egg"
+                    else if (thing.includes("Red")) treasure = "Red_Goblin_Egg"
+                    else if (thing.includes("Yellow")) treasure = "Yellow_Goblin_Egg"
+                    else if (thing.includes("Blue")) treasure = "Blue_Goblin_Egg"
+                    else treasure = "&9Goblin_Egg"
+                }
+                if (treasure) {
+                    this.addTreasure("Goblin_Holdout", treasure, amount)
+                    return
+                }
+                //&r&aYou received &r&f1 &r&9Superlite Motor&r&a.&r
+                //precursor city
+                if (thing.endsWith("Control Switch")) treasure = "Control_Switch"
+                if (thing.endsWith("FTX 3070")) treasure = "FTX_3070"
+                if (thing.endsWith("Electron Transmitter")) treasure = "Electron_Transmitter"
+                if (thing.endsWith("Robotron Reflector")) treasure = "Robotron_Reflector"
+                if (thing.endsWith("Synthetic Heart")) treasure = "Synthetic_Heart"
+                if (thing.endsWith("Superlite Motor")) treasure = "Superlite_Motor"
+                if (treasure) {
+                    this.addTreasure("Lost_Precursor_City", treasure, amount)
+                    return
+                }
+                //mithril deposits
+                if (thing.endsWith("Treasurite")) treasure = "Treasurite"
+                if (treasure) {
+                    this.addTreasure("Mithril_Deposits", treasure, amount)
+                    return
+                }
+                //global
+                if (thing.endsWith("Pickonimbus 2000")) treasure = "Pickonimbus_2000"
+                if (thing.endsWith("Prehistoric Egg")) treasure = "Prehistoric_Egg"
+                if (treasure) {
+                    this.addTreasure("global", treasure, amount)
+                    return
+                }
+            }
         })
 
         this.registerStep(true, 1, () => {
@@ -113,14 +193,14 @@ class PowderAndScatha extends Feature {
         this.registerChat("&r&6You have successfully picked the lock on this chest!&r", (e) => {
             this.miningData.powder.chests++
             delay(100, () => {
-                this.expRateInfo.push([Date.now(), this.miningData.powder.mithril, this.miningData.powder.gemstone])
+                this.expRateInfo.push([Date.now(), this.miningData.powder.mithril, this.miningData.powder.gemstone, this.miningData.powder.chests])
                 if (this.expRateInfo.length > 20) this.expRateInfo.shift()
 
-                let [time, mythril, gemstone] = this.expRateInfo[0]
+                let [time, mythril, gemstone, chest] = this.expRateInfo[0]
 
                 this.mythrilRate = (this.miningData.powder.mithril - mythril) / (Date.now() - time)
                 this.gemstoneRate = (this.miningData.powder.gemstone - gemstone) / (Date.now() - time)
-                this.chestRate = (this.miningData.powder.chestRate - chestRate) / (Date.now() - time)
+                this.chestRate = (this.miningData.powder.chests - chest) / (Date.now() - time)
             })
         })
 
@@ -251,6 +331,8 @@ class PowderAndScatha extends Feature {
         if (type === "powder") {
             Object.keys(this.miningData.powder).forEach(thing => this.miningData.powder[thing] = 0)
             this.expRateInfo = []
+            this.tempLocation = undefined
+            this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Lost_Precursor_City: {}, Mithril_Deposits: {} }
         } else if (type === "scatha") {
             Object.keys(this.miningData.scatha).forEach(thing => this.miningData.scatha[thing] = 0)
         }
@@ -331,6 +413,24 @@ class PowderAndScatha extends Feature {
             if (this.chestRate) {
                 this.overlayLeft.push(`&bChests/h:`)
                 this.overlayRight.push(`&d${numberWithCommas(Math.round(this.chestRate * 1000 * 60 * 60))}`)
+            }
+            if (this.showAreaTreasure.getValue()) {
+                if (Object.keys(this.tempLoot.global).length > 0) {
+                    Object.keys(this.tempLoot.global).forEach(t => {
+                        if (this.tempLoot.global[t] > 0) {
+                            this.overlayLeft.push(`${this.treasureColored[t]}&b:`)
+                            this.overlayRight.push(`&b${this.tempLoot.global[t]}`)
+                        }
+                    })
+                }
+                if (this.tempLocation && Object.keys(this.tempLoot[this.tempLocation]).length > 0) {
+                    Object.keys(this.tempLoot[this.tempLocation]).forEach(t => {
+                        if (this.tempLoot[this.tempLocation][t] > 0) {
+                            this.overlayLeft.push(`${this.treasureColored[t]}&b:`)
+                            this.overlayRight.push(`&b${this.tempLoot[this.tempLocation][t]}`)
+                        }
+                    })
+                }
             }
         }
         if (this.scathaCounter.getValue() && this.inCrystalHollows) {
