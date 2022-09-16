@@ -20,7 +20,7 @@ class PowderAndScatha extends Feature {
         new SettingBase("Chest Miner", "Powder mining feature here are made mainly for powder chest grinding", undefined, "chest_mining_info", this);
         this.compactedChat = new ToggleSetting("Compact Powder Messages", "same as the one in skytils but support following setting", false, "compact_powder_chat", this)
         this.fixChatForDoublePowder = new ToggleSetting("Fix Chat Messages During Double Powder", "so it's the correct amount of powder you received during the event", false, "fix_chat_dpowder", this)
-        this.fixChatForDoublePowderSuffix = new TextSetting("Suffix of previous message", "(so you can tell )change it yourself!", "&a(&b2X Powder&a)", "chat_dpowder_suffix", this, "(none)", false).requires(this.fixChatForDoublePowder);
+        this.fixChatForDoublePowderSuffix = new TextSetting("Suffix of previous message", "(so you can tell whether it's 2x powder) change it yourself!", "&a(&b2X Powder&a)", "chat_dpowder_suffix", this, "(none)", false).requires(this.fixChatForDoublePowder);
         this.PowderElement = new ToggleSetting("Powder Mining Info Hud (MAIN TOGGLE)", "This will show your current powder mining section (only in CH)", true, "powder_mining_hud", this).contributor("EmeraldMerchant");
         this.PowderOverlayElement = new HudTextElement()
             .setText("")
@@ -30,6 +30,8 @@ class PowderAndScatha extends Feature {
         this.PowderOverlayElement.disableRendering()
 
         new SettingBase("/resetpowderdata", "to reset powder mining data", undefined, "reset_powder_data_command_info", this).requires(this.PowderElement);
+        this.powderPerHour = new ToggleSetting("Mithril & Gemstone Powder/h", "should it show powder per hour on hud?", false, "powder_per_hour_toggle", this).requires(this.PowderElement);
+        this.chestsPerHour = new ToggleSetting("Chests/h", "should it show chests per hour on hud?", false, "chests_per_hour_toggle", this).requires(this.PowderElement);
         this.resetPowderWhenLeaveCH = new ToggleSetting("Reset Powder When Left CH", "Should it reset powder hud whenever you left ch", false, "reset_powder_when_left_ch", this).requires(this.PowderElement);
         this.resetPowderWhenLeaveGame = new ToggleSetting("Reset Powder When Left Game", "Should it reset powder hud whenever you left game", false, "reset_powder_when_left_game", this).requires(this.PowderElement);
         this.chestUncoverAlert = new ToggleSetting("Alert When You Dug a Chest Out", "so you don't miss it", false, "chest_uncover_alert", this).requires(this.PowderElement);
@@ -408,15 +410,17 @@ class PowderAndScatha extends Feature {
                 this.overlayLeft.push(`&bGems:`)
                 this.overlayRight.push(`&d${numberWithCommas(g)}`)
             }
-            if (this.mythrilRate) {
-                this.overlayLeft.push(`&bMithril/h:`)
-                this.overlayRight.push(`&d${numberWithCommas(Math.round(this.mythrilRate * 1000 * 60 * 60))}`)
+            if (this.powderPerHour.getValue()) {
+                if (this.mythrilRate) {
+                    this.overlayLeft.push(`&bMithril/h:`)
+                    this.overlayRight.push(`&d${numberWithCommas(Math.round(this.mythrilRate * 1000 * 60 * 60))}`)
+                }
+                if (this.gemstoneRate) {
+                    this.overlayLeft.push(`&bGems/h:`)
+                    this.overlayRight.push(`&d${numberWithCommas(Math.round(this.gemstoneRate * 1000 * 60 * 60))}`)
+                }
             }
-            if (this.gemstoneRate) {
-                this.overlayLeft.push(`&bGems/h:`)
-                this.overlayRight.push(`&d${numberWithCommas(Math.round(this.gemstoneRate * 1000 * 60 * 60))}`)
-            }
-            if (this.chestRate) {
+            if (this.chestRate && this.chestsPerHour.getValue()) {
                 this.overlayLeft.push(`&bChests/h:`)
                 this.overlayRight.push(`&d${numberWithCommas(Math.round(this.chestRate * 1000 * 60 * 60))}`)
             }
