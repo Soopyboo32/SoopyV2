@@ -39,11 +39,70 @@ class PowderAndScatha extends Feature {
         this.showFlawlessGemstone = new ToggleSetting("Gemstone Messages Hider Show Flawless", "should the hider ^ ignore flawless gemstones?", false, "gemstone_show_flawless", this).requires(this.hideGemstoneMessage)
         this.hideWishingCompassMessage = new ToggleSetting("Wishing Compass Message Hider", "like: &r&aYou received &r&f1 &r&aWishing Compass&r&a.&r", false, "compass_message_hider", this).requires(this.PowderElement)
         this.hideAscensionRope = new ToggleSetting("Ascension Rope Hider", "like: &r&aYou received &r&f1 &r&9Ascension Rope&r&a.&r", false, "ascension_rope_hider", this).requires(this.PowderElement)
+        this.showAreaTreasure = new ToggleSetting("Show Area Treasure", "whether or not to show each sub zone's treasures from chests", false, "show_area_treasure", this).requires(this.PowderElement)
+
+        this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Lost_Precursor_City: {}, Mithril_Deposits: {} }
+        this.tempLocation = undefined
+        //this will add the treasure and switch display location to it (it's from the most recent location)
+        this.addTreasure = (Area, treasure, amount) => {
+            if (amount < 0 || !amount) return
+            if (this.tempLoot[Area][treasure]) this.tempLoot[Area][treasure] += amount
+            else this.tempLoot[Area][treasure] = amount
+            if (Area !== "global") this.tempLocation = Area
+        }
 
         this.registerChat("&r&aYou received ${thing}&r&a.&r", (thing, e) => {
             if (this.hideGemstoneMessage.getValue() && thing.endsWith("Gemstone") && (this.showFlawlessGemstone.getValue() ? !thing.includes("Flawless") : true)) cancel(e)
             if (this.hideWishingCompassMessage.getValue() && thing.endsWith("Wishing Compass")) cancel(e)
             if (this.hideAscensionRope.getValue() && thing.endsWith("Ascension Rope")) cancel(e)
+            if (this.areaTreasure.getValue()) {
+                let amount = parseInt(thing.split(" ")[0].removeFormatting()) || 0
+                let treasure = undefined
+                //jungle
+                if (thing.includes("Sludge Juice")) treasure = "&aSludge_Juice"
+                else if (thing.includes("Oil Burrow")) treasure = "&aOil_Burrow"
+                else if (thing.includes("Jungle Heart")) treasure = "&6Jungle_Heart"
+                if (treasure) {
+                    this.addTreasure("Jungle", treasure, amount)
+                    return
+                }
+                //goblin holdout
+                if (thing.includes("Goblin Egg")) {
+                    if (thing.includes("Green")) treasure = "&aGreen_Goblin_Egg"
+                    else if (thing.includes("Red")) treasure = "&cRed_Goblin_Egg"
+                    else if (thing.includes("Yellow")) treasure = "&eYellow_Goblin_Egg"
+                    else if (thing.includes("Blue")) treasure = "&3Blue_Goblin_Egg"
+                    else treasure = "&9Goblin_Egg"
+                }
+                if (treasure) {
+                    this.addTreasure("Goblin_Holdout", treasure, amount)
+                    return
+                }
+                //precursor city
+                if (thing.includes("Control Switch")) treasure = "&9Control_Switch"
+                else if (thing.includes("FTX 3070")) treasure = "&9FTX_3070"
+                else if (thing.includes("Electron Transmitter")) treasure = "&9Electron_Transmitter"
+                else if (thing.includes("Robotron Reflector")) treasure = "&9Robotron_Reflector"
+                else if (thing.includes("Synthetic Heart")) treasure = "&9Synthetic_Heart"
+                else if (thing.includes("Superlite Motor")) treasure = "&9Superlite_Motor"
+                if (treasure) {
+                    this.addTreasure("Lost_Precursor_City", treasure, amount)
+                    return
+                }
+                //mithril deposits
+                if (thing.includes("Treasurite")) treasure = "&5Treasurite"
+                if (treasure) {
+                    this.addTreasure("Mithril_Deposits", treasure, amount)
+                    return
+                }
+                //global
+                if (thing.includes("Pickonimbus 2000")) treasure = "&5Pickonimbus_2000"
+                else if (thing.includes("Prehistoric Egg")) treasure = "&fPrehistoric_Egg"
+                if (treasure) {
+                    this.addTreasure("global", treasure, amount)
+                    return
+                }
+            }
         })
 
         this.registerStep(true, 1, () => {
@@ -331,6 +390,23 @@ class PowderAndScatha extends Feature {
             if (this.chestRate) {
                 this.overlayLeft.push(`&bChests/h:`)
                 this.overlayRight.push(`&d${numberWithCommas(Math.round(this.chestRate * 1000 * 60 * 60))}`)
+            }
+            if (this.showAreaTreasure.getValue()) {
+                if (!this.tempLocation && this.tempLoot.global !== {}) {
+                    Object.keys(this.tempLoot.global).forEach(t => {
+                        if (t > 0) {
+                            this.overlayLeft.push(`${t}&f:`)
+                            this.overlayRight.push(this.tempLoot.global[t])
+                        }
+                    })
+                } else if (this.tempLoot[this.tempLocation] !== {}) {
+                    Object.keys(this.tempLoot[this.tempLocation]).forEach(t => {
+                        if (t > 0) {
+                            this.overlayLeft.push(`${t}&f:`)
+                            this.overlayRight.push(this.tempLoot[this.tempLocation][t])
+                        }
+                    })
+                }
             }
         }
         if (this.scathaCounter.getValue() && this.inCrystalHollows) {
