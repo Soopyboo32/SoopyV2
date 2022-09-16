@@ -20,7 +20,7 @@ class PowderAndScatha extends Feature {
         new SettingBase("Chest Miner", "Powder mining feature here are made mainly for powder chest grinding", undefined, "chest_mining_info", this);
         this.compactedChat = new ToggleSetting("Compact Powder Messages", "same as the one in skytils but support following setting", false, "compact_powder_chat", this)
         this.fixChatForDoublePowder = new ToggleSetting("Fix Chat Messages During Double Powder", "so it's the correct amount of powder you received during the event", false, "fix_chat_dpowder", this)
-        this.fixChatForDoublePowderSuffix = new TextSetting("Suffix of previous message", "(so you can tell )change it yourself!", "&a(&b2X Powder&a)", "chat_dpowder_suffix", this, "(none)", false).requires(this.fixChatForDoublePowder);
+        this.fixChatForDoublePowderSuffix = new TextSetting("Suffix of previous message", "(so you can tell whether it's 2x powder) change it yourself!", "&a(&b2X Powder&a)", "chat_dpowder_suffix", this, "(none)", false).requires(this.fixChatForDoublePowder);
         this.PowderElement = new ToggleSetting("Powder Mining Info Hud (MAIN TOGGLE)", "This will show your current powder mining section (only in CH)", true, "powder_mining_hud", this).contributor("EmeraldMerchant");
         this.PowderOverlayElement = new HudTextElement()
             .setText("")
@@ -30,6 +30,8 @@ class PowderAndScatha extends Feature {
         this.PowderOverlayElement.disableRendering()
 
         new SettingBase("/resetpowderdata", "to reset powder mining data", undefined, "reset_powder_data_command_info", this).requires(this.PowderElement);
+        this.powderPerHour = new ToggleSetting("Mithril & Gemstone Powder/h", "should it show powder per hour on hud?", false, "powder_per_hour_toggle", this).requires(this.PowderElement);
+        this.chestsPerHour = new ToggleSetting("Chests/h", "should it show chests per hour on hud?", false, "chests_per_hour_toggle", this).requires(this.PowderElement);
         this.resetPowderWhenLeaveCH = new ToggleSetting("Reset Powder When Left CH", "Should it reset powder hud whenever you left ch", false, "reset_powder_when_left_ch", this).requires(this.PowderElement);
         this.resetPowderWhenLeaveGame = new ToggleSetting("Reset Powder When Left Game", "Should it reset powder hud whenever you left game", false, "reset_powder_when_left_game", this).requires(this.PowderElement);
         this.chestUncoverAlert = new ToggleSetting("Alert When You Dug a Chest Out", "so you don't miss it", false, "chest_uncover_alert", this).requires(this.PowderElement);
@@ -41,7 +43,7 @@ class PowderAndScatha extends Feature {
         this.hideAscensionRope = new ToggleSetting("Ascension Rope Hider", "like: &r&aYou received &r&f1 &r&9Ascension Rope&r&a.&r", false, "ascension_rope_hider", this).requires(this.PowderElement)
         this.showAreaTreasure = new ToggleSetting("Show Area Treasure", "whether or not to show each sub zone's treasures from chests", false, "show_area_treasure", this).requires(this.PowderElement)
 
-        this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Lost_Precursor_City: {}, Mithril_Deposits: {} }
+        this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Precursor_Remnants: {}, Mithril_Deposits: {} }
         this.tempLocation = undefined
         //this will add the treasure and switch display location to it (it's from the most recent location)
         this.addTreasure = (Area, treasure, amount) => {
@@ -72,7 +74,13 @@ class PowderAndScatha extends Feature {
         }
         //&r&aYou received &r&f1 &r&a&r&aGreen Goblin Egg&r&a.&r
         this.registerChat("&r&aYou received ${thing}&r&a.&r", (thing, e) => {
-            if (this.hideGemstoneMessage.getValue() && thing.endsWith("Gemstone") && (this.showFlawlessGemstone.getValue() ? !thing.includes("Flawless") : true)) cancel(e)
+            if (this.hideGemstoneMessage.getValue() && thing.endsWith("Gemstone") && (this.showFlawlessGemstone.getValue() ? !thing.includes("Flawless") : true)) {
+                cancel(e)
+                if (thing.includes("Amethyst")) this.tempLocation = "Jungle"
+                if (thing.includes("Sapphire")) this.tempLocation = "Precursor_Remnants"
+                if (thing.includes("Amber")) this.tempLocation = "Goblin_Holdout"
+                if (thing.includes("Jade")) this.tempLocation = "Mithril_Deposits"
+            }
             if (this.hideWishingCompassMessage.getValue() && thing.endsWith("Wishing Compass")) cancel(e)
             if (this.hideAscensionRope.getValue() && thing.endsWith("Ascension Rope")) cancel(e)
             if (this.showAreaTreasure.getValue()) {
@@ -92,7 +100,7 @@ class PowderAndScatha extends Feature {
                     else if (thing.includes("Red")) treasure = "Red_Goblin_Egg"
                     else if (thing.includes("Yellow")) treasure = "Yellow_Goblin_Egg"
                     else if (thing.includes("Blue")) treasure = "Blue_Goblin_Egg"
-                    else treasure = "&9Goblin_Egg"
+                    else treasure = "Goblin_Egg"
                 }
                 if (treasure) {
                     this.addTreasure("Goblin_Holdout", treasure, amount)
@@ -107,7 +115,7 @@ class PowderAndScatha extends Feature {
                 if (thing.endsWith("Synthetic Heart")) treasure = "Synthetic_Heart"
                 if (thing.endsWith("Superlite Motor")) treasure = "Superlite_Motor"
                 if (treasure) {
-                    this.addTreasure("Lost_Precursor_City", treasure, amount)
+                    this.addTreasure("Precursor_Remnants", treasure, amount)
                     return
                 }
                 //mithril deposits
@@ -332,7 +340,7 @@ class PowderAndScatha extends Feature {
             Object.keys(this.miningData.powder).forEach(thing => this.miningData.powder[thing] = 0)
             this.expRateInfo = []
             this.tempLocation = undefined
-            this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Lost_Precursor_City: {}, Mithril_Deposits: {} }
+            this.tempLoot = { global: {}, Jungle: {}, Goblin_Holdout: {}, Precursor_Remnants: {}, Mithril_Deposits: {} }
         } else if (type === "scatha") {
             Object.keys(this.miningData.scatha).forEach(thing => this.miningData.scatha[thing] = 0)
         }
@@ -340,7 +348,7 @@ class PowderAndScatha extends Feature {
 
     renderOverlay() {
         if (this.PowderOverlayElement.isEnabled()) {
-            let width = Renderer.getStringWidth("&b2x Powder: &cINACTIVE")
+            let width = Renderer.getStringWidth("&b2x Powder:       &cINACTIVE")
 
             let x = this.PowderOverlayElement.locationSetting.x
             let y = this.PowderOverlayElement.locationSetting.y
@@ -402,15 +410,17 @@ class PowderAndScatha extends Feature {
                 this.overlayLeft.push(`&bGems:`)
                 this.overlayRight.push(`&d${numberWithCommas(g)}`)
             }
-            if (this.mythrilRate) {
-                this.overlayLeft.push(`&bMithril/h:`)
-                this.overlayRight.push(`&d${numberWithCommas(Math.round(this.mythrilRate * 1000 * 60 * 60))}`)
+            if (this.powderPerHour.getValue()) {
+                if (this.mythrilRate) {
+                    this.overlayLeft.push(`&bMithril/h:`)
+                    this.overlayRight.push(`&d${numberWithCommas(Math.round(this.mythrilRate * 1000 * 60 * 60))}`)
+                }
+                if (this.gemstoneRate) {
+                    this.overlayLeft.push(`&bGems/h:`)
+                    this.overlayRight.push(`&d${numberWithCommas(Math.round(this.gemstoneRate * 1000 * 60 * 60))}`)
+                }
             }
-            if (this.gemstoneRate) {
-                this.overlayLeft.push(`&bGems/h:`)
-                this.overlayRight.push(`&d${numberWithCommas(Math.round(this.gemstoneRate * 1000 * 60 * 60))}`)
-            }
-            if (this.chestRate) {
+            if (this.chestRate && this.chestsPerHour.getValue()) {
                 this.overlayLeft.push(`&bChests/h:`)
                 this.overlayRight.push(`&d${numberWithCommas(Math.round(this.chestRate * 1000 * 60 * 60))}`)
             }
@@ -419,7 +429,7 @@ class PowderAndScatha extends Feature {
                     Object.keys(this.tempLoot.global).forEach(t => {
                         if (this.tempLoot.global[t] > 0) {
                             this.overlayLeft.push(`${this.treasureColored[t]}&b:`)
-                            this.overlayRight.push(`&b${this.tempLoot.global[t]}`)
+                            this.overlayRight.push(`&b${numberWithCommas(this.tempLoot.global[t])}`)
                         }
                     })
                 }
@@ -427,7 +437,7 @@ class PowderAndScatha extends Feature {
                     Object.keys(this.tempLoot[this.tempLocation]).forEach(t => {
                         if (this.tempLoot[this.tempLocation][t] > 0) {
                             this.overlayLeft.push(`${this.treasureColored[t]}&b:`)
-                            this.overlayRight.push(`&b${this.tempLoot[this.tempLocation][t]}`)
+                            this.overlayRight.push(`&b${numberWithCommas(this.tempLoot[this.tempLocation][t])}`)
                         }
                     })
                 }
