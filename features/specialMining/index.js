@@ -73,11 +73,11 @@ class PowderAndScatha extends Feature {
         //&r&aYou received &r&f1 &r&a&r&aGreen Goblin Egg&r&a.&r
         this.registerChat("&r&aYou received ${thing}&r&a.&r", (thing, e) => {
             if (this.hideGemstoneMessage.getValue() && thing.endsWith("Gemstone") && (this.showFlawlessGemstone.getValue() ? !thing.includes("Flawless") : true)) {
+                cancel(e)
                 if (thing.includes("Amethyst")) this.tempLocation = "Jungle"
                 if (thing.includes("Sapphire")) this.tempLocation = "Precursor_Remnants"
                 if (thing.includes("Amber")) this.tempLocation = "Goblin_Holdout"
                 if (thing.includes("Jade")) this.tempLocation = "Mithril_Deposits"
-                cancel(e)
             }
             if (this.hideWishingCompassMessage.getValue() && thing.endsWith("Wishing Compass")) cancel(e)
             if (this.hideAscensionRope.getValue() && thing.endsWith("Ascension Rope")) cancel(e)
