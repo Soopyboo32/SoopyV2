@@ -1,0 +1,7 @@
+{
+    "dependencies": {
+        "@babel/cli": "^7.0.0",
+        "@babel/core": "^7.0.0",
+        "fast-async": "^6.3.8"
+    }
+}
