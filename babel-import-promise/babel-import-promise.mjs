@@ -19,7 +19,7 @@ export default function ({ types: t }) {
 				};
 				path.traverse(MyVisitor)
 				if (shouldAdd) {
-					let depth = state.filename.replace(state.cwd, "").split("\\").length - 2
+					let depth = state.filename.replace(state.cwd, "").split(/[\\/]/g).length - 2
 					const identifier = t.identifier('Promise');
 					const importDefaultSpecifier = t.importDefaultSpecifier(identifier);
 					const importDeclaration = t.importDeclaration([importDefaultSpecifier], t.stringLiteral("../".repeat(depth) + 'PromiseV2'));
