@@ -1,0 +1,1 @@
+babel src -d "../SoopyV2" --copy-files --watch
