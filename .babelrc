@@ -1,0 +1,7 @@
+{
+    "presets": [],
+    "plugins": [
+        "async-to-promises",
+        "./babel-import-promise/babel-import-promise.mjs"
+    ]
+}

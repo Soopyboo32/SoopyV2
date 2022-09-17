@@ -1,0 +1,19 @@
+{
+  "$schema": "../CTAutocomplete/schema.json",
+  "creator": "Soopyboo32",
+  "author": "Soopyboo32",
+  "entry": "index.js",
+  "description": "SoopyV2",
+  "name": "SoopyV2",
+  "version": "2.1.156",
+  "versionId": 283,
+  "requires": [
+    "soopyApis",
+    "soopyAddonsData",
+    "guimanager",
+    "mappings",
+    "BeaconBeam",
+    "RenderLib2D",
+    "PromiseV2"
+  ]
+}
