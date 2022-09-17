@@ -30,4 +30,4 @@ jobs:
         run: npm i
 
       - name: Compile
-        run: babel src -d out --copy-files
+        run: npx babel src -d out --copy-files
