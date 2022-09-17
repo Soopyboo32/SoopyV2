@@ -1,2 +1,1 @@
-babel src -d out
-move out ../SoopyV2-built
+babel src -d "../SoopyV2" --copy-files

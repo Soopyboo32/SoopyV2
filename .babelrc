@@ -1,19 +1,7 @@
 {
     "presets": [],
     "plugins": [
-        [
-            "module:fast-async",
-            {
-                "env": {
-                    "log": false
-                },
-                "compiler": {
-                    "promises": false,
-                    "generators": false
-                },
-                "runtimePattern": null,
-                "useRuntimeModule": false
-            }
-        ]
+        "async-to-promises",
+        "./babel-import-promise/babel-import-promise.mjs"
     ]
 }
