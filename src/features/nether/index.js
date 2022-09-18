@@ -215,18 +215,6 @@ class Nether extends Feature {
 			this.controlLocLast = undefined
 			this.controlLoc = undefined
 		}
-
-		this.todoM2.forEach(e => {
-			let name = e[m.getCustomNameTag]()
-			if (name) {
-				if (name.includes("Ashfang") || name.includes("Barbarian Duke X") || name.includes("Bladesoul") || name.includes("Mage Outlaw")) {
-					this.miniboss = new Entity(e)
-				}
-			}
-		})
-
-		this.todoM2 = this.todoM
-		this.todoM = []
 	}
 
 	entityJoinWorldEvent(event) {
@@ -354,6 +342,18 @@ class Nether extends Feature {
 	}
 
 	minibossHPHud() {
+		this.todoM2.forEach(e => {
+			let name = e[m.getCustomNameTag]()
+			if (name) {
+				if (name.includes("Ashfang") || name.includes("Barbarian Duke X") || name.includes("Bladesoul") || name.includes("Mage Outlaw")) {
+					this.miniboss = new Entity(e)
+				}
+			}
+		})
+
+		this.todoM2 = this.todoM
+		this.todoM = []
+        
 		if (this.miniboss && this.miniboss.getEntity()[f.isDead]) this.miniboss = undefined
 		if (!this.minibossNametag.getValue() || !this.miniboss) {
 			this.minibossNametagElement.setText("")
