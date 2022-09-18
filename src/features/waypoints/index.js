@@ -138,6 +138,21 @@ class Waypoints extends Feature {
                 console.log(e.stack)
             }
         })
+        this.registerCommand("converttoorder", () => {
+            try {
+                this.userWaypointsArr.forEach(w => {
+                    let k = w.options.name
+                    this.orderedWaypoints.set(parseInt(k), [w.x, w.y, w.z, k])
+                })
+                this.currentOrderedWaypointIndex = 0
+
+                if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Converted into order. You might need to do /clearwaypoints to see (WARNING WILL CLEAR NORMAL WAYPOINTS)!")
+            } catch (e) {
+                if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading!")
+                console.log(JSON.stringify(e, undefined, 2))
+                console.log(e.stack)
+            }
+        })
         this.registerCommand("setorderwaypointindex", (ind) => {
             this.currentOrderedWaypointIndex = parseInt(ind)
             if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Set index to " + ind + "!")
@@ -167,24 +182,21 @@ class Waypoints extends Feature {
             let distanceTo1 = Infinity
             if (currentWaypoint) {
                 distanceTo1 = Math.hypot(Player.getX() - currentWaypoint[0], Player.getY() - currentWaypoint[1], Player.getZ() - currentWaypoint[2])
-                drawCoolWaypoint(currentWaypoint[0], currentWaypoint[1], currentWaypoint[2], 0, 255, 0, { name: this.currentOrderedWaypointIndex.toString() })
+                drawCoolWaypoint(currentWaypoint[0], currentWaypoint[1], currentWaypoint[2], 0, 255, 0, { name: currentWaypoint[3] })
             }
 
             let nextWaypoint = this.orderedWaypoints.get(this.currentOrderedWaypointIndex + 1)
-            let name = (this.currentOrderedWaypointIndex + 1).toString()
             if (!nextWaypoint) {
                 if (this.orderedWaypoints.get(0)) {
                     nextWaypoint = this.orderedWaypoints.get(0)
-                    name = "0"
                 } else if (this.orderedWaypoints.get(1)) {
                     nextWaypoint = this.orderedWaypoints.get(1)
-                    name = "1"
                 }
             }
             let distanceTo2 = Infinity
             if (nextWaypoint) {
                 distanceTo2 = Math.hypot(Player.getX() - nextWaypoint[0], Player.getY() - nextWaypoint[1], Player.getZ() - nextWaypoint[2])
-                drawCoolWaypoint(nextWaypoint[0], nextWaypoint[1], nextWaypoint[2], 0, 255, 0, { name })
+                drawCoolWaypoint(nextWaypoint[0], nextWaypoint[1], nextWaypoint[2], 0, 255, 0, { name: nextWaypoint[3] })
             }
 
             if (this.lastCloser === this.currentOrderedWaypointIndex && distanceTo1 > distanceTo2 && distanceTo2 < 15) {

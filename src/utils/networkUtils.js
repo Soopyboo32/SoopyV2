@@ -176,10 +176,7 @@ if (!global.networkUtilsThingSoopyPromise) {
         }
     })
 
-    global.networkUtilsThingSoopyPromise = {
-        getUrlContent: getUrlContent,
-        fetch: fetch
-    }
+    global.networkUtilsThingSoopyPromise = fetch
 }
 
-module.exports = global.networkUtilsThingSoopyPromise
+export default global.networkUtilsThingSoopyPromise

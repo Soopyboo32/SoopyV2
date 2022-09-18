@@ -30,16 +30,17 @@ export default function ({ types: t }) {
 				const MyVisitor2 = {
 					Identifier(path) {
 						if (path.node.name === "fetch") {
-							shouldAdd = true
+							shouldAdd2 = true
 						}
 					}
 				};
+
 				path.traverse(MyVisitor2)
-				if (shouldAdd2) {
-					let depth = state.filename.replace(state.cwd, "").split(/[\\/]/g).length - 3
+				if (shouldAdd2 && !state.filename.includes("networkUtils")) {
+					let depth = state.filename.replace(state.cwd, "").split(/[\\/]/g).length - 2
 					const identifier = t.identifier('fetch');
 					const importDefaultSpecifier = t.importDefaultSpecifier(identifier);
-					const importDeclaration = t.importDeclaration([importDefaultSpecifier], t.stringLiteral("../".repeat(depth) + 'utils/networkUtils'));
+					const importDeclaration = t.importDeclaration([importDefaultSpecifier], t.stringLiteral("../".repeat(depth) + 'SoopyV2/utils/networkUtils'));
 					path.unshiftContainer('body', importDeclaration);
 				}
 			}
