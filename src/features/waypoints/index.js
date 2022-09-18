@@ -153,6 +153,11 @@ class Waypoints extends Feature {
                 console.log(e.stack)
             }
         })
+        this.registerCommand("clearorderedwaypoints", () => {
+            this.currentOrderedWaypointIndex = -1
+            this.orderedWaypoints.clear()
+            if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared waypoints!")
+        })
         this.registerCommand("setorderwaypointindex", (ind) => {
             this.currentOrderedWaypointIndex = parseInt(ind)
             if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Set index to " + ind + "!")
@@ -353,6 +358,7 @@ class Waypoints extends Feature {
 
         this.registerEvent("worldLoad", () => {
             this.locations = {}
+            if (this.currentOrderedWaypointIndex >= 0) this.currentOrderedWaypointIndex = 0
         })
     }
 

@@ -1,7 +1,7 @@
 {
     "presets": [],
     "plugins": [
-        "async-to-promises",
+        "./babel-plugin-async-to-promises/lib/index.js",
         "./babel-import-promise/babel-import-promise.mjs"
     ]
 }
