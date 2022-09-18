@@ -5,8 +5,8 @@
   "entry": "index.js",
   "description": "SoopyV2",
   "name": "SoopyV2",
-  "version": "2.1.157",
-  "versionId": 284,
+  "version": "2.1.158",
+  "versionId": 285,
   "requires": [
     "soopyApis",
     "soopyAddonsData",
