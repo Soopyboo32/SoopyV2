@@ -2,7 +2,6 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import socketConnection from "../../socketConnection";
-import { fetch } from "../../utils/networkUtils";
 
 class DataLoader extends Feature {
     constructor() {

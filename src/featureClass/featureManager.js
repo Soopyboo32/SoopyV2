@@ -5,7 +5,6 @@ import logger from "../logger";
 const File = Java.type("java.io.File")
 import metadata from "../metadata.js"
 import soopyV2Server from "../socketConnection";
-import { fetch } from "../utils/networkUtils";
 import NonPooledThread from "../utils/nonPooledThread";
 import { setRendering } from "../utils/renderJavaUtils";
 import { registerForge as registerForgeBase, unregisterForge as unregisterForgeBase } from "./forgeEvents.js"
@@ -137,7 +136,7 @@ class FeatureManager {
                     let moduleToReload = this.watches[key]
                     if (this.features[moduleToReload] && !this.reloadingModules.has(moduleToReload)) { //if enabled && not alr in queue
                         this.reloadingModules.add(moduleToReload)
-                        this.reloadModuleTime = Date.now() + 5000
+                        this.reloadModuleTime = Date.now() + 100
                     }
                     key.pollEvents()/*.forEach(event=>{
                     logger.logMessage(event.context().toString(), 1)

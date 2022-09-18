@@ -12,7 +12,6 @@ import Notification from "../../../guimanager/Notification";
 import logger from "../../logger";
 import { numberWithCommas } from "../../utils/numberUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
-import { fetch } from "../../utils/networkUtils";
 import socketConnection from "../../socketConnection";
 import renderLibs from "../../../guimanager/renderLibs";
 import { f, m } from "../../../mappings/mappings";

@@ -11,7 +11,6 @@ import SoopyKeyPressEvent from "../../../guimanager/EventListener/SoopyKeyPressE
 import { firstLetterWordCapital } from "../../utils/stringUtils";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
-import { fetch } from "../../utils/networkUtils";
 import SoopyImageElement from "../../../guimanager/GuiElement/SoopyImageElement";
 import renderLibs from "../../../guimanager/renderLibs";
 import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";

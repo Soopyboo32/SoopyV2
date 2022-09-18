@@ -5,7 +5,6 @@ import DragonWings from "./cosmetic/dragon/dragonWings"
 import Toggle from "../settings/settingThings/toggle"
 import { f } from "../../../mappings/mappings";
 import FakeRequireToggle from "../settings/settingThings/FakeRequireToggle";
-import { fetch } from "../../utils/networkUtils";
 
 class Cosmetics extends Feature {
     constructor() {

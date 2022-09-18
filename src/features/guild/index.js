@@ -2,7 +2,6 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import { toMessageWithLinks } from "../../utils/utils";
-import { fetch } from "../../utils/networkUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 import TextSetting from "../settings/settingThings/textSetting";
 

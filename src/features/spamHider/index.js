@@ -3,7 +3,6 @@
 import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent";
 import Feature from "../../featureClass/class";
 import soopyV2Server from "../../socketConnection";
-import { fetch } from "../../utils/networkUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 
 class SpamHider extends Feature {

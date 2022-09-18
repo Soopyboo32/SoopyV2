@@ -25,6 +25,23 @@ export default function ({ types: t }) {
 					const importDeclaration = t.importDeclaration([importDefaultSpecifier], t.stringLiteral("../".repeat(depth) + 'PromiseV2'));
 					path.unshiftContainer('body', importDeclaration);
 				}
+
+				let shouldAdd2 = false
+				const MyVisitor2 = {
+					Identifier(path) {
+						if (path.node.name === "fetch") {
+							shouldAdd = true
+						}
+					}
+				};
+				path.traverse(MyVisitor2)
+				if (shouldAdd2) {
+					let depth = state.filename.replace(state.cwd, "").split(/[\\/]/g).length - 3
+					const identifier = t.identifier('fetch');
+					const importDefaultSpecifier = t.importDefaultSpecifier(identifier);
+					const importDeclaration = t.importDeclaration([importDefaultSpecifier], t.stringLiteral("../".repeat(depth) + 'utils/networkUtils'));
+					path.unshiftContainer('body', importDeclaration);
+				}
 			}
 		}
 	};

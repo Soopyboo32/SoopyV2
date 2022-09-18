@@ -16,7 +16,6 @@ import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseCl
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import Dropdown from "../../../guimanager/GuiElement/Dropdown";
 import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent";
-import { fetch } from "../../utils/networkUtils";
 
 let allowed = new Set(["dc8c39647b294e03ae9ed13ebd65dd29", "83c5626ede2d4754b86064d558809615"])
 

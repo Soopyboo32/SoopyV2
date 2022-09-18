@@ -1,5 +1,3 @@
-import { fetch } from "../../utils/networkUtils";
-
 class HelpDataLoader {
     constructor() {
         this.availableHelpData = {}

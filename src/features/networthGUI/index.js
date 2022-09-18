@@ -14,7 +14,6 @@ import SoopyBoxElement from "../../../guimanager/GuiElement/SoopyBoxElement";
 import SoopyMarkdownElement from "../../../guimanager/GuiElement/SoopyMarkdownElement";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
-import { fetch } from "../../utils/networkUtils";
 import Dropdown from "../../../guimanager/GuiElement/Dropdown";
 import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent";
 

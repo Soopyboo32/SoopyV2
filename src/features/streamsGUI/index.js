@@ -10,7 +10,6 @@ import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import BoxWithText from "../../../guimanager/GuiElement/BoxWithText";
-import { fetch } from "../../utils/networkUtils";
 
 class StreamsGui extends Feature {
     constructor() {

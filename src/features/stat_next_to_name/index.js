@@ -5,7 +5,6 @@ import soopyV2Server from "../../socketConnection";
 import SettingBase from "../settings/settingThings/settingBase";
 import * as numberUtils from "../../utils/numberUtils";
 import DropdownSetting from "../settings/settingThings/dropdownSetting";
-import { fetch } from "../../utils/networkUtils"
 import ToggleSetting from "../settings/settingThings/toggle";
 
 class StatNextToName extends Feature {

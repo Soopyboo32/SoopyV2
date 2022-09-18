@@ -17,7 +17,6 @@ import Dropdown from "../../../guimanager/GuiElement/Dropdown";
 import SoopyMarkdownElement from "../../../guimanager/GuiElement/SoopyMarkdownElement"
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import SoopyRenderUpdateEvent from "../../../guimanager/EventListener/SoopyRenderUpdateEvent";
-import { fetch } from "../../utils/networkUtils";
 
 class SenitherGui extends Feature {
     constructor() {

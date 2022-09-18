@@ -192,7 +192,6 @@ class Waypoints extends Feature {
                 if (!this.orderedWaypoints.get(this.currentOrderedWaypointIndex)) {
                     this.currentOrderedWaypointIndex = 0
                 }
-                ChatLib.chat(this.currentOrderedWaypointIndex)
                 return
             }
             if (distanceTo1 < 5) {
@@ -203,7 +202,6 @@ class Waypoints extends Feature {
                 if (!this.orderedWaypoints.get(this.currentOrderedWaypointIndex)) {
                     this.currentOrderedWaypointIndex = 0
                 }
-                ChatLib.chat(this.currentOrderedWaypointIndex)
             }
         })
 

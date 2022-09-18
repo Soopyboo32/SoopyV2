@@ -8,7 +8,6 @@ import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import { numberWithCommas, timeSince2 } from "../../utils/numberUtils";
-import { fetch } from "../../utils/networkUtils";
 import socketConnection from "../../socketConnection";
 import { drawCoolWaypoint } from "../../utils/renderUtils";
 

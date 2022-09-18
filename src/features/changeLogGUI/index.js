@@ -10,7 +10,6 @@ import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseClickEvent";
 import ProgressBar from "../../../guimanager/GuiElement/ProgressBar"
 import SoopyRenderEvent from "../../../guimanager/EventListener/SoopyRenderEvent"
-import { fetch } from "../../utils/networkUtils";
 import { numberWithCommas } from "../../utils/numberUtils";
 const File = Java.type("java.io.File")
 const URL = Java.type("java.net.URL");
