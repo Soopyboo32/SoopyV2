@@ -3,7 +3,7 @@
 import { m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import { Waypoint } from "../../utils/renderJavaUtils";
-import { drawCoolWaypoint } from "../../utils/renderUtils";
+import { drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
 import { calculateDistanceQuick } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
@@ -37,6 +37,8 @@ class Waypoints extends Feature {
 
         this.loadWaypointsFromSendCoords = new ToggleSetting("Load waypoints from /patcher sendcoords messages", "Will dissapear after 1min", true, "load_waypoints_from_sendcoords", this)
         this.mineWaypointsSetting = new ToggleSetting("CH waypoints", "Will sync between users", true, "minwaypoints", this)
+
+        this.orderedWaypointsLine = new ToggleSetting("CH waypoints", "Draw a line from current to next ordered waypoint", false, "order_waypoints_line", this)
 
         try {
             this.userWaypoints = JSON.parse(FileLib.read("soopyAddonsData", "soopyv2userwaypoints.json") || "{}")
@@ -202,6 +204,10 @@ class Waypoints extends Feature {
             if (nextWaypoint) {
                 distanceTo2 = Math.hypot(Player.getX() - nextWaypoint[0], Player.getY() - nextWaypoint[1], Player.getZ() - nextWaypoint[2])
                 drawCoolWaypoint(nextWaypoint[0], nextWaypoint[1], nextWaypoint[2], 0, 255, 0, { name: nextWaypoint[3] })
+            }
+
+            if (this.orderedWaypointsLine.getValue() && currentWaypoint && nextWaypoint) {
+                drawLine(currentWaypoint[0] + 0.5, currentWaypoint[1], currentWaypoint[2] + 0.5, nextWaypoint[0] + 0.5, nextWaypoint[1], nextWaypoint[2] + 0.5, 0, 255, 0)
             }
 
             if (this.lastCloser === this.currentOrderedWaypointIndex && distanceTo1 > distanceTo2 && distanceTo2 < 15) {
