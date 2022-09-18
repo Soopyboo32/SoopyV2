@@ -56,7 +56,7 @@ class ChangeLogGui extends Feature {
 
             ChatLib.chat("§r")
             ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
-            ChatLib.chat("     &6New SoopyV2 Version is avalible (" + version + ")")
+            ChatLib.chat("     &6New SoopyV2 Version is available (" + version + ")")
             ChatLib.chat("§r§r")
             new TextComponent(" &e[CLICK] &7- View changelog and download update").setHover("show_text", "&2Open changelog").setClick("run_command", "/soopyv2 changelog").chat()
             ChatLib.chat("&1" + ChatLib.getChatBreak("-").trim())
