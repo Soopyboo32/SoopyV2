@@ -121,6 +121,93 @@ class Waypoints extends Feature {
             }
         })
 
+        this.orderedWaypoints = new Map()
+        this.currentOrderedWaypointIndex = -1
+        this.registerCommand("loadorderedwaypoints", () => {
+            try {
+                let data = JSON.parse(Java.type("net.minecraft.client.gui.GuiScreen")[m.getClipboardString]())
+                Object.keys(data).forEach(k => {
+                    this.orderedWaypoints.set(parseInt(k), data[k])
+                })
+                this.currentOrderedWaypointIndex = 0
+
+                if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Loaded waypoints from clipboard!")
+            } catch (e) {
+                if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
+                console.log(JSON.stringify(e, undefined, 2))
+                console.log(e.stack)
+            }
+        })
+        this.registerCommand("setorderwaypointindex", (ind) => {
+            this.currentOrderedWaypointIndex = parseInt(ind)
+            if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Set index to " + ind + "!")
+        })
+        this.registerCommand("detectorderwaypointindex", (ind) => {
+            let numCheck = 0
+            let currentWaypoint = this.orderedWaypoints.get(numCheck)
+            let minDist = currentWaypoint ? Math.hypot(Player.getX() - currentWaypoint[0], Player.getY() - currentWaypoint[1], Player.getZ() - currentWaypoint[2]) : Infinity
+            let closest = 0
+            while (this.orderedWaypoints.get(numCheck + 1)) {
+                numCheck++
+                let currentWaypoint = this.orderedWaypoints.get(numCheck)
+                let dist = Math.hypot(Player.getX() - currentWaypoint[0], Player.getY() - currentWaypoint[1], Player.getZ() - currentWaypoint[2])
+                if (dist < minDist) {
+                    minDist = dist
+                    closest = numCheck
+                }
+            }
+            this.currentOrderedWaypointIndex = closest
+            if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Set index to " + closest + "!")
+        })
+        this.lastCloser = 0
+        this.registerEvent("renderWorld", () => {
+            if (this.currentOrderedWaypointIndex === -1) return
+
+            let currentWaypoint = this.orderedWaypoints.get(this.currentOrderedWaypointIndex)
+            let distanceTo1 = Infinity
+            if (currentWaypoint) {
+                distanceTo1 = Math.hypot(Player.getX() - currentWaypoint[0], Player.getY() - currentWaypoint[1], Player.getZ() - currentWaypoint[2])
+                drawCoolWaypoint(currentWaypoint[0], currentWaypoint[1], currentWaypoint[2], 0, 255, 0, { name: this.currentOrderedWaypointIndex.toString() })
+            }
+
+            let nextWaypoint = this.orderedWaypoints.get(this.currentOrderedWaypointIndex + 1)
+            let name = (this.currentOrderedWaypointIndex + 1).toString()
+            if (!nextWaypoint) {
+                if (this.orderedWaypoints.get(0)) {
+                    nextWaypoint = this.orderedWaypoints.get(0)
+                    name = "0"
+                } else if (this.orderedWaypoints.get(1)) {
+                    nextWaypoint = this.orderedWaypoints.get(1)
+                    name = "1"
+                }
+            }
+            let distanceTo2 = Infinity
+            if (nextWaypoint) {
+                distanceTo2 = Math.hypot(Player.getX() - nextWaypoint[0], Player.getY() - nextWaypoint[1], Player.getZ() - nextWaypoint[2])
+                drawCoolWaypoint(nextWaypoint[0], nextWaypoint[1], nextWaypoint[2], 0, 255, 0, { name })
+            }
+
+            if (this.lastCloser === this.currentOrderedWaypointIndex && distanceTo1 > distanceTo2 && distanceTo2 < 15) {
+                this.currentOrderedWaypointIndex++
+                if (!this.orderedWaypoints.get(this.currentOrderedWaypointIndex)) {
+                    this.currentOrderedWaypointIndex = 0
+                }
+                ChatLib.chat(this.currentOrderedWaypointIndex)
+                return
+            }
+            if (distanceTo1 < 5) {
+                this.lastCloser = this.currentOrderedWaypointIndex
+            }
+            if (distanceTo2 < 5) {
+                this.currentOrderedWaypointIndex++
+                if (!this.orderedWaypoints.get(this.currentOrderedWaypointIndex)) {
+                    this.currentOrderedWaypointIndex = 0
+                }
+                ChatLib.chat(this.currentOrderedWaypointIndex)
+            }
+        })
+
+
         this.ignorePlayers = new Set()
 
         this.registerCommand("waypointignoreadd", (player) => {
