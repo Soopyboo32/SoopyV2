@@ -641,7 +641,7 @@ class Hud extends Feature {
             }
             text += `&6God potion&7>&f ${timeLeft}\n`
 
-            if (this.potsOutAlert.getValue() && godPotTime - Date.now() > 60000 && Date.now() - (this.lastPotAlerts["godpot"] || 0) > 2 * 60000) {
+            if (this.potsOutAlert.getValue() && godPotTime - Date.now() < 60000 && Date.now() - (this.lastPotAlerts["godpot"] || 0) > 2 * 60000) {
                 this.lastPotAlerts["godpot"] = Date.now()
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Your God potion is about to run out!")
             }
@@ -654,7 +654,7 @@ class Hud extends Feature {
 
             let potName = firstLetterCapital(k.replace(/_/g, " "))
 
-            if (this.potsOutAlert.getValue() && potData.time - Date.now() > 60000 && Date.now() - (this.lastPotAlerts[k] || 0) > 2 * 60000) {
+            if (this.potsOutAlert.getValue() && potData.time - Date.now() < 60000 && Date.now() - (this.lastPotAlerts[k] || 0) > 2 * 60000) {
                 this.lastPotAlerts[k] = Date.now()
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Your " + potName + " is about to run out!")
             }
