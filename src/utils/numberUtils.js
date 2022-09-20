@@ -97,6 +97,9 @@ let utils = {
 
         if (hours === 0) return mins + "m"
         return `${hours}h ${mins}m`
+    },
+    basiclyEqual: (num1, num2, dist = 0.01) => {
+        return Math.abs(num1 - num2) < dist
     }
 }
 module.exports = utils

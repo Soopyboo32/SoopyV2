@@ -56,6 +56,7 @@ class DataLoader extends Feature {
         this.currentMayorPerks = new Set()
 
         this.loadedApiDatas = {}
+        this.isInDungeon = false
 
         this.partyMembers = new Set()
         this.partyMembers.add(Player.getName())

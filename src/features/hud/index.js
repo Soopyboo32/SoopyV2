@@ -10,7 +10,7 @@ import DropdownSetting from "../settings/settingThings/dropdownSetting";
 import { getLevelByXp } from "../../utils/statUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
 import renderLibs from "../../../guimanager/renderLibs";
-import { addNotation, numberWithCommas } from "../../utils/numberUtils.js";
+import { addNotation, basiclyEqual, numberWithCommas, timeNumber, timeNumber2 } from "../../utils/numberUtils.js";
 
 const ProcessBuilder = Java.type("java.lang.ProcessBuilder")
 const Scanner = Java.type("java.util.Scanner")
@@ -201,6 +201,21 @@ class Hud extends Feature {
         hudStatTypes["mythril_powder"] = "Mithril Powder"
         hudStatTypes["gemstone_powder"] = "Gemstone Powder"
 
+        this.potsExpireAt = {}
+
+        this.potsOutAlert = new ToggleSetting("Alert when pots are about to run out", "Will show in chat", true, "pots_out_alert", this)
+        this.showPotsHud = new ToggleSetting("Show Pots On Hud", "", false, "pots_hud", this)
+        this.potsHudElement = new HudTextElement()
+            .setText("&6Potions&7> &fLoading...")
+            .setToggleSetting(this.showPotsHud)
+            .setLocationSetting(new LocationSetting("Pots Hud Location", "Allows you to edit the location of the pots hud", "pots_hud_location", this, [10, 100, 1, 1])
+                .requires(this.showPotsHud)
+                .editTempText("&6God potion&7> &f28h 32m"))
+        this.hudElements.push(this.potsHudElement)
+
+        this.lastPotAlerts = {}
+        this.registerStep(false, 1, this.updatePotsTime)
+
         this.extendLevelCap = new ToggleSetting("Hud Stat Ignore Skill Level Cap", "level cap goes over 60 requiring 50m xp per level", false, "hud_ignore_level_cap", this).contributor("EmeraldMerchant")
         this.showLevelUpMessage = new ToggleSetting("Show level-up message", "Shows skyblock skills level-up message over level 60 in chat", true, "skill_o60_level_message", this).requires(this.extendLevelCap).contributor("EmeraldMerchant")
 
@@ -218,6 +233,7 @@ class Hud extends Feature {
             if (this.hudStat[i - 1]) {
                 this.hudStat[i].enabled.requires(this.hudStat[i - 1].enabled)
             }
+            this.hudElements.push(this.hudStat[i].textElement)
         }
 
 
@@ -600,6 +616,73 @@ class Hud extends Feature {
         this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData.soulflow))
     }
 
+    updatePotsTime() {
+        if (!this.showPotsHud.getValue()) return
+        if (!this.FeatureManager.features["dataLoader"] || !this.FeatureManager.features["dataLoader"].class.isInSkyblock || this.FeatureManager.features["dataLoader"].class.isInDungeon) {
+            this.potsHudElement.setText("")
+            return
+        }
+
+        let text = ""
+
+        let godPotTime = -1
+        if (this.potsExpireAt["water_breathing"]?.level === 6
+            && this.potsExpireAt["resistance"]?.level === 8
+            && basiclyEqual(this.potsExpireAt["water_breathing"]?.time, this.potsExpireAt["resistance"]?.time, 1000)) {
+            godPotTime = this.potsExpireAt["water_breathing"].time
+        }
+
+        if (godPotTime > 0) {
+            let timeLeft = ""
+            if (godPotTime - Date.now() > 60000 * 60) {
+                timeLeft = timeNumber2(godPotTime - Date.now())
+            } else {
+                timeLeft = timeNumber(godPotTime - Date.now())
+            }
+            text += `&6God potion&7>&f ${timeLeft}\n`
+
+            if (this.potsOutAlert.getValue() && godPotTime - Date.now() > 60000 && Date.now() - (this.lastPotAlerts["godpot"] || 0) > 2 * 60000) {
+                this.lastPotAlerts["godpot"] = Date.now()
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Your God potion is about to run out!")
+            }
+        }
+
+        Object.keys(this.potsExpireAt).forEach(k => {
+            let potData = this.potsExpireAt[k]
+            if (potData.infinite) return
+            if (basiclyEqual(potData.time, godPotTime, 1000)) return
+
+            let potName = firstLetterCapital(k.replace(/_/g, " "))
+
+            if (this.potsOutAlert.getValue() && potData.time - Date.now() > 60000 && Date.now() - (this.lastPotAlerts[k] || 0) > 2 * 60000) {
+                this.lastPotAlerts[k] = Date.now()
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Your " + potName + " is about to run out!")
+            }
+
+            let timeLeft = ""
+            if (potData.time - Date.now() > 60000 * 60) {
+                timeLeft = timeNumber2(potData.time - Date.now())
+            } else {
+                timeLeft = timeNumber(potData.time - Date.now())
+            }
+
+            text += `&6${potName} ${potData.level}&7> &f${timeLeft}\n`
+        })
+        this.potsHudElement.setText(text)
+    }
+
+    updatePotsData(data) {
+        this.potsExpireAt = {}
+        let now = Date.now()
+        data.active_effects.forEach(e => {
+            this.potsExpireAt[e.effect] = {
+                level: e.level,
+                time: now + e.ticks_remaining * 50,
+                infinite: e.infinite
+            }
+        })
+    }
+
     statApiLoadThingo(data) {
         data.profiles.forEach(p => {
             if (!this.lastStatData || (p.members[Player.getUUID().toString().replace(/-/g, "")] && p.members[Player.getUUID().toString().replace(/-/g, "")].last_save > this.lastStatData.last_save)) {
@@ -608,6 +691,7 @@ class Hud extends Feature {
         })
 
         if (this.lastStatData) {
+            this.updatePotsData(this.lastStatData)
             if (this.lastStatData.soulflow) this.apiSoulflow = true
 
             if (this.apiSoulflow) this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData.soulflow))
