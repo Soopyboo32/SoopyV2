@@ -457,7 +457,7 @@ class Slayers extends Feature {
 
 		if (this.emanBoss && this.boxAroundEmanBoss.getValue()) drawBoxAtEntity(this.emanBoss, 0, 255, 0, 1, -3, ticks, 4, false);
 
-		if (this.emanBoss && this.emanStartedSittingTime > 0 && this.emanLazerTimer.getValue() && this.emanLazerTimerLocation.getValue === "inBoss") {
+		if (this.emanBoss && this.emanStartedSittingTime > 0 && this.emanLazerTimer.getValue() && this.emanLazerTimerLocation.getValue() === "inBoss") {
 			Tessellator.drawString(ChatLib.addColor("&a&lLazer: &c&l" + Math.max(0, 8.2 - (Date.now() - this.emanStartedSittingTime) / 1000).toFixed(1)), this.emanBoss.getX(), this.emanBoss.getY() - 1.2, this.emanBoss.getZ(), 0, true, 0.04, false);
 		}
 
