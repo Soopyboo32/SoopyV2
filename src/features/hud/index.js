@@ -652,6 +652,8 @@ class Hud extends Feature {
             if (potData.infinite) return
             if (basiclyEqual(potData.time, godPotTime, 1000)) return
 
+            if (k === "haste" && potData.level === 1) return
+
             let potName = firstLetterCapital(k.replace(/_/g, " "))
 
             if (this.potsOutAlert.getValue() && potData.time - Date.now() < 60000 && Date.now() - (this.lastPotAlerts[k] || 0) > 2 * 60000) {
