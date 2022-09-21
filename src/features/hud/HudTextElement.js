@@ -139,15 +139,12 @@ class HudTextElement {
         }
     }
 
-    setLocation(x, y, scale) {
-        let X = x || this.locationSetting.x
-        let Y = y || this.locationSetting.y
-        let Scale = scale || this.locationSetting.scale
-        if (X !== this.locationSetting.x) this.locationSetting.x = X
-        if (Y !== this.locationSetting.y) this.locationSetting.y = Y
-        if (Scale !== this.locationSetting.scale) this.locationSetting.scale = Scale
-        this.renderElm.setX(X).setY(Y).setScale(Scale)
-    } 
+    setLocation(x = this.locationSetting.x, y = this.locationSetting.y, scale = this.locationSetting.scale) {
+        this.locationSetting.x = x
+        this.locationSetting.y = y
+        this.locationSetting.scale = scale
+        this.renderElm.setX(x).setY(y).setScale(scale)
+    }
 }
 
 export default HudTextElement
