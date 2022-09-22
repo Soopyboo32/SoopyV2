@@ -6,6 +6,7 @@ import SettingBase from "../settings/settingThings/settingBase";
 import * as numberUtils from "../../utils/numberUtils";
 import DropdownSetting from "../settings/settingThings/dropdownSetting";
 import ToggleSetting from "../settings/settingThings/toggle";
+import NonPooledThread from "../../utils/nonPooledThread";
 
 class StatNextToName extends Feature {
     constructor() {
@@ -73,12 +74,19 @@ class StatNextToName extends Feature {
         })
 
         let keyValid = false
-        let key = this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()
-        fetch("https://api.hypixel.net/key?key=" + key).json().then(d => {
-            if (d.success) {
-                keyValid = true
+        let key = undefined
+        new NonPooledThread(() => {
+            while (!this.FeatureManager.features["globalSettings"]?.class) {
+                Thread.sleep(1000)
             }
-        })
+
+            key = this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()
+            fetch("https://api.hypixel.net/key?key=" + key).json().then(d => {
+                if (d.success) {
+                    keyValid = true
+                }
+            })
+        }).start()
     }
 
     loadPlayerStatsTick() {

@@ -676,6 +676,7 @@ class Hud extends Feature {
     updatePotsData(data) {
         this.potsExpireAt = {}
         let now = Date.now()
+        if (Date.now() - data.last_save < 5 * 60000) now = data.last_save
         data.active_effects.forEach(e => {
             this.potsExpireAt[e.effect] = {
                 level: e.level,

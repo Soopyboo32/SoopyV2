@@ -2,6 +2,8 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import { numberWithCommas } from "../../utils/numberUtils";
+import { getBestiaryTier } from "../../utils/statUtils";
+import { firstLetterWordCapital } from "../../utils/stringUtils";
 import HudTextElement from "../hud/HudTextElement";
 import DropdownSetting from "../settings/settingThings/dropdownSetting";
 import LocationSetting from "../settings/settingThings/location";
@@ -25,23 +27,12 @@ class Bestiary extends Feature {
     }
 
     onEnable() {
-        this.bestiaryData = JSON.parse(FileLib.read("soopyAddonsData", "bestiaryData.json") || "{}")
-        this.bestiaryChanged = false
-
-        this.bestiaryApiTracking = {}
-
-        this.registerStep(true, 5, this.scanInv)
-        this.registerStep(false, 5, this.saveData)
-
 
         this.bestiaryStatTypes = {
             "barbarian_duke_x": "Barbarian Duke X"
         }
-        Object.keys(this.bestiaryData).forEach(k => {
-            if (this.bestiaryData[k].guiName) this.bestiaryStatTypes[k] = this.bestiaryData[k].guiName
-        })
+        this.bestiaryData = {}
 
-        new SettingBase("NOTE: u need to open ur bestiary menu", "before this will work", true, "info_bestiary", this)
         this.hudStat = []
         for (let i = 0; i < 10; i++) {
             this.hudStat[i] = {}
@@ -105,8 +96,13 @@ class Bestiary extends Feature {
             }
 
             if (thing) {
-                this.bestiaryData[thing].guessCount++
-                this.bestiaryChanged = true
+                this.bestiaryData[thing].totalKills++
+
+                let { level, killsLeft, killsForNext } = getBestiaryTier(thing, this.bestiaryData[thing].totalKills)
+
+                this.bestiaryData[thing].tier = level
+                this.bestiaryData[thing].killsThisTier = killsLeft
+                this.bestiaryData[thing].killsForNext = killsForNext
             }
         })
         this.registerSoopy("apiLoad", this.apiLoad);
@@ -118,17 +114,8 @@ class Bestiary extends Feature {
 
     getBestiaryCount(id) {
         if (!this.bestiaryData[id]) return "???"
-        let count = this.bestiaryData[id].count
 
-        if (!dontUseApi.has(id)) {
-            let currApiData = this.bestiaryApiTracking[id]
-
-            count += currApiData - this.bestiaryData[id].apiCount
-        }
-
-        count += this.bestiaryData[id].guessCount
-
-        return count
+        return `${this.bestiaryData[id].tier}&7:&f ${this.bestiaryData[id].killsThisTier}&7/&f${this.bestiaryData[id].killsForNext}`
     }
 
     updateHudElements() {
@@ -145,7 +132,7 @@ class Bestiary extends Feature {
 
                 let type = stat.type.getValue()
 
-                stat.textElement.setText(`&6${this.bestiaryData[type]?.guiName}&7> &f${numberWithCommas(this.getBestiaryCount(type))}`)
+                stat.textElement.setText(`&6${this.bestiaryStatTypes[type]}&7> &f${numberWithCommas(this.getBestiaryCount(type))}`)
             } else {
                 stat.textElement.setText("")
             }
@@ -166,84 +153,45 @@ class Bestiary extends Feature {
             }
         })
 
-        Object.keys(currentProfile.stats).forEach(key => {
-            if (key.startsWith("kills_")) {
-                this.bestiaryApiTracking[key.replace("kills_", "")] = currentProfile.stats[key]
+        Object.entries(currentProfile.bestiary).forEach(([key, val]) => {
+            if (key.startsWith("kills_family_")) {
+                let family = key.replace("kills_family_", "")
+
+                if (!this.bestiaryData[family]) {
+                    this.bestiaryData[family] = {
+                        tier: 0,
+                        totalKills: 0,
+                        killsThisTier: 0,
+                        killsForNext: 0
+                    }
+                }
+
+                this.bestiaryData[family].totalKills = val
+
+                let { level, killsLeft, killsForNext } = getBestiaryTier(family, val)
+
+                this.bestiaryData[family].tier = level
+                this.bestiaryData[family].killsThisTier = killsLeft
+                this.bestiaryData[family].killsForNext = killsForNext
             }
         })
-    }
-
-    scanInv() {
-        if (!Player.getContainer()) return
-        if (!Player.getContainer().getName().startsWith("Bestiary ➜ ")) return
-        let tempChanged = false
-        let seen = new Set()
-
-        for (let item of Player.getContainer().getItems()) {
-            if (!item) continue
-            let name = ChatLib.removeFormatting(item.getName()).split(" ")
-            name.pop()
-            let apiName = name.join("_").toLowerCase()
-            if (seen.has(apiName)) continue
-            seen.add(apiName)
-
-            if (apiName === "skeletor_prime") continue
-
-            if (this.bestiaryApiTracking[apiName] || dontUseApi.has(apiName)) {
-
-                let count = 0
-
-                for (let l of item.getLore()) {
-                    l = ChatLib.removeFormatting(l)
-
-                    if (l.startsWith("Kills: ")) {
-                        count = parseInt(l.split("Kills: ")[1].replace(/,/g, ""))
-                        break;
-                    }
-                }
-
-                let needsChange = !this.bestiaryData[apiName] || this.bestiaryData[apiName].guiName !== name.join(" ") || this.bestiaryData[apiName].count !== count || this.bestiaryData[apiName].apiCount !== (this.bestiaryApiTracking[apiName] || 0) || this.bestiaryData[apiName].guessCount !== 0
-                if (needsChange) {
-                    this.bestiaryData[apiName] = {
-                        guiName: name.join(" "),
-                        count,
-                        apiCount: this.bestiaryApiTracking[apiName] || 0,
-                        guessCount: 0
-                    }
-                    this.bestiaryChanged = true
-
-                    tempChanged = true
-
-                }
+        let changed = false
+        Object.keys(this.bestiaryData).forEach(k => {
+            if (!this.bestiaryStatTypes[k]) {
+                this.bestiaryStatTypes[k] = firstLetterWordCapital(k.replace(/_/g, " "))
+                changed = true
             }
-        }
-
-        if (tempChanged) {
-            this.bestiaryStatTypes = {}
-            Object.keys(this.bestiaryData).forEach(k => {
-                if (this.bestiaryData[k]?.guiName) this.bestiaryStatTypes[k] = this.bestiaryData[k].guiName
-            })
-
+        })
+        if (changed) {
             this.hudStat.forEach(s => {
                 s.type.dropdownObject.setOptions(this.bestiaryStatTypes)
             })
-
-            this.updateHudElements()
-        }
-        start = Date.now()
-    }
-
-    saveData() {
-        if (this.bestiaryChanged) {
-            FileLib.write("soopyAddonsData", "bestiaryData.json", JSON.stringify(this.bestiaryData))
         }
     }
 
     onDisable() {
         this.hudStat.forEach(h => h.textElement.delete())
-        this.saveData()
     }
-
 }
 module.exports = {
     class: new Bestiary()

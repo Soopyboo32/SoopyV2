@@ -1,13 +1,62 @@
 let utils = {
-    getHotmLevel: getHotmLevel,
-    getDungeoneeringLevel: getDungeoneeringLevel,
-    getPetLevel: getPetLevel,
-    getLevelByXp: getLevelByXp,
+    getHotmLevel,
+    getDungeoneeringLevel,
+    getPetLevel,
+    getLevelByXp,
+    getBestiaryTier
 }
 
 module.exports = utils
 
+let bossmobs = new Set()
+bossmobs.add("dragon")
+bossmobs.add("arachne")
+bossmobs.add("headless_horseman")
+bossmobs.add("magma_cube_boss")
+bossmobs.add("arachne")
+bossmobs.add("barbarian_duke_x")
+bossmobs.add("bladesoul")
+bossmobs.add("mage_outlaw")
+bossmobs.add("ashfang")
+bossmobs.add("corrupted_protector")
 
+let islandmobs = new Set()
+islandmobs.add("cave_spider")
+islandmobs.add("enderman_private")
+islandmobs.add("skeleton")
+islandmobs.add("slime")
+islandmobs.add("spider")
+islandmobs.add("witch")
+islandmobs.add("zombie")
+
+let bestiaryData = {
+    mob: [10, 15, 75, 150, 250, 500, 1500, 2500, 5000, 15000, 25000, 50000, ...(new Array(42 - 13).fill(100000))],
+    boss: [2, 3, 5, 10, 10, 10, 10, 25, 25, 50, 50, 100, ...(new Array(42 - 13).fill(100))],
+    private: [10, 15, 75, 150, 250]
+}
+
+function getBestiaryTier(family, kills) {
+    let type = "mob"
+
+    if (islandmobs.has(family)) type = "private"
+    if (bossmobs.has(family)) type = "boss"
+
+    let killsLeft = kills
+    let data = bestiaryData[type]
+
+    let dataI = 0
+    while (dataI < data.length && killsLeft >= data[dataI]) {
+        killsLeft -= data[dataI]
+
+        dataI++
+    }
+
+    return {
+        level: dataI,
+        killsLeft,
+        killsForNext: data[dataI] || null
+    }
+}
 let someData = {
     leveling_xp: {
         1: 50,
