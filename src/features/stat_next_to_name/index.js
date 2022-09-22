@@ -76,7 +76,7 @@ class StatNextToName extends Feature {
         let keyValid = false
         let key = undefined
         new NonPooledThread(() => {
-            while (!this.FeatureManager.features["globalSettings"]?.class) {
+            while (!this.FeatureManager.features["globalSettings"] || !this.FeatureManager.features["globalSettings"].class) {
                 Thread.sleep(1000)
             }
 
