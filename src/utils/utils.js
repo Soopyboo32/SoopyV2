@@ -130,7 +130,7 @@ let utils = {
             return c
         }, ["&" + color]).map(a => {
             if (a.match(/(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm)) {
-                return new TextComponent("&" + color + "&n" + a + "&" + color + ' ').setHover("show_text", "Click to open " + a.trim().replace(/^(?:[&§][0-9a-fmn])+|(?:[&§][0-9a-fmn])+$/g, "")).setClick("open_url", a.trim())
+                return new TextComponent("&" + color + "&n" + a + "&" + color + ' ').setHover("show_text", "Click to open " + a.trim().replace(/^(?:[&§][0-9a-fmn])+|(?:[&§][0-9a-fmn])+$/g, "")).setClick("open_url", a.trim().replace(/[&§][0-9a-fmn]/g, ""))
             } else {
                 return new TextComponent(a + ' ')
             }
