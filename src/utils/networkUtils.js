@@ -1,3 +1,5 @@
+import socketFactory from "./letsEncryptCerts"
+
 if (!global.networkUtilsThingSoopyPromise) {
 
     let jURL = Java.type("java.net.URL")
@@ -6,6 +8,7 @@ if (!global.networkUtilsThingSoopyPromise) {
     let jBufferedReader = Java.type("java.io.BufferedReader")
     let jInputStreamReader = Java.type("java.io.InputStreamReader")
     let jString = Java.type("java.lang.String")
+    var JHttpsUrlConnection = Java.type('javax.net.ssl.HttpsURLConnection');
 
     function getUrlContent(theUrl, { userAgent = "Mozilla/5.0", includeConnection = false, postData = undefined } = {}) {
 
@@ -19,6 +22,9 @@ if (!global.networkUtilsThingSoopyPromise) {
         // Thread.sleep(1000) //simulating high ping
 
         let conn = new jURL(theUrl).openConnection()
+        if (conn instanceof JHttpsUrlConnection) {
+            conn.setSSLSocketFactory(socketFactory);
+        }
         conn.setRequestProperty("User-Agent", userAgent)
 
         if (postData) {

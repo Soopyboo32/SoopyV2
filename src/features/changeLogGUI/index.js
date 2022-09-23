@@ -136,7 +136,7 @@ class ChangelogPage extends GuiPage {
     }
 
     async loadChangeLog() {
-        let data = await fetch("http://soopy.dev/api/soopyv2/changelog.json").json()
+        let data = await fetch("https://soopy.dev/api/soopyv2/changelog.json").json()
 
         this.changelogData = data.changelog.reverse()
 
@@ -175,7 +175,7 @@ class ChangelogPage extends GuiPage {
 
             this.progressBar.setProgress(0.1)
 
-            this.urlToFile("http://soopy.dev/api/soopyv2/downloadLatest.zip", "./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons.zip", 10000, 20000)
+            this.urlToFile("https://soopy.dev/api/soopyv2/downloadLatest.zip", "./config/ChatTriggers/modules/SoopyAddonsTempDownload/SoopyAddons.zip", 10000, 20000)
 
             this.progressBar.setProgress(0.5)
 

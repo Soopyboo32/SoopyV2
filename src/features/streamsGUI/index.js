@@ -63,7 +63,7 @@ class StreamPage extends GuiPage {
     }
 
     async updateStreams() {
-        let streams = await fetch("http://soopy.dev/api/skyblockstreams").json()
+        let streams = await fetch("https://soopy.dev/api/skyblockstreams").json()
         this.streamsBox.clearChildren()
 
         let y = 0

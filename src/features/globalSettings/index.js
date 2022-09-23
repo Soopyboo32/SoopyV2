@@ -270,7 +270,7 @@ class GlobalSettings extends Feature {
             if (this.twitchCommands.getValue() && message.startsWith("-") && message[1].toLowerCase().match(/[a-z]/)) {
                 cancel(event)
                 ChatLib.addToSentMessageHistory(message)
-                fetch("http://soopy.dev/api/soopyv2/botcommand?m=" + encodeURIComponent(message.replace("-", "")) + "&u=" + Player.getName()).text().then(text => {
+                fetch("https://soopy.dev/api/soopyv2/botcommand?m=" + encodeURIComponent(message.replace("-", "")) + "&u=" + Player.getName()).text().then(text => {
                     ChatLib.chat(this.FeatureManager.messagePrefix + "&7" + message)
                     toMessageWithLinks(this.FeatureManager.messagePrefix + text, "7").chat()
                 })
@@ -281,7 +281,7 @@ class GlobalSettings extends Feature {
                 cancel(event)
                 ChatLib.addToSentMessageHistory(message)
 
-                fetch("http://soopy.dev/api/soopyv2/itemup", {
+                fetch("https://soopy.dev/api/soopyv2/itemup", {
                     postData: {
                         name: Player.getHeldItem().getName(),
                         lore: Player.getHeldItem().getLore().join("\n")
@@ -305,7 +305,7 @@ class GlobalSettings extends Feature {
             let [_] = message.getUnformattedText().match(/\[ITEM:([0-9]+)\]/g)
             let id = _.replace("[ITEM:", "").replace(/\]$/g, "")
 
-            fetch("http://soopy.dev/api/soopyv2/itemdown/" + id).json().then(([name, lore]) => {
+            fetch("https://soopy.dev/api/soopyv2/itemdown/" + id).json().then(([name, lore]) => {
                 for (let i = 0; i < message.getMessageParts().length; i++) {
                     let component = message.getMessageParts()[i]
 
@@ -371,7 +371,7 @@ class GlobalSettings extends Feature {
         })
 
         this.registerCommand("price", async () => {
-            let json = await fetch("http://soopy.dev/api/soopyv2/itemPriceDetailed", {
+            let json = await fetch("https://soopy.dev/api/soopyv2/itemPriceDetailed", {
                 postData: {
                     item: Player.getHeldItem().getNBT().toObject()
                 }
@@ -784,7 +784,7 @@ class GlobalSettings extends Feature {
                 this.currentPlayerOpen = uuid
                 this.currentPlayerNetworth = {}
 
-                fetch("http://soopy.dev/api/v2/player_skyblock/" + uuid).json().then(data => {
+                fetch("https://soopy.dev/api/v2/player_skyblock/" + uuid).json().then(data => {
                     if (!data.success) return
 
                     if (this.currentPlayerOpen === data.data.uuid) {
@@ -815,13 +815,13 @@ class GlobalSettings extends Feature {
 
         ChatLib.chat(this.FeatureManager.messagePrefix + "Finding senither weight for " + user)
 
-        let userData = await fetch("http://soopy.dev/api/v2/player/" + user).json()
+        let userData = await fetch("https://soopy.dev/api/v2/player/" + user).json()
         if (!userData.success) {
             ChatLib.chat(this.FeatureManager.messagePrefix + "&cError loading data: " + userData.error.description)
             return
         }
 
-        let sbData = await fetch("http://soopy.dev/api/v2/player_skyblock/" + userData.data.uuid).json()
+        let sbData = await fetch("https://soopy.dev/api/v2/player_skyblock/" + userData.data.uuid).json()
 
         if (!sbData.success) {
             ChatLib.chat(this.FeatureManager.messagePrefix + "&cError loading data: " + sbData.error.description)

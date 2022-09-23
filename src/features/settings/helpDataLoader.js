@@ -3,7 +3,7 @@ class HelpDataLoader {
         this.availableHelpData = {}
         this.dataCach = {}
 
-        fetch("http://soopy.dev/api/soopyv2/settingshelpoptions.json").json().then(data => {
+        fetch("https://soopy.dev/api/soopyv2/settingshelpoptions.json").json().then(data => {
             Object.keys(data).forEach(category => {
                 this.availableHelpData[category] = new Set(data[category])
             });
@@ -14,26 +14,23 @@ class HelpDataLoader {
         return this.availableHelpData[category] && this.availableHelpData[category].has(id)
     }
 
-    getData(category, id, callback) {
+    async getData(category, id) {
         if (!this.hasData(category, id)) {
-            callback("")
-            return
+            return ""
         }
 
         if (this.dataCach[category] && this.dataCach[category][id]) {
-            callback(this.dataCach[category][id])
-            return
+            return this.dataCach[category][id]
         }
 
-        fetch("http://soopy.dev/api/soopyv2/settingshelp/" + category + "/" + id).text().then(data => {
-            if (!this.dataCach[category]) {
-                this.dataCach[category] = {}
-            }
+        let data = await fetch("https://soopy.dev/api/soopyv2/settingshelp/" + category + "/" + id).text()
+        if (!this.dataCach[category]) {
+            this.dataCach[category] = {}
+        }
 
-            this.dataCach[category][id] = data
+        this.dataCach[category][id] = data
 
-            callback(data)
-        })
+        callback(data)
     }
 }
 

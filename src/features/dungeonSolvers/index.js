@@ -686,7 +686,7 @@ class DungeonSolvers extends Feature {
 				if (this.scoreCalculation.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + username + " does not have spirit pet!")
 			}
 		} else {
-			let data = await fetch(`http://soopy.dev/api/v2/player_skyblock/${uuid}`).json()
+			let data = await fetch(`https://soopy.dev/api/v2/player_skyblock/${uuid}`).json()
 			if (!data.success) return
 
 			if (data.data.profiles[data2.data.stats.currentProfileId].members[uuid].pets.some(pet => pet.type === "SPIRIT" && pet.tier === "LEGENDARY")) {

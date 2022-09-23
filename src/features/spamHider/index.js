@@ -131,7 +131,7 @@ class SpamHider extends Feature {
     }
 
     async loadSpamMessages() {
-        let messages = await fetch("http://soopy.dev/api/soopyv2/spamHiderMessages.json").json()
+        let messages = await fetch("https://soopy.dev/api/soopyv2/spamHiderMessages.json").json()
         this.hideMessages = messages.hideMessages
         this.moveMessages = messages.moveMessages
 

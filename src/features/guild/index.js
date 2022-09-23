@@ -13,7 +13,7 @@ class Guild extends Feature {
     onEnable() {
 
         this.bridgeBots = new Set()
-        fetch("http://soopy.dev/api/soopyv2/gbots.json").json().then(bots => {
+        fetch("https://soopy.dev/api/soopyv2/gbots.json").json().then(bots => {
             bots.forEach(b => this.bridgeBots.add(b))
         })
 
@@ -47,7 +47,7 @@ class Guild extends Feature {
             } else {
                 if (msg.match(/^@(\w+?), ([\w\W]+?) \[GBot:([0-9]+)\] [,. ]+$/)) {
                     let [_, name2, reply, gBotId] = msg.match(/^@(\w+?), ([\w\W]+?) \[GBot:([0-9]+)\] [,. ]+$/)
-                    fetch("http://soopy.dev/api/botdown/" + gBotId).json().then(m => {
+                    fetch("https://soopy.dev/api/botdown/" + gBotId).json().then(m => {
                         let message = new Message(`&2B${this.shortenPrefix.getValue() ? "" : "ridge"} > &b${name2} &7⤷&f `)
 
                         m.forEach(c => {

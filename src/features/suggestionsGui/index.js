@@ -81,7 +81,7 @@ class SuggestionPage extends GuiPage {
         this.pages[0].addChild(this.suggestionsArea)
 
 
-        fetch("http://soopy.dev/api/soopyv2/suggestionTags.json").json().then(data => {
+        fetch("https://soopy.dev/api/soopyv2/suggestionTags.json").json().then(data => {
             this.tags = data
         })
 
@@ -89,7 +89,7 @@ class SuggestionPage extends GuiPage {
     }
 
     async loadSuggestionPage() {
-        let data = await fetch("http://soopy.dev/api/soopyv2/suggestion/new").json()
+        let data = await fetch("https://soopy.dev/api/soopyv2/suggestion/new").json()
 
         this.suggestionElements = {}
         this.suggestionsArea.clearChildren()
@@ -125,7 +125,7 @@ class SuggestionPage extends GuiPage {
     }
 
     async loadSuggestion(id) {
-        let data = await fetch("http://soopy.dev/api/soopyv2/suggestion/" + id + "/user/" + Player.getUUID().toString().replace(/-/g, "")).json()
+        let data = await fetch("https://soopy.dev/api/soopyv2/suggestion/" + id + "/user/" + Player.getUUID().toString().replace(/-/g, "")).json()
         let sideBarElm = new SoopyGuiElement().setLocation(0, 0, 1, 1).setScrollable(true)
         if (!data.success) {
             sideBarElm.addChild(new SoopyTextElement().setText("§cError loading suggestion").setMaxTextScale(3).setLocation(0.5, 0.5, 0.5, 0.5))
@@ -152,13 +152,13 @@ class SuggestionPage extends GuiPage {
 
             drop.addEvent(new SoopyContentChangeEvent().setHandler((newVal) => {
                 if (newVal === "delete") {
-                    fetch("http://soopy.dev/api/soopyv2/suggestion/" + id + "/delete/" + this.password).load()
+                    fetch("https://soopy.dev/api/soopyv2/suggestion/" + id + "/delete/" + this.password).load()
 
                     this.loadSuggestionPage()
                     this.closeSidebarPage()
                     return
                 }
-                fetch("http://soopy.dev/api/soopyv2/suggestion/" + id + "/status/" + newVal + "/" + this.password).load()
+                fetch("https://soopy.dev/api/soopyv2/suggestion/" + id + "/status/" + newVal + "/" + this.password).load()
 
                 this.loadSuggestion(id)
             }))
@@ -201,7 +201,7 @@ class SuggestionPage extends GuiPage {
     }
 
     voteSuggestion(id, type) {
-        fetch("http://soopy.dev/api/soopyv2/suggestion/" + id + "/vote/" + (type) + "/" + Player.getUUID().toString().replace(/-/g, "")).load()
+        fetch("https://soopy.dev/api/soopyv2/suggestion/" + id + "/vote/" + (type) + "/" + Player.getUUID().toString().replace(/-/g, "")).load()
 
         this.loadSuggestion(id)
     }

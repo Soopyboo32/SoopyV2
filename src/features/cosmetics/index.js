@@ -83,7 +83,7 @@ class Cosmetics extends Feature {
     }
 
     async loadCosmeticsData() {
-        let data = await fetch("http://soopy.dev/api/soopyv2/cosmetics.json").json()
+        let data = await fetch("https://soopy.dev/api/soopyv2/cosmetics.json").json()
 
         this.cosmeticsData = data
         this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g, "")]

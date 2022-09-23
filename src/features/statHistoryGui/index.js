@@ -91,7 +91,7 @@ class StatGraphPage extends GuiPage {
         this.statArea.clearChildren()
         this.statArea.addChild(this.loadingElm)
 
-        let playerData = await fetch("http://soopy.dev/api/v2/player/" + player).json()
+        let playerData = await fetch("https://soopy.dev/api/v2/player/" + player).json()
 
         if (player !== this.playerLoad) return
 
@@ -107,7 +107,7 @@ class StatGraphPage extends GuiPage {
         this.statArea.addChild(nameElm)
         this.statArea.addChild(this.loadingElm)
 
-        let skyblockData = await fetch("http://soopy.dev/api/v2/player_skyblock/" + playerData.data.uuid).json()
+        let skyblockData = await fetch("https://soopy.dev/api/v2/player_skyblock/" + playerData.data.uuid).json()
         if (player !== this.playerLoad) return
 
         if (!skyblockData.success) {
@@ -129,7 +129,7 @@ class StatGraphPage extends GuiPage {
         }))
         this.statArea.addChild(profileSelect)
 
-        fetch("http://soopy.dev/statgraphgenerations/" + playerData.data.uuid + "/" + selectedProf).json().then(graphData => {
+        fetch("https://soopy.dev/statgraphgenerations/" + playerData.data.uuid + "/" + selectedProf).json().then(graphData => {
             if (player !== this.playerLoad) return
 
             new Thread(() => {

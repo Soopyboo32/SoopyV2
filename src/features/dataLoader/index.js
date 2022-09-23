@@ -124,7 +124,7 @@ class DataLoader extends Feature {
     }
 
     async step_5min() {
-        let data = await fetch("http://soopy.dev/api/v2/mayor").json()
+        let data = await fetch("https://soopy.dev/api/v2/mayor").json()
 
         if (!data.success) return
         this.mayorData = data.data
@@ -142,7 +142,7 @@ class DataLoader extends Feature {
         this.loadApiData("skyblock", false)
     }
     async loadApi() {
-        let data = await fetch("http://soopy.dev/api/v2/player_skyblock/" + Player.getUUID().replace(/-/g, "")).json()
+        let data = await fetch("https://soopy.dev/api/v2/player_skyblock/" + Player.getUUID().replace(/-/g, "")).json()
 
         if (!data.success) return
 

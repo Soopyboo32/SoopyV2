@@ -30,12 +30,12 @@ class SettingBase {
         this.helpButton = new BoxWithText().setText("§0?").setLocation(3, 3, 0.05, 0.5)
         this.helpButton.location.location.setRelative(false, false)
 
-        this.helpButton.addEvent(new SoopyMouseClickEvent().setHandler(() => {
+        this.helpButton.addEvent(new SoopyMouseClickEvent().setHandler(async () => {
             module.FeatureManager.features.soopyGui.class.openSidebarPage(new SoopyGuiElement().setLocation(0.05, 0.05, 0.9, 0.9).setScrollable(true).addChild(new SoopyMarkdownElement().setLocation(0, 0, 1, 1).setText("Loading...")))
 
-            this.getHelp(helpText => {
-                module.FeatureManager.features.soopyGui.class.openSidebarPage(new SoopyGuiElement().setLocation(0.05, 0.05, 0.9, 0.9).setScrollable(true).addChild(new SoopyMarkdownElement().setLocation(0, 0, 1, 1).setText(helpText)))
-            })
+            let helpText = await this.getHelp()
+
+            module.FeatureManager.features.soopyGui.class.openSidebarPage(new SoopyGuiElement().setLocation(0.05, 0.05, 0.9, 0.9).setScrollable(true).addChild(new SoopyMarkdownElement().setLocation(0, 0, 1, 1).setText(helpText)))
         }))
 
         this.helpButton.setLore(["Click for more information about this setting"])
@@ -79,8 +79,8 @@ class SettingBase {
         return helpDataLoader.hasData(this.moduleId, this.settingId)
     }
 
-    getHelp(callback) {
-        helpDataLoader.getData(this.moduleId, this.settingId, callback)
+    async getHelp() {
+        return await helpDataLoader.getData(this.moduleId, this.settingId)
     }
 
     getValue() {

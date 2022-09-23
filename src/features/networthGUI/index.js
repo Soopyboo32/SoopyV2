@@ -119,7 +119,7 @@ class NetworthPage extends GuiPage {
         this.statArea.clearChildren()
         this.statArea.addChild(this.loadingElm)
 
-        let playerData = await fetch("http://soopy.dev/api/v2/player/" + player).json()
+        let playerData = await fetch("https://soopy.dev/api/v2/player/" + player).json()
 
         if (player !== this.playerLoad) return
 
@@ -131,7 +131,7 @@ class NetworthPage extends GuiPage {
             return
         }
 
-        let skyblockData = await fetch("http://soopy.dev/api/v2/player_skyblock/" + playerData.data.uuid).json()
+        let skyblockData = await fetch("https://soopy.dev/api/v2/player_skyblock/" + playerData.data.uuid).json()
 
         if (player !== this.playerLoad) return
 
@@ -181,7 +181,7 @@ class NetworthPage extends GuiPage {
         })
 
         if (selectedProf === skyblockData.data.stats.bestProfileId) {
-            let leaderboardData = await fetch("http://soopy.dev/api/v2/leaderboard/networth/user/" + playerData.data.uuid).json()
+            let leaderboardData = await fetch("https://soopy.dev/api/v2/leaderboard/networth/user/" + playerData.data.uuid).json()
             if (player !== this.playerLoad) return
 
             if (leaderboardData.success) nameElm.setText("§0#" + numberWithCommas(leaderboardData.data.data.position + 1) + " " + playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7"))
@@ -199,7 +199,7 @@ class NetworthPage extends GuiPage {
     }
 
     async sidebarSearch(user) {
-        let data = await fetch("http://soopy.dev/api/v2/leaderboard/networth/user/" + user).json()
+        let data = await fetch("https://soopy.dev/api/v2/leaderboard/networth/user/" + user).json()
         if (!data.success) {
             return
         }
@@ -218,7 +218,7 @@ class NetworthPage extends GuiPage {
         if (scroll) this.leaderboardArea._scrollAmount = 0
         if (scroll) this.leaderboardArea.location.scroll.y.set(0, 100)
 
-        let data = await fetch("http://soopy.dev/api/v2/leaderboard/networth/" + page).json()
+        let data = await fetch("https://soopy.dev/api/v2/leaderboard/networth/" + page).json()
         this.leaderboardArea.clearChildren()
         data.data.data.forEach((user, i) => {
             this.leaderboardArea.addChild(

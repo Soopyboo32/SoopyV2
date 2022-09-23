@@ -81,7 +81,7 @@ class FeatureManager {
 
         this.featureSettingsData = {}
 
-        let fetchD = fetch("http://soopy.dev/api/soopyv2/ping")
+        let fetchD = fetch("https://soopy.dev/api/soopyv2/ping")
         fetchD.load().then(() => {
             if (fetchD.responseCode() >= 400 || fetchD.responseCode() === -1) {
                 ChatLib.chat(this.messagePrefix + "&cError: Could not connect to Soopy's server. This may cause issues with some features but will (hopefully) be back soon.")
@@ -238,7 +238,7 @@ class FeatureManager {
     }
 
     reportLagData(data) {
-        return fetch("http://soopy.dev/soopy/submitlag", { postData: data }).textSync()
+        return fetch("https://soopy.dev/soopy/submitlag", { postData: data }).textSync()
     }
 
     loadSoopyLag() {
