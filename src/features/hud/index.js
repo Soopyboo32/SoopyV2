@@ -632,7 +632,7 @@ class Hud extends Feature {
             godPotTime = this.potsExpireAt["water_breathing"].time
         }
 
-        if (godPotTime > 0) {
+        if (godPotTime > 0 && godPotTime > Date.now()) {
             let timeLeft = ""
             if (godPotTime - Date.now() > 60000 * 60) {
                 timeLeft = timeNumber2(godPotTime - Date.now())
@@ -643,6 +643,7 @@ class Hud extends Feature {
 
             if (this.potsOutAlert.getValue() && godPotTime - Date.now() < 60000 && Date.now() - (this.lastPotAlerts["godpot"] || 0) > 2 * 60000) {
                 this.lastPotAlerts["godpot"] = Date.now()
+                Client.showTitle("&cPotion About to run out", "Your &6God potion&f is about to run out!", 20, 60, 20)
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Your God potion is about to run out!")
             }
         }
@@ -651,6 +652,7 @@ class Hud extends Feature {
             let potData = this.potsExpireAt[k]
             if (potData.infinite) return
             if (basiclyEqual(potData.time, godPotTime, 1000)) return
+            if (potData.time < Date.now()) return
 
             if (k === "haste" && potData.level === 1) return
 
@@ -658,6 +660,7 @@ class Hud extends Feature {
 
             if (this.potsOutAlert.getValue() && potData.time - Date.now() < 60000 && Date.now() - (this.lastPotAlerts[k] || 0) > 2 * 60000) {
                 this.lastPotAlerts[k] = Date.now()
+                Client.showTitle("&cPotion About to run out", "Your &6" + potName + "&f is about to run out!", 20, 60, 20)
                 ChatLib.chat(this.FeatureManager.messagePrefix + "Your " + potName + " is about to run out!")
             }
 
