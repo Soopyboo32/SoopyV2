@@ -182,11 +182,12 @@ class FeatureManager {
         this.registerCommand("soopysetlongeventtime", (args) => {
             this.longEventTime = parseInt(args)
         }, this)
-        this.registerCommand("soopylaginformation", (args) => {
-            this.loadPerformanceData()
-        }, this)
-        this.registerCommand("soopylaginformationfast", (args) => {
-            this.loadPerformanceDataFast()
+        this.registerCommand("soopylaginformation", (full) => {
+            if (full === "full") {
+                this.loadPerformanceData()
+            } else {
+                this.loadPerformanceDataFast()
+            }
         }, this)
     }
 

@@ -13,7 +13,6 @@
     "guimanager",
     "mappings",
     "BeaconBeam",
-    "RenderLib2D",
     "PromiseV2"
   ]
 }
