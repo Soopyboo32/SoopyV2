@@ -115,7 +115,7 @@ class Bestiary extends Feature {
     getBestiaryCount(id) {
         if (!this.bestiaryData[id]) return "???"
 
-        return `${this.bestiaryData[id].tier}&7:&f ${this.bestiaryData[id].killsThisTier}&7/&f${this.bestiaryData[id].killsForNext}`
+        return `${this.bestiaryData[id].tier}&7:&f ${numberWithCommas(this.bestiaryData[id].killsThisTier)}&7/&f${numberWithCommas(this.bestiaryData[id].killsForNext)}`
     }
 
     updateHudElements() {
@@ -132,7 +132,7 @@ class Bestiary extends Feature {
 
                 let type = stat.type.getValue()
 
-                stat.textElement.setText(`&6${this.bestiaryStatTypes[type]}&7> &f${numberWithCommas(this.getBestiaryCount(type))}`)
+                stat.textElement.setText(`&6${this.bestiaryStatTypes[type]}&7> &f${this.getBestiaryCount(type)}`)
             } else {
                 stat.textElement.setText("")
             }
