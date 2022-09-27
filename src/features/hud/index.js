@@ -628,7 +628,7 @@ class Hud extends Feature {
         let godPotTime = -1
         if (this.potsExpireAt["water_breathing"]?.level === 6
             && this.potsExpireAt["resistance"]?.level === 8
-            && basiclyEqual(this.potsExpireAt["water_breathing"]?.time, this.potsExpireAt["resistance"]?.time, 1000)) {
+            && basiclyEqual(this.potsExpireAt["water_breathing"]?.time, this.potsExpireAt["resistance"]?.time, 10000)) {
             godPotTime = this.potsExpireAt["water_breathing"].time
         }
 
@@ -651,7 +651,7 @@ class Hud extends Feature {
         Object.keys(this.potsExpireAt).forEach(k => {
             let potData = this.potsExpireAt[k]
             if (potData.infinite) return
-            if (basiclyEqual(potData.time, godPotTime, 1000)) return
+            if (basiclyEqual(potData.time, godPotTime, 10000)) return
             if (potData.time < Date.now()) return
 
             if (k === "haste" && potData.level === 1) return

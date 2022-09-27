@@ -344,7 +344,7 @@ class Events extends Feature {
 
 		this.hasWarps.forEach(w => {
 			if (!warpData[w]) return
-			let d = calculateDistance(warpData[w], this.guessPoint2)
+			let d = calculateDistance(warpData[w], this.guessPoint)
 			if (d < minDist) {
 				warp = "warp " + w
 				minDist = d

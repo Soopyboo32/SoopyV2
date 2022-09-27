@@ -192,7 +192,7 @@ class PowderAndScatha extends Feature {
             if (this.chestUncoverAlertSound.getValue()) World.playSound("random.levelup", 1, 1);
         })
 
-        this.registerChat("&r&r&r${space}&r&b&l2X POWDER ${status}!&r", (space, status, e) => {
+        this.registerChat("${space}&r&b&l2X POWDER ${status}!&r", (space, status, e) => {
             if (status.removeFormatting() === "STARTED") {
                 this.dPowder = Date.now() + 15 * 1000 * 60
             } else this.dPowder = 0
@@ -384,6 +384,8 @@ class PowderAndScatha extends Feature {
                 this.foundWither = true;
             });
         }
+
+        if (Date.now() > this.dPowder) this.dPowder = 0
 
         this.overlayLeft = []
         this.overlayRight = []
