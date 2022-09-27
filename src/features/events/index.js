@@ -338,13 +338,13 @@ class Events extends Feature {
 	}
 
 	getClosestWarp() {
-		if (!this.guessPoint) return undefined
+		if (!this.guessPoint2) return undefined
 		let warp = undefined
-		let minDist = calculateDistance([Player.getX(), Player.getY(), Player.getZ()], this.guessPoint) - 50
+		let minDist = calculateDistance([Player.getX(), Player.getY(), Player.getZ()], this.guessPoint2) - 50
 
 		this.hasWarps.forEach(w => {
 			if (!warpData[w]) return
-			let d = calculateDistance(warpData[w], this.guessPoint)
+			let d = calculateDistance(warpData[w], this.guessPoint2)
 			if (d < minDist) {
 				warp = "warp " + w
 				minDist = d
