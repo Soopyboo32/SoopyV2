@@ -565,7 +565,7 @@ class DungeonMap extends Feature {
 
 
             //         Party (2) | Soopyboo32 (Mage XXXVI) |  Ultimate: Ready |  Revive Stones: 1 |  | zZzJAKE ♲ (DEAD) |  Ultimate: 00m 45s |  Revive Stones: 0 |  |  |  |  |  |  |  |  |  |  |  |  |        Player Stats | Downed: zZzJAKE |  Time: 00m 47s |  Revive: 01m 40s |  | Deaths: (2) |  Damage Dealt: 4.7M❤ |  Healing Done: 718❤ |  Milestone: ☠❸ |  | Discoveries: (0) |  Secrets Found: 0 |  Crypts: 0 |  |  |  |  |  |  |  |        Dungeon Stats | Dungeon: Catacombs |  Opened Rooms: 13 |  Completed Rooms: 12 |  Secrets Found: 0% |  Time: 01m 51s |  | Puzzles: (3) |  ???: [✦] |  ???: [✦] |  ???: [✦] |  |  |  |  |  |  |  |  |  |        Account Info | Profile: Pomegranate |  Pet Sitter: N/A |  Bank: 57M/11M |  Interest: 04h 19m 10s |  | Skills: Combat 60: MAX |  Speed: ✦457 |  Strength: ❁859 |  Crit Chance: ☣62 |  Crit Damage: ☠1479 |  Attack Speed: ⚔92 |  | Event: Election Over! |  Starts In: 2h 39m 10s |  | Election: 0d 2h 39m 10s |  Aatrox: |||||||||| (79%) |  Marina: |||||||||| (7%) |  Cole: |||||||||| (6%) | Soopyboo32
-            let line = ChatLib.removeFormatting(nameo).trim().replace("♲ ", "") //TODO: Remove bingo symbol
+            let line = ChatLib.removeFormatting(nameo).trim().replace(/\[[0-9]+\] /g, "").replace("♲ ", "") //TODO: Remove bingo symbol
             if (line.endsWith(")") && line.includes(" (") && line.split(" (").length === 2 && line.split(" (")[0].split(" ").length === 1 && line.split(" (")[1].length > 5) {
                 this.people.push(line.split(" ")[0])
             }
