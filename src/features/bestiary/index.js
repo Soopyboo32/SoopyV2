@@ -144,11 +144,9 @@ class Bestiary extends Feature {
         if (dataType !== "skyblock") return;
 
         let currentProfile = {}
-        let currentProfileTime = 0
 
         data.profiles.forEach(p => {
-            if (p.members[Player.getUUID().toString().replace(/-/g, "")].last_save > currentProfileTime) {
-                currentProfileTime = p.members[Player.getUUID().toString().replace(/-/g, "")].last_save
+            if (p.selected) {
                 currentProfile = p.members[Player.getUUID().toString().replace(/-/g, "")]
             }
         })

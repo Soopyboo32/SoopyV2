@@ -676,10 +676,10 @@ class Hud extends Feature {
         this.potsHudElement.setText(text)
     }
 
-    updatePotsData(data) {
+    updatePotsData(data, lastSave) {
         this.potsExpireAt = {}
         let now = Date.now()
-        if (Date.now() - data.last_save < 5 * 60000) now = data.last_save
+        if (Date.now() - lastSave < 5 * 60000) now = lastSave
         data.active_effects.forEach(e => {
             this.potsExpireAt[e.effect] = {
                 level: e.level,
@@ -690,14 +690,16 @@ class Hud extends Feature {
     }
 
     statApiLoadThingo(data) {
+        let lastSave = 0
         data.profiles.forEach(p => {
-            if (!this.lastStatData || (p.members[Player.getUUID().toString().replace(/-/g, "")] && p.members[Player.getUUID().toString().replace(/-/g, "")].last_save > this.lastStatData.last_save)) {
+            if (!this.lastStatData || p.selected) {
                 this.lastStatData = p.members[Player.getUUID().toString().replace(/-/g, "")]
+                lastSave = p.last_save
             }
         })
 
         if (this.lastStatData) {
-            this.updatePotsData(this.lastStatData)
+            this.updatePotsData(this.lastStatData, lastSave)
             if (this.lastStatData.soulflow) this.apiSoulflow = true
 
             if (this.apiSoulflow) this.soulflowElement.setText("&6Soulflow&7> &f" + this.numberUtils.numberWithCommas(this.lastStatData.soulflow))

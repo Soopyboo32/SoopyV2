@@ -671,15 +671,15 @@ class DungeonSolvers extends Feature {
 			let data = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${this.FeatureManager.features["globalSettings"].class.apiKeySetting.getValue()}&uuid=${uuid}`).json()
 			if (!data.success) return
 
-			let latestProfile = [0, undefined]
+			let latestProfile = undefined
 
 			data.profiles.forEach(p => {
-				if (p.members[uuid].last_save > latestProfile[0]) {
-					latestProfile = [p.members[uuid].last_save, p.members[uuid].pets.some(pet => pet.type === "SPIRIT" && pet.tier === "LEGENDARY")]
+				if (p.selected) {
+					latestProfile = p.members[uuid].pets.some(pet => pet.type === "SPIRIT" && pet.tier === "LEGENDARY")
 				}
 			})
 
-			if (latestProfile[1]) {
+			if (latestProfile) {
 				this.firstDeathHadSpirit = true
 				if (this.scoreCalculation.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + username + " has spirit pet!")
 			} else {
