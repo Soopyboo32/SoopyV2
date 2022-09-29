@@ -205,7 +205,7 @@ class Nether extends Feature {
 			let x = e.getX() + (e.getX() - e.getLastX()) * (20 * ping)
 			let y = e.getY() + (e.getY() - e.getLastY()) * (20 * ping)
 			let z = e.getZ() + (e.getZ() - e.getLastZ()) * (20 * ping)
-			if (x === e.getX() && y === e.getY() && z === e.getZ()) return
+			// if (x === e.getX() && y === e.getY() && z === e.getZ()) return
 
 			while (World.getBlockAt(x, y, z).getType().getID() !== 0) { y += 0.2 }
 
@@ -353,7 +353,7 @@ class Nether extends Feature {
 
 		this.todoM2 = this.todoM
 		this.todoM = []
-        
+
 		if (this.miniboss && this.miniboss.getEntity()[f.isDead]) this.miniboss = undefined
 		if (!this.minibossNametag.getValue() || !this.miniboss) {
 			this.minibossNametagElement.setText("")
