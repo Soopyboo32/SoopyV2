@@ -473,10 +473,3 @@ function setField(e, field, value) {
 
     return field2.set(e, value)
 }
-
-let a = 0
-
-register("command", (val) => {
-    a = parseFloat(val)
-    ChatLib.chat("Set a to " + a)
-}).setName("seta", true)

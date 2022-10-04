@@ -483,6 +483,7 @@ class GlobalSettings extends Feature {
         let j = 0;
         let now = Date.now();
         let thunderText = [];
+        if (!Player.getInventory()) return
         [...Player.getInventory().getItems()].forEach(i => {
             j++;
             if (i) {
@@ -910,89 +911,6 @@ class GlobalSettings extends Feature {
         } else {
             return false
         }
-    }
-    findKey() {
-        new Notification("Finding key...", [])
-        new Thread(() => {
-
-            //       NEU
-            try {
-                let testKey = JSON.parse(new JavaString(Files.readAllBytes(Paths.get("./config/notenoughupdates/configNew.json")))).apiKey.apiKey
-                if (testKey) {
-                    if (this.verifyKey(testKey)) {
-                        this.apiKeySetting.setValue(testKey)
-                        new Notification("§aSuccess!", ["Found api key in NotEnoughUpdates!"])
-                        return;
-                    } else {
-                        logger.logMessage("Found invalid key in NotEnoughUpdates", 3)
-                    }
-                }
-            } catch (_) { }
-
-            //       SBE
-            try {
-                let testKey = JSON.parse(new JavaString(Files.readAllBytes(Paths.get("./config/SkyblockExtras.cfg")))).values.apiKey
-                if (testKey) {
-                    if (this.verifyKey(testKey)) {
-                        this.apiKeySetting.setValue(testKey)
-                        new Notification("§aSuccess!", ["Found api key in SkyblockExtras!"])
-                        return;
-                    } else {
-                        logger.logMessage("Found invalid key in SkyblockExtras", 3)
-                    }
-                }
-            } catch (_) { }
-            //       SKYTILS
-            try {
-                let testKey2 = new JavaString(Files.readAllBytes(Paths.get("./config/skytils/config.toml")))
-                let testKey = undefined
-                testKey2.split("\n").forEach(line => {
-                    if (line.startsWith("		hypixel_api_key = \"")) {
-                        testKey = line.split("\"")[1]
-                    }
-                })
-                if (testKey) {
-                    if (this.verifyKey(testKey)) {
-                        this.apiKeySetting.setValue(testKey)
-                        new Notification("§aSuccess!", ["Found api key in Skytils!"])
-                        return;
-                    } else {
-                        logger.logMessage("Found invalid key in Skytils", 3)
-                    }
-                }
-            } catch (_) { }
-
-            //       SOOPYADDONS DATA
-            try {
-                let testKey = FileLib.read("soopyAddonsData", "apikey.txt")
-                if (testKey) {
-                    if (this.verifyKey(testKey)) {
-                        this.apiKeySetting.setValue(testKey)
-                        new Notification("§aSuccess!", ["Found api key in old soopyaddons version!"])
-                        return;
-                    } else {
-                        logger.logMessage("Found invalid key in soopyaddonsData", 3)
-                    }
-                }
-            } catch (_) { }
-
-            //       HypixelApiKeyManager
-            try {
-                let testKey = JSON.parse(FileLib.read("HypixelApiKeyManager", "localdata.json")).key
-                if (testKey) {
-                    if (this.verifyKey(testKey)) {
-                        this.apiKeySetting.setValue(testKey)
-                        new Notification("§aSuccess!", ["Found api key in HypixelApiKeyManager!"])
-                        return;
-                    } else {
-                        logger.logMessage("Found invalid key in HypixelApiKeyManager", 3)
-                    }
-                }
-            } catch (_) { }
-
-
-            new Notification("§cUnable to find api key", [])
-        }).start()
     }
 
     apiNewCommand() {

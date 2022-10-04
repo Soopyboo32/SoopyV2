@@ -311,12 +311,12 @@ class Hud extends Feature {
         })
 
         this.registerSoopy("apiLoad", this.apiLoad)
-        if (this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock) {
+        if (this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock) {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock, "skyblock", true, true)
 
             this.lastSwappedPet = Date.now()
         }
-        if (this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw) {
+        if (this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw) {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw, "skyblock", false, true)
         }
 

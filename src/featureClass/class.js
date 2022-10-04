@@ -176,6 +176,8 @@ class Event {
         this.registerArgs = registerArgs
         this.parent = parent
 
+        this.data.eventT = this
+
         this.enabled = true
 
         this.when = undefined
@@ -280,14 +282,17 @@ class ForgeEvent extends Event {
 }
 
 class CustomEvent extends Event {
+    //theEvent, theEvent.trigger, [isFps, interval, func], this
     constructor(...args) {
         super(...args)
     }
     actuallyRegister() {
+        if (this.data.type === "step") return
         this.trigger.register()
     }
 
     actuallyUnregister() {
+        if (this.data.type === "step") return
         this.trigger.unregister()
     }
 }

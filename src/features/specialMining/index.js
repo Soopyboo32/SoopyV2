@@ -21,10 +21,11 @@ class PowderAndScatha extends Feature {
         this.compactedChat = new ToggleSetting("Compact Powder Messages", "same as the one in skytils but support following setting", false, "compact_powder_chat", this)
         this.fixChatForDoublePowder = new ToggleSetting("Fix Chat Messages During Double Powder", "so it's the correct amount of powder you received during the event", false, "fix_chat_dpowder", this)
         this.fixChatForDoublePowderSuffix = new TextSetting("Suffix of previous message", "(so you can tell whether it's 2x powder) change it yourself!", "&a(&b2X Powder&a)", "chat_dpowder_suffix", this, "(none)", false).requires(this.fixChatForDoublePowder);
-        this.PowderElement = new ToggleSetting("Powder Mining Info Hud (MAIN TOGGLE)", "This will show your current powder mining section (only in CH)", true, "powder_mining_hud", this).contributor("EmeraldMerchant");
+        this.PowderElement = new ToggleSetting("Powder Mining Features (MAIN TOGGLE)", "", true, "powder_mining_hud", this).contributor("EmeraldMerchant");
+        this.PowderHudElement = new ToggleSetting("Powder info on hud", "This will show your current powder mining section (only in CH)", true, "powder_gui_element", this).requires(this.PowderElement)
         this.PowderOverlayElement = new HudTextElement()
             .setText("")
-            .setToggleSetting(this.PowderElement)
+            .setToggleSetting(this.PowderHudElement)
             .setLocationSetting(new LocationSetting("Powder Mining Info Hud Location", "Allows you to edit the location of Powder Mining Info Hud", "powder_mining_hud_location", this, [10, 50, 1, 1]).requires(this.PowderElement).editTempText(`&b2x Powder: &cINACTIVE\n&aChests: &b32\n&bMithril: &d12,768\n&bGems: &d21,325`).contributor("EmeraldMerchant"));
         this.hudElements.push(this.PowderOverlayElement);
         this.PowderOverlayElement.disableRendering()

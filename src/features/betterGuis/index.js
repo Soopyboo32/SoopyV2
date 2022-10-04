@@ -297,15 +297,15 @@ class BetterGuis extends Feature {
             return;
         }
         if (this.lastWindowId === 0) {
-            this.lastWindowId = Player.getContainer().getWindowId();
+            this.lastWindowId = Player.getContainer()?.getWindowId();
             return;
         }
-        if (Player.getContainer().getWindowId() === this.lastWindowId) {
+        if (Player.getContainer()?.getWindowId() === this.lastWindowId) {
             this.shouldHold--
             return;
         }
 
-        this.lastWindowId = Player.getContainer().getWindowId();
+        this.lastWindowId = Player.getContainer()?.getWindowId();
         this.shouldHold += 10;
         if (Date.now() - this.clickSlotTime > 1000) {
             this.clickSlot = -1;

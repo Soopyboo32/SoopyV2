@@ -1063,7 +1063,7 @@ class DungeonSolvers extends Feature {
 	}
 
 	addBlaze(blaze) {
-		if (!this.FeatureManager.features["dataLoader"].class.dungeonFloor) return;
+		if (!this.FeatureManager.features["dataLoader"] || !this.FeatureManager.features["dataLoader"].class.dungeonFloor) return;
 		if (this.blazeX === -1) {
 			this.blazes.push(blaze);
 			let locs = {};
@@ -1141,7 +1141,7 @@ class DungeonSolvers extends Feature {
 			if (end === "[✔]") this.completedPuzzleCount++;
 		});
 
-		if (this.lividFindEnabled.getValue() && (this.FeatureManager.features["dataLoader"].class.dungeonFloor === "F5" || this.FeatureManager.features["dataLoader"].class.dungeonFloor === "M5")) {
+		if (this.FeatureManager.features["dataLoader"] && this.lividFindEnabled.getValue() && (this.FeatureManager.features["dataLoader"].class.dungeonFloor === "F5" || this.FeatureManager.features["dataLoader"].class.dungeonFloor === "M5")) {
 			let type = World.getBlockAt(3, 108, 30).getMetadata();
 
 			let typeReplace = {

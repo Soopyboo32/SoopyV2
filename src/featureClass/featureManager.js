@@ -19,7 +19,7 @@ let CTRequire = new JSLoader.CTRequire(StrongCachingModuleScriptProvider)
 const System = Java.type("java.lang.System")
 
 let loadedModules = new Set()
-let shouldRequireForceNoCache = true
+let shouldRequireForceNoCache = false
 
 function RequireNoCache(place) {
     if (!shouldRequireForceNoCache) {
@@ -566,10 +566,12 @@ class FeatureManager {
         if (!func) throw new Error("Function must not be null")
 
         this.customEvents[id] = {
-            func: func,
-            context: context,
+            func,
+            context,
             trigger: register(type, (...args) => {
                 try {
+                    if (this.customEvents[id]?.eventT && !this.customEvents[id].eventT.enabled) return
+
                     if (context.enabled) {
                         if (this.recordingPerformanceUsage) this.startRecordingPerformance(context.getId(), type)
                         let start = Date.now()
@@ -587,7 +589,8 @@ class FeatureManager {
                     soopyV2Server.reportError(e, "Error in " + type + " event.")
                 }
             }),
-            id: id
+            id,
+            type,
         }
 
         return this.customEvents[id]
