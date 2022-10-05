@@ -33,6 +33,50 @@ class ChangeLogGui extends Feature {
         this.registerStep(false, 60 * 5, () => {
             this.ChangelogPage.loadChangeLog()
         })
+
+        this.registerCommand("downloadbettermap", () => {
+            new Thread(() => {
+                ChatLib.chat("Downloading...")
+
+                let url = FileLib.getUrlContent("http://soopy.dev/api/bettermap/downloadurl")
+
+                new File("./config/ChatTriggers/modules/BetterMapTempDownload").mkdir()
+
+                this.ChangelogPage.urlToFile(url, "./config/ChatTriggers/modules/BetterMapTempDownload/BetterMap.zip", 10000, 20000)
+
+                FileLib.unzip("./config/ChatTriggers/modules/BetterMapTempDownload/BetterMap.zip", "./config/ChatTriggers/modules/BetterMapTempDownload/BetterMap/")
+
+                FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/BetterMap"))
+
+                new File("./config/ChatTriggers/modules/BetterMapTempDownload/BetterMap/BetterMap").renameTo(new File("./config/ChatTriggers/modules/BetterMap"))
+
+                FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/BetterMapTempDownload"))
+
+                ChatLib.command("ct load", true)
+            }).start()
+        })
+
+        this.registerCommand("updatebettermap", () => {
+            new Thread(() => {
+                ChatLib.chat("Updating...")
+
+                let url = FileLib.getUrlContent("http://soopy.dev/api/bettermap/downloadurl")
+
+                new File("./config/ChatTriggers/modules/BetterMapTempDownload").mkdir()
+
+                this.ChangelogPage.urlToFile(url, "./config/ChatTriggers/modules/BetterMapTempDownload/BetterMap.zip", 10000, 20000)
+
+                FileLib.unzip("./config/ChatTriggers/modules/BetterMapTempDownload/BetterMap.zip", "./config/ChatTriggers/modules/BetterMapTempDownload/BetterMap/")
+
+                FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/BetterMap"))
+
+                new File("./config/ChatTriggers/modules/BetterMapTempDownload/BetterMap/BetterMap").renameTo(new File("./config/ChatTriggers/modules/BetterMap"))
+
+                FileLib.deleteDirectory(new File("./config/ChatTriggers/modules/BetterMapTempDownload"))
+
+                ChatLib.command("ct load", true)
+            }).start()
+        })
     }
 
     worldLoad() {

@@ -33,6 +33,7 @@ class DungeonMap extends Feature {
     onEnable() {
         this.initVariables()
 
+        this.mapInfo2 = new SettingBase("NOTE: This will soon be replaced with bettermap", "Do /downloadbettermap to download.", undefined, "map_info2", this)
         this.mapInfo = new SettingBase("NOTE: The more players in the party with this", "category enabled the more accurate the map will be.", undefined, "map_info", this)
         this.renderMap = new ToggleSetting("Render Map", "Toggles Rendering the map on the hud", false, "dmap_render", this)
         this.mapIcons = new ToggleSetting("Icons for puzzles on map", "Toggles Rendering the puzzle icons on map", true, "dmap_icons", this).requires(this.renderMap)
