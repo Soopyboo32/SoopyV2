@@ -36,7 +36,7 @@ class ChangeLogGui extends Feature {
 
         this.registerCommand("downloadbettermap", () => {
             new Thread(() => {
-                ChatLib.chat("Downloading...")
+                ChatLib.chat("Downloading... (this may take a bit)")
 
                 let url = FileLib.getUrlContent("http://soopy.dev/api/bettermap/downloadurl")
 
@@ -58,7 +58,7 @@ class ChangeLogGui extends Feature {
 
         this.registerCommand("updatebettermap", () => {
             new Thread(() => {
-                ChatLib.chat("Updating...")
+                ChatLib.chat("Updating... (this may take a bit)")
 
                 let url = FileLib.getUrlContent("http://soopy.dev/api/bettermap/downloadurl")
 
