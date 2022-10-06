@@ -380,6 +380,12 @@ class DungeonSolvers extends Feature {
 
 		this.termsDone = new Map()
 		this.registerChat("${name} activated a lever! (${start}/${end})", (name, start, end) => {
+			if (this.area === -1) {
+				this.area = 0
+				this.termsDone.clear()
+				this.areaUpdated()
+			}
+
 			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
 
 			let data = this.termsDone.get(name) || {
@@ -412,6 +418,11 @@ class DungeonSolvers extends Feature {
 		}).registeredWhen(() => this.f7waypoints.getValue())
 
 		this.registerChat("${name} completed a device! (${start}/${end})", (name, start, end) => {
+			if (this.area === -1) {
+				this.area = 0
+				this.termsDone.clear()
+				this.areaUpdated()
+			}
 
 			let data = this.termsDone.get(name) || {
 				terms: 0,
@@ -432,6 +443,11 @@ class DungeonSolvers extends Feature {
 		}).registeredWhen(() => this.f7waypoints.getValue())
 
 		this.registerChat("${name} activated a terminal! (${start}/${end})", (name, start, end) => {
+			if (this.area === -1) {
+				this.area = 0
+				this.termsDone.clear()
+				this.areaUpdated()
+			}
 			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
 
 			let data = this.termsDone.get(name) || {
