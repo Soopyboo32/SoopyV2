@@ -375,7 +375,7 @@ class Waypoints extends Feature {
         for (let waypoint of this.patcherWaypoints) {
             waypoint[1].update()
         }
-        let area = this.FeatureManager.features["dataLoader"] ? this.FeatureManager.features["dataLoader"].class.area : "NONE"
+        let area = this.FeatureManager.features["dataLoader"].class.area
         if (this.lastArea && this.lastArea !== area) {
             if (this.userWaypointsHash[this.lastArea]) {
                 for (let waypoint of this.userWaypointsHash[lastArea]) {

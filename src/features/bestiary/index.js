@@ -107,7 +107,7 @@ class Bestiary extends Feature {
         })
         this.registerSoopy("apiLoad", this.apiLoad);
 
-        if (this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw) {
+        if (this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw) {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw, "skyblock", false, true);
         }
     }
@@ -119,8 +119,6 @@ class Bestiary extends Feature {
     }
 
     updateHudElements() {
-        if (!this.FeatureManager.features["dataLoader"]) return
-
         let insb = this.FeatureManager.features["dataLoader"].class.isInSkyblock
 
         this.hudStat.forEach(stat => {

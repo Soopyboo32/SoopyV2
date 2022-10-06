@@ -16,6 +16,13 @@ class DataLoader extends Feature {
         this.area = undefined
         this.areaFine = undefined
 
+        this.lastApiData = {
+            "skyblock": undefined,
+            "player": undefined,
+            "skyblock_raw": undefined, //the _raw is loaded from hypixel api instead of soopy api
+            "player_raw": undefined
+        }
+
         this.isInSkyblock = false
 
         this.dungeonPercentCleared = 0
@@ -60,13 +67,6 @@ class DataLoader extends Feature {
 
         this.partyMembers = new Set()
         this.partyMembers.add(Player.getName())
-
-        this.lastApiData = {
-            "skyblock": undefined,
-            "player": undefined,
-            "skyblock_raw": undefined, //the _raw is loaded from hypixel api instead of soopy api
-            "player_raw": undefined
-        }
 
         this.worldLoaded = true
 

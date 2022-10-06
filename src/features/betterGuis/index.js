@@ -16,7 +16,7 @@ class BetterGuis extends Feature {
     }
 
     inSkyblock() {
-        return this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.isInSkyblock;
+        return this.FeatureManager.features["dataLoader"].class.isInSkyblock;
     }
 
     onEnable() {

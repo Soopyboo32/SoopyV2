@@ -197,7 +197,7 @@ class Events extends Feature {
 		}
 
 		if (this.limitPMembRecieve.getValue()) {
-			if (!this.FeatureManager.features["dataLoader"] || !this.FeatureManager.features["dataLoader"].class.partyMembers.has(user)) return
+			if (!this.FeatureManager.features["dataLoader"].class.partyMembers.has(user)) return
 		}
 		this.slayerLocationDataH[user] = [loc, Date.now()]
 		if (this.otherInquisPing.getValue()) {
@@ -284,7 +284,7 @@ class Events extends Feature {
 			}
 		})
 
-		let showingWaypointsNew = (this.lastWorldChange + 5000 < Date.now() ? hasDianaShovle && this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.area === "Hub" && (this.loadFromParticles.getValue() || this.showBurrialGuess.getValue()) : this.showingWaypoints || (hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && (this.loadFromParticles.getValue() || this.showBurrialGuess.getValue())))
+		let showingWaypointsNew = (this.lastWorldChange + 5000 < Date.now() ? hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && (this.loadFromParticles.getValue() || this.showBurrialGuess.getValue()) : this.showingWaypoints || (hasDianaShovle && this.FeatureManager.features["dataLoader"].class.area === "Hub" && (this.loadFromParticles.getValue() || this.showBurrialGuess.getValue())))
 
 		this.showingWaypoints = showingWaypointsNew
 
@@ -313,7 +313,7 @@ class Events extends Feature {
 						self = true
 					}
 				})
-				if (self && this.FeatureManager.features["dataLoader"]) {
+				if (self) {
 					let pmemb = []
 					this.FeatureManager.features["dataLoader"].class.partyMembers.forEach(a => pmemb.push(a))
 					socketConnection.sendInquisData({ loc: [Math.round(Player.getX()), Math.round(Player.getY()), Math.round(Player.getZ())], pmemb, limitPMemb: pmemb.length > 1 && this.limitPMemb.getValue() });
@@ -610,7 +610,7 @@ class Events extends Feature {
 				this.guessPoint = [this.lastSoundPoint[0] + changes[0] * distance, this.lastSoundPoint[1] + changes[1] * distance, this.lastSoundPoint[2] + changes[2] * distance]
 			}
 		}
-		if (this.shinyBlockOverlayEnabled.getValue() && this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.areaFine === "The End") {
+		if (this.shinyBlockOverlayEnabled.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "The End") {
 			if (particle.toString().startsWith("EntitySpellParticleFX,")) {
 				if (particle.getUnderlyingEntity().func_70534_d() === particle.getUnderlyingEntity().func_70535_g()) {
 					let arr = [particle.getX(), particle.getY(), particle.getZ()]
@@ -620,7 +620,7 @@ class Events extends Feature {
 				}
 			}
 		}
-		if (this.showGlowingMushrooms.getValue() && this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.areaFine === "Glowing Mushroom Cave") {
+		if (this.showGlowingMushrooms.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "Glowing Mushroom Cave") {
 			if (particle.toString().startsWith("EntitySpellParticleFX,")) {
 				// console.log([particle.getX(), particle.getY(), particle.getZ()].map(a => a % 1))
 				if (Math.abs(particle.getX() % 1) === 0.5 && Math.abs(particle.getZ() % 1) === 0.5) {

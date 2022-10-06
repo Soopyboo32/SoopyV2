@@ -34,7 +34,7 @@ class Slayers extends Feature {
 	}
 
 	inSkyblock() {
-		return this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.isInSkyblock
+		return this.FeatureManager.features["dataLoader"].class.isInSkyblock
 	}
 	onEnable() {
 		this.initVariables();
@@ -234,7 +234,7 @@ class Slayers extends Feature {
 		this.registerEvent("renderOverlay", this.renderOverlay).registeredWhen(() => this.spawnAlert.getValue() || this.slainAlert.getValue());
 
 		this.registerSoopy("apiLoad", this.apiLoad);
-		if (this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock) {
+		if (this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock) {
 			this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock, "skyblock", true, true);
 		}
 
@@ -886,7 +886,7 @@ class Slayers extends Feature {
 		let runsperHour = (60000 * 60) / averageLength;
 		let expPerHour = averageExp * runsperHour;
 
-		if (this.FeatureManager.features["dataLoader"] && Date.now() - this.lastSlayerFinishes[this.lastSlayerFinishes.length - 1] < 60000 * 5 || (this.FeatureManager.features["dataLoader"].class?.slayerXpToSpawn && this.FeatureManager.features["dataLoader"].class.slayerXpToSpawn[0] !== 0)) {
+		if (Date.now() - this.lastSlayerFinishes[this.lastSlayerFinishes.length - 1] < 60000 * 5 || (this.FeatureManager.features["dataLoader"].class?.slayerXpToSpawn && this.FeatureManager.features["dataLoader"].class.slayerXpToSpawn[0] !== 0)) {
 			if (this.lastSlayerFinishes.length > 1) {
 				this.slayerSpeedRatesElement.setText("&6Slayer speed&7> &f" + Math.floor(averageLength / 60000) + ":" + ((Math.floor(averageLength / 1000) % 60 < 10 ? "0" : "") + (Math.floor(averageLength / 1000) % 60)) + "\n&6Exp/hour&7> &f" + numberWithCommas(Math.round(expPerHour)) + "\n&6Kills/hour&7> &f" + Math.floor(runsperHour));
 			} else {

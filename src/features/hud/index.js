@@ -102,6 +102,23 @@ class Hud extends Feature {
         this.hudElements.push(this.petElement)
         this.scanGuiForPet = new ToggleSetting("Scan pets menu gui for selected pet", "Only disable if you get a lot of lag in the pets menu", true, "scan_pets_menu", this).requires(this.petEnabledSetting)
 
+        this.locationEnabledSetting = new ToggleSetting("Show Location", "Whether the location (xyz) is rendered onto the screen", false, "location_enabled", this)
+        this.locationElement = new HudTextElement()
+            .setToggleSetting(this.locationEnabledSetting)
+            .setLocationSetting(new LocationSetting("XYZ Location", "Allows you to edit the location of the location text", "location_location", this, [10, 120, 1, 1])
+                .requires(this.locationEnabledSetting)
+                .editTempText("&6Loc&7> &f123.456 | 123.456 | 123.456"))
+        this.hudElements.push(this.locationElement)
+        this.locationYEnabledSetting = new ToggleSetting("Show Y in location", "Wether to include ur Y value in location", true, "location_y_enabled", this).requires(this.locationEnabledSetting)
+        this.locationOnlyDungSetting = new ToggleSetting("Only show location in dungeon", "(If u want to use this to show how to mine thru stairs)", false, "location_dung_enabled", this).requires(this.locationEnabledSetting)
+        this.locationDecimals = new DropdownSetting("Decimal places in location setting", "", "3", "location_decimal_setting", this, {
+            "0": "0",
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4"
+        }).requires(this.locationEnabledSetting)
+
         this.soulflowEnabledSetting = new ToggleSetting("Show Soulflow", "Whether the soulflow count is rendered onto the screen", true, "soulflow_enabled", this)
         this.soulflowShowWhen0Setting = new ToggleSetting("Show When 0 Soulflow", "If this is off it wont render when you have 0 soulflow", true, "soulflow_showwhen_0", this).requires(this.soulflowEnabledSetting)
         this.soulflowElement = new HudTextElement()
@@ -311,12 +328,12 @@ class Hud extends Feature {
         })
 
         this.registerSoopy("apiLoad", this.apiLoad)
-        if (this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock) {
+        if (this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock) {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock, "skyblock", true, true)
 
             this.lastSwappedPet = Date.now()
         }
-        if (this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw) {
+        if (this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw) {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw, "skyblock", false, true)
         }
 
@@ -375,6 +392,27 @@ class Hud extends Feature {
             } else {
                 this.fpsElement.setText("&6Fps&7> &f" + Math.round(this.fps.get()))
             }
+        }
+
+        if (this.locationEnabledSetting.getValue()) {
+
+            if (this.locationOnlyDungSetting.getValue()) {
+                if (!this.FeatureManager.features["dataLoader"].class.isInDungeon) {
+                    this.locationElement.setText("")
+                    return
+                }
+            }
+
+            let locData = []
+            locData.push(Player.getX())
+            if (this.locationYEnabledSetting.getValue()) locData.push(Player.getY())
+            locData.push(Player.getZ())
+
+            locData = locData.map(a => a.toFixed(parseInt(this.locationDecimals.getValue())))
+
+            let locString = locData.join("&7 | &f")
+
+            this.locationElement.setText("&6Loc&7> &f" + locString)
         }
 
         if (!this.lagEnabled.getValue()) return
@@ -600,7 +638,7 @@ class Hud extends Feature {
         if (!Player.getPlayer()) return
         if (!Player.getInventory()) return
 
-        if (this.FeatureManager.features["dataLoader"] && !this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
+        if (!this.FeatureManager.features["dataLoader"].class.isInSkyblock) {
             this.soulflowElement.setText("")
             this.petElement.setText("")
             return
@@ -618,7 +656,7 @@ class Hud extends Feature {
 
     updatePotsTime() {
         if (!this.showPotsHud.getValue()) return
-        if (!this.FeatureManager.features["dataLoader"] || !this.FeatureManager.features["dataLoader"].class.isInSkyblock || this.FeatureManager.features["dataLoader"].class.isInDungeon) {
+        if (!this.FeatureManager.features["dataLoader"].class.isInSkyblock || this.FeatureManager.features["dataLoader"].class.isInDungeon) {
             this.potsHudElement.setText("")
             return
         }
@@ -798,7 +836,7 @@ class Hud extends Feature {
     }
 
     updateHudThingos() {
-        let insb = !!(this.FeatureManager.features["dataLoader"] && this.FeatureManager.features["dataLoader"].class?.isInSkyblock)
+        let insb = !!(this.FeatureManager.features["dataLoader"].class?.isInSkyblock)
 
         this.hudStat.forEach(stat => {
             if (stat.enabled.getValue()) {

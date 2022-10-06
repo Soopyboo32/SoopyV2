@@ -26,7 +26,6 @@ class DungeonMap extends Feature {
     }
 
     isInDungeon() {
-        if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false
         return this.FeatureManager.features["dataLoader"].class.isInDungeon
     }
 

@@ -759,7 +759,11 @@ class FeatureManager {
 
         let loadedFeatures = new Map()
 
+        this.loadFeature("dataLoader")
+
         Object.keys(this.featureMetas).forEach((feature) => {
+            if (feature === "dataLoader") return
+
             if (this.featureSettingsData[feature] && this.featureSettingsData[feature].enabled) {
                 loadedFeatures.set(feature, false)
                 new Thread(() => {
