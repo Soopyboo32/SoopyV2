@@ -453,6 +453,7 @@ class DungeonSolvers extends Feature {
 
 	}
 	getBonzoMaskCooldown() {
+		if (!Player.getInventory()) return
 		[...Player.getInventory().getItems()].forEach(i => {
 			if (!i) return
 			let itemName = i.getName()

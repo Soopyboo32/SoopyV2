@@ -156,6 +156,13 @@ class Mining extends Feature {
 
             this.nextChEventElement.setText("&6Event&7> &f" + socketConnection.chEvent.join(" &7->&f "))
         })
+        this.registerCommand("soopyclearminingprofit", () => {
+            money = 0
+            startingTime = -1
+            lastMined = 0
+            this.gemstoneMoneyHudElement.setText("")
+            ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared gemstone profit data!")
+        })
 
         let lastWorldChange = 0
 
