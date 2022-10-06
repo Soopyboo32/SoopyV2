@@ -191,6 +191,7 @@ class DungeonSolvers extends Feature {
 		})
 		this.forgorEnabled = new ToggleSetting("Change withermancer death message to forgor ", "", true, "withermancer_forgor", this);
 		this.f7waypoints = new ToggleSetting("Waypoints for P3 F7/M7", "(Only shows unfinished ones)", true, "f7_waypoints", this);
+		this.f7waypointschat = new ToggleSetting("Show how many terms/devices people did", "At end of p3", true, "f7_waypoints_chat", this);
 
 		this.IceSprayWarn = new ToggleSetting("Ice Spray Drop Ping", "Renders a big title so you don't miss ice spray wands", false, "ice_spray_ping", this).contributor("EmeraldMerchant");
 
@@ -362,6 +363,7 @@ class DungeonSolvers extends Feature {
 		})
 		this.registerChat("[BOSS] Goldor: Who dares trespass into my domain?", () => {
 			this.area = 0
+			this.termsDone.clear()
 			this.areaUpdated()
 		})
 
@@ -376,8 +378,17 @@ class DungeonSolvers extends Feature {
 			})
 		})
 
+		this.termsDone = new Map()
 		this.registerChat("${name} activated a lever! (${start}/${end})", (name, start, end) => {
 			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
+
+			let data = this.termsDone.get(name) || {
+				terms: 0,
+				devices: 0,
+				levers: 0
+			}
+			data.levers++
+			this.termsDone.set(name, data)
 
 			if (!player) return
 
@@ -402,6 +413,14 @@ class DungeonSolvers extends Feature {
 
 		this.registerChat("${name} completed a device! (${start}/${end})", (name, start, end) => {
 
+			let data = this.termsDone.get(name) || {
+				terms: 0,
+				devices: 0,
+				levers: 0
+			}
+			data.devices++
+			this.termsDone.set(name, data)
+
 			let closest = this.devices[0]
 
 			closest.stopRender()
@@ -414,6 +433,14 @@ class DungeonSolvers extends Feature {
 
 		this.registerChat("${name} activated a terminal! (${start}/${end})", (name, start, end) => {
 			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
+
+			let data = this.termsDone.get(name) || {
+				terms: 0,
+				devices: 0,
+				levers: 0
+			}
+			data.terms++
+			this.termsDone.set(name, data)
 
 			if (!player) return
 
@@ -506,6 +533,14 @@ class DungeonSolvers extends Feature {
 	}
 
 	areaUpdated() {
+		if (this.f7waypointschat.getValue() && this.terminals.length > 0 && (this.area === -1 || this.area === 4)) {
+			delay(1000, () => {
+				this.termsDone.forEach((data, name) => {
+					ChatLib.chat(this.FeatureManager.messagePrefix + name + " &7completed &f" + data.terms + "&7 terms, &f" + data.devices + "&7 devices, and &f" + data.levers + ' &7levers!')
+				})
+			})
+		}
+
 		this.terminals.forEach(w => w.stopRender())
 		this.levers.forEach(w => w.stopRender())
 		this.devices.forEach(w => w.stopRender())
