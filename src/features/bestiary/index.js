@@ -2,6 +2,7 @@
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
 import { numberWithCommas } from "../../utils/numberUtils";
+import { drawBoxAtEntity } from "../../utils/renderUtils";
 import { getBestiaryTier } from "../../utils/statUtils";
 import { firstLetterWordCapital } from "../../utils/stringUtils";
 import HudTextElement from "../hud/HudTextElement";
@@ -20,6 +21,12 @@ dontUseApi.add("magma_cube_boss")
 dontUseApi.add("headless_horseman")
 dontUseApi.add("dragon")
 
+const EntityArmorStand = Java.type("net.minecraft.entity.item.EntityArmorStand")
+const EntityPlayer = Java.type("net.minecraft.entity.player.EntityPlayer")
+const EntityCaveSpider = Java.type("net.minecraft.entity.monster.EntityCaveSpider")
+const EntitySkeleton = Java.type("net.minecraft.entity.monster.EntitySkeleton")
+const EntitySpider = Java.type("net.minecraft.entity.monster.EntitySpider")
+const EntityCreeper = Java.type("net.minecraft.entity.monster.EntityCreeper")
 
 class Bestiary extends Feature {
     constructor() {
@@ -27,6 +34,8 @@ class Bestiary extends Feature {
     }
 
     onEnable() {
+
+        this.bestiaryMobBox = new ToggleSetting("Box around bestiary mobs", "", false, "bestiary_box", this)
 
         this.bestiaryStatTypes = {
             "barbarian_duke_x": "Barbarian Duke X"
@@ -106,9 +115,65 @@ class Bestiary extends Feature {
             }
         })
         this.registerSoopy("apiLoad", this.apiLoad);
+        this.registerEvent("renderWorld", this.renderWorld)
 
         if (this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw) {
             this.apiLoad(this.FeatureManager.features["dataLoader"].class.lastApiData.skyblock_raw, "skyblock", false, true);
+        }
+
+        this.boxRendEs = []
+
+        this.registerStep(true, 1, this.updateMobs)
+    }
+
+    updateMobs() {
+        this.boxRendEs = []
+
+        let entities = World.getAllEntitiesOfType(EntityArmorStand)
+        for (let entity of entities) {
+            let name = entity.getName()
+            let mcEntity = entity.entity
+            let entityClass = null
+
+            let color = [0, 100, 100]
+            if (name.includes("Butterfly")) {
+            } else if (name.includes("Matcho")) {
+                entityClass = EntityPlayer
+                color = [75, 0, 130]
+            } else if (name.includes("Brood Mother")) {
+                entityClass = EntitySpider
+                color = [0, 0, 255]
+            } else if (name.includes("Arachne Keeper")) {
+                entityClass = EntityCaveSpider
+                color = [0, 0, 255]
+            } else if (name.includes("Sneaky Creeper")) {
+                entityClass = EntityCreeper
+                color = [0, 255, 0]
+            } else if (name.includes("Wither Skeleton")) {
+                entityClass = EntitySkeleton
+                color = [255, 255, 255]
+            } else {
+                // exit if no relevant name is detected
+                continue
+            }
+            // Get a list of entities near the detected armor stand and loop through them 
+            let entityList = World.getWorld().func_72839_b(mcEntity, mcEntity.func_174813_aQ().func_72317_d(0, -1, 0))
+            entityList.forEach((e) => {
+                // never highlight the player
+                if (e == Client.getMinecraft().field_71439_g) return
+
+                // if we didn't specify a class to look for, highlight anything
+                // otherwise, check if it is the class
+                if (entityClass == null || e instanceof entityClass) {
+                    this.boxRendEs.push([new Entity(e), color])
+                }
+            })
+        }
+    }
+
+    renderWorld(ticks) {
+        for (let data of this.boxRendEs) {
+            drawBoxAtEntity(data[0], data[1][0], data[1][1], data[1][2], null, null, ticks)
         }
     }
 
