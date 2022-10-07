@@ -351,8 +351,11 @@ class DungeonSolvers extends Feature {
 		this.devices = []
 		this.data = []
 		this.area = -1
+		this.termsDone = new Map()
+		let deviceDone = false
 		this.registerChat("[BOSS] Goldor: You have done it, you destroyed the factory…", () => {
 			this.area = -1
+			deviceDone = false
 			this.areaUpdated()
 		})
 		this.registerEvent("worldLoad", () => {
@@ -364,6 +367,7 @@ class DungeonSolvers extends Feature {
 		this.registerChat("[BOSS] Goldor: Who dares trespass into my domain?", () => {
 			this.area = 0
 			this.termsDone.clear()
+			deviceDone = false
 			this.areaUpdated()
 		})
 
@@ -378,12 +382,12 @@ class DungeonSolvers extends Feature {
 			})
 		})
 
-		this.termsDone = new Map()
 		this.registerChat("${name} activated a lever! (${start}/${end})", (name, start, end) => {
 			if (this.area === -1) {
 				this.area = 0
 				this.termsDone.clear()
 				this.areaUpdated()
+				deviceDone = false
 			}
 
 			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
@@ -413,6 +417,7 @@ class DungeonSolvers extends Feature {
 
 			if (start == "0" || start == end) {
 				this.area++
+				deviceDone = false
 				this.areaUpdated()
 			}
 		}).registeredWhen(() => this.f7waypoints.getValue())
@@ -422,6 +427,7 @@ class DungeonSolvers extends Feature {
 				this.area = 0
 				this.termsDone.clear()
 				this.areaUpdated()
+				deviceDone = false
 			}
 
 			let data = this.termsDone.get(name) || {
@@ -429,8 +435,9 @@ class DungeonSolvers extends Feature {
 				devices: 0,
 				levers: 0
 			}
-			data.devices++
+			if (!deviceDone) data.devices++
 			this.termsDone.set(name, data)
+			deviceDone = true
 
 			let closest = this.devices[0]
 
@@ -438,6 +445,7 @@ class DungeonSolvers extends Feature {
 
 			if (start == "0" || start == end) {
 				this.area++
+				deviceDone = false
 				this.areaUpdated()
 			}
 		}).registeredWhen(() => this.f7waypoints.getValue())
@@ -446,6 +454,7 @@ class DungeonSolvers extends Feature {
 			if (this.area === -1) {
 				this.area = 0
 				this.termsDone.clear()
+				deviceDone = false
 				this.areaUpdated()
 			}
 			let player = World.getPlayerByName(ChatLib.removeFormatting(name))
@@ -475,6 +484,7 @@ class DungeonSolvers extends Feature {
 
 			if (start == "0" || start == end) {
 				this.area++
+				deviceDone = false
 				this.areaUpdated()
 			}
 		}).registeredWhen(() => this.f7waypoints.getValue())

@@ -27,6 +27,8 @@ class Guild extends Feature {
             if (msg.includes("[ITEM:")) return
             if (player.includes(":")) return; //stop people sending weard messages to troll using this
 
+            msg = msg.replace(/&[1-9a-emnk]/g, "&⭍")
+
             //player = &6[MVP&0++&6] zZzSNOW &e[STAFF]
             let [_, rank, ign, grank] = player.match(/(&7|&[0-9a-fmnl]\[\w+(?:&[0-9a-fmnl]\+*&[0-9a-fmnl])?\] )(\w+)( &[0-9a-fmnl]\[\w+\])?/)
 
