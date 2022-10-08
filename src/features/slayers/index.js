@@ -556,7 +556,7 @@ class Slayers extends Feature {
 					}
 				}
 				if ((this.MinibossOffWhenBoss.getValue() && !this.bossSpawnedMessage) || !this.MinibossOffWhenBoss.getValue()) {
-					if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString()) && !MobName.endsWith(" §e0§c❤")) {
+					if (this.BoxAroundMiniboss.getValue() && !this.bossSpawnedMessage && this.Miniboss[this.lastSlayerType]?.has(MobName) && !this.minibossEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString()) && !Name.endsWith(" §e0§c❤")) {
 						this.minibossEntity.push([name, this.lastSlayerType]);
 					}
 					if (this.BoxAroundAreaMiniboss.getValue() && !this.bossSpawnedMessage && (this.areaMini[this.lastSlayerType]?.has(MobName12) || this.areaMini[this.lastSlayerType]?.has(MobName1234)) && !this.areaMiniEntity.map(a => a[0].getUUID().toString()).includes(name.getUUID().toString()) && !this.areaMiniIsDead([name, this.lastSlayerType])) {
