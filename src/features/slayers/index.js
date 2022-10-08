@@ -36,6 +36,19 @@ class Slayers extends Feature {
 	inSkyblock() {
 		return this.FeatureManager.features["dataLoader"].class.isInSkyblock
 	}
+    //don't think we need to make corrupted (and/or) runic (and/or) derpy varients sicne those r rare cases
+    areaMiniIsDead(eArray) {
+        let name = eArray[0].getName()
+        if (eArray[1] === "wolf") {
+            return name.endsWith("§e0§f/§a15000§c❤") && name.endsWith("§e0§f/§a31150§c❤")
+        }
+        let areaMiniHPSuffix = {
+			zombie: "§e0§f/§a45000§c❤",
+			enderman: "§e0§f/§a8M§c❤",
+			blaze: "§e0§f/§a30M§c❤"
+		}
+        return name.endsWith(areaMiniHPSuffix[eArray[1]])
+    }
 	onEnable() {
 		this.initVariables();
 
@@ -686,12 +699,12 @@ class Slayers extends Feature {
 			this.summonHPElement.setText(summonHpFloatText)
 		}
 		this.minibossEntity.forEach((eArray) => {
-			if (eArray[0].getEntity()[f.isDead]) {
+			if (eArray[0].getEntity()[f.isDead] || eArray[0].getName().endsWith("0§c❤")) {
 				this.minibossEntity.splice(this.minibossEntity.indexOf(eArray))
 			}
 		})
 		this.areaMiniEntity.forEach((eArray) => {
-			if (eArray[0].getEntity()[f.isDead]) {
+			if (eArray[0].getEntity()[f.isDead] || this.areaMiniIsDead(eArray)) {
 				this.areaMiniEntity.splice(this.areaMiniEntity.indexOf(eArray))
 			}
 		})
