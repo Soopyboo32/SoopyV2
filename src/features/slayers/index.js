@@ -40,12 +40,12 @@ class Slayers extends Feature {
     areaMiniIsDead(eArray) {
         let name = eArray[0].getName()
         if (eArray[1] === "wolf") {
-            return name.endsWith("§e0§f/§a15000§c❤") && name.endsWith("§e0§f/§a31150§c❤")
+            return name.endsWith(" §e0§f/§a15000§c❤") && name.endsWith(" §e0§f/§a31150§c❤")
         }
         let areaMiniHPSuffix = {
-			zombie: "§e0§f/§a45000§c❤",
-			enderman: "§e0§f/§a8M§c❤",
-			blaze: "§e0§f/§a30M§c❤"
+			zombie: " §e0§f/§a45000§c❤",
+			enderman: " §e0§f/§a8M§c❤",
+			blaze: " §e0§f/§a30M§c❤"
 		}
         return name.endsWith(areaMiniHPSuffix[eArray[1]])
     }
@@ -699,7 +699,7 @@ class Slayers extends Feature {
 			this.summonHPElement.setText(summonHpFloatText)
 		}
 		this.minibossEntity.forEach((eArray) => {
-			if (eArray[0].getEntity()[f.isDead] || eArray[0].getName().endsWith("0§c❤")) {
+			if (eArray[0].getEntity()[f.isDead] || eArray[0].getName().endsWith(" §e0§c❤")) {
 				this.minibossEntity.splice(this.minibossEntity.indexOf(eArray))
 			}
 		})
