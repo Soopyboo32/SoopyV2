@@ -281,10 +281,12 @@ class GlobalSettings extends Feature {
                 cancel(event)
                 ChatLib.addToSentMessageHistory(message)
 
+                let data = Player.getHeldItem().getNBT().toObject()
+
                 fetch("https://soopy.dev/api/soopyv2/itemup", {
                     postData: {
-                        name: Player.getHeldItem().getName(),
-                        lore: Player.getHeldItem().getLore().join("\n")
+                        name: data.tag.display.Name,
+                        lore: data.tag.display.Name + "\n" + data.tag.display.Lore.join("\n")
                     }
                 }).text().then(text => {
                     if (text.length > 20) {
@@ -299,8 +301,9 @@ class GlobalSettings extends Feature {
         })
 
         let ev = this.registerChat("${*}[ITEM:${*}", (event) => {
-            cancel(event)
             let message = new Message(event)
+            if (!message.getUnformattedText().match(/\[ITEM:([0-9]+)\]/g)) return
+            cancel(event)
 
             let [_] = message.getUnformattedText().match(/\[ITEM:([0-9]+)\]/g)
             let id = _.replace("[ITEM:", "").replace(/\]$/g, "")
@@ -313,7 +316,7 @@ class GlobalSettings extends Feature {
                         let [_] = component.getText().match(/\[ITEM:([0-9]+)\]/g)
                         let id = _.replace("[ITEM:", "").replace(/\]$/g, "")
 
-                        message.setTextComponent(i, new TextComponent(component.getText().replace("[ITEM:" + id + "]", name + "&r")).setHover("show_text", lore))
+                        message.setTextComponent(i, new TextComponent(component.getText().replace("[ITEM:" + id + "]", name + "&r").replace(/\[ITEM:([0-9]+)\]/g, "[ITEM:&r$1]")).setHover("show_text", lore))
                     }
                 }
                 message.setRecursive(true)
