@@ -127,6 +127,28 @@ class GlobalSettings extends Feature {
         this.todoPickUpLog = {};
         this.clearLog = false;
 
+        let sendPpl = new Set()
+
+        this.registerStep(false, 10, () => {
+            let sendData = []
+            TabList.getNames().forEach(n => {
+                let line = ChatLib.removeFormatting(n)
+
+                let data = /\[(\d+)\] (\w{3,24})/.exec(line)
+
+                if (!data) return
+
+                let [_, _2, lvl, name] = data
+
+                if (sendPpl.has(name)) return
+                sendPpl.add(name)
+
+                sendData.push([name, parseInt(lvl)])
+            })
+
+            socketConnection.sendSbLvlData(sendData)
+        })
+
         this.registerStep(true, 5, this.step5Fps)
         //4 chat registeries below prevents pickup log to go brrr when warping
         this.registerChat("&r&c ☠ ${info} and became a ghost&r&7.&r", (info, e) => {

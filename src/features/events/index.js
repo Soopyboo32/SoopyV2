@@ -99,6 +99,7 @@ class Events extends Feature {
 
 		this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 		this.showGlowingMushrooms = new ToggleSetting("Glowing mushrooms highlight", "Will highlight glowing mushrooms", false, "glowing_mushrooms_overlay", this)
+		this.treavorTrackerWaypoints = new ToggleSetting("Trevor the tracker waypoints", "", false, "trevor_waypoints", this)
 
 		this.registerEvent("worldLoad", this.worldLoad)
 		this.registerEvent("spawnParticle", this.spawnParticle).registeredWhen(() => this.showingWaypoints || this.shinyBlockOverlayEnabled.getValue() || this.showGlowingMushrooms.getValue())

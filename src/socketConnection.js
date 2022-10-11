@@ -48,6 +48,13 @@ class SoopyV2Server extends WebsiteCommunicator {
         })
     }
 
+    sendSbLvlData(data) {
+        this.sendData({
+            type: "sbLvl",
+            data
+        })
+    }
+
     requestItemPrice(json, uuid) {
         this.sendData({
             type: "loadItemWorth",
