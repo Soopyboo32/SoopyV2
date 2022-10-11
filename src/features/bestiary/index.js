@@ -63,7 +63,7 @@ class Bestiary extends Feature {
         let lastThingTime = 0
         this.registerChat("${chat}", (chat) => {
             let thing
-            switch (ChatLib.removeFormatting(chat).trim()) {
+            switch (chat.trim()) {
                 case "MAGE OUTLAW DOWN!":
                     thing = "mage_outlaw"
                     break;
