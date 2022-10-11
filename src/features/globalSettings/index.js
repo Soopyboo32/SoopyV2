@@ -130,6 +130,8 @@ class GlobalSettings extends Feature {
         let sendPpl = new Set()
 
         this.registerStep(false, 10, () => {
+            if (!this.FeatureManager.features.DataLoader.class.isInSkyblock) return
+
             let sendData = []
             TabList.getNames().forEach(n => {
                 let line = ChatLib.removeFormatting(n)

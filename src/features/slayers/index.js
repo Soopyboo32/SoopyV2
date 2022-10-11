@@ -36,19 +36,19 @@ class Slayers extends Feature {
 	inSkyblock() {
 		return this.FeatureManager.features["dataLoader"].class.isInSkyblock
 	}
-    //don't think we need to make corrupted (and/or) runic (and/or) derpy varients sicne those r rare cases
-    areaMiniIsDead(eArray) {
-        let name = eArray[0].getName()
-        if (eArray[1] === "wolf") {
-            return name.endsWith(" §e0§f/§a15000§c❤") && name.endsWith(" §e0§f/§a31150§c❤")
-        }
-        let areaMiniHPSuffix = {
+	//don't think we need to make corrupted (and/or) runic (and/or) derpy varients sicne those r rare cases
+	areaMiniIsDead(eArray) {
+		let name = eArray[0].getName()
+		if (eArray[1] === "wolf") {
+			return name.endsWith(" §e0§f/§a15000§c❤") && name.endsWith(" §e0§f/§a31150§c❤")
+		}
+		let areaMiniHPSuffix = {
 			zombie: " §e0§f/§a45000§c❤",
 			enderman: " §e0§f/§a8M§c❤",
 			blaze: " §e0§f/§a30M§c❤"
 		}
-        return name.endsWith(areaMiniHPSuffix[eArray[1]])
-    }
+		return name.endsWith(areaMiniHPSuffix[eArray[1]])
+	}
 	onEnable() {
 		this.initVariables();
 
@@ -426,7 +426,7 @@ class Slayers extends Feature {
 	}
 
 	entityAttackEvent(event) {
-		// ChatLib.chat("ENTITY ATTACKING " + event.source + " -> " + event.entity)
+		// ChatLib.chat("ENTITY ATTACKING " + event.source.func_76355_l() + " -> " + event.entity)
 		if (event.source.func_76346_g() === Player.getPlayer()) {
 			if (event.entity instanceof net.minecraft.entity.monster.EntityEnderman) {
 				World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((e) => {
