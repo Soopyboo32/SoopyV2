@@ -11,15 +11,15 @@ import LocationSetting from "../settings/settingThings/location";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
 
-let dontUseApi = new Set()
-dontUseApi.add("arachne")
-dontUseApi.add("barbarian_duke_x")
-dontUseApi.add("bladesoul")
-dontUseApi.add("mage_outlaw")
-dontUseApi.add("ashfang")
-dontUseApi.add("magma_cube_boss")
-dontUseApi.add("headless_horseman")
-dontUseApi.add("dragon")
+// let dontUseApi = new Set()
+// dontUseApi.add("arachne")
+// dontUseApi.add("barbarian_duke_x")
+// dontUseApi.add("bladesoul")
+// dontUseApi.add("mage_outlaw")
+// dontUseApi.add("ashfang")
+// dontUseApi.add("magma_cube_boss")
+// dontUseApi.add("headless_horseman")
+// dontUseApi.add("dragon")
 
 const EntityArmorStand = Java.type("net.minecraft.entity.item.EntityArmorStand")
 const EntityPlayer = Java.type("net.minecraft.entity.player.EntityPlayer")
@@ -63,7 +63,7 @@ class Bestiary extends Feature {
         let lastThingTime = 0
         this.registerChat("${chat}", (chat) => {
             let thing
-            switch (chat.trim()) {
+            switch (ChatLib.removeFormatting(chat).trim()) {
                 case "MAGE OUTLAW DOWN!":
                     thing = "mage_outlaw"
                     break;
