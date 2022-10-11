@@ -138,7 +138,7 @@ class GlobalSettings extends Feature {
 
                 if (!data) return
 
-                let [_, _2, lvl, name] = data
+                let [_, lvl, name] = data
 
                 if (sendPpl.has(name)) return
                 sendPpl.add(name)
