@@ -1,0 +1,340 @@
+{
+    "slayer": {
+        "zombie": {
+            "Foul Flesh": {
+                "thing": "&9Foul Flesh",
+                "baseMeter": 3081,
+                "dropRarity": "&9Occasional"
+            },
+            "◆ Pestilence Rune I": {
+                "thing": "&2◆ Pestilence Rune I",
+                "baseMeter": 7911,
+                "dropRarity": "&bRare"
+            },
+            "Undead Catalyst": {
+                "thing": "&9Undead Catalyst",
+                "baseMeter": 24750,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Smite VI": {
+                "thing": "&9Smite VI",
+                "baseMeter": 61634,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Beheaded Horror": {
+                "thing": "&5Beheaded Horror",
+                "baseMeter": 308175,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Revenant Catalyst": {
+                "thing": "&5Revenant Catalyst",
+                "baseMeter": 49308,
+                "dropRarity": "&5Extraordinary"
+            },
+            "◆ Snake Rune I": {
+                "thing": "&a◆ Snake Rune I",
+                "baseMeter": 329500,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Revenant Viscera": {
+                "thing": "&9Revenant Viscera",
+                "baseMeter": 3631,
+                "dropRarity": "&9Occasional"
+            },
+            "Scythe Blade": {
+                "thing": "&6Scythe Blade",
+                "baseMeter": 484233,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Smite VII": {
+                "thing": "&5Smite VII",
+                "baseMeter": 1037642,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Shard of the Shredded": {
+                "thing": "&6Shard of the Shredded",
+                "baseMeter": 907937,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Warden Heart": {
+                "thing": "&6Warden Heart",
+                "baseMeter": 3631749,
+                "dropRarity": "&cRNGesus Incarnate"
+            }
+        },
+        "spider": {
+            "Toxic Arrow Poison": {
+                "thing": "&aToxic Arrow Poison",
+                "baseMeter": 3277,
+                "dropRarity": "&9Occasional"
+            },
+            "◆ Bite Rune I": {
+                "thing": "&2◆ Bite Rune I",
+                "baseMeter": 7716,
+                "dropRarity": "&bRare"
+            },
+            "Spider Catalyst": {
+                "thing": "&9Spider Catalyst",
+                "baseMeter": 24240,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Bane of Arthropods VI": {
+                "thing": "&9Bane of Arthropods VI",
+                "baseMeter": 60110,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Fly Swatter": {
+                "thing": "&5Fly Swatter",
+                "baseMeter": 300550,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Tarantula Talisman": {
+                "thing": "&5Tarantula Talisman",
+                "baseMeter": 300550,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Digested Mosquito": {
+                "thing": "&6Digested Mosquito",
+                "baseMeter": 858714,
+                "dropRarity": "&dPray RNGesus"
+            }
+        },
+        "wolf": {
+            "Hamster Wheel": {
+                "thing": "&9Hamster Wheel",
+                "baseMeter": 3000,
+                "dropRarity": "&9Occasional"
+            },
+            "◆ Spirit Rune I": {
+                "thing": "&b◆ Spirit Rune I",
+                "baseMeter": 7917,
+                "dropRarity": "&bRare"
+            },
+            "Critical VI": {
+                "thing": "&9Critical VI",
+                "baseMeter": 61634,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Furball": {
+                "thing": "&9Furball",
+                "baseMeter": 30637,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Red Claw Egg": {
+                "thing": "&5Red Claw Egg",
+                "baseMeter": 410900,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "◆ Couture Rune I": {
+                "thing": "&6◆ Couture Rune I",
+                "baseMeter": 219833,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Overflux Capacitor": {
+                "thing": "&5Overflux Capacitor",
+                "baseMeter": 1232700,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Grizzly Bait": {
+                "thing": "&5Grizzly Bait",
+                "baseMeter": 880500,
+                "dropRarity": "&dPray RNGesus"
+            }
+        },
+        "enderman": {
+            "Twilight Arrow Poison": {
+                "thing": "&aTwilight Arrow Poison",
+                "baseMeter": 3300,
+                "dropRarity": "&9Occasional"
+            },
+            "◆ Endersnake Rune I": {
+                "thing": "&5◆ Endersnake Rune I",
+                "baseMeter": 9438,
+                "dropRarity": "&bRare"
+            },
+            "Summoning Eye": {
+                "thing": "&5Summoning Eye",
+                "baseMeter": 74250,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Mana Steal I": {
+                "thing": "&fMana Steal I",
+                "baseMeter": 11183,
+                "dropRarity": "&bRare"
+            },
+            "Transmission Tuner": {
+                "thing": "&5Transmission Tuner",
+                "baseMeter": 22366,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Null Atom": {
+                "thing": "&9Null Atom",
+                "baseMeter": 10120,
+                "dropRarity": "&bRare"
+            },
+            "Hazmat Enderman": {
+                "thing": "&6Hazmat Enderman",
+                "baseMeter": 32202,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Pocket Espresso Machine": {
+                "thing": "&fPocket Espresso Machine",
+                "baseMeter": 128809,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Smarty Pants I": {
+                "thing": "&fSmarty Pants I",
+                "baseMeter": 28339,
+                "dropRarity": "&5Extraordinary"
+            },
+            "◆ End Rune I": {
+                "thing": "&5◆ End Rune I",
+                "baseMeter": 75505,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Handy Blood Chalice": {
+                "thing": "&fHandy Blood Chalice",
+                "baseMeter": 283380,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Sinful Dice": {
+                "thing": "&5Sinful Dice",
+                "baseMeter": 108992,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Exceedingly Rare Ender Artifact Upgrader": {
+                "thing": "&6Exceedingly Rare Ender Artifact Upgrader",
+                "baseMeter": 1771125,
+                "dropRarity": "&cRNGesus Incarnate"
+            },
+            "Void Conqueror Enderman Skin": {
+                "thing": "&5Void Conqueror Enderman Skin",
+                "baseMeter": 302020,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Etherwarp Merger": {
+                "thing": "&5Etherwarp Merger",
+                "baseMeter": 118075,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Judgement Core": {
+                "thing": "&6Judgement Core",
+                "baseMeter": 885562,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "◆ Enchant Rune I": {
+                "thing": "&7◆ Enchant Rune I",
+                "baseMeter": 1078642,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Ender Slayer VII": {
+                "thing": "&5Ender Slayer VII",
+                "baseMeter": 3542250,
+                "dropRarity": "&cRNGesus Incarnate"
+            }
+        },
+        "blaze": {
+            "◆ Lavatears Rune I": {
+                "thing": "&c◆ Lavatears Rune I",
+                "baseMeter": 22471,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Wisp's Ice-Flavored Water I Splash Potion": {
+                "thing": "&fWisp's Ice-Flavored Water I Splash Potion",
+                "baseMeter": 17700,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Bundle of Magma Arrows": {
+                "thing": "&5Bundle of Magma Arrows",
+                "baseMeter": 5900,
+                "dropRarity": "&bRare"
+            },
+            "Mana Disintegrator": {
+                "thing": "&9Mana Disintegrator",
+                "baseMeter": 12642,
+                "dropRarity": "&bRare"
+            },
+            "Scorched Books": {
+                "thing": "&dScorched Books",
+                "baseMeter": 22125,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Kelvin Inverter": {
+                "thing": "&9Kelvin Inverter",
+                "baseMeter": 17700,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Blaze Rod Distillate": {
+                "thing": "&9Blaze Rod Distillate",
+                "baseMeter": 9833,
+                "dropRarity": "&bRare"
+            },
+            "Glowstone Distillate": {
+                "thing": "&9Glowstone Distillate",
+                "baseMeter": 9833,
+                "dropRarity": "&bRare"
+            },
+            "Magma Cream Distillate": {
+                "thing": "&9Magma Cream Distillate",
+                "baseMeter": 9833,
+                "dropRarity": "&bRare"
+            },
+            "Nether Wart Distillate": {
+                "thing": "&9Nether Wart Distillate",
+                "baseMeter": 9833,
+                "dropRarity": "&bRare"
+            },
+            "Gabagool Distillate": {
+                "thing": "&9Gabagool Distillate",
+                "baseMeter": 17700,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Scorched Power Crystal": {
+                "thing": "&6Scorched Power Crystal",
+                "baseMeter": 15416,
+                "dropRarity": "&bRare"
+            },
+            "Archfiend Dice": {
+                "thing": "&5Archfiend Dice",
+                "baseMeter": 46250,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Fire Aspect III": {
+                "thing": "&fFire Aspect III",
+                "baseMeter": 39368,
+                "dropRarity": "&5Extraordinary"
+            },
+            "◆ Fiery Burst Rune I": {
+                "thing": "&c◆ Fiery Burst Rune I",
+                "baseMeter": 252800,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "❂ Flawed Opal Gemstone": {
+                "thing": "&a❂ Flawed Opal Gemstone",
+                "baseMeter": 17894,
+                "dropRarity": "&5Extraordinary"
+            },
+            "Duplex I": {
+                "thing": "&d&lDuplex I",
+                "baseMeter": 28119,
+                "dropRarity": "&5Extraordinary"
+            },
+            "High Class Archfiend Dice": {
+                "thing": "&6High Class Archfiend Dice",
+                "baseMeter": 202239,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Wilson's Engineering Plans": {
+                "thing": "&6Wilson's Engineering Plans",
+                "baseMeter": 578941,
+                "dropRarity": "&dPray RNGesus"
+            },
+            "Subzero Inverter": {
+                "thing": "&6Subzero Inverter",
+                "baseMeter": 578941,
+                "dropRarity": "&dPray RNGesus"
+            }
+        }
+    },
+    "dungeon": {}
+}

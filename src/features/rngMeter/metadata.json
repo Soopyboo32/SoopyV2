@@ -1,0 +1,8 @@
+{
+    "name": "RngMeter",
+    "description": "RngMeter features",
+    "isHidden": false,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}
