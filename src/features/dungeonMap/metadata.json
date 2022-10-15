@@ -1,8 +1,0 @@
-{
-    "name": "Dungeon Map",
-    "description": "Cool dungeon map and related features",
-    "isHidden": false,
-    "isTogglable": true,
-    "defaultEnabled": false,
-    "sortA": 1
-}
