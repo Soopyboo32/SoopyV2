@@ -23,14 +23,22 @@ class rngMeter extends Feature {
         return this.FeatureManager.features["dataLoader"].class.isInDungeon;
     }
 
-    inEnd() {
-        if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false;
-        return this.FeatureManager.features["dataLoader"].class.area === "The End";
-    }
-
-    inCI() {
-        if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false;
-        return this.FeatureManager.features["dataLoader"].class.area === "Crimson Isle";
+    doingSlayer() {
+        if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"] || !this.lastSlayerType) return false;
+        switch (this.lastSlayerType) {
+            case 'zombie':
+                return !this.isInDungeon();
+            case 'spider':
+                return this.FeatureManager.features["dataLoader"].class.area === "Spider's Den" || this.FeatureManager.features["dataLoader"].class.area === "Crimson Isle"
+            case 'wolf':
+                return this.FeatureManager.features["dataLoader"].class.area === "The Park" || this.FeatureManager.features["dataLoader"].class.area === "Hub"
+            case 'enderman':
+                return this.FeatureManager.features["dataLoader"].class.area === "The End"
+            case 'blaze':
+                return this.FeatureManager.features["dataLoader"].class.area === "Crimson Isle"
+            default:
+                return false;
+        }
     }
 
     //this is slayer only, returns a value using % as unit
@@ -157,7 +165,7 @@ class rngMeter extends Feature {
             let currDevideBase = 100 * (xp / baseMeter)
             let buffedChance = (baseChance * (1 + currDevideBase.toFixed(2) / 50)).toFixed(4)
             let meterText = `${this.baseMeter.slayer[this.lastSlayerType][item].thing}&r&d Meter: ${numberWithCommas(xp)}&5/&d${numberWithCommas(baseMeter)} (${currDevideBase.toFixed(1)}&5%&d)\n&7Odds: ${dropRarity} &7(&8&m${baseChance}%&r &7${buffedChance}%)`
-            this.meterTitleElement.setText(meterText)
+            this.meterTitleElement.setText(this.doingSlayer() ? meterText : "")
             this.saveMeterData();
         })
 
@@ -179,7 +187,8 @@ class rngMeter extends Feature {
             let currDevideBase = 100 * (xp / baseMeter)
             let buffedChance = (baseChance * (1 + currDevideBase.toFixed(2) / 50)).toFixed(4)
             let meterText = `${this.baseMeter.slayer[slayerType][Item].thing}&r&d Meter: ${numberWithCommas(xp)}&5/&d${numberWithCommas(baseMeter)} (${currDevideBase.toFixed(1)}&5%&d)\n&7Odds: ${dropRarity} &7(&8&m${baseChance}%&r &7${buffedChance}%)`
-            this.meterTitleElement.setText(meterText)
+            //if() here makes it only updates meter text when the chosen item is included in the slayer you are currently doing
+            if (slayerType === this.lastSlayerType) this.meterTitleElement.setText(this.doingSlayer() ? meterText : "")
             this.saveMeterData();
         })
     }
