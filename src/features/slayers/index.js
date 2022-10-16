@@ -36,6 +36,24 @@ class Slayers extends Feature {
 	inSkyblock() {
 		return this.FeatureManager.features["dataLoader"].class.isInSkyblock
 	}
+
+	doingSlayer() {
+		if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"] || !this.lastSlayerType) return false;
+		switch (this.lastSlayerType) {
+			case 'zombie':
+				return !this.isInDungeon();
+			case 'spider':
+				return this.FeatureManager.features["dataLoader"].class.area === "Spider's Den" || this.FeatureManager.features["dataLoader"].class.area === "Crimson Isle"
+			case 'wolf':
+				return this.FeatureManager.features["dataLoader"].class.area === "The Park" || this.FeatureManager.features["dataLoader"].class.area === "Hub"
+			case 'enderman':
+				return this.FeatureManager.features["dataLoader"].class.area === "The End"
+			case 'blaze':
+				return this.FeatureManager.features["dataLoader"].class.area === "Crimson Isle"
+			default:
+				return false;
+		}
+	}
 	//don't think we need to make corrupted (and/or) runic (and/or) derpy varients sicne those r rare cases
 	areaMiniIsDead(eArray) {
 		let name = eArray[0].getName()
@@ -658,7 +676,7 @@ class Slayers extends Feature {
 		this.todoE = this.todoE2;
 		this.todoE2 = [];
 
-		if (this.slayerXpGuiElement.getValue() && this.lastSlayerType) {
+		if (this.slayerXpGuiElement.getValue() && this.lastSlayerType && this.doingSlayer()) {
 			this.slayerXpElement.setText(`&6${firstLetterCapital(this.lastSlayerType)}&7> &d&l${numberWithCommas(this.slayerExp[this.lastSlayerType])} XP`);
 		} else {
 			this.slayerXpElement.setText(``);
