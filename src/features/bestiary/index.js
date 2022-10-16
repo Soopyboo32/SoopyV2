@@ -128,6 +128,7 @@ class Bestiary extends Feature {
 
     updateMobs() {
         this.boxRendEs = []
+        if (!this.bestiaryMobBox.getValue()) return
 
         let entities = World.getAllEntitiesOfType(EntityArmorStand)
         for (let entity of entities) {
@@ -172,6 +173,7 @@ class Bestiary extends Feature {
     }
 
     renderWorld(ticks) {
+        if (!this.bestiaryMobBox.getValue()) return
         for (let data of this.boxRendEs) {
             drawBoxAtEntity(data[0], data[1][0], data[1][1], data[1][2], null, null, ticks)
         }

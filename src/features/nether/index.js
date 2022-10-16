@@ -221,7 +221,7 @@ class Nether extends Feature {
 		if (this.tenacityLine.getValue() && event.entity instanceof ArmorStand) this.todoE.push(event.entity)
 		if (this.disciplineOverlay.getValue() && this.inDiscipline && event.entity instanceof ArmorStand) this.todoF.push(new Entity(event.entity))
 
-		if (event.entity instanceof EntitySkeleton && !this.controlSkeleton) this.controlSkeleton = new Entity(event.entity)
+		if (event.entity instanceof EntitySkeleton && !this.controlSkeleton && this.isInDojo()) this.controlSkeleton = new Entity(event.entity)
 		if (this.minibossNametag.getValue() && event.entity instanceof ArmorStand) {
 			this.todoM.push(event.entity)
 		}
