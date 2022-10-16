@@ -191,6 +191,12 @@ class rngMeter extends Feature {
             if (slayerType === this.lastSlayerType) this.meterTitleElement.setText(this.doingSlayer() ? meterText : "")
             this.saveMeterData();
         })
+
+        this.registerEvent("worldLoad", this.worldLoad)
+    }
+
+    worldLoad() {
+        if (slayerType === this.lastSlayerType && !this.doingSlayer()) this.meterTitleElement.setText("")
     }
 
     resetMeterAlertStep() {
