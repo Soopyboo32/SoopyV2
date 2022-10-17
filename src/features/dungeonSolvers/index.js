@@ -383,6 +383,7 @@ class DungeonSolvers extends Feature {
 		})
 
 		this.registerChat("${name} activated a lever! (${start}/${end})", (name, start, end) => {
+			if (name.includes(">")) return
 			if (this.area === -1) {
 				this.area = 0
 				this.termsDone.clear()
@@ -423,6 +424,7 @@ class DungeonSolvers extends Feature {
 		}).registeredWhen(() => this.f7waypoints.getValue())
 
 		this.registerChat("${name} completed a device! (${start}/${end})", (name, start, end) => {
+			if (name.includes(">")) return
 			if (this.area === -1) {
 				this.area = 0
 				this.termsDone.clear()
@@ -451,6 +453,7 @@ class DungeonSolvers extends Feature {
 		}).registeredWhen(() => this.f7waypoints.getValue())
 
 		this.registerChat("${name} activated a terminal! (${start}/${end})", (name, start, end) => {
+			if (name.includes(">")) return
 			if (this.area === -1) {
 				this.area = 0
 				this.termsDone.clear()
