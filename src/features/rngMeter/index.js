@@ -196,7 +196,7 @@ class rngMeter extends Feature {
     }
 
     worldLoad() {
-        if (slayerType === this.lastSlayerType && !this.doingSlayer()) this.meterTitleElement.setText("")
+        if (this.lastSlayerType && !this.doingSlayer()) this.meterTitleElement.setText("")
     }
 
     resetMeterAlertStep() {
