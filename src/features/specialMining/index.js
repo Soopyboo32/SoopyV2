@@ -221,13 +221,8 @@ class PowderAndScatha extends Feature {
             if (this.compactedChat.getValue()) {
                 cancel(e)
                 this.lastPowderReceived.mithril += p
+                this.compactPowderChat();
                 return
-            }
-            if (this.fixChatForDoublePowder.getValue() && this.dPowder) {
-                cancel(e)
-                let suffix = "";
-                if (this.fixChatForDoublePowderSuffix.getValue() !== "") suffix = this.fixChatForDoublePowderSuffix.getValue()
-                ChatLib.chat(`&r&aYou received &r&b+${2 * amount} &r&aMithril Powder&r ${suffix}`)
             }
         })
         this.registerChat("&r&aYou received &r&b+${amount} &r&aGemstone Powder&r", (amount, e) => {
@@ -236,17 +231,10 @@ class PowderAndScatha extends Feature {
             if (this.compactedChat.getValue()) {
                 cancel(e)
                 this.lastPowderReceived.gemstone += p
+                this.compactPowderChat();
                 return
             }
-            if (this.fixChatForDoublePowder.getValue() && this.dPowder) {
-                cancel(e)
-                let suffix = "";
-                if (this.fixChatForDoublePowderSuffix.getValue() !== "") suffix = this.fixChatForDoublePowderSuffix.getValue()
-                ChatLib.chat(`&r&aYou received &r&b+${2 * amount} &r&aGemstone Powder&r ${suffix}`)
-            }
         })
-
-        this.registerStep(true, 5, this.compactPowderChat)
 
         this.chests = new Map()
 
@@ -457,7 +445,7 @@ class PowderAndScatha extends Feature {
     }
 
     compactPowderChat() {
-        if (this.lastPowderReceived.mithril > 0 && this.lastPowderReceived.gemstone > 0 && !this.lastPowderReceivedExecuted) {
+        if (!this.lastPowderReceivedExecuted) {
             this.lastPowderReceivedExecuted = true
             delay(300, () => {
                 let m = this.lastPowderReceived.mithril
@@ -469,9 +457,8 @@ class PowderAndScatha extends Feature {
                     else msg += `and &r&b+${m} &r&aMithril `
                 }
                 msg += `Powder&r`
-                if (this.dPowder) {
-                    let suffix = "";
-                    if (this.fixChatForDoublePowderSuffix.getValue() !== "") suffix = this.fixChatForDoublePowderSuffix.getValue()
+                if (this.fixChatForDoublePowder.getValue() && this.dPowder) {
+                    let suffix = this.fixChatForDoublePowderSuffix.getValue()
                     ChatLib.chat(`${msg} ${suffix}`)
                 } else ChatLib.chat(msg)
                 this.lastPowderReceived = { mithril: 0, gemstone: 0 }
