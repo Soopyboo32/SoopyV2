@@ -175,6 +175,9 @@ class Bestiary extends Feature {
     renderWorld(ticks) {
         if (!this.bestiaryMobBox.getValue()) return
         for (let data of this.boxRendEs) {
+            if (data[0][f.isDead]) {
+                this.boxRendEs.splice(IndexOf(data));
+            }
             drawBoxAtEntity(data[0], data[1][0], data[1][1], data[1][2], null, null, ticks)
         }
     }
