@@ -136,10 +136,10 @@ class GlobalSettings extends Feature {
             TabList.getNames().forEach(n => {
                 let line = ChatLib.removeFormatting(n)
 
-                let data = /\[(\d+)\] (\w{3,24})/.exec(line)
+                let data = /\[(\d+)\] (\w{3,24})/.exec(line.replace("[YOUTUBE] ", "").replace("[ADMIN] ", ""))
 
                 if (!data) return
-
+                image.png
                 let [_, lvl, name] = data
 
                 if (sendPpl.has(name)) return

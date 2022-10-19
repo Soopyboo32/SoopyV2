@@ -20,6 +20,8 @@ class HudTextElement {
 
         this.renderingDisabled = false
 
+        this.renderingEditLocationDisabled = false
+
         this.renderElm = new HudText([""], 0, 0, true).startRender()
     }
 
@@ -91,9 +93,28 @@ class HudTextElement {
         return this.locationSetting && this.toggleSetting.getValue()
     }
 
+    disableIfNot() {
+        if (this.renderingEditLocationDisabled) return
+        if (this.renderingDisabled) return
+
+        this.renderingEditLocationDisabled = true
+        this.renderElm.stopRender()
+    }
+    enableIfNot() {
+        if (!this.renderingEditLocationDisabled) return
+        if (this.renderingDisabled) return
+
+        this.renderingEditLocationDisabled = false
+        this.renderElm.startRender()
+    }
+
     render() {
         if (this.toggleSetting && !this.toggleSetting.getValue() || !this.locationSetting) return
-        if (Date.now() - this.tempDisableTime < 100) return
+        if (Date.now() - this.tempDisableTime < 100) {
+            this.disableIfNot()
+            return
+        }
+        this.enableIfNot()
 
         this.renderRaw()
     }

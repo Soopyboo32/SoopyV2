@@ -9,7 +9,7 @@ import LocationSetting from "../settings/settingThings/location";
 import ToggleSetting from "../settings/settingThings/toggle";
 import TextSetting from "../settings/settingThings/textSetting";
 import { delay } from "../../utils/delayUtils";
-import { Waypoint } from "../../utils/renderJavaUtils";
+import { Points, Waypoint } from "../../utils/renderJavaUtils";
 import { calculateDistanceQuick } from "../../utils/utils";
 import { drawLinePoints } from "../../utils/renderUtils";
 
@@ -506,6 +506,59 @@ class DungeonSolvers extends Feature {
 			packetRecieved.trigger.setPacketClasses([net.minecraft.network.play.server.S23PacketBlockChange, net.minecraft.network.play.server.S22PacketMultiBlockChange])
 		} catch (e) { }//older ct version
 
+		let blockLineThings = []
+		let addedBlockLineThings = new Set()
+
+		this.registerEvent("worldUnload", () => {
+			blockLineThings.forEach(b => b.stopRender())
+			blockLineThings = []
+			addedBlockLineThings.clear()
+		})
+		this.registerEvent("blockBreak", (b) => {
+			/**@type {Block} */ //TODO: add toggle for this
+			let block = b
+
+			if (!block.getType().getRegistryName().endsWith("_stairs")) return
+
+			if (addedBlockLineThings.has(`${block.getX()},${block.getY()},${block.getZ()}`)) return
+			addedBlockLineThings.add(`${block.getX()},${block.getY()},${block.getZ()}`)
+
+			let dir = block.getMetadata()
+
+			let locs = []
+			switch (dir) {
+				case 0:
+					locs = [
+						[block.getX() + 0.24, block.getY() + 1.1, block.getZ()],
+						[block.getX() + 0.24, block.getY() + 1.1, block.getZ() + 1]
+					]
+					break;
+				case 1:
+					locs = [
+						[block.getX() + 0.76, block.getY() + 1.1, block.getZ()],
+						[block.getX() + 0.76, block.getY() + 1.1, block.getZ() + 1]
+					]
+					break;
+				case 2:
+					locs = [
+						[block.getX(), block.getY() + 1.1, block.getZ() + 0.24],
+						[block.getX() + 1, block.getY() + 1.1, block.getZ() + 0.24]
+					]
+					break;
+				case 3:
+					locs = [
+						[block.getX(), block.getY() + 1.1, block.getZ() + 0.76],
+						[block.getX() + 1, block.getY() + 1.1, block.getZ() + 0.76]
+					]
+					break;
+			}
+			blockLineThings.push(new Points(locs, 255, 0, 0, 255, 1, true).startRender())
+
+			//0 -> Z=0.76
+			//1 -> Z=0.24
+			//2 -> Z=0.76
+			//3 -> Z=0.24
+		})
 	}
 	getBonzoMaskCooldown() {
 		if (!Player.getInventory()) return
