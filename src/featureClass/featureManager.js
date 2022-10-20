@@ -90,6 +90,12 @@ class FeatureManager {
             new NonPooledThread(() => {
                 this.loadSoopy()
             }).start()
+        }).catch(e => {
+            ChatLib.chat(this.messagePrefix + "&cError: Could not connect to Soopy's server. This may cause issues with some features but will (hopefully) be back soon.")
+
+            new NonPooledThread(() => {
+                this.loadSoopy()
+            }).start()
         })
 
         this.registerStep(false, 30, () => {

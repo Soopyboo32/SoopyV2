@@ -290,7 +290,7 @@ class Events extends Feature {
 		this.showingWaypoints = showingWaypointsNew
 
 		this.shinyBlocks = this.shinyBlocks.filter(([loc, time]) => {
-			return time > Date.now() - 5000
+			return time > Date.now() - 5000 //TODO: detect blocks instead
 		})
 		this.glowingMushrooms = this.glowingMushrooms.filter(([loc, time]) => {
 			return time > Date.now() - 1000 && World.getBlockAt(...loc.map(a => Math.floor(a))).type.getID() !== 0
@@ -325,13 +325,15 @@ class Events extends Feature {
 		this.todoE = []
 
 		if (Player.getContainer().getName() === "Fast Travel") {
-			this.openedWarpsMenu = true
-			for (let item of Player.getContainer().getItems()) {
-				if (!item) continue
-				if (ChatLib.removeFormatting(item.getLore()[1]).startsWith("/warp") && warpData[ChatLib.removeFormatting(item.getLore()[1]).replace("/warp ", "")]) {
+			if (Date.now() - this.openedWarpsMenu > 1000) {
+				this.openedWarpsMenu = Date.now()
+				for (let item of Player.getContainer().getItems()) {
+					if (!item) continue
+					if (ChatLib.removeFormatting(item.getLore()[1]).startsWith("/warp") && warpData[ChatLib.removeFormatting(item.getLore()[1]).replace("/warp ", "")]) {
 
-					if (item.getLore().some(a => a.includes("Click to warp!"))) {
-						this.hasWarps.add(ChatLib.removeFormatting(item.getLore()[1]).replace("/warp ", ""))
+						if (item.getLore().some(a => a.includes("Click to warp!"))) {
+							this.hasWarps.add(ChatLib.removeFormatting(item.getLore()[1]).replace("/warp ", ""))
+						}
 					}
 				}
 			}
