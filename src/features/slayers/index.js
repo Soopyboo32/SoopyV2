@@ -180,6 +180,13 @@ class Slayers extends Feature {
 		this.arachneKeeperMain = new ToggleSetting("Main Toggle for Arachne Keepers", "this is the main toggle of the arachne keeper category", false, "arachne_keeper_main", this)
 		this.boxAroundArachneKeeper = new ToggleSetting("Box Around Arachne Keeper", "red box", false, "arachne_keeper_box", this).requires(this.arachneKeeperMain)
 		this.arachneKeeperSpawnAlert = new ToggleSetting("Arachne Keeper Spawned Alert", "tell you if one of them spawned", false, "arachne_keeper_alert", this).requires(this.arachneKeeperMain)
+		this.nestedEndermiteAlert = new ToggleSetting("Nested Endermite Spawn Alert", "they spawn from shiny blocks", false, "nested_endermite_alert", this);
+		this.registerChat("&r&5&lENDER NODE! &r&fYou found &r&cEndermite Nest&r&f!&r", () => {
+			if (this.nestedEndermiteAlert.getValue()) {
+				Client.showTitle("&cNested Endermite!", "", 0, 60, 20);
+				World.playSound("random.orb", 1, 1);
+			}
+		})
 		try {
 			this.bossBind = getKeyBindFromKey(Keyboard[this.bossBindDefault.getValue()], "Choose the nearest eman boss as your boss.");
 		} catch (e) {
