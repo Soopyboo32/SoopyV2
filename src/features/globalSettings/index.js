@@ -47,7 +47,6 @@ class GlobalSettings extends Feature {
 
         this.alertAllUpdates = new ToggleSetting("Send chat update avalible for all updates", "If disabled itll notify for new updates less", false, "alert_all_updates", this)
 
-        this.fixNeuNetworth = new ToggleSetting("Change networth in NEU pv to soopynw", "This should make it a lot more accurate", true, "neu_nw_override", this)
         this.darkTheme = new ToggleSetting("Dark theme", "This might be scuffed because guis are still made in light theme", false, "dark_theme", this)
         // this.linkPreview = new ToggleSetting("Link preview", "Shows a preview of where a link will take you", true, "link_preview", this)
 
@@ -139,7 +138,7 @@ class GlobalSettings extends Feature {
                 let data = /\[(\d+)\] (\w{3,24})/.exec(line.replace("[YOUTUBE] ", "").replace("[ADMIN] ", ""))
 
                 if (!data) return
-                image.png
+
                 let [_, lvl, name] = data
 
                 if (sendPpl.has(name)) return
@@ -204,13 +203,6 @@ class GlobalSettings extends Feature {
                 Thread.sleep(500)
                 this.showFirstLoadPage.call(this)
             }).start()
-        }
-
-        if (net.minecraftforge.fml.common.Loader.isModLoaded("notenoughupdates")) {
-            this.GuiProfileViewer = Java.type("io.github.moulberry.notenoughupdates.profileviewer.GuiProfileViewer")
-            this.currentPlayerOpen = undefined
-            this.currentPlayerNetworth = {}
-            this.registerEvent("tick", this.fixNEU)
         }
 
         this.requestingPrices = new Set()
@@ -799,35 +791,6 @@ class GlobalSettings extends Feature {
             for (let i = 0; i < linesOfText.length; i++) {
                 renderLibs.drawString(linesOfText[i], 10, 20 + 10 * i, 1)
             }
-        }
-    }
-
-    fixNEU() {
-        if (Client.currentGui && Client.currentGui.get() instanceof (this.GuiProfileViewer) && this.fixNeuNetworth.getValue()) {
-            let guiProfileViewer = Client.currentGui.get()
-            if (!guiProfileViewer.profile || !guiProfileViewer.profile.getHypixelProfile()) return
-            let uuid = guiProfileViewer.profile.getHypixelProfile().get("uuid").getAsString().replace(/-/g, "")
-
-            if (this.currentPlayerOpen != uuid) {
-                this.currentPlayerOpen = uuid
-                this.currentPlayerNetworth = {}
-
-                fetch("https://soopy.dev/api/v2/player_skyblock/" + uuid).json().then(data => {
-                    if (!data.success) return
-
-                    if (this.currentPlayerOpen === data.data.uuid) {
-                        Object.keys(data.data.profiles).forEach(profileId => {
-                            if (!data.data.profiles[profileId].members[uuid].soopyNetworth.networth) return
-                            this.currentPlayerNetworth[data.data.profiles[profileId].stats.cute_name] = JavaLong.valueOf(data.data.profiles[profileId].members[uuid].soopyNetworth.networth)
-                        })
-                    }
-                })
-            }
-
-            let map = this.getField(guiProfileViewer.profile, "networth")
-            Object.keys(this.currentPlayerNetworth).forEach(key => {
-                map.put(new JavaString(key), new JavaLong(this.currentPlayerNetworth[key]))
-            })
         }
     }
 
