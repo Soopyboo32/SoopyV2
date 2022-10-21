@@ -3,7 +3,7 @@
 import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import socketConnection from "../../socketConnection";
-import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawLine } from "../../utils/renderUtils";
+import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawFilledBox, drawLine } from "../../utils/renderUtils";
 import { calculateDistance, calculateDistanceQuick } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
@@ -11,6 +11,7 @@ import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
 import ButtonSetting from "../settings/settingThings/button";
 import TextSetting from "../settings/settingThings/textSetting";
+import { basiclyEqual } from "../../utils/numberUtils";
 
 let warpData = {
 	"castle": [-250, 130, 45],
@@ -218,8 +219,11 @@ class Events extends Feature {
 	}
 
 	renderWorld(ticks) {
+		let drawnBlocks = new Set()
 		this.shinyBlocks.forEach(([loc]) => {
-			drawBoxAtBlockNotVisThruWalls(loc[0], loc[1], loc[2], 0, 255, 0, 0.1, 0.1)
+			if (drawnBlocks.has(loc.join(","))) return
+			drawnBlocks.add(loc.join(","))
+			drawCoolWaypoint(loc[0], loc[1], loc[2], 0, 255, 0, { renderBeacon: false })
 		})
 		this.glowingMushrooms.forEach(([loc]) => {
 			drawBoxAtBlockNotVisThruWalls(loc[0] - 0.2, loc[1], loc[2] - 0.2, 0, 255, 0, 0.4, 0.4)
@@ -300,7 +304,7 @@ class Events extends Feature {
 		this.showingWaypoints = showingWaypointsNew
 
 		this.shinyBlocks = this.shinyBlocks.filter(([loc, time]) => {
-			return time > Date.now() - 5000 //TODO: detect blocks instead
+			return (time > Date.now() - 5000 && World.getBlockAt(loc[0], loc[1], loc[2]).getType().getID() !== 7)
 		})
 		this.glowingMushrooms = this.glowingMushrooms.filter(([loc, time]) => {
 			return time > Date.now() - 1000 && World.getBlockAt(...loc.map(a => Math.floor(a))).type.getID() !== 0
@@ -629,7 +633,68 @@ class Events extends Feature {
 				if (particle.getUnderlyingEntity().func_70534_d() === particle.getUnderlyingEntity().func_70535_g()) {
 					let arr = [particle.getX(), particle.getY(), particle.getZ()]
 					if (arr.map(a => Math.abs(a % 1)).includes(0.25) || arr.map(a => Math.abs(a % 1)).includes(0.75)) {
-						this.shinyBlocks.push([[particle.getX(), particle.getY(), particle.getZ()], Date.now()])
+						// console.log(arr.map(a => a.toFixed(3)).join(", "))
+					}
+
+					if (Math.abs(particle.getY() % 1) === 0.25
+						&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)
+						&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+						//Block under
+						this.shinyBlocks.push([[
+							Math.floor(particle.getX()),
+							Math.floor(particle.getY()) - 1,
+							Math.floor(particle.getZ())
+						], Date.now()])
+					}
+					if (Math.abs(particle.getY() % 1) === 0.75
+						&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)
+						&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+						//Block over
+						this.shinyBlocks.push([[
+							Math.floor(particle.getX()),
+							Math.floor(particle.getY()) + 1,
+							Math.floor(particle.getZ())
+						], Date.now()])
+					}
+					if (Math.abs(particle.getX() % 1) === 0.25
+						&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
+						&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+
+						this.shinyBlocks.push([[
+							Math.floor(particle.getX()) + 1,
+							Math.floor(particle.getY()),
+							Math.floor(particle.getZ())
+						], Date.now()])
+					}
+					if (Math.abs(particle.getX() % 1) === 0.75
+						&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
+						&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+
+						this.shinyBlocks.push([[
+							Math.floor(particle.getX()) - 1,
+							Math.floor(particle.getY()),
+							Math.floor(particle.getZ())
+						], Date.now()])
+					}
+					if (Math.abs(particle.getZ() % 1) === 0.25
+						&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
+						&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)) {
+
+						this.shinyBlocks.push([[
+							Math.floor(particle.getX()),
+							Math.floor(particle.getY()),
+							Math.floor(particle.getZ()) + 1
+						], Date.now()])
+					}
+					if (Math.abs(particle.getZ() % 1) === 0.75
+						&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
+						&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)) {
+
+						this.shinyBlocks.push([[
+							Math.floor(particle.getX()),
+							Math.floor(particle.getY()),
+							Math.floor(particle.getZ()) - 1
+						], Date.now()])
 					}
 				}
 			}
