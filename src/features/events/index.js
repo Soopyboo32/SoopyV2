@@ -67,6 +67,8 @@ class Events extends Feature {
 		this.MythMobsHPGuiElement = new ToggleSetting("Render Mythological Mobs hp on your screen", "This will help you to know their HP.", true, "myth_mobs_hp", this).contributor("EmeraldMerchant");
 		this.MythMobsHP = new HudTextElement().setToggleSetting(this.MythMobsHPGuiElement).setLocationSetting(new LocationSetting("Mythological Mobs Hp Location", "Allows you to edit the location of Mythological Mobs hp", "myth_mobs_location", this, [10, 50, 1, 1]).requires(this.MythMobsHPGuiElement).editTempText("&8[&7Lv750&8] &2Exalted Minos Inquisitor &a40M&f/&a40M&c❤&r"));
 		this.hudElements.push(this.MythMobsHP);
+		this.abiphoneSolver = new ToggleSetting("Tia fairy task thingo", "", true, "abi_solver", this)
+
 
 		this.Mobs = []
 		this.lastDing = 0
@@ -146,6 +148,9 @@ class Events extends Feature {
 
 		this.locs = []
 		this.predictions = []
+
+		this.abiSolverX = 0
+		this.abiSolverSolition = []
 		// this.predictionsOld = []
 		// this.registerEvent("renderWorld", () => {
 		// 	for (let loc of this.locs) {
@@ -162,6 +167,11 @@ class Events extends Feature {
 		// 	// this.predictionsOld = []
 		// 	ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all locs!")
 		// })
+
+		this.registerEvent("soundPlay", this.abiSolverSoundPlay).registeredWhen(() => this.abiphoneSolver.getValue())
+		this.registerEvent("guiMouseClick", this.abiSolverGuiClick).registeredWhen(() => this.abiphoneSolver.getValue())
+		this.registerEvent("postGuiRender", this.abiSolverGuiRender).registeredWhen(() => this.abiphoneSolver.getValue())
+		this.registerEvent("guiOpened", this.abiSolverGuiOpen).registeredWhen(() => this.abiphoneSolver.getValue())
 	}
 
 	step_1fps() {
@@ -387,6 +397,7 @@ class Events extends Feature {
 	}
 
 	playSound(pos, name, volume, pitch, categoryName, event) {
+
 		if (!this.showBurrialGuess.getValue()) return
 		// if (this.dingIndex > 13) return
 		// if (pos.getX() === Math.floor(Player.getX() * 8) / 8 && pos.getZ() === Math.floor(Player.getZ() * 8) / 8) return
@@ -795,6 +806,107 @@ class Events extends Feature {
 		})
 		if (this.burrialData.historicalLocations.length > 10) this.burrialData.historicalLocations.pop()
 		if (this.lastPathCords) this.lastPathCords.shift()
+	}
+
+	abiSolverSoundPlay(pos, name, volume, pitch, categoryName, event) {
+		if (!Player.getContainer().getName().endsWith("Network Relay")) return
+
+		// console.log(name)
+		if (name === "random.orb") return
+		if (name === "game.player.hurt") return
+		if (name === "fire.fire") return
+		if (name === "random.explode") return
+		if (name === "mob.wolf.whine") return
+
+		if (name === "fireworks.twinkle") {
+			this.abiSolverGuiOpen()
+			return
+		}
+		if (name === "random.successful_hit") {
+			this.abiSolverGuiOpen()
+			return
+		}
+
+		if (this.abiSolverSolition.length >= 4 && this.abiSolverSolition[3][1]) return
+
+		this.abiSolverSolition[this.abiSolverSolition.length - 1][1] = pitch
+
+		if (this.abiSolverSolition.length >= 4) {
+			this.abiSolverSolition = [this.abiSolverSolition[0], this.abiSolverSolition[1], this.abiSolverSolition[2], this.abiSolverSolition[3]].sort((a, b) => a[1] - b[1])
+			// console.log("sorting")
+		}
+	}
+	abiSolverGuiClick(mx, my, button, gui, event) {
+		if (!Player.getContainer().getName().endsWith("Network Relay")) return
+
+		if (this.abiSolverSolition.length >= 4) return
+		let hoveredSlot = gui.getSlotUnderMouse();
+		if (!hoveredSlot) return;
+
+		let hoveredSlotId = hoveredSlot[f.slotNumber];
+
+		let clicked = Player.getContainer().getStackInSlot(hoveredSlotId).getMetadata()
+
+		if (clicked !== 4) return
+
+		// console.log("asd", clicked, button)
+
+		let x = hoveredSlotId % 9
+		let y = Math.floor(hoveredSlotId / 9)
+
+		this.abiSolverX = x
+		if (this.abiSolverSolition.some(a => a[0] === y)) return
+
+		this.abiSolverSolition.push([y])
+
+		// console.log(x, y)
+	}
+	abiSolverGuiRender(mx, my, gui) {
+		if (!Player.getContainer().getName().endsWith("Network Relay")) return
+
+		Renderer.translate(0, 0, 1000)
+		Renderer.drawString("&0", 0, 0, true)
+		if (this.abiSolverSolition.length >= 4 && this.abiSolverSolition[3][1]) {
+
+			let first = true
+			for (let i = 0; i < 4; i++) {
+				if (Player.getContainer().getStackInSlot(this.abiSolverSolition[i][0] * 9 + this.abiSolverX)?.getMetadata() !== 4) continue
+
+				let rx = Renderer.screen.getWidth() / 2 + ((this.abiSolverX - 4) * 18) - 3;
+				let ry = (Renderer.screen.getHeight() + 10) / 2 + ((this.abiSolverSolition[i][0] - Player.getContainer().getSize() / 18) * 18) - 3
+
+				Renderer.translate(0, 0, 1000)
+				Renderer.drawString("&" + (first ? "a" : "0") + (i + 1), rx, ry, true)
+				first = false
+			}
+		} else {
+			if (!this.abiSolverX) {
+				for (let i = 0; i < 4; i++) {
+					let x = i * 2 + 1
+					if (Player.getContainer().getStackInSlot(9 + x).getMetadata() === 4) {
+						this.abiSolverX = x
+					}
+				}
+			}
+
+			if (!this.abiSolverX) return
+			let first = true
+
+			for (let i = 0; i < 4; i++) {
+				if (this.abiSolverSolition.some(a => a[0] === i + 1)) continue
+
+				let rx = Renderer.screen.getWidth() / 2 + ((this.abiSolverX - 4) * 18) - 3;
+				let ry = (Renderer.screen.getHeight() + 10) / 2 + ((i + 1 - Player.getContainer().getSize() / 18) * 18) - 3
+
+				Renderer.translate(0, 0, 1000)
+				Renderer.drawString("&" + (first ? "a" : "0") + "?", rx, ry, true)
+				first = false
+			}
+		}
+	}
+	abiSolverGuiOpen() {
+		this.abiSolverX = 0
+		this.abiSolverSolition = []
 	}
 
 	initVariables() {
