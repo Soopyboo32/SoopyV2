@@ -223,7 +223,7 @@ class Events extends Feature {
 		this.shinyBlocks.forEach(([loc]) => {
 			if (drawnBlocks.has(loc.join(","))) return
 			drawnBlocks.add(loc.join(","))
-			drawCoolWaypoint(loc[0], loc[1], loc[2], 0, 255, 0, { renderBeacon: false, phase: true })
+			drawCoolWaypoint(loc[0], loc[1], loc[2], 0, 255, 0, { renderBeacon: false })
 		})
 
 		this.glowingMushrooms.forEach(([loc]) => {
