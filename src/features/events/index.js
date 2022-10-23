@@ -223,8 +223,9 @@ class Events extends Feature {
 		this.shinyBlocks.forEach(([loc]) => {
 			if (drawnBlocks.has(loc.join(","))) return
 			drawnBlocks.add(loc.join(","))
-			drawCoolWaypoint(loc[0], loc[1], loc[2], 0, 255, 0, { renderBeacon: false })
+			drawCoolWaypoint(loc[0], loc[1], loc[2], 0, 255, 0, { renderBeacon: false, phase: true })
 		})
+
 		this.glowingMushrooms.forEach(([loc]) => {
 			drawBoxAtBlockNotVisThruWalls(loc[0] - 0.2, loc[1], loc[2] - 0.2, 0, 255, 0, 0.4, 0.4)
 		})
@@ -303,9 +304,12 @@ class Events extends Feature {
 
 		this.showingWaypoints = showingWaypointsNew
 
-		this.shinyBlocks = this.shinyBlocks.filter(([loc, time]) => {
-			return (time > Date.now() - 5000 && World.getBlockAt(loc[0], loc[1], loc[2]).getType().getID() !== 7)
-		})
+		let drawnBlocks = new Set()
+		this.shinyBlocks = this.shinyBlocks.reverse().filter(([loc, time]) => {
+			if (drawnBlocks.has(loc.join(","))) return false
+			drawnBlocks.add(loc.join(","))
+			return (time > Date.now() - 2000 && World.getBlockAt(loc[0], loc[1], loc[2]).getType().getID() !== 7)
+		}).reverse()
 		this.glowingMushrooms = this.glowingMushrooms.filter(([loc, time]) => {
 			return time > Date.now() - 1000 && World.getBlockAt(...loc.map(a => Math.floor(a))).type.getID() !== 0
 		})
@@ -628,75 +632,80 @@ class Events extends Feature {
 				this.guessPoint = [this.lastSoundPoint[0] + changes[0] * distance, this.lastSoundPoint[1] + changes[1] * distance, this.lastSoundPoint[2] + changes[2] * distance]
 			}
 		}
-		if (this.shinyBlockOverlayEnabled.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "The End") {
-			if (particle.toString().startsWith("EntitySpellParticleFX,")) {
-				if (particle.getUnderlyingEntity().func_70534_d() === particle.getUnderlyingEntity().func_70535_g()) {
-					let arr = [particle.getX(), particle.getY(), particle.getZ()]
-					if (arr.map(a => Math.abs(a % 1)).includes(0.25) || arr.map(a => Math.abs(a % 1)).includes(0.75)) {
-						// console.log(arr.map(a => a.toFixed(3)).join(", "))
-					}
+		if (this.shinyBlockOverlayEnabled.getValue() && this.FeatureManager.features["dataLoader"].class.area === "The End") {
+			// if (basiclyEqual(particle.getX(), Player.getX(), 2) && basiclyEqual(particle.getY(), Player.getY(), 2) && basiclyEqual(particle.getZ(), Player.getZ(), 2)) {
+			// 	console.log(particle.toString())
+			// }
+			if (particle.toString().startsWith("EntityPortalFX,")) {
 
-					if (Math.abs(particle.getY() % 1) === 0.25
-						&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)
-						&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
-						//Block under
-						this.shinyBlocks.push([[
-							Math.floor(particle.getX()),
-							Math.floor(particle.getY()) - 1,
-							Math.floor(particle.getZ())
-						], Date.now()])
-					}
-					if (Math.abs(particle.getY() % 1) === 0.75
-						&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)
-						&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
-						//Block over
-						this.shinyBlocks.push([[
-							Math.floor(particle.getX()),
-							Math.floor(particle.getY()) + 1,
-							Math.floor(particle.getZ())
-						], Date.now()])
-					}
-					if (Math.abs(particle.getX() % 1) === 0.25
-						&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
-						&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+				// if (particle.getUnderlyingEntity().func_70534_d() === particle.getUnderlyingEntity().func_70535_g()) {
 
-						this.shinyBlocks.push([[
-							Math.floor(particle.getX()) + 1,
-							Math.floor(particle.getY()),
-							Math.floor(particle.getZ())
-						], Date.now()])
-					}
-					if (Math.abs(particle.getX() % 1) === 0.75
-						&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
-						&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+				// let arr = [particle.getX(), particle.getY(), particle.getZ()]
+				// if (arr.map(a => Math.abs(a % 1)).includes(0.25) || arr.map(a => Math.abs(a % 1)).includes(0.75)) {
+				// 	console.log(arr.map(a => a.toFixed(3)).join(", "))
+				// }
 
-						this.shinyBlocks.push([[
-							Math.floor(particle.getX()) - 1,
-							Math.floor(particle.getY()),
-							Math.floor(particle.getZ())
-						], Date.now()])
-					}
-					if (Math.abs(particle.getZ() % 1) === 0.25
-						&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
-						&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)) {
-
-						this.shinyBlocks.push([[
-							Math.floor(particle.getX()),
-							Math.floor(particle.getY()),
-							Math.floor(particle.getZ()) + 1
-						], Date.now()])
-					}
-					if (Math.abs(particle.getZ() % 1) === 0.75
-						&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
-						&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)) {
-
-						this.shinyBlocks.push([[
-							Math.floor(particle.getX()),
-							Math.floor(particle.getY()),
-							Math.floor(particle.getZ()) - 1
-						], Date.now()])
-					}
+				if (Math.abs(particle.getY() % 1) === 0.25
+					&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)
+					&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+					//Block under
+					this.shinyBlocks.push([[
+						Math.floor(particle.getX()),
+						Math.floor(particle.getY()) - 1,
+						Math.floor(particle.getZ())
+					], Date.now()])
 				}
+				if (Math.abs(particle.getY() % 1) === 0.75
+					&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)
+					&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+					//Block over
+					this.shinyBlocks.push([[
+						Math.floor(particle.getX()),
+						Math.floor(particle.getY()) + 1,
+						Math.floor(particle.getZ())
+					], Date.now()])
+				}
+				if (Math.abs(particle.getX() % 1) === 0.25
+					&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
+					&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+
+					this.shinyBlocks.push([[
+						Math.floor(particle.getX()) + 1,
+						Math.floor(particle.getY()),
+						Math.floor(particle.getZ())
+					], Date.now()])
+				}
+				if (Math.abs(particle.getX() % 1) === 0.75
+					&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
+					&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
+
+					this.shinyBlocks.push([[
+						Math.floor(particle.getX()) - 1,
+						Math.floor(particle.getY()),
+						Math.floor(particle.getZ())
+					], Date.now()])
+				}
+				if (Math.abs(particle.getZ() % 1) === 0.25
+					&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
+					&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)) {
+
+					this.shinyBlocks.push([[
+						Math.floor(particle.getX()),
+						Math.floor(particle.getY()),
+						Math.floor(particle.getZ()) + 1
+					], Date.now()])
+				}
+				if (Math.abs(particle.getZ() % 1) === 0.75
+					&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
+					&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)) {
+
+					this.shinyBlocks.push([[
+						Math.floor(particle.getX()),
+						Math.floor(particle.getY()),
+						Math.floor(particle.getZ()) - 1
+					], Date.now()])
+				}
+				// }
 			}
 		}
 		if (this.showGlowingMushrooms.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "Glowing Mushroom Cave") {
