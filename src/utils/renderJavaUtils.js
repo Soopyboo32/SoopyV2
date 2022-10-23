@@ -38,7 +38,7 @@ export function setRendering(rendering) {
     }
     currentlyRendering = rendering
     if (rendering) {
-        setRenderWorldList(new ArrayList([...global.soopyv2RenderWorldThings]))
+        setRenderWorldList(new ArrayList([global.soopyV2RenderfixLineThing, ...global.soopyv2RenderWorldThings]))
         setRenderHudList(new ArrayList([...global.soopyv2RenderHudThings]))
     }
 }
@@ -409,5 +409,5 @@ register("worldLoad", () => {
 })
 
 if (addFix) {
-    new Box([-1000000000, 0, 0], 0, 0, 0, 0, 0, 1, false).startRender()
+    global.soopyV2RenderfixLineThing = new Box([-1000000000, 0, 0], 0, 0, 0, 0, 0, 1, false)
 }

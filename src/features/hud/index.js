@@ -363,7 +363,10 @@ class Hud extends Feature {
         }
 
         if (!this.lagEnabled.getValue()) {
-            if (this.packetReceived) this.packetReceived.unregister()
+            if (this.packetReceived) {
+                this.packetReceived.unregister()
+                this.packetReceived = undefined
+            }
             return
         }
         if (!this.packetReceived) this.packetReceived = register("packetReceived", () => {
@@ -396,23 +399,20 @@ class Hud extends Feature {
 
         if (this.locationEnabledSetting.getValue()) {
 
-            if (this.locationOnlyDungSetting.getValue()) {
-                if (!this.FeatureManager.features["dataLoader"].class.isInDungeon) {
-                    this.locationElement.setText("")
-                    return
-                }
+            if (!this.locationOnlyDungSetting.getValue() || this.FeatureManager.features["dataLoader"].class.isInDungeon) {
+                let locData = []
+                locData.push(Player.getX())
+                if (this.locationYEnabledSetting.getValue()) locData.push(Player.getY())
+                locData.push(Player.getZ())
+
+                locData = locData.map(a => a.toFixed(parseInt(this.locationDecimals.getValue())))
+
+                let locString = locData.join("&7 | &f")
+
+                this.locationElement.setText("&6Loc&7> &f" + locString)
+            } else {
+                this.locationElement.setText("")
             }
-
-            let locData = []
-            locData.push(Player.getX())
-            if (this.locationYEnabledSetting.getValue()) locData.push(Player.getY())
-            locData.push(Player.getZ())
-
-            locData = locData.map(a => a.toFixed(parseInt(this.locationDecimals.getValue())))
-
-            let locString = locData.join("&7 | &f")
-
-            this.locationElement.setText("&6Loc&7> &f" + locString)
         }
 
         if (!this.lagEnabled.getValue()) return

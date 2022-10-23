@@ -19,6 +19,7 @@ bossmobs.add("bladesoul")
 bossmobs.add("mage_outlaw")
 bossmobs.add("ashfang")
 bossmobs.add("corrupted_protector")
+bossmobs.add("brood_mother_spider")
 
 let islandmobs = new Set()
 islandmobs.add("cave_spider")

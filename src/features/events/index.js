@@ -874,6 +874,7 @@ class Events extends Feature {
 	}
 
 	abiSolverSoundPlay(pos, name, volume, pitch, categoryName, event) {
+		if (!Player.getContainer()) return
 		if (!Player.getContainer().getName().endsWith("Network Relay")) return
 
 		// console.log(name)
@@ -902,6 +903,7 @@ class Events extends Feature {
 		}
 	}
 	abiSolverGuiClick(mx, my, button, gui, event) {
+		if (!Player.getContainer()) return
 		if (!Player.getContainer().getName().endsWith("Network Relay")) return
 
 		if (this.abiSolverSolition.length >= 4) return
@@ -927,6 +929,7 @@ class Events extends Feature {
 		// console.log(x, y)
 	}
 	abiSolverGuiRender(mx, my, gui) {
+		if (!Player.getContainer()) return
 		if (!Player.getContainer().getName().endsWith("Network Relay")) return
 
 		Renderer.translate(0, 0, 1000)
