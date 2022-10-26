@@ -146,13 +146,16 @@ class PowderAndScatha extends Feature {
         this.overlayRight = []
 
         this.registerEvent("worldLoad", () => {
-            if (!this.inCrystalHollows() && this.resetPowderWhenLeaveCH.getValue()) {
-                this.resetMiningData("powder")
-                this.chests.clear()
+            delay(2000, () => {
                 this.dPowder = 0
-            } else if (this.inCrystalHollows()) {
-                this.foundWither = false
-            }
+                if (!this.inCrystalHollows() && this.resetPowderWhenLeaveCH.getValue()) {
+                    this.resetMiningData("powder")
+                    this.chests.clear()
+                }
+                if (this.inCrystalHollows()) {
+                    this.foundWither = false
+                }
+            })
         })
 
         this.miningData = {}
@@ -524,7 +527,6 @@ class PowderAndScatha extends Feature {
 
     initVariables() {
         this.hudElements = [];
-        this.foundWither = true;
         this.dPowder = 0;
         this.wormSpawned = false;
         this.wormEntity = undefined;
