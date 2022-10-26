@@ -886,8 +886,8 @@ class Events extends Feature {
 		if (!Player.getContainer()) return
 		if (!Player.getContainer().getName().endsWith("Network Relay")) return
 
-		// console.log(name)
 		if (name === "random.orb") return
+		if (name === "dig.stone") return
 		if (name === "game.player.hurt") return
 		if (name === "fire.fire") return
 		if (name === "random.explode") return
@@ -901,6 +901,7 @@ class Events extends Feature {
 			this.abiSolverGuiOpen()
 			return
 		}
+		// console.log(name)
 
 		if (this.abiSolverSolition.length >= 4 && this.abiSolverSolition[3][1]) return
 
