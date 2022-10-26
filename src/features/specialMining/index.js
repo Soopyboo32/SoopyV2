@@ -15,6 +15,11 @@ class PowderAndScatha extends Feature {
         super();
     }
 
+    inCrystalHollows() {
+        if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false;
+        else return this.FeatureManager.features["dataLoader"].class.area === "Crystal Hollows";
+    }
+
     onEnable() {
         this.initVariables();
         new SettingBase("Chest Miner", "Powder mining feature here are made mainly for powder chest grinding", undefined, "chest_mining_info", this);
@@ -135,34 +140,22 @@ class PowderAndScatha extends Feature {
             }
         })
 
-        this.registerStep(true, 1, () => {
-            if (this.FeatureManager.features["dataLoader"].class.area === "Crystal Hollows") {
-                if (!this.leftCH && !this.inCrystalHollows) {
-                    this.foundWither = false
-                    this.inCrystalHollows = true
-                }
-            } else if (this.inCHfromChest) {
-                this.inCrystalHollows = true
-                this.dPowder = 0
-                this.inCHfromChest = false
-            }
-        })
         this.dPowder = 0;
         this.sL = Renderer.getStringWidth(" ")
-
         this.overlayLeft = []
         this.overlayRight = []
 
-        this.leftCH = false;
         this.registerEvent("worldLoad", () => {
-            if (this.inCrystalHollows) {
-                this.leftCH = true;
-                this.inCrystalHollows = false;
-                if (this.resetPowderWhenLeaveCH.getValue()) {
+            delay(2000, () => {
+                this.dPowder = 0
+                if (!this.inCrystalHollows() && this.resetPowderWhenLeaveCH.getValue()) {
                     this.resetMiningData("powder")
+                    this.chests.clear()
                 }
-                this.chests.clear()
-            } else this.leftCH = false
+                if (this.inCrystalHollows()) {
+                    this.foundWither = false
+                }
+            })
         })
 
         this.miningData = {}
@@ -185,10 +178,6 @@ class PowderAndScatha extends Feature {
         }, this)
 
         this.registerChat("&r&aYou uncovered a treasure chest!&r", (e) => {
-            if (!this.inCrystalHollows) {
-                this.inCrystalHollows = true
-                this.inCHfromChest = true
-            }
             if (this.chestUncoverAlert.getValue()) Client.showTitle("&aTreasure Chest!", "", 0, 60, 20);
             if (this.chestUncoverAlertSound.getValue()) World.playSound("random.levelup", 1, 1);
         })
@@ -198,7 +187,6 @@ class PowderAndScatha extends Feature {
                 this.dPowder = Date.now() + 15 * 1000 * 60
             } else this.dPowder = 0
         })
-        this.inCHfromChest = false;
         this.registerChat("&r&6You have successfully picked the lock on this chest!&r", (e) => {
             this.miningData.powder.chests++
             delay(100, () => {
@@ -221,13 +209,8 @@ class PowderAndScatha extends Feature {
             if (this.compactedChat.getValue()) {
                 cancel(e)
                 this.lastPowderReceived.mithril += p
+                this.compactPowderChat();
                 return
-            }
-            if (this.fixChatForDoublePowder.getValue() && this.dPowder) {
-                cancel(e)
-                let suffix = "";
-                if (this.fixChatForDoublePowderSuffix.getValue() !== "") suffix = this.fixChatForDoublePowderSuffix.getValue()
-                ChatLib.chat(`&r&aYou received &r&b+${2 * amount} &r&aMithril Powder&r ${suffix}`)
             }
         })
         this.registerChat("&r&aYou received &r&b+${amount} &r&aGemstone Powder&r", (amount, e) => {
@@ -236,24 +219,17 @@ class PowderAndScatha extends Feature {
             if (this.compactedChat.getValue()) {
                 cancel(e)
                 this.lastPowderReceived.gemstone += p
+                this.compactPowderChat();
                 return
             }
-            if (this.fixChatForDoublePowder.getValue() && this.dPowder) {
-                cancel(e)
-                let suffix = "";
-                if (this.fixChatForDoublePowderSuffix.getValue() !== "") suffix = this.fixChatForDoublePowderSuffix.getValue()
-                ChatLib.chat(`&r&aYou received &r&b+${2 * amount} &r&aGemstone Powder&r ${suffix}`)
-            }
         })
-
-        this.registerStep(true, 5, this.compactPowderChat)
 
         this.chests = new Map()
 
 
         this.registerEvent("renderOverlay", this.renderOverlay)
         this.registerEvent("renderWorld", () => {
-            if (!this.inCrystalHollows || !this.chestUnlockHelper.getValue()) return
+            if (!this.inCrystalHollows() || !this.chestUnlockHelper.getValue()) return
 
             let del = []
             for (let key of this.chests.keys()) {
@@ -325,7 +301,7 @@ class PowderAndScatha extends Feature {
     }
 
     spawnParticle(particle, type, event) {
-        if (this.inCrystalHollows && this.chestUnlockHelper.getValue() && particle.toString().startsWith("EntityCrit2FX,")) {
+        if (this.inCrystalHollows() && this.chestUnlockHelper.getValue() && particle.toString().startsWith("EntityCrit2FX,")) {
             if (World.getBlockAt(particle.getX() + 1, particle.getY(), particle.getZ()).type.getID() === 54
                 || World.getBlockAt(particle.getX() - 1, particle.getY(), particle.getZ()).type.getID() === 54
                 || World.getBlockAt(particle.getX(), particle.getY(), particle.getZ() + 1).type.getID() === 54
@@ -391,7 +367,7 @@ class PowderAndScatha extends Feature {
         this.overlayLeft = []
         this.overlayRight = []
 
-        if (this.PowderElement.getValue() && this.inCrystalHollows) {
+        if (this.PowderElement.getValue() && this.inCrystalHollows()) {
             this.overlayLeft.push(`&b2x Powder:`)
             this.overlayRight.push(this.dPowder ? "&a" + timeNumber(Math.max(0, this.dPowder - Date.now())) : "&cINACTIVE")
 
@@ -446,7 +422,7 @@ class PowderAndScatha extends Feature {
                 }
             }
         }
-        if (this.scathaCounter.getValue() && this.inCrystalHollows) {
+        if (this.scathaCounter.getValue() && this.inCrystalHollows()) {
             let tempText = `&6Scatha Counter\n&bKills: ${this.miningData.scatha.total_worms}\n&bWorms: ${this.miningData.scatha.worms}\n&bScathas: ${this.miningData.scatha.scathas}\n&bSince Scatha: ${this.miningData.scatha.since_scatha}\n`
             if (this.miningData.scatha.rare > 0) tempText += `&9Rare Scatha Pets: ${this.miningData.scatha.rare}\n`
             if (this.miningData.scatha.epic > 0) tempText += `&5Epic Scatha Pets: ${this.miningData.scatha.epic}\n`
@@ -457,7 +433,7 @@ class PowderAndScatha extends Feature {
     }
 
     compactPowderChat() {
-        if (this.lastPowderReceived.mithril > 0 && this.lastPowderReceived.gemstone > 0 && !this.lastPowderReceivedExecuted) {
+        if (!this.lastPowderReceivedExecuted) {
             this.lastPowderReceivedExecuted = true
             delay(300, () => {
                 let m = this.lastPowderReceived.mithril
@@ -469,9 +445,8 @@ class PowderAndScatha extends Feature {
                     else msg += `and &r&b+${m} &r&aMithril `
                 }
                 msg += `Powder&r`
-                if (this.dPowder) {
-                    let suffix = "";
-                    if (this.fixChatForDoublePowderSuffix.getValue() !== "") suffix = this.fixChatForDoublePowderSuffix.getValue()
+                if (this.fixChatForDoublePowder.getValue() && this.dPowder) {
+                    let suffix = this.fixChatForDoublePowderSuffix.getValue()
                     ChatLib.chat(`${msg} ${suffix}`)
                 } else ChatLib.chat(msg)
                 this.lastPowderReceived = { mithril: 0, gemstone: 0 }
@@ -501,7 +476,7 @@ class PowderAndScatha extends Feature {
     }
 
     wormStep() {
-        if (!this.inCrystalHollows || !this.scathaMain.getValue()) {
+        if (!this.inCrystalHollows() || !this.scathaMain.getValue()) {
             this.scathaCounterElement.setText("")
             return
         }
@@ -552,8 +527,6 @@ class PowderAndScatha extends Feature {
 
     initVariables() {
         this.hudElements = [];
-        this.inCrystalHollows = false;
-        this.foundWither = true;
         this.dPowder = 0;
         this.wormSpawned = false;
         this.wormEntity = undefined;
