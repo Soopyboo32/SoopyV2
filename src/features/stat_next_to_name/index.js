@@ -23,7 +23,8 @@ class StatNextToName extends Feature {
             "totalSlayer": "Total Slayer Exp",
             "networth": "Networth",
             "classAverage": "Class Average",
-            "bestiary": "Bestiary"
+            "bestiary": "Bestiary",
+            "sbLvl": "Skyblock Level"
         })
 
         this.decimals = {
@@ -34,6 +35,7 @@ class StatNextToName extends Feature {
             "totalSlayer": 0,
             "classAverage": 2,
             "bestiary": 1,
+            "sbLvl": 0,
             "networth": "small"
         }
 
