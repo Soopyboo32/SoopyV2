@@ -580,24 +580,24 @@ class GlobalSettings extends Feature {
         World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach(entity => {
             let name = entity.getName()
             if (name.includes("'s")) return
-            let LowerName = name.removeFormatting().toLowerCase()
+            let Name = name.removeFormatting()
             let existedTicks = entity.getTicksExisted()
             if (this.fancyVanquisherAlert.getValue()) {
-                if (LowerName.includes("vanq")) {
+                if (Name.includes("Vanquisher")) {
                     if (existedTicks <= 20) {
                         Client.showTitle("&r&5&l[&b&l&kO&5&l] VANQUISHER &5[&b&l&kO&5&l]", "", 0, 50, 10);
                     }
                 }
             }
             if (this.fancySeaCreaturesAlertThunder.getValue()) {
-                if (LowerName.includes("thunder")) {
+                if (Name.includes("[Lv400] Thunder")) {
                     if (existedTicks <= 20) {
                         Client.showTitle("&r&6&l[&b&l&kO&6&l] THUNDER [&b&l&kO&6&l]", "", 0, 50, 10)
                     }
                 }
             }
             if (this.fancySeaCreaturesAlertJawbus.getValue()) {
-                if (LowerName.includes("jawbus")) {
+                if (Name.includes("[Lv600] Lord Jawbus")) {
                     if (existedTicks <= 20) {
                         Client.showTitle("&r&6&l[&b&l&kO&6&l] LORD JAWBUS [&b&l&kO&6&l]", "", 0, 50, 10)
                     }
