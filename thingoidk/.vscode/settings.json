@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\adam_\\OneDrive\\Desktop\\Coding - quck access\\ct java\\javassist.jar"
+    ]
+}
