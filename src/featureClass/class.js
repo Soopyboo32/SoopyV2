@@ -1,6 +1,11 @@
 /// <reference types="../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import { delay } from "../utils/delayUtils"
+import JavaClassWrapperThingo from "./JavaClassWrapperThingo"
+const URLClassLoader = Java.type("java.net.URLClassLoader")
+const File = Java.type("java.io.File")
+const URL = Java.type("java.net.URL")
+const Minecraft = Java.type("net.minecraft.client.Minecraft")
 
 class Feature {
     constructor() {
@@ -50,6 +55,24 @@ class Feature {
         })
 
         this.onEnable()
+    }
+
+    loadJava(classToLoad) {
+        //file of parent directory
+        let file = new File("./config/ChatTriggers/modules/SoopyV2/features/" + this.getId());
+
+        let url = file.toURI().toURL();
+        let urls = java.lang.reflect.Array.newInstance(URL, 1)
+        urls[0] = url
+
+        let parentClassLoader = Minecraft.class.getClassLoader()
+
+        let classLoader = new URLClassLoader(urls, parentClassLoader);
+
+        //Class to load
+        let clas = classLoader.loadClass(classToLoad);
+
+        return new JavaClassWrapperThingo(clas)
     }
 
     onDisable() { }

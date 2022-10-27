@@ -1,2 +1,6 @@
 out/
 node_modules
+fields.csv
+methods.csv
+joined.tsrg
+*.class

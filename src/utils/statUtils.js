@@ -12,7 +12,7 @@ let bossmobs = new Set()
 bossmobs.add("dragon")
 bossmobs.add("arachne")
 bossmobs.add("headless_horseman")
-bossmobs.add("magma_cube_boss")
+bossmobs.add("magma_boss")
 bossmobs.add("arachne")
 bossmobs.add("barbarian_duke_x")
 bossmobs.add("bladesoul")
@@ -30,6 +30,10 @@ islandmobs.add("spider")
 islandmobs.add("witch")
 islandmobs.add("zombie")
 
+let ignoreMobs = new Set()
+ignoreMobs.add("magma_cube_boss")
+ignoreMobs.add("skeletor_prime")
+
 let bestiaryData = {
     mob: [10, 15, 75, 150, 250, 500, 1500, 2500, 5000, 15000, 25000, 50000, ...(new Array(42 - 13).fill(100000))],
     boss: [2, 3, 5, 10, 10, 10, 10, 25, 25, 50, 50, 100, ...(new Array(42 - 13).fill(100))],
@@ -41,6 +45,12 @@ function getBestiaryTier(family, kills) {
 
     if (islandmobs.has(family)) type = "private"
     if (bossmobs.has(family)) type = "boss"
+    if (ignoreMobs.has(family)) return {
+        level: 0,
+        killsLeft: 0,
+        killsForNext: null,
+        isBald: true
+    }
 
     let killsLeft = kills
     let data = bestiaryData[type]
