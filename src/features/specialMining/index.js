@@ -291,7 +291,7 @@ class PowderAndScatha extends Feature {
             this.saveMiningData()
             if (this.petDroppedAlert.getValue()) {
                 World.playSound('note.pling', 1, 1);
-                Client.showTitle(`${rarity}${r.toUpperCase()} SCATHA PET!`, ChatLib.getChatMessage(e), 0, 100, 10);
+                Client.showTitle(`&${rarity}${r.toUpperCase()} SCATHA PET!`, `&r&6&lPET DROP! &r&${rarity}Scatha &r&b(+${mf}% ✯ Magic Find${end}`, 0, 100, 10);
             }
         })
 
