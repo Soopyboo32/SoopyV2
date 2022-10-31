@@ -16,6 +16,7 @@ import Notification from "../../../guimanager/Notification"
 import renderLibs from "../../../guimanager/renderLibs"
 import { m } from "../../../mappings/mappings"
 import * as utils from "../../utils/utils"
+import { getLore } from "../../utils/utils"
 
 
 const ContainerChest = Java.type("net.minecraft.inventory.ContainerChest")
@@ -358,7 +359,7 @@ class MuseumGui {
         if (Player.getContainer().getName() === "Your Museum") {//main page
             if (!Player.getContainer().getStackInSlot(19)) return
 
-            let lore = Player.getContainer().getStackInSlot(19).getLore()
+            let lore = getLore(Player.getContainer().getStackInSlot(19))
             lore.forEach((line, i) => {
                 if (i === 0) return
 
@@ -371,7 +372,7 @@ class MuseumGui {
             })
             this.weaponsIndicator.setLore(lore)
 
-            lore = Player.getContainer().getStackInSlot(21).getLore()
+            lore = getLore(Player.getContainer().getStackInSlot(21))
             lore.forEach((line, i) => {
                 if (i === 0) return
 
@@ -384,7 +385,7 @@ class MuseumGui {
             })
             this.armourIndicator.setLore(lore)
 
-            lore = Player.getContainer().getStackInSlot(23).getLore()
+            lore = getLore(Player.getContainer().getStackInSlot(23))
             lore.forEach((line, i) => {
                 if (i === 0) return
 
@@ -397,7 +398,7 @@ class MuseumGui {
             })
             this.raritiesIndicator.setLore(lore)
 
-            lore = Player.getContainer().getStackInSlot(25).getLore()
+            lore = getLore(Player.getContainer().getStackInSlot(25))
             lore.forEach((line, i) => {
                 if (i === 0) return
 
@@ -434,7 +435,7 @@ class MuseumGui {
         if (itempages.includes(this.replacePage[Player.getContainer().getName().split("➜").pop()])) {
             let page = this.replacePage[Player.getContainer().getName().split("➜").pop()]
             let currPage = 0
-            let pageNum = Player.getContainer().getStackInSlot(4) ? Math.ceil(ChatLib.removeFormatting(Player.getContainer().getStackInSlot(4).getLore().pop().split("/").pop()) / 28) : 0
+            let pageNum = Player.getContainer().getStackInSlot(4) ? Math.ceil(ChatLib.removeFormatting(getLore(Player.getContainer().getStackInSlot(4)).pop().split("/").pop()) / 28) : 0
 
             // {
             //     let item = Player.getContainer().getStackInSlot(45)
@@ -454,16 +455,16 @@ class MuseumGui {
             //         currPage = parseInt(num) - 1
             //     }
             // }
-            console.log(currPage, pageNum)
+            // console.log(currPage, pageNum)
 
             if (!this.searchText) {
                 if (currPage > 1) {
                     this.previousButton.visable = true
-                    if (Player.getContainer().getStackInSlot(45)) this.previousButton.setLore(Player.getContainer().getStackInSlot(45).getLore())
+                    if (Player.getContainer().getStackInSlot(45)) this.previousButton.setLore(getLore(Player.getContainer().getStackInSlot(45)))
                 }
                 if (currPage < pageNum) {
                     this.nextButton.visable = true
-                    if (Player.getContainer().getStackInSlot(53)) this.nextButton.setLore(Player.getContainer().getStackInSlot(53).getLore())
+                    if (Player.getContainer().getStackInSlot(53)) this.nextButton.setLore(getLore(Player.getContainer().getStackInSlot(53)))
                 }
             }
 
@@ -484,7 +485,7 @@ class MuseumGui {
                         this.donateItems.push({
                             sb_id: sb_id || "NA",
                             name: item.getName() || "",
-                            lore: item.getLore() || [],
+                            lore: getLore(item),
                             slot: slot
                         })
                     }
@@ -501,7 +502,7 @@ class MuseumGui {
                             this.donateItems.push({
                                 sb_id: sb_id || "NA",
                                 name: item.getName() || "",
-                                lore: item.getLore() || [],
+                                lore: getLore(item),
                                 slot: slot
                             })
                         }
@@ -530,7 +531,7 @@ class MuseumGui {
                         let itemData = {
                             sb_id: "NA",
                             name: item.getName() || "",
-                            lore: item.getLore() || []
+                            lore: getLore(item)
                         }
 
                         if (sb_id) {
@@ -565,25 +566,25 @@ class MuseumGui {
                 let isArmour = utils.getSBID(Player.getContainer().getStackInSlot(4)) === null
                 if (isArmour) {
                     let name = Player.getContainer().getStackInSlot(2).getName()
-                    let itemBox = new BoxWithText().setText(name.startsWith("§f") ? "&7" + name.substr(2) : name).setLocation(0.1, 0.05, 0.8, 0.2).setLore(Player.getContainer().getStackInSlot(2).getLore())
+                    let itemBox = new BoxWithText().setText(name.startsWith("§f") ? "&7" + name.substr(2) : name).setLocation(0.1, 0.05, 0.8, 0.2).setLore(getLore(Player.getContainer().getStackInSlot(2)))
 
                     this.itemsBox.addChild(itemBox)
                 } else {
                     let name = Player.getContainer().getStackInSlot(4).getName()
-                    let itemBox = new BoxWithText().setText(name.startsWith("§f") ? "&7" + name.substr(2) : name).setLocation(0.1, 0.05, 0.8, 0.2).setLore(Player.getContainer().getStackInSlot(4).getLore())
+                    let itemBox = new BoxWithText().setText(name.startsWith("§f") ? "&7" + name.substr(2) : name).setLocation(0.1, 0.05, 0.8, 0.2).setLore(getLore(Player.getContainer().getStackInSlot(4)))
 
                     this.itemsBox.addChild(itemBox)
                 }
 
                 if (Player.getContainer().getStackInSlot(24) && Player.getContainer().getStackInSlot(20)) {
 
-                    let cancelButton = new ButtonWithArrow().setText("§cCancel").setLocation(0.1, 0.4, 0.35, 0.2).setDirectionRight(false).setLore(Player.getContainer().getStackInSlot(24).getLore())
+                    let cancelButton = new ButtonWithArrow().setText("§cCancel").setLocation(0.1, 0.4, 0.35, 0.2).setDirectionRight(false).setLore(getLore(Player.getContainer().getStackInSlot(24)))
                     cancelButton.addEvent(new SoopyMouseClickEvent().setHandler(() => {
                         Player.getContainer().click(24, false, "LEFT")
                     }))
                     this.itemsBox.addChild(cancelButton)
 
-                    let confirmButton = new ButtonWithArrow().setText("§aConfirm Donation").setLocation(0.55, 0.4, 0.35, 0.2).setLore(Player.getContainer().getStackInSlot(20).getLore())
+                    let confirmButton = new ButtonWithArrow().setText("§aConfirm Donation").setLocation(0.55, 0.4, 0.35, 0.2).setLore(getLore(Player.getContainer().getStackInSlot(20)))
                     confirmButton.addEvent(new SoopyMouseClickEvent().setHandler(() => {
                         Player.getContainer().click(20, false, "LEFT")
                     }))

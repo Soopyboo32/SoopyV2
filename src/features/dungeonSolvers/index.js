@@ -10,7 +10,7 @@ import ToggleSetting from "../settings/settingThings/toggle";
 import TextSetting from "../settings/settingThings/textSetting";
 import { delay } from "../../utils/delayUtils";
 import { Points, Waypoint } from "../../utils/renderJavaUtils";
-import { calculateDistanceQuick } from "../../utils/utils";
+import { calculateDistanceQuick, getLore } from "../../utils/utils";
 import { drawLinePoints } from "../../utils/renderUtils";
 
 const entityGuardian = Java.type("net.minecraft.entity.monster.EntityGuardian")
@@ -568,7 +568,7 @@ class DungeonSolvers extends Feature {
 			if (!i) return
 			let itemName = i.getName()
 			if (itemName.removeFormatting().includes("Bonzo's Mask")) {
-				i.getLore().forEach(line => {
+				getLore(i).forEach(line => {
 					if (line.includes("Cooldown:")) {
 						this.bonzoMaskCooldown = Number(line.removeFormatting().split("n: ")[1].replace("s", ""))
 					}

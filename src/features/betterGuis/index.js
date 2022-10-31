@@ -9,6 +9,7 @@ import DungeonReadyGui from "./dungeonReadyGui";
 import { SoopyGui } from "../../../guimanager";
 import TextBox from "../../../guimanager/GuiElement/TextBox";
 import SoopyNumber from "../../../guimanager/Classes/SoopyNumber";
+import { getLore } from "../../utils/utils";
 
 class BetterGuis extends Feature {
     constructor() {
@@ -260,7 +261,7 @@ class BetterGuis extends Feature {
                 a = a.trim();
                 let isMatching2 = false;
                 if (ChatLib.removeFormatting(item.getName()).toLowerCase().includes(a)) isMatching2 = true;
-                if (!isMatching2 && item.getLore().some(b => ChatLib.removeFormatting(b).toLowerCase().includes(a))) isMatching2 = true;
+                if (!isMatching2 && getLore(item).some(b => ChatLib.removeFormatting(b).toLowerCase().includes(a))) isMatching2 = true;
                 return isMatching2;
             }).includes(false);
         }

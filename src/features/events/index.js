@@ -4,7 +4,7 @@ import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
 import socketConnection from "../../socketConnection";
 import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawCoolWaypoint, drawFilledBox, drawLine } from "../../utils/renderUtils";
-import { calculateDistance, calculateDistanceQuick } from "../../utils/utils";
+import { calculateDistance, calculateDistanceQuick, getLore } from "../../utils/utils";
 import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
 import HudTextElement from "../hud/HudTextElement";
@@ -347,10 +347,13 @@ class Events extends Feature {
 				this.openedWarpsMenu = Date.now()
 				for (let item of Player.getContainer().getItems()) {
 					if (!item) continue
-					if (ChatLib.removeFormatting(item.getLore()[1]).startsWith("/warp") && warpData[ChatLib.removeFormatting(item.getLore()[1]).replace("/warp ", "")]) {
 
-						if (item.getLore().some(a => a.includes("Click to warp!"))) {
-							this.hasWarps.add(ChatLib.removeFormatting(item.getLore()[1]).replace("/warp ", ""))
+					let lore = getLore(item)
+					let warpLine = ChatLib.removeFormatting(lore[1])
+					if (warpLine.startsWith("/warp") && warpData[warpLine.replace("/warp ", "")]) {
+
+						if (lore.some(a => a.includes("Click to warp!"))) {
+							this.hasWarps.add(warpLine.replace("/warp ", ""))
 						}
 					}
 				}

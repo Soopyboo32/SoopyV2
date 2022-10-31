@@ -45,7 +45,6 @@ class DragonWings extends Cosmetic {
     }
 
     onRenderEntity(ticks, isInGui) {
-
         if (this.player.getPlayer()[m.isInvisibleToPlayer](Player.getPlayer()) || this.player.getPlayer()[m.isInvisible]()) {
             return
         }

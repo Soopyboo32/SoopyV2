@@ -34,9 +34,9 @@ class Bestiary extends Feature {
 	}
 
 	onEnable() {
-		let RenderBox = this.loadJava("RenderBox")
-		let helloWorld = RenderBox.getMethod("helloWorld")
-		helloWorld()
+		// let HelloWorld = this.loadJava("HelloWorld1")
+		// let helloWorld = HelloWorld.getMethod("helloWorld")
+		// helloWorld()
 
 		this.bestiaryMobBox = new ToggleSetting("Box around bestiary mobs", "", false, "bestiary_box", this)
 

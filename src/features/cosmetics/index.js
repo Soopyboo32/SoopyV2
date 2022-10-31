@@ -31,11 +31,14 @@ class Cosmetics extends Feature {
         this.lessFirstPersonVisable = new Toggle("Make cosmetics less visable in first person mode", "", true, "cosmetics_first_person_less_visable", this).requires(this.firstPersonVisable)
         this.ownCosmeticAudio = new Toggle("Audio for own cosmetics", "", false, "cosmetics_own_audio", this)
 
+        this.lastDragonWingsOn = false
         this.dragon_wings_enabled = new Toggle("Dragon Wings Toggle", "", true, "cosmetic_dragon_wings_toggle", this).requires(new FakeRequireToggle(false)).onchange(this, () => {
+            if (this.dragon_wings_enabled.getValue() === this.lastDragonWingsOn) return
             global.soopyV2Server.updateCosmeticsData({
                 cosmetic: "dragon_wings",
                 type: this.dragon_wings_enabled.getValue() ? "enable" : "disable"
             })
+            this.lastDragonWingsOn = this.dragon_wings_enabled.getValue()
         })
 
         this.postRenderEntityTrigger = undefined
@@ -87,6 +90,10 @@ class Cosmetics extends Feature {
 
         this.cosmeticsData = data
         this.playerHasACosmeticA = !!data[Player.getUUID().toString().replace(/-/g, "")]
+
+        this.lastDragonWingsOn = data[Player.getUUID().toString().replace(/-/g, "")]?.dragon_wings?.enabled || false
+        this.dragon_wings_enabled.setValue(this.lastDragonWingsOn)
+
         if (this.playerHasACosmeticA && !this.postRenderEntityTrigger) {
             // this.registerEvent("postRenderEntity", this.renderEntity)
             this.postRenderEntityTrigger = register("postRenderEntity", (entity, pos, ticks, event) => {
@@ -118,6 +125,11 @@ class Cosmetics extends Feature {
         })
 
         delete this.uuidToCosmeticDirect[uuid]
+
+        if (uuid.replace(/-/g, "") === Player.getUUID().toString().replace(/-/g, "")) {
+            this.lastDragonWingsOn = cosmetics?.dragon_wings?.enabled || false
+            this.dragon_wings_enabled.setValue(this.lastDragonWingsOn)
+        }
 
         if (!cosmetics) {
             delete this.cosmeticsData[uuid]

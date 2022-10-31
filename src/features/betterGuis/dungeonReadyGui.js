@@ -5,6 +5,7 @@ import BoxWithTextAndDescription from "../../../guimanager/GuiElement/BoxWithTex
 import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow"
 import SoopyGuiElement from "../../../guimanager/GuiElement/SoopyGuiElement"
 import SoopyTextElement from "../../../guimanager/GuiElement/SoopyTextElement"
+import { getLore } from "../../utils/utils"
 
 
 const ContainerChest = Java.type("net.minecraft.inventory.ContainerChest");
@@ -194,8 +195,8 @@ class DungeonReadyGui {
                             if (ChatLib.removeFormatting(Player.getContainer().getStackInSlot(12 + i).getName()) === "Ready")
                                 this.readyBoxes[boxId].setColor(150, 255, 150);
 
-                            this.readyBoxes[boxId].setLore(Player.getContainer().getStackInSlot(3 + i).getLore());
-                            this.readyBoxes[boxId].setDesc("§0" + ChatLib.removeFormatting(Player.getContainer().getStackInSlot(3 + i).getLore()[2]));
+                            this.readyBoxes[boxId].setLore(getLore(Player.getContainer().getStackInSlot(3 + i)));
+                            this.readyBoxes[boxId].setDesc("§0" + ChatLib.removeFormatting(getLore(Player.getContainer().getStackInSlot(3 + i))[2]));
                         }
                     }
                 }
@@ -209,10 +210,10 @@ class DungeonReadyGui {
 
                     this.classBoxes[i]
                         .setText("§0" + Object.keys(this.classes)[i] + "§7 - " + ChatLib.removeFormatting(Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getName().split(" ")[0]))
-                        .setLore(Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getLore());
+                        .setLore(getLore(Player.getContainer().getStackInSlot(2 + 4 * 9 + i)));
 
                     let isPlayerClass = false;
-                    Player.getContainer().getStackInSlot(2 + 4 * 9 + i).getLore().forEach(line => {
+                    getLore(Player.getContainer().getStackInSlot(2 + 4 * 9 + i)).forEach(line => {
                         if (!ChatLib.removeFormatting(line).startsWith(" - ")) return;
                         if (ChatLib.removeFormatting(line.split(" ").pop()) === Player.getName())
                             isPlayerClass = true;

@@ -1,3 +1,4 @@
+const { m } = require("../../mappings/mappings");
 const NBTTagString = Java.type('net.minecraft.nbt.NBTTagString');
 
 let utils = {
@@ -28,6 +29,20 @@ let utils = {
             .getCompoundTag("display")
             .getRawNBT()
             .func_74782_a("Lore", list);
+    },
+    /**
+     * @param {Item} item
+     */
+    getLore: function (item, returnName = true) {
+        let lore = returnName ? [item.getName()] : []
+        if (!item) return lore
+
+        let loreNBT = item.getNBT()?.getCompoundTag("tag")?.getCompoundTag("display")?.getTagList("Lore", 8) //8 -> String array
+        if (loreNBT) for (let i = 0; i < loreNBT[m.tagCount](); i++) {
+            lore.push(loreNBT[m.getStringTagAt](i))
+        }
+
+        return lore
     },
     getSBID: function (item) {
         return item?.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getString("id") || null

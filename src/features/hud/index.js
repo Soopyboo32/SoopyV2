@@ -11,6 +11,7 @@ import { getLevelByXp } from "../../utils/statUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
 import renderLibs from "../../../guimanager/renderLibs";
 import { addNotation, basiclyEqual, numberWithCommas, timeNumber, timeNumber2 } from "../../utils/numberUtils.js";
+import { getLore } from "../../utils/utils";
 
 const ProcessBuilder = Java.type("java.lang.ProcessBuilder")
 const Scanner = Java.type("java.util.Scanner")
@@ -547,7 +548,7 @@ class Hud extends Feature {
                     if (!this.petLevels[inv[i].getName().split("] ")[1]] || this.petLevels[inv[i].getName().split("] ")[1]] < level) this.petLevels[inv[i].getName().split("] ")[1]] = level
 
                     if (Date.now() - this.lastSwappedPet > 1000) {
-                        inv[i].getLore().forEach(line => {
+                        getLore(inv[i]).forEach(line => {
                             if (line.includes("Click to despawn!")) {
                                 this.petElement.setText("&6Pet&7> &7" + inv[i].getName().split("(")[0])
                                 this.petText = "&6Pet&7> &7" + inv[i].getName().split("(")[0]
