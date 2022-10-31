@@ -145,6 +145,9 @@ class PowderAndScatha extends Feature {
         this.overlayLeft = []
         this.overlayRight = []
 
+        this.overlayLeft2 = []
+        this.overlayRight2 = []
+
         this.registerEvent("worldLoad", () => {
             delay(2000, () => {
                 this.dPowder = 0
@@ -345,6 +348,28 @@ class PowderAndScatha extends Feature {
 
             Renderer.retainTransforms(false)
         }
+        
+        if (this.scathaCounterElement.isEnabled()) {
+            let width2 = Renderer.getStringWidth("&9Rare Scatha Pets: 999")
+
+            let x2 = this.scathaCounterElement.locationSetting.x
+            let y2 = this.scathaCounterElement.locationSetting.y
+            let scale2 = this.scathaCounterElement.locationSetting.scale
+
+            Renderer.retainTransforms(true)
+            Renderer.scale(scale2)
+            Renderer.translate(x2 / scale2, y2 / scale2)
+
+            this.overlayLeft2.forEach((l, i) => {
+                Renderer.drawStringWithShadow(l, 0, 10 * i)
+            })
+
+            this.overlayRight2.forEach((l, i) => {
+                Renderer.drawStringWithShadow(l, width2 - Renderer.getStringWidth(l), 10 * i)
+            })
+
+            Renderer.retainTransforms(false)
+        }
     }
 
     step2fps() {
@@ -422,13 +447,37 @@ class PowderAndScatha extends Feature {
                 }
             }
         }
+
+        
+        this.overlayLeft2 = []
+        this.overlayRight2 = []
         if (this.scathaCounter.getValue() && this.inCrystalHollows()) {
-            let tempText = `&6Scatha Counter\n&bKills: ${this.miningData.scatha.total_worms}\n&bWorms: ${this.miningData.scatha.worms}\n&bScathas: ${this.miningData.scatha.scathas}\n&bSince Scatha: ${this.miningData.scatha.since_scatha}\n`
-            if (this.miningData.scatha.rare > 0) tempText += `&9Rare Scatha Pets: ${this.miningData.scatha.rare}\n`
-            if (this.miningData.scatha.epic > 0) tempText += `&5Epic Scatha Pets: ${this.miningData.scatha.epic}\n`
-            if (this.miningData.scatha.legandary > 0) tempText += `&6Leg Scatha Pets: ${this.miningData.scatha.legandary}`
-            if (this.miningData.scatha.rare + this.miningData.scatha.epic + this.miningData.scatha.legandary > 0) tempText += `&bSince Pet: ${this.miningData.scatha.since_pet}`
-            this.scathaCounterElement.setText(tempText)
+            this.overlayLeft2.push(`&6Scatha Counter`)
+            this.overlayRight2.push(" ")
+            this.overlayLeft2.push(`&bKills:`)
+            this.overlayRight2.push(`&b${this.miningData.scatha.total_worms}`)
+            this.overlayLeft2.push(`&bWorms:`)
+            this.overlayRight2.push(`&b${this.miningData.scatha.worms}`)
+            this.overlayLeft2.push(`&bScathas:`)
+            this.overlayRight2.push(`&b${this.miningData.scatha.scathas}`)
+            this.overlayLeft2.push(`&bSince Scatha:`)
+            this.overlayRight2.push(`&b${this.miningData.scatha.since_scatha}`)
+            if (this.miningData.scatha.rare > 0) {
+                this.overlayLeft2.push(`&9Rare Scatha Pets:`)
+                this.overlayRight2.push(`&9${this.miningData.scatha.rare}`)
+            }
+            if (this.miningData.scatha.epic > 0) {
+                this.overlayLeft2.push(`&5Epic Scatha Pets:`)
+                this.overlayRight2.push(`&5${this.miningData.scatha.epic}`)
+            }
+            if (this.miningData.scatha.legandary > 0) {
+                this.overlayLeft2.push(`&6Leg Scatha Pets:`)
+                this.overlayRight2.push(`&6${this.miningData.scatha.legandary}`)
+            }
+            if (this.miningData.scatha.rare + this.miningData.scatha.epic + this.miningData.scatha.legandary > 0) {
+                this.overlayLeft2.push(`&bSince Pet:`)
+                this.overlayRight2.push(`&b${this.miningData.scatha.since_pet}`)
+            }
         }
     }
 
