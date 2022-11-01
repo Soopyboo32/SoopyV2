@@ -39,6 +39,8 @@ class SoopyGui extends Feature {
         this.registerCommand("soopy", this.openCommand)
         this.registerCommand("snoopyv2", this.openCommand)
         this.registerCommand("snoopy", this.openCommand)
+        this.registerCommand("spoopy", this.openCommand)
+        this.registerCommand("spoopyv2", this.openCommand)
 
         this.mainWindowElement = new SoopyBoxElement().setLocation(0.25, 0.1, 0.5, 0.8)
 
