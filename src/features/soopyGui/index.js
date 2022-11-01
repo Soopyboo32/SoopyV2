@@ -10,7 +10,6 @@ import SoopyMouseClickEvent from "../../../guimanager/EventListener/SoopyMouseCl
 import SoopyOpenGuiEvent from "../../../guimanager/EventListener/SoopyOpenGuiEvent";
 import SoopyGui2 from "../../../guimanager/SoopyGui";
 import categoryManager from "./categoryManager";
-import SoopyImageElement from "../../../guimanager/GuiElement/SoopyImageElement";
 
 
 class SoopyGui extends Feature {
@@ -33,7 +32,6 @@ class SoopyGui extends Feature {
     onEnable() {
         this.gui = new SoopyGui2()
 
-        // this.gui.isDebugEnabled = true
 
         this.registerCommand("soopyv2", this.openCommand)
         this.registerCommand("soopy", this.openCommand)
