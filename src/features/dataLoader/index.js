@@ -42,7 +42,7 @@ class DataLoader extends Feature {
         this.ping = 0;
         this.pingI = 0;
 
-        this.registerChat("&b&bYou are currently connected to server &6${*}&r", (e) => {
+        this.registerChat("&rUnknown command. Type \"/help\" for help.&r", (e) => {
             if (this.checkingPing) {
                 this.lastPings[this.pingI % 3] = Date.now() - this.lastPingCheck;
                 cancel(e);
@@ -117,7 +117,7 @@ class DataLoader extends Feature {
     getPing() {
         if (Date.now() - this.lastPingCheck > 60000 * 30 || (Date.now() - this.lastPingCheck > 60000 && this.lastPings.includes(undefined) && this.bloodX !== -1)) {
             this.lastPingCheck = Date.now();
-            ChatLib.command("whereami");
+            ChatLib.command("uhfdsolguhkjdjfhgkjhdfdlgkjhldkjhlkjhsldkjfhldshkjf");
             this.checkingPing = true;
         }
         return this.ping || 0

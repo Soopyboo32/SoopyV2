@@ -197,7 +197,6 @@ class Nether extends Feature {
 		this.todoE2 = this.todoE
 		this.todoE = []
 
-
 		if (this.controlHelper.getValue() && this.controlSkeleton) {
 			let ping = this.FeatureManager.features["dataLoader"].class.getPing() / 1000
 

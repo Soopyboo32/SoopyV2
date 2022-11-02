@@ -397,18 +397,7 @@ class GlobalSettings extends Feature {
             }).json()
 
             ChatLib.chat(this.FeatureManager.messagePrefix + "PRICE ANALYSIS (Total: $" + numberWithCommas(Math.round(json.price)) + ")")
-            // json.details.sort((a, b) => {
-            //     if (typeof (a) === "string") return 1
-            //     if (typeof (b) === "string") return -1
-            //     return a[1] - b[1]
-            // }).forEach(d => {
-            //     if (typeof (d) === "string") {
-            //         ChatLib.chat(d)
-            //     } else {
-            //         ChatLib.chat("&f" + d[0] + "&7: &6" + numberWithCommas(Math.round(d[1])))
-            //     }
-            // })
-            // ChatLib.chat(this.FeatureManager.messagePrefix + "Final price: " + numberWithCommas(Math.round(json.price)))
+
             json.details.sort((b, a) => {
                 if (typeof (a) === "string") return 1
                 if (typeof (b) === "string") return -1
@@ -436,8 +425,8 @@ class GlobalSettings extends Feature {
         })
 
         let zoogui = new SoopyGui().setOpenCommand("zoo")
-
         zoogui.element.addChild(new SoopyImageElement().setImage("https://img.freepik.com/premium-photo/portrait-monkey-wild_397170-44.jpg?w=1380").setLocation(0, 0, 1, 1))
+
     }
 
     worldLoad() {
