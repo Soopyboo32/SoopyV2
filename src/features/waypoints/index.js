@@ -9,6 +9,12 @@ import SettingBase from "../settings/settingThings/settingBase";
 import ToggleSetting from "../settings/settingThings/toggle";
 import minewaypoints_socket from "./minewaypoints_socket";
 
+const DataOutputStream = Java.type("java.io.DataOutputStream")
+const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream")
+const Base64 = Java.type("java.util.Base64")
+const DataInputStream = Java.type("java.io.DataInputStream")
+const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream")
+const WAYPOINT_DATAFILE_VERSION = 1
 
 let areas = {
     "MinesofDivan": "Mines of Divan",
@@ -105,12 +111,30 @@ class Waypoints extends Feature {
             if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared waypoints!")
         })
         this.registerCommand("savewaypoints", () => {
-            Java.type("net.minecraft.client.gui.GuiScreen")[m.setClipboardString](JSON.stringify(this.userWaypoints))
-            ChatLib.chat(this.FeatureManager.messagePrefix + "Saved waypoints to clipboard!")
+            try {
+                let wayStr = writeWaypointsJSONToString(this.userWaypoints)
+
+                if (wayStr[0] === true) { //Needs to check for exactly 'true' as it should not run if its an object instead
+                    ChatLib.chat(this.FeatureManager.messagePrefix + wayStr[1])
+                    return
+                }
+
+                Java.type("net.minecraft.client.gui.GuiScreen")[m.setClipboardString](wayStr)
+
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Saved waypoints to clipboard!")
+            } catch (e) {
+                Java.type("net.minecraft.client.gui.GuiScreen")[m.setClipboardString](JSON.stringify(this.userWaypoints))
+                ChatLib.chat(this.FeatureManager.messagePrefix + "Error saving waypoints, copied raw json to clipboard instead D:")
+            }
         })
         this.registerCommand("loadwaypoints", () => {
             try {
-                this.userWaypoints = JSON.parse(Java.type("net.minecraft.client.gui.GuiScreen")[m.getClipboardString]())
+                let waypointData = readWaypointsJSONFromString(Java.type("net.minecraft.client.gui.GuiScreen")[m.getClipboardString]())
+                if (waypointData[0] === true) { //Needs to check for exactly 'true' as it should not run if its an object instead
+                    ChatLib.chat(this.FeatureManager.messagePrefix + waypointData[1])
+                    return
+                }
+                this.userWaypoints = waypointData
 
                 this.userWaypointsArr = Object.values(this.userWaypoints)
                 this.waypointsChanged = true
@@ -430,3 +454,96 @@ class Waypoints extends Feature {
 module.exports = {
     class: new Waypoints()
 }
+
+function readWaypointsJSONFromString(str) {
+    try {
+        return JSON.parse(str)
+    } catch (e) { }
+
+    try {
+        let byteArray = Base64.getDecoder().decode(str)
+
+        let dataIS = new DataInputStream(new ByteArrayInputStream(byteArray))
+
+        let dataVersion = dataIS.readByte()
+        if (dataVersion !== WAYPOINT_DATAFILE_VERSION) {
+            return [true, "Invalid waypoint data version!"]
+        }
+
+        let json = {}
+
+        let numbWaypoints = dataIS.readInt()
+
+        for (let i = 0; i < numbWaypoints; i++) {
+            let waypointD = {}
+            let waypointID = dataIS.readUTF()
+
+            waypointD.x = dataIS.readFloat()
+            waypointD.y = dataIS.readFloat()
+            waypointD.z = dataIS.readFloat()
+            waypointD.r = dataIS.readByte() / (255 / 2)
+            waypointD.g = dataIS.readByte() / (255 / 2)
+            waypointD.b = dataIS.readByte() / (255 / 2)
+            waypointD.area = dataIS.readUTF()
+            waypointD.options = { name: dataIS.readUTF() }
+
+            json[waypointID] = waypointD
+        }
+
+        return json
+    } catch (e) {
+        console.log("SOOPY READ WAYPOINTS ERROR!")
+        console.log(JSON.stringify(e, undefined, true))
+        return [true, "An unknown error occured D:"]
+    }
+}
+
+function writeWaypointsJSONToString(json) {
+    try {
+        let byteOS = new ByteArrayOutputStream()
+        let dataOS = new DataOutputStream(byteOS)
+
+        dataOS.writeByte(WAYPOINT_DATAFILE_VERSION)
+
+        let waypoints = Object.keys(json)
+
+        dataOS.writeInt(waypoints.length)
+
+        for (let waypointId of waypoints) {
+            let waypointData = json[waypointId]
+
+            dataOS.writeUTF(waypointId)
+            dataOS.writeFloat(waypointData.x)
+            dataOS.writeFloat(waypointData.y)
+            dataOS.writeFloat(waypointData.z)
+            dataOS.writeByte(Math.floor(waypointData.r * (255 / 2)))
+            dataOS.writeByte(Math.floor(waypointData.g * (255 / 2)))
+            dataOS.writeByte(Math.floor(waypointData.b * (255 / 2)))
+            dataOS.writeUTF(waypointData.area)
+            dataOS.writeUTF(waypointData.options.name)
+        }
+
+        let encodedString = Base64.getEncoder().encodeToString(byteOS.toByteArray())
+        return encodedString
+    } catch (e) {
+        console.log("SOOPY READ WAYPOINTS ERROR!")
+        console.log(JSON.stringify(e, undefined, true))
+        return [true, "An unknown error occured D:"]
+    }
+}
+
+//DATA FORMAT FOR WAYPOINTS:
+/**
+ * byte versionID
+ * int numWaypoints
+ * For each waypoint:
+ *      String id (UTF8)
+ *      float x
+ *      float y
+ *      float z
+ *      byte r (0-255)
+ *      byte g (0-255)
+ *      byte b (0-255)
+ *      String area (UTF8)
+ *      String name (UTF8)
+ */
