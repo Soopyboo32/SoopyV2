@@ -2,7 +2,6 @@
 /// <reference lib="es2015" />
 import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
-import socketConnection from "../../socketConnection";
 import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawBoxAtEntity, drawCoolWaypoint, drawLine, drawLineWithDepth, renderBeaconBeam } from "../../utils/renderUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 import HudTextElement from "../hud/HudTextElement";
@@ -11,6 +10,7 @@ const MCBlock = Java.type("net.minecraft.block.Block");
 const ArmorStand = Java.type("net.minecraft.entity.item.EntityArmorStand")
 const MCItem = Java.type("net.minecraft.item.Item");
 const EntitySkeleton = Java.type("net.minecraft.entity.monster.EntitySkeleton")
+const EntityGhast = Java.type("net.minecraft.entity.monster.EntitySkeleton")
 
 let locationData = {
 	barbarian: {
@@ -34,6 +34,9 @@ let disciplineColors = {
 	"Diamond": [0, 198, 229]
 }
 
+const kuudraCenterX = -102.5
+const kuudraCenterZ = -106.5
+
 class Nether extends Feature {
 	constructor() {
 		super();
@@ -49,8 +52,12 @@ class Nether extends Feature {
 		return this.FeatureManager.features["dataLoader"].class.area === "Crimson Isle"
 	}
 
+	isInKuudra() {
+		return true //TODO
+	}
+
 	onEnable() {
-		this.initVariables();
+		this.hudElements = [];
 
 		this.masteryTimer = new ToggleSetting("Mastery Timer", "Countdown untill a block will turn red", true, "nether_mastery_timer", this)
 		this.speedNextBlock = new ToggleSetting("Show next block to stand on for dojo swiftness", "", true, "dojo_swiftness", this)
@@ -67,9 +74,10 @@ class Nether extends Feature {
 			.setLocationSetting(new LocationSetting("Nether Miniboss Nametag Hud location", "allows you to change the location of the hud", "nether_mini_nametag_hud_location", this, [10, 100, 1, 1]).requires(this.minibossNametag).editTempText("&5&lMage Outlaw &r&a70M&c❤"));
 		this.hudElements.push(this.minibossNametagElement);
 
-		this.registerStep(true, 5, this.minibossHPHud)
+		this.dropshipAlert = new ToggleSetting("Kuudra dropship alert", "", true, "nether_dropship", this);
 
 		this.todoE = []
+		this.miniboss = undefined
 		this.todoE2 = []
 		this.blocks = []
 
@@ -94,6 +102,8 @@ class Nether extends Feature {
 		this.controlSkeleton = undefined
 		this.controlLocLast = undefined
 		this.controlLoc = undefined
+		this.changedBlocks = []
+
 		this.registerChat("                      Test of Control OBJECTIVES", () => {
 			this.controlSkeleton = undefined
 			this.controlLocLast = undefined
@@ -101,7 +111,6 @@ class Nether extends Feature {
 		})
 
 		let packetRecieved = this.registerCustom("packetReceived", this.packetReceived).registeredWhen(() => this.isInDojo())
-
 		try {
 			packetRecieved.trigger.setPacketClasses([net.minecraft.network.play.server.S23PacketBlockChange, net.minecraft.network.play.server.S22PacketMultiBlockChange])
 		} catch (e) { }//older ct version
@@ -152,10 +161,12 @@ class Nether extends Feature {
 		this.registerEvent("worldLoad", () => {
 			this.rescueMissionDifficulty = this.rescueMissionType = undefined
 		})
+		this.registerStep(true, 5, this.kuudraGhastCheck).registeredWhen(() => this.isInKuudra() && this.dropshipAlert.getValue())
+		this.registerStep(true, 5, this.minibossHPHud)
+
 	}
 
 	tick() {
-
 		let fishHook = Player.getPlayer()[f.fishEntity]
 
 		if (fishHook) {
@@ -173,7 +184,6 @@ class Nether extends Feature {
 				if (n.toLowerCase().includes("mage rep")) this.rescueMissionType = "mage"// : "mage"
 			})
 		}
-
 
 		this.todoF2.forEach(e => {
 			let name = ChatLib.removeFormatting(e.getName())
@@ -204,7 +214,6 @@ class Nether extends Feature {
 			let x = e.getX() + (e.getX() - e.getLastX()) * (20 * ping)
 			let y = e.getY() + (e.getY() - e.getLastY()) * (20 * ping)
 			let z = e.getZ() + (e.getZ() - e.getLastZ()) * (20 * ping)
-			// if (x === e.getX() && y === e.getY() && z === e.getZ()) return
 
 			while (World.getBlockAt(x, y, z).getType().getID() !== 0) { y += 0.2 }
 
@@ -218,9 +227,11 @@ class Nether extends Feature {
 
 	entityJoinWorldEvent(event) {
 		if (this.tenacityLine.getValue() && event.entity instanceof ArmorStand) this.todoE.push(event.entity)
+
 		if (this.disciplineOverlay.getValue() && this.inDiscipline && event.entity instanceof ArmorStand) this.todoF.push(new Entity(event.entity))
 
 		if (event.entity instanceof EntitySkeleton && !this.controlSkeleton && this.isInDojo()) this.controlSkeleton = new Entity(event.entity)
+
 		if (this.minibossNametag.getValue() && event.entity instanceof ArmorStand) {
 			this.todoM.push(event.entity)
 		}
@@ -228,7 +239,9 @@ class Nether extends Feature {
 
 	packetReceived(packet, event) {
 		if (!this.masteryTimer.getValue()) return
+
 		let packetType = new String(packet.class.getSimpleName()).valueOf()
+
 		if (packetType === "S23PacketBlockChange") {
 			let position = new BlockPos(packet[m.getBlockPosition.S23PacketBlockChange]())
 			let blockState = this.getBlockIdFromState(packet[m.getBlockState.S23PacketBlockChange]())
@@ -253,9 +266,12 @@ class Nether extends Feature {
 			if (oldBlockState === 0 && blockState === 20515 && this.inSwiftness) {
 				this.lastBlock = [position.getX(), position.getY(), position.getZ()]
 			}
+			// if (oldBlockState === 0) this.changedBlocks.push([position, Date.now() + 1000])
 		}
+
 		if (packetType === "S22PacketMultiBlockChange") {
-			packet[m.getChangedBlocks]().forEach(b => {
+			let cb = packet[m.getChangedBlocks]()
+			cb.forEach(b => {
 				let position = new BlockPos(b[m.getPos.S22PacketMultiBlockChange$BlockUpdateData]())
 				let blockState = this.getBlockIdFromState(b[m.getBlockState.S22PacketMultiBlockChange$BlockUpdateData]())
 				let oldBlockState = this.getBlockIdFromState(World.getBlockStateAt(position))
@@ -280,6 +296,19 @@ class Nether extends Feature {
 					//red=57379
 				}
 			})
+
+			// let found = false //TODO: test of stamina thing
+			// cb.forEach(b => {
+			// 	if (found) return
+
+			// 	let position = new BlockPos(b[m.getPos.S22PacketMultiBlockChange$BlockUpdateData]())
+			// 	let blockState = this.getBlockIdFromState(b[m.getBlockState.S22PacketMultiBlockChange$BlockUpdateData]())
+			// 	let oldBlockState = this.getBlockIdFromState(World.getBlockStateAt(position))
+			// 	if (oldBlockState === 0 && blockState === 24577) {
+			// 		this.changedBlocks.push([position, Date.now() + 1000])
+			// 		found = true
+			// 	}
+			// })
 		}
 	}
 
@@ -288,6 +317,7 @@ class Nether extends Feature {
 			this.blocks.forEach((data, i) => {
 				Tessellator.drawString((i === 0 ? "§1" : "§0") + Math.max(0, (data.time - Date.now()) / 1000).toFixed(1) + "s", data.loc.getX() + 0.5, data.loc.getY() + 0.5, data.loc.getZ() + 0.5, 0, false, 0.05, false)
 			})
+
 			if (this.blocks.length >= 2) drawLine(this.blocks[0].loc.getX() + 0.5, this.blocks[0].loc.getY(), this.blocks[0].loc.getZ() + 0.5, this.blocks[1].loc.getX() + 0.5, this.blocks[1].loc.getY(), this.blocks[1].loc.getZ() + 0.5, 255, 0, 0)
 		}
 
@@ -298,6 +328,7 @@ class Nether extends Feature {
 			let entitylocation = [e[f.posX.Entity], e[f.posY.Entity], e[f.posZ.Entity]]
 			let lastLocation = [e[f.prevPosX], e[f.prevPosY], e[f.prevPosZ]]
 			let change = [entitylocation[0] - lastLocation[0], entitylocation[1] - lastLocation[1], entitylocation[2] - lastLocation[2]]
+
 			drawLineWithDepth(entitylocation[0] + change[0] * 100 + offset[0], entitylocation[1] + change[1] * 100 + offset[1], entitylocation[2] + change[2] * 100 + offset[2], entitylocation[0] + offset[0], entitylocation[1] + offset[1], entitylocation[2] + offset[2], 255, 0, 0, 2)
 		})
 
@@ -309,11 +340,13 @@ class Nether extends Feature {
 
 		if (this.rescueMissionDifficulty && this.rescueMissionType && this.hostageWaypoints.getValue()) {
 			let location = locationData[this.rescueMissionType][this.rescueMissionDifficulty]
+
 			drawCoolWaypoint(location[0], location[1], location[2], 255, 0, 0, { name: "Hostage" })
 		}
 
 		if (this.slugfishTimer.getValue()) {
 			let hook = Player.getPlayer()[f.fishEntity]
+
 			if (hook && this.hookThrown) {
 				let x = hook[f.posX.Entity]
 				let y = hook[f.posY.Entity]
@@ -326,13 +359,25 @@ class Nether extends Feature {
 		if (this.controlLoc && this.controlLocLast) {
 			drawBoxAtBlockNotVisThruWalls(this.controlLoc[0] * ticks + this.controlLocLast[0] * (1 - ticks), this.controlLoc[1] * ticks + this.controlLocLast[1] * (1 - ticks), this.controlLoc[2] * ticks + this.controlLocLast[2] * (1 - ticks), 255, 0, 0, 1, 2)
 		}
+
+		// let shifts = 0
+		// for (let data of this.changedBlocks) {
+		// 	let [pos, time] = data
+
+		// 	drawBoxAtBlock(pos.getX(), pos.getY(), pos.getZ(), 255, 0, 0)
+
+		// 	if (Date.now() > time) shifts++
+		// }
+		// for (let i = 0; i < shifts; i++) this.changedBlocks.shift()
 	}
 
 	step1S() {
 		if (this.blocks) this.blocks = this.blocks.filter(state => Date.now() < state.time)
+
 		if (this.disciplineZombies) Object.keys(this.disciplineZombies).forEach(k => {
 			this.disciplineZombies[k] = this.disciplineZombies[k].filter(e => !e.getEntity()[f.isDead])
 		})
+
 		if (this.dojoFireBalls) this.dojoFireBalls = this.dojoFireBalls.filter(e => !e[f.isDead])
 	}
 
@@ -343,10 +388,10 @@ class Nether extends Feature {
 	minibossHPHud() {
 		this.todoM2.forEach(e => {
 			let name = e[m.getCustomNameTag]()
-			if (name) {
-				if (name.includes("Ashfang") || name.includes("Barbarian Duke X") || name.includes("Bladesoul") || name.includes("Mage Outlaw")) {
-					this.miniboss = new Entity(e)
-				}
+			if (!name) return
+
+			if (name.includes("Ashfang") || name.includes("Barbarian Duke X") || name.includes("Bladesoul") || name.includes("Mage Outlaw")) {
+				this.miniboss = new Entity(e)
 			}
 		})
 
@@ -354,39 +399,60 @@ class Nether extends Feature {
 		this.todoM = []
 
 		if (this.miniboss && this.miniboss.getEntity()[f.isDead]) this.miniboss = undefined
+
 		if (!this.minibossNametag.getValue() || !this.miniboss) {
 			this.minibossNametagElement.setText("")
 			return
 		}
+
 		let name = this.miniboss.getName()
 		let nameRemoveFormat = name.removeFormatting()
 		let mobName = ""
+
 		if (nameRemoveFormat.includes("Ashfang")) mobName = "&dAshfang"
 		if (nameRemoveFormat.includes("Bladesoul")) mobName = "&dBladesoul"
 		if (nameRemoveFormat.includes("Barbarian Duke X")) mobName = "&dBarbarian Duke X"
 		if (nameRemoveFormat.includes("Mage Outlaw")) mobName = "&dMage Outlaw"
+
 		if (!mobName) {
 			this.minibossNametagElement.setText("")
 			return
 		}
+
 		let indexOfHP = {
 			"&dAshfang": 3,
 			"&dBladesoul": 3,
 			"&dBarbarian Duke X": 5,
 			"&dMage Outlaw": 4
 		}
+
 		let HP = `&l${mobName} &r${name.split(" ")[indexOfHP[mobName]].split("/")[0]}&c❤`
+
 		this.minibossNametagElement.setText(HP)
 	}
 
-	initVariables() {
-		this.hudElements = [];
-		this.miniboss = undefined
+	kuudraGhastCheck() {
+		if (!this.dropshipAlert.getValue()) return
+
+		let ghasts = World.getAllEntitiesOfType(EntityGhast)
+		if (ghasts.length === 0) return
+
+		let minDist = Infinity
+		for (let ghast of ghasts) {
+			let dist = (ghast.getX() - kuudraCenterX) ** 2 + (ghast.getZ() - kuudraCenterZ) ** 2
+
+			if (dist < minDist) minDist = dist
+		}
+
+		if (minDist < 100) {
+			Client.showTitle("DROPSHIP!!!", Math.floor(Math.sqrt(minDist)), 0, 50, 20)
+		}
 	}
 
 	onDisable() {
 		this.hudElements.forEach(h => h.delete())
-		this.initVariables();
+		this.hudElements = []
+		this.miniboss = undefined
 	}
 }
 
@@ -394,12 +460,3 @@ let nether = new Nether()
 module.exports = {
 	class: nether,
 };
-
-function getField(e, field) {
-
-	let field2 = e.class.getDeclaredField(field);
-
-	field2.setAccessible(true)
-
-	return field2.get(e)
-}
