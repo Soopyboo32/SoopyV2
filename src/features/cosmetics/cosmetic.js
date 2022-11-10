@@ -1,8 +1,8 @@
 
-class Cosmetic{
-    constructor(player, parent, id){
+class Cosmetic {
+    constructor(player, parent, id) {
 
-        if(player.getUUID().toString() === Player.getUUID().toString()) player = Player
+        if (player.getUUID().toString() === Player.getUUID().toString()) player = Player
         /**
          * @type {PlayerMP | Player}
          */
@@ -11,18 +11,34 @@ class Cosmetic{
         this.parent = parent
 
         this.id = id
-        
+
         this.settings = this.parent.getPlayerCosmeticSettings(this.player, id)
 
         this.onTick()
     }
 
-    onRenderEntity(ticks, isInGui){
+    onCommand(...args) {
+
+    }
+
+    get isSelfPlayer() {
+        return this.player.getUUID().toString() === Player.getUUID().toString()
+    }
+
+    onCosmeticMessage(data) {
         //override
     }
 
-    onTick(){
+    onRenderEntity(ticks, isInGui) {
         //override
+    }
+
+    onTick() {
+        //override
+    }
+
+    sendCosmeticsData(data) {
+        this.parent.sendCosmeticsData(this.id, data)
     }
 }
 

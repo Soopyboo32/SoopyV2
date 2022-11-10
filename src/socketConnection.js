@@ -85,6 +85,9 @@ class SoopyV2Server extends WebsiteCommunicator {
         if (data.type === "updateCosmetics") {
             if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.cosmetics) global.soopyv2featuremanagerthing.features.cosmetics.class.setUserCosmeticsInformation(data.uuid, data.cosmetics)
         }
+        if (data.type === "cD") {
+            if (global.soopyv2featuremanagerthing && global.soopyv2featuremanagerthing.features.cosmetics) global.soopyv2featuremanagerthing.features.cosmetics.class.cosmeticsDataFromUser(data.p, data.c, data.d)
+        }
         // if(data.type === "spammedmessage"){
         //     this.spammedMessages.push(...data.messages)
         // }
@@ -158,6 +161,22 @@ class SoopyV2Server extends WebsiteCommunicator {
         this.sendData({
             type: "cosmeticSettings",
             data: data
+        })
+    }
+
+    sendCosmeticsData(cosmeticId, data) {
+        //DATA FOR SYNCING COSMETICS BETWEEN PLAYERS
+        this.sendData({
+            type: "cD",
+            c: cosmeticId, //short names as tiny bandwidth optimisation cus these might be sent a lot in the future
+            d: data
+        })
+    }
+
+    pingSeesUser(uuid) {
+        this.sendData({
+            type: "cP",
+            p: uuid
         })
     }
 

@@ -5,6 +5,14 @@ import DragonWings from "./cosmetic/dragon/dragonWings"
 import Toggle from "../settings/settingThings/toggle"
 import { f } from "../../../mappings/mappings";
 import FakeRequireToggle from "../settings/settingThings/FakeRequireToggle";
+import DragonPet from "./cosmetic/pet/dragon/dragon";
+import socketConnection from "../../socketConnection";
+
+let cosmeticCommandName = {
+    dragwings: "dragon_wings",
+    dw: "dragon_wings",
+    dp: "pet_dragon"
+}
 
 class Cosmetics extends Feature {
     constructor() {
@@ -22,7 +30,8 @@ class Cosmetics extends Feature {
         this.hiddenEssentialCosmetics = []
 
         this.cosmeticsList = {
-            "dragon_wings": DragonWings
+            "dragon_wings": DragonWings,
+            "pet_dragon": DragonPet
         }
 
         this.playerHasACosmeticA = false
@@ -45,8 +54,6 @@ class Cosmetics extends Feature {
 
         this.loadCosmeticsData()
 
-        this.worldLoad()
-
         this.registerEvent("tick", this.tick)
         this.registerEvent("renderWorld", this.renderWorld)
         this.registerEvent("playerJoined", this.playerJoined)
@@ -59,6 +66,10 @@ class Cosmetics extends Feature {
                 this.postRenderEntityTrigger = undefined
             }
         })
+
+        this.registerCommand("soopycosmetics", this.cosmeticCommand)
+        this.registerCommand("soopyc", this.cosmeticCommand)
+
         // this.registerStep(false, 60*10, ()=>{
         //     new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
         // })
@@ -67,6 +78,17 @@ class Cosmetics extends Feature {
         if (global.soopyV2Server && global.soopyV2Server.userCosmeticPermissions) {
             this.updateUserCosmeticPermissionSettings()
         }
+
+        this.worldLoad()
+    }
+
+    cosmeticCommand(cosmetic, ...args) {
+        let cosmeticId = cosmeticCommandName[cosmetic] || cosmetic
+
+        let sCosmetic = this.uuidToCosmetic[cosmeticId][Player.getUUID().toString().replace(/-/g, "")]
+        if (!sCosmetic) return
+
+        sCosmetic.onCommand(...args)
     }
 
     updateUserCosmeticPermissionSettings() {
@@ -108,6 +130,16 @@ class Cosmetics extends Feature {
         }
 
         this.scanForNewCosmetics()
+    }
+
+    cosmeticsDataFromUser(uuid, cosmeticId, data) {
+        let cosmetics = this.uuidToCosmeticDirect[uuid.replace(/-/g, "")]
+        if (!cosmetics) return
+
+        let cosmetic = cosmetics[cosmeticId]
+        if (!cosmetic) return
+
+        cosmetic.onCosmeticMessage(data)
     }
 
     setUserCosmeticsInformation(uuid, cosmetics) {
@@ -159,13 +191,23 @@ class Cosmetics extends Feature {
         })
     }
 
+    sendCosmeticsData(cosmeticId, data) {
+        socketConnection.sendCosmeticsData(cosmeticId, data)
+    }
+
     loadCosmeticsForPlayer(player) {
+        let hasC = false
+
         Object.keys(this.cosmeticsList).forEach(cosmeticName => {
             if (!this.uuidToCosmetic[cosmeticName]) this.uuidToCosmetic[cosmeticName] = {}
 
-            if (this.uuidToCosmetic[cosmeticName][player.getUUID().toString().replace(/-/g, "")]) return
+            if (this.uuidToCosmetic[cosmeticName][player.getUUID().toString().replace(/-/g, "")]) {
+                hasC = true
+                return
+            }
 
             if (this.shouldPlayerHaveCosmetic(player, cosmeticName)) {
+                // console.log(player.getName(), cosmeticName)
                 let cosmetic = new (this.cosmeticsList[cosmeticName])(player, this)
                 this.loadedCosmetics.push(cosmetic)
                 this.uuidToCosmetic[cosmeticName][player.getUUID().toString().replace(/-/g, "")] = cosmetic
@@ -174,6 +216,10 @@ class Cosmetics extends Feature {
                 this.uuidToCosmeticDirect[player.getUUID().toString().replace(/-/g, "")][cosmeticName] = cosmetic
             }
         })
+
+        if (hasC && player.getUUID().toString() !== Player.getUUID().toString()) {
+            socketConnection.pingSeesUser(player.getUUID().toString().replace(/-/g, ""))
+        }
     }
 
     worldLoad() {

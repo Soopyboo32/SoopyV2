@@ -196,6 +196,7 @@ class DungeonSolvers extends Feature {
 		this.IceSprayWarn = new ToggleSetting("Ice Spray Drop Ping", "Renders a big title so you don't miss ice spray wands", false, "ice_spray_ping", this).contributor("EmeraldMerchant");
 
 		this.guardianHp = new ToggleSetting("m3/f3 guardian hp", "", true, "guardian_hp", this);
+		// this.dragonHp = new ToggleSetting("m7 dragon hp", "(Showing underneath them)", true, "dragon_hp", this);//TODO: this
 		this.stairStonkHelper = new ToggleSetting("Stair Stonk Helper", "shows a line where to drop thru", true, "stair_stonk_helper", this);
 
 		this.registerChat("&r&c ☠ &r${player} were killed by Withermancer&r&7 and became a ghost&r&7.&r", (player, e) => {

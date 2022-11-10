@@ -165,15 +165,17 @@ class Feature {
     registerCommand(name, func, completions) {
         this.FeatureManager.commandFuncs[name] = func
 
-        this.FeatureManager.registerCommand(name, (...args) => {
+        let registerFun = (...args) => {
             if (this.FeatureManager.commandFuncs[name]) {
                 this.FeatureManager.commandFuncs[name].call(this, ...(args || []))
             } else {
                 ChatLib.chat(this.FeatureManager.messagePrefix + "This command is not available atm")
             }
-        }, this, completions)
+        }
 
-        return new CommandEvent(name, undefined, [name, func], this)
+        this.FeatureManager.registerCommand(name, registerFun, this, completions)
+
+        return new CommandEvent(name, undefined, [name, registerFun, this, completions], this)
     }
     unregisterCommand(name) {
         delete this.FeatureManager.commandFuncs[name]

@@ -81,6 +81,8 @@ class GlobalSettings extends Feature {
         this.fancySeaCreaturesAlertThunder = new ToggleSetting("Fancy Thunder Alert", "Alert when you caught Thunder creature", false, "fancy_thunder_alert", this).requires(this.fancySeaCreaturesAlert);
         this.fancySeaCreaturesAlertJawbus = new ToggleSetting("Fancy Jawbus Alert", "Alert when you caught Lord Jawbus creature", false, "fancy_jawbus_alert", this).requires(this.fancySeaCreaturesAlert);
 
+        this.imageOverlaySetting = new TextSetting("Image overlay thingo", "", "", "image_overlay", this, "", false)
+
         this.registerEvent('itemTooltip', (lore, i, e) => {
             if (!this.oldMasterStars.getValue()) return
             if (!i) return
@@ -427,6 +429,15 @@ class GlobalSettings extends Feature {
         let zoogui = new SoopyGui().setOpenCommand("zoo")
         zoogui.element.addChild(new SoopyImageElement().setImage("https://img.freepik.com/premium-photo/portrait-monkey-wild_397170-44.jpg?w=1380").setLocation(0, 0, 1, 1))
 
+
+        this.registerEvent("renderOverlay", () => {
+            let img = this.imageOverlaySetting.getValue()
+            if (!img || !img.includes("://")) return
+
+            let imgD = renderLibs.getImage(img)
+            if (!imgD) return
+            imgD.draw(0, 0, Renderer.screen.getWidth(), Renderer.screen.getHeight())
+        })
     }
 
     worldLoad() {

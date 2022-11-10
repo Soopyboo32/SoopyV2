@@ -1,6 +1,14 @@
 export default function ({ types: t }) {
 	return {
 		visitor: {
+			ImportDeclaration(path, state) {
+				const givenPath = path.node.source.value;
+				const depth = state.filename.split("SoopyV2-dev")[1].split("\\").length - givenPath.split("../").length;
+
+				if (depth === 0) {
+					path.node.source.value = givenPath.replace("../", "")
+				}
+			},
 			Program(path, state) {
 				let shouldAdd = false
 				const MyVisitor = {

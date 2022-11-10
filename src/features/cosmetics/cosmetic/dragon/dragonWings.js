@@ -37,11 +37,17 @@ class DragonWings extends Cosmetic {
         this.lastFlapSound = this.animOffset
         this.i = 0
 
+        this.state = 0
+
         this.flying = false
 
         if (!textures.has(this.settings.texture) && !loadingTextures.has(this.settings.texture)) {
             loadTexture(this.settings.texture)
         }
+    }
+
+    onCosmeticMessage(data) {
+        this.state = data[0]
     }
 
     onRenderEntity(ticks, isInGui) {
@@ -50,7 +56,7 @@ class DragonWings extends Cosmetic {
         }
         if (!textures.has("classic")) return
 
-        let isSelfPlayer = this.player.getUUID().toString() === Player.getUUID().toString()
+        let isSelfPlayer = this.isSelfPlayer
         let isInInv = isSelfPlayer && ticks === 1
         let thirdPersonView = Client.getMinecraft()[f.gameSettings.Minecraft][f.thirdPersonView]
 
@@ -167,6 +173,10 @@ class DragonWings extends Cosmetic {
         //Higher = more elytra like
         wing[f.rotateAngleY] = 0.25; //rotateAngleY
 
+        if (this.state === 1) {
+            wing[f.rotateAngleY] = -0.25;
+        }
+
         let shouldStandingStillWingThing = false
 
         let changeStandingStillWingThing = 0
@@ -253,18 +263,28 @@ class DragonWings extends Cosmetic {
                 wing_tilt_offset += (changeStandingStillWingThing) * 4
             }
 
+            if (this.state === 1) {
+                wing_tilt_offset -= 0.5
+            }
+
             wing[f.rotateAngleX] = 0.85 - Math.cos(this.animOffset) * 0.2 + wing_tilt_offset - (flapAmountMultiplyer - 1) / 3; //rotateAngleX
 
             let temp_horis_wingthing = 0
+            let wingTipFlapAmt = 1
             if (shouldStandingStillWingThing) {
                 temp_horis_wingthing = -(changeStandingStillWingThing) * 0.75
+            }
+            if (this.state === 1) {
+                temp_horis_wingthing -= 0.5
+                wingEndOffsetThing += 0.5
+                wingTipFlapAmt *= 0.5
             }
 
             wing[f.rotateAngleZ] = (Math.sin(this.animOffset) / temp_wing_thing + 0.125) * wing_goback_amount * (1 + (flapAmountMultiplyer - 1) * 1) * flapAmountMultiplyerNoEnd - 0.4 - wing_tilt_offset / 3 + temp_horis_wingthing + flapMainOffsetThing; //rotateAngleZ
 
             let standStillCurveThing = shouldStandStillWingCurve ? (2 - flapAmountMultiplyer) * 0.5 : 0
 
-            wingTip[f.rotateAngleZ] = standStillCurveThing - ((Math.sin((this.animOffset + 1.5 + (1 - temp_wing_thing) / 8.5)) / (1 + (temp_wing_thing - 1) / 3) + 0.5)) * 0.75 * (1 + (flapAmountMultiplyer - 1) * 1) / (1 + temp_horis_wingthing) - (1 - flapAmountMultiplyer) * 2 - (1 - temp_wing_thing) / 10 + wingEndOffsetThing; //rotateAngleZ
+            wingTip[f.rotateAngleZ] = standStillCurveThing - ((Math.sin((this.animOffset + 1.5 + (1 - temp_wing_thing) / 8.5)) / (1 + (temp_wing_thing - 1) / 3) + 0.5)) * wingTipFlapAmt * 0.75 * (1 + (flapAmountMultiplyer - 1) * 1) / (1 + temp_horis_wingthing) - (1 - flapAmountMultiplyer) * 2 - (1 - temp_wing_thing) / 10 + wingEndOffsetThing; //rotateAngleZ
         } else {
             //tilt
             let wing_tilt_offset = -Math.min(0.8, horisontalSpeed * 3) //When go faster tilt wing back so its in direction of wind
@@ -358,12 +378,38 @@ class DragonWings extends Cosmetic {
         }
     }
 
-    onTick() {
+    onCommand(pose) {
+        if (!pose) {
+            ChatLib.chat("valid poses: 'raised' 'default' 'hugl' 'hugr' ")
+            return
+        }
+        if (pose === 'raised') {
+            this.state = 1
+            this.sendCosmeticsData([1])
+            ChatLib.chat("Set wing pose to raised")
+            return
+        }
+        if (pose === 'hugl') {
+            this.state = 1
+            this.sendCosmeticsData([2])
+            ChatLib.chat("Set wing pose to hugl")
+            return
+        }
+        if (pose === 'hugr') {
+            this.state = 1
+            this.sendCosmeticsData([3])
+            ChatLib.chat("Set wing pose to hugr")
+            return
+        }
+        this.state = 0
+        this.sendCosmeticsData([0])
+        ChatLib.chat("Set wing pose to default")
+    }
 
+    onTick() {
         this.updateIfNotRendering()
 
         this.testPlaySound()
-
     }
 
     removeEssentialCosmetics() {
