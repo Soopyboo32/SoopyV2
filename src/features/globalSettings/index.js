@@ -132,6 +132,7 @@ class GlobalSettings extends Feature {
 
         this.registerStep(false, 10, () => {
             if (!this.FeatureManager.features.dataLoader.class.isInSkyblock) return
+            if (Scoreboard.getLineByIndex(0).getName().includes("alpha")) return
 
             let sendData = []
             TabList.getNames().forEach(n => {

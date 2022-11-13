@@ -7,6 +7,7 @@ import { f } from "../../../mappings/mappings";
 import FakeRequireToggle from "../settings/settingThings/FakeRequireToggle";
 import DragonPet from "./cosmetic/pet/dragon/dragon";
 import socketConnection from "../../socketConnection";
+import CustomPetName from "./cosmetic/petName";
 
 let cosmeticCommandName = {
     dragwings: "dragon_wings",
@@ -31,7 +32,8 @@ class Cosmetics extends Feature {
 
         this.cosmeticsList = {
             "dragon_wings": DragonWings,
-            "pet_dragon": DragonPet
+            "pet_dragon": DragonPet,
+            "custom_pet_names": CustomPetName
         }
 
         this.playerHasACosmeticA = false

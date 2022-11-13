@@ -245,46 +245,58 @@ class DragonWings extends Cosmetic {
         } else if (wingBackAmount === 0) {
             //tilt
 
+            if (this.state === 4) {
 
-            let wing_goback_amount = 0.15 / (Math.min(1, horisontalSpeed) * 3 + 0.25)
-            let temp_wing_thing = 1
+                wing[f.rotateAngleX] = 0.85 - Math.cos(this.animOffset) * 0.2 + 0.75; //rotateAngleX
 
-            if (shouldStandingStillWingThing) {
-                wing_goback_amount /= 1 + (changeStandingStillWingThing) / 50
-                flapAmountMultiplyer /= 1 + (changeStandingStillWingThing) / 50
+                wing[f.rotateAngleZ] = (Math.sin(this.animOffset) + 0.125) * 0.1 - 0.4 + 0.75; //rotateAngleZ
 
-                temp_wing_thing += changeStandingStillWingThing * 50
+                wingTip[f.rotateAngleZ] = Math.sin((this.animOffset + 1.5)) * 0.1 + 1.5; //rotateAngleZ
+
+            } else {
+
+
+                let wing_goback_amount = 0.15 / (Math.min(1, horisontalSpeed) * 3 + 0.25)
+                let temp_wing_thing = 1
+
+                if (shouldStandingStillWingThing) {
+                    wing_goback_amount /= 1 + (changeStandingStillWingThing) / 50
+                    flapAmountMultiplyer /= 1 + (changeStandingStillWingThing) / 50
+
+                    temp_wing_thing += changeStandingStillWingThing * 50
+                }
+
+                let wing_tilt_offset = -Math.min(0.8, horisontalSpeed * 3) + 0.3 //When go faster tilt wing back so its in direction of wind
+
+
+                if (shouldStandingStillWingThing) {
+                    wing_tilt_offset += (changeStandingStillWingThing) * 4
+                }
+
+                if (this.state === 1) {
+                    wing_tilt_offset -= 0.5
+                }
+
+                wing[f.rotateAngleX] = 0.85 - Math.cos(this.animOffset) * 0.2 + wing_tilt_offset - (flapAmountMultiplyer - 1) / 3; //rotateAngleX
+
+                let temp_horis_wingthing = 0
+                let wingTipFlapAmt = 1
+                if (shouldStandingStillWingThing) {
+                    temp_horis_wingthing = -(changeStandingStillWingThing) * 0.75
+                }
+                if (this.state === 1) {
+                    temp_horis_wingthing -= 0.5
+                    wingEndOffsetThing += 0.5
+                    wingTipFlapAmt *= 0.5
+                }
+
+                wing[f.rotateAngleZ] = (Math.sin(this.animOffset) / temp_wing_thing + 0.125) * wing_goback_amount * (1 + (flapAmountMultiplyer - 1) * 1) * flapAmountMultiplyerNoEnd - 0.4 - wing_tilt_offset / 3 + temp_horis_wingthing + flapMainOffsetThing; //rotateAngleZ
+
+                let standStillCurveThing = shouldStandStillWingCurve ? (2 - flapAmountMultiplyer) * 0.5 : 0
+
+                wingTip[f.rotateAngleZ] = standStillCurveThing - ((Math.sin((this.animOffset + 1.5 + (1 - temp_wing_thing) / 8.5)) / (1 + (temp_wing_thing - 1) / 3) + 0.5)) * wingTipFlapAmt * 0.75 * (1 + (flapAmountMultiplyer - 1) * 1) / (1 + temp_horis_wingthing) - (1 - flapAmountMultiplyer) * 2 - (1 - temp_wing_thing) / 10 + wingEndOffsetThing; //rotateAngleZ
+
             }
-
-            let wing_tilt_offset = -Math.min(0.8, horisontalSpeed * 3) + 0.3 //When go faster tilt wing back so its in direction of wind
-
-
-            if (shouldStandingStillWingThing) {
-                wing_tilt_offset += (changeStandingStillWingThing) * 4
-            }
-
-            if (this.state === 1) {
-                wing_tilt_offset -= 0.5
-            }
-
-            wing[f.rotateAngleX] = 0.85 - Math.cos(this.animOffset) * 0.2 + wing_tilt_offset - (flapAmountMultiplyer - 1) / 3; //rotateAngleX
-
-            let temp_horis_wingthing = 0
-            let wingTipFlapAmt = 1
-            if (shouldStandingStillWingThing) {
-                temp_horis_wingthing = -(changeStandingStillWingThing) * 0.75
-            }
-            if (this.state === 1) {
-                temp_horis_wingthing -= 0.5
-                wingEndOffsetThing += 0.5
-                wingTipFlapAmt *= 0.5
-            }
-
-            wing[f.rotateAngleZ] = (Math.sin(this.animOffset) / temp_wing_thing + 0.125) * wing_goback_amount * (1 + (flapAmountMultiplyer - 1) * 1) * flapAmountMultiplyerNoEnd - 0.4 - wing_tilt_offset / 3 + temp_horis_wingthing + flapMainOffsetThing; //rotateAngleZ
-
-            let standStillCurveThing = shouldStandStillWingCurve ? (2 - flapAmountMultiplyer) * 0.5 : 0
-
-            wingTip[f.rotateAngleZ] = standStillCurveThing - ((Math.sin((this.animOffset + 1.5 + (1 - temp_wing_thing) / 8.5)) / (1 + (temp_wing_thing - 1) / 3) + 0.5)) * wingTipFlapAmt * 0.75 * (1 + (flapAmountMultiplyer - 1) * 1) / (1 + temp_horis_wingthing) - (1 - flapAmountMultiplyer) * 2 - (1 - temp_wing_thing) / 10 + wingEndOffsetThing; //rotateAngleZ
         } else {
             //tilt
             let wing_tilt_offset = -Math.min(0.8, horisontalSpeed * 3) //When go faster tilt wing back so its in direction of wind
@@ -302,10 +314,33 @@ class DragonWings extends Cosmetic {
         let wing_center_dist = ((0 - Math.log(1000 * this.settings.scale + 0.01) - 2) - 100000 * this.settings.scale * this.settings.scale) / 1000
 
         // GL11.glDepthMask(GL11.GL_FALSE);
+
+        let a = wing[f.rotateAngleX]
+        let b = wing[f.rotateAngleZ]
+        let c = wingTip[f.rotateAngleZ]
+        if (this.state === 2) {
+
+            wing[f.rotateAngleX] = 0.85 - Math.cos(this.animOffset) * 0.2 + 0.75; //rotateAngleX
+
+            wing[f.rotateAngleZ] = (Math.sin(this.animOffset) + 0.125) * 0.1 - 0.4 + 0.75; //rotateAngleZ
+
+            wingTip[f.rotateAngleZ] = Math.sin((this.animOffset + 1.5)) * 0.1 + 1.5; //rotateAngleZ
+        }
+
         Tessellator.translate(-wing_center_dist, 0, 0)
         Tessellator.scale(this.settings.scale, this.settings.scale, this.settings.scale)
         wing[m.renderWithRotation](1) //render left wing
+        wing[f.rotateAngleX] = a
+        wing[f.rotateAngleZ] = b
+        wingTip[f.rotateAngleZ] = c
 
+        if (this.state === 3) {
+            wing[f.rotateAngleX] = 0.85 - Math.cos(this.animOffset) * 0.2 + 0.75; //rotateAngleX
+
+            wing[f.rotateAngleZ] = (Math.sin(this.animOffset) + 0.125) * 0.1 - 0.4 + 0.75; //rotateAngleZ
+
+            wingTip[f.rotateAngleZ] = Math.sin((this.animOffset + 1.5)) * 0.1 + 1.5; //rotateAngleZ
+        }
         Tessellator.translate(2 * wing_center_dist / this.settings.scale, 0, 0)
         Tessellator.scale(-1, 1, 1)
         wing[m.renderWithRotation](1) //render right wing
@@ -380,9 +415,10 @@ class DragonWings extends Cosmetic {
 
     onCommand(pose) {
         if (!pose) {
-            ChatLib.chat("valid poses: 'raised' 'default' 'hugl' 'hugr' ")
+            ChatLib.chat("valid poses: 'default' 'raised' 'hugl' 'hugr' 'hugs' ")
             return
         }
+        pose = pose.toLowerCase()
         if (pose === 'raised') {
             this.state = 1
             this.sendCosmeticsData([1])
@@ -390,15 +426,27 @@ class DragonWings extends Cosmetic {
             return
         }
         if (pose === 'hugl') {
-            this.state = 1
+            this.state = 2
             this.sendCosmeticsData([2])
             ChatLib.chat("Set wing pose to hugl")
             return
         }
         if (pose === 'hugr') {
-            this.state = 1
+            this.state = 3
             this.sendCosmeticsData([3])
             ChatLib.chat("Set wing pose to hugr")
+            return
+        }
+        if (pose === "hugs") {
+            this.state = 4
+            this.sendCosmeticsData([4])
+            ChatLib.chat("Set wing pose to hugs")
+            return
+        }
+        if (pose === "t") {
+            this.state = 4
+            this.sendCosmeticsData([4])
+            ChatLib.chat("Set wing pose to hugs")
             return
         }
         this.state = 0
@@ -518,3 +566,15 @@ function setField(e, field, value) {
 
     return field2.set(e, value)
 }
+let a = 0
+let b = 0
+let c = 0
+register("command", (v) => {
+    a = parseFloat(v)
+}).setName("seta", true)
+register("command", (v) => {
+    b = parseFloat(v)
+}).setName("setb", true)
+register("command", (v) => {
+    c = parseFloat(v)
+}).setName("setc", true)

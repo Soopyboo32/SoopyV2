@@ -3,6 +3,9 @@ import Pet from "../pet.js";
 import renderLibs from "../../../../../../../guimanager/renderLibs.js";
 import { drawBoxAtBlock } from "../../../../../utils/renderUtils.js";
 import { basiclyEqual } from "../../../../../utils/numberUtils.js";
+import TRAVELING_TO_POSITION from "./AiStateHandlers/TRAVELING_TO_POSITION.js";
+import { AI_STATE, ANIMATION_STATE } from "./states.js";
+import STANDING from "./AiStateHandlers/STANDING.js";
 
 const ModelDragon = Java.type("net.minecraft.client.model.ModelDragon")
 
@@ -30,15 +33,6 @@ let frontFoot = getField(dragon, f.frontFoot);
 let wing = getField(dragon, f.wing);
 let wingTip = getField(dragon, f.wingTip);
 
-let sid = 0
-
-let STATE = {
-    STANDING: sid++,
-    SITTING: sid++,
-    TRAVELING_TO_OWNER: sid++,
-    FLYING: sid++
-}
-
 class DragonPet extends Pet {
     constructor(player, parent) {
         super(player, parent, "dragon")
@@ -51,7 +45,11 @@ class DragonPet extends Pet {
 
         this.yaw = this.lastYaw = player.getYaw()
 
-        this.aiState = STATE.STANDING
+        this.aiState = AI_STATE.STANDING
+
+        this.travelToPosition = undefined
+
+        this.nextIsFlip = false
 
         this.ticks = 0
 
@@ -60,18 +58,42 @@ class DragonPet extends Pet {
         }
     }
 
-    onCosmeticMessage(data) {
-        if (this.isSelfPlayer) return
-
-        this.preUpdate();
-        [this.x, this.y, this.z, this.yaw, this.aiState, this.state] = data
-        this.postUpdate()
-    }
-
     onRenderEntity(ticks, isInGui) {
         if (isInGui) return
 
         this.render(ticks, this.settings.scale)
+    }
+
+    onCommand(option, ...args) {
+        if (!option) {
+            ChatLib.chat("valid options: 'flip' 'come'")
+            return
+        }
+        if (option === 'come') {
+            this.travelToPosition = [Player.getX(), Player.getY(), Player.getZ()]
+            this.aiState = AI_STATE.TRAVELING_TO_POSITION
+
+            ChatLib.chat("derg pet coming to current location!")
+            return
+        }
+        if (option === "goto") {
+            let [x, y, z] = args
+
+            this.travelToPosition = [parseFloat(x), parseFloat(y), parseFloat(z)]
+            this.aiState = AI_STATE.TRAVELING_TO_POSITION
+
+
+            ChatLib.chat("derg pet going to " + this.travelToPosition.join(", ") + "!")
+        }
+        if (option === 'flip') {
+            this.nextIsFlip = true
+            ChatLib.chat("flip!")
+            return
+        }
+        ChatLib.chat("unknown option!")
+        // this.state = 0
+        // this.sendCosmeticsData([0])
+        // ChatLib.chat("Set wing pose to default")
     }
 
     render(ticks, scale) {
@@ -96,17 +118,21 @@ class DragonPet extends Pet {
 
         GlStateManager[m.scale](scale, -scale, scale);
         Tessellator.rotate(this.getYaw(), 0, 1, 0)
+        if (this.state === ANIMATION_STATE.FLIPPING) {
+            Tessellator.translate(0, -4 * Math.sin(this.getAnimationProg() * Math.PI), 0)
+            Tessellator.rotate(this.getAnimationProg() * 360, 1, 0, 0)
+        }
         GlStateManager[m.disableCull]();
 
         GlStateManager[m.enableRescaleNormal]();
         GlStateManager[m.pushMatrix]();
         // EntityDragon entityDragon = (EntityDragon)entityIn;
         let animationSpeedMultiplier = 1
-        if (this.aiState === STATE.STANDING) animationSpeedMultiplier *= 0.1
+        if (this.state === ANIMATION_STATE.STANDING) animationSpeedMultiplier *= 0.1
         let animation_progress = -(animationSpeedMultiplier * Date.now() / 1000) % 1
 
         let wingAnimSpeed = 1
-        if (this.aiState === STATE.STANDING) wingAnimSpeed = 0.1
+        if (this.state === ANIMATION_STATE.STANDING) wingAnimSpeed = 0.1
         let wingAnimDistance = wingAnimSpeed
         let wing_animation_progress = -wingAnimSpeed * (Date.now() / 1000) % 1
 
@@ -114,7 +140,7 @@ class DragonPet extends Pet {
 
         let l = (Math.sin((animation_progress * Math.PI * 2.0 - 1.0)) + 1.0);
         l = (l * l * 1.0 + l * 2.0) * 0.05;
-        if (this.aiState === STATE.STANDING) l *= 0.1
+        if (this.state === ANIMATION_STATE.STANDING) l *= 0.1
 
         GlStateManager[m.translate](0.0, l - 2.0, -3.0);
         GlStateManager[m.rotate.GlStateManager](l * 2.0, 1.0, 0.0, 0.0);
@@ -163,7 +189,7 @@ class DragonPet extends Pet {
 
         for (let v = 0; v < 2; ++v) {
             let tempThing = 0
-            if (this.state === STATE.STANDING) tempThing = 1
+            if (this.state === ANIMATION_STATE.STANDING) tempThing = 1
 
             let flap_animation_cycle = wing_animation_progress * Math.PI * 2.0;
             wing[f.rotateAngleX] = 0.125 - Math.cos(flap_animation_cycle) * 0.2;
@@ -244,14 +270,33 @@ class DragonPet extends Pet {
         if (this.ticks % 5 !== 0) return
         this.preUpdate()
 
-        let yawToOwner = Math.atan((this.player.getX() - this.x) / (this.player.getZ() - this.z)) / (Math.PI * 2) * 360
-        if (this.player.getZ() > this.z) yawToOwner += 180
+        // if (this.aiState === AI_STATE.FLIPPING) {
+        //     this.aiState = AI_STATE.STANDING
+        // }
 
-        let horisontalDistanceToOwner = Math.hypot(this.player.getX() - this.x, this.player.getZ() - this.z)
+        /*
+        //Distance multiplier for stuff like radius to stay to owner
+        //This exists to that if a pet is super massive it wont be always inside of the owner
+        let distMult = 2 * Math.sqrt(this.settings.scale)
+        distMult = Math.max(0.5, distMult)
+        */
+
+        switch (this.aiState) {
+            case AI_STATE.TRAVELING_TO_POSITION:
+                TRAVELING_TO_POSITION(this)
+                break;
+            case AI_STATE.STANDING:
+                STANDING(this)
+                break;
+        }
+
+        /* //TODO: recode all this but using better state manager D:
+
+        let horisontalDistanceToOwner = this.getDistanceTo(this.player.getX(), this.player.getZ())
         let verticleDistanceToOwner = Math.abs(this.player.getY() - this.y)
 
-        if (verticleDistanceToOwner > 5) {
-            this.aiState = STATE.TRAVELING_TO_OWNER
+        if (verticleDistanceToOwner > 5 * distMult) {
+            this.aiState = AI_STATE.TRAVELING_TO_OWNER
 
             let speed = Math.min(2, (verticleDistanceToOwner - 4) / 5)
             if (this.player.getY() > this.y) {
@@ -259,30 +304,30 @@ class DragonPet extends Pet {
             } else {
                 this.y -= speed
             }
-        } else if (horisontalDistanceToOwner < 20) {
+        } else if (horisontalDistanceToOwner < 20 * distMult) {
             let distToGround = -1
-            for (let i = 0; i < 6; i += 0.1) {
+            for (let i = 0; i < 6 * distMult; i += 0.1) {
                 if (!World.getBlockAt(this.x, this.y - i, this.z).getType().isTranslucent()) {
                     distToGround = i
                     break;
                 }
             }
 
-            if (distToGround <= 5 && distToGround > 0.1 && this.player.getY() - this.y + distToGround < 5) {
-                this.y = Math.round(this.y - 1)
+            if (distToGround <= 5 * distMult && distToGround > 0.1 && this.player.getY() - this.y + distToGround < 5 * distMult) {
+                this.y = Math.round(this.y - 1) - this.settings.scale / 4
             }
         }
         if (!World.getBlockAt(this.x, this.y, this.z).getType().isTranslucent()) this.y = Math.round(this.y + 1)
 
-        if (horisontalDistanceToOwner > 10) {
-            this.aiState = STATE.TRAVELING_TO_OWNER
+        if (horisontalDistanceToOwner > 10 * distMult) {
+            this.aiState = AI_STATE.TRAVELING_TO_OWNER
         }
         if (horisontalDistanceToOwner > 1000) {
             this.x = this.player.getX()
             this.z = this.player.getZ()
         }
-        if (this.aiState === STATE.TRAVELING_TO_OWNER) {
-            if (horisontalDistanceToOwner > 5) {
+        if (this.aiState === AI_STATE.TRAVELING_TO_OWNER) {
+            if (horisontalDistanceToOwner > 5 * distMult) {
                 let xSpeed = (this.player.getX() - this.x) / 5
                 let zSpeed = (this.player.getZ() - this.z) / 5
 
@@ -291,19 +336,28 @@ class DragonPet extends Pet {
 
                 this.yaw = yawToOwner
             } else {
-                this.aiState = STATE.FLYING
+                this.aiState = AI_STATE.FLYING
             }
         }
-        if (this.aiState === STATE.FLYING && !World.getBlockAt(this.x, this.y - 1, this.z).getType().isTranslucent()) {
-            this.aiState = STATE.STANDING
+        if (this.aiState === AI_STATE.FLYING && !World.getBlockAt(this.x, this.y - 1, this.z).getType().isTranslucent()) {
+            this.aiState = AI_STATE.STANDING
         }
+
+        if (this.nextIsFlip) {
+            this.aiState = AI_STATE.FLIPPING
+            this.nextIsFlip = false
+        }
+        */
 
         this.postUpdate()
 
         this.sendCosmeticsData([this.x, this.y, this.z, this.yaw, this.aiState, this.state])
     }
 }
-
+/**
+ * @exports 
+ * @type {DragonPet}
+ */
 export default DragonPet;
 
 function getField(e, field) {

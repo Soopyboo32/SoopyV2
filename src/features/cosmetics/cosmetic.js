@@ -40,6 +40,8 @@ class Cosmetic {
     sendCosmeticsData(data) {
         this.parent.sendCosmeticsData(this.id, data)
     }
+
+    removeEssentialCosmetics() { }
 }
 
 export default Cosmetic;

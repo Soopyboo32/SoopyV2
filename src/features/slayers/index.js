@@ -1,7 +1,7 @@
 /// <reference types="../../../../CTAutocomplete" />
 /// <reference lib="es2015" />
 import Feature from "../../featureClass/class";
-import { f, m } from "../../../mappings/mappings";
+import { f, m } from "../../../../mappings/mappings";
 import { numberWithCommas, timeNumber } from "../../utils/numberUtils";
 import { drawBoxAtBlock, drawBoxAtEntity, drawCoolWaypoint, drawFilledBox, drawLine } from "../../utils/renderUtils";
 import HudTextElement from "../hud/HudTextElement";
