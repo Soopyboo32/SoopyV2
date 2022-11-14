@@ -102,7 +102,9 @@ class Events extends Feature {
 
 		this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 		this.showGlowingMushrooms = new ToggleSetting("Glowing mushrooms highlight", "Will highlight glowing mushrooms", false, "glowing_mushrooms_overlay", this)
-		this.treavorTrackerWaypoints = new ToggleSetting("Trevor the tracker waypoints", "", false, "trevor_waypoints", this)
+		this.trevorAngleSovler = new ToggleSetting("Trevor theodite solver", "semi not accurate cus hypixel rounds the nubmers :madge:", true, "trevor_angle_solver", this)
+		// this.treavorTrackerWaypoints = new ToggleSetting("Trevor the tracker waypoints", "", false, "trevor_waypoints", this)
+		//TODO: add tracker waypoints
 
 		this.registerEvent("worldLoad", this.worldLoad)
 		this.registerEvent("spawnParticle", this.spawnParticle).registeredWhen(() => this.showingWaypoints || this.shinyBlockOverlayEnabled.getValue() || this.showGlowingMushrooms.getValue())
@@ -168,11 +170,85 @@ class Events extends Feature {
 		// 	// this.predictionsOld = []
 		// 	ChatLib.chat(this.FeatureManager.messagePrefix + "Cleared all locs!")
 		// })
+		this.trackerData = []
 
 		this.registerEvent("soundPlay", this.abiSolverSoundPlay).registeredWhen(() => this.abiphoneSolver.getValue())
 		this.registerEvent("guiMouseClick", this.abiSolverGuiClick).registeredWhen(() => this.abiphoneSolver.getValue())
 		this.registerEvent("postGuiRender", this.abiSolverGuiRender).registeredWhen(() => this.abiphoneSolver.getValue())
 		this.registerEvent("guiOpened", this.abiSolverGuiOpen).registeredWhen(() => this.abiphoneSolver.getValue())
+		this.registerChat("&r&aThe target is around &r&e${height} blocks below&r&a, at a &r&b${angle} degrees &r&aangle!&r", (a, b) => this.mobAt(a, b, false))
+		this.registerChat("&r&aThe target is around &r&e${height} blocks above&r&a, at a &r&b${angle} degrees &r&aangle!&r", (a, b) => this.mobAt(a, b, true))
+		this.registerChat("&r&aReturn to the Trapper soon to get a new animal to hunt!&r", () => {
+			this.trackerData = []
+		})
+		this.registerEvent("renderWorld", this.drawTrackerStuff)
+	}
+
+	drawTrackerStuff() {
+		if (!this.trevorAngleSovler.getValue()) return
+
+		for (let data of this.trackerData) {
+			let [x, z, yMin, yMax, hDistMin, hDistMax] = data
+
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GL11.glDisable(GL11.GL_CULL_FACE);
+			GL11.glBlendFunc(770, 771);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glLineWidth(4.0);
+			GL11.glDepthMask(false);
+			GlStateManager.func_179094_E();
+
+			Tessellator.begin(GL11.GL_LINES, false);
+			Tessellator.colorize(255, 0, 0);
+
+			for (i = 0; i < Math.ceil(hDistMax); i++) {
+				let angle = 2 * Math.PI * i / Math.ceil(hDistMax);
+
+				Tessellator.pos(x + hDistMin * Math.sin(angle), yMin, z + hDistMin * Math.cos(angle));
+				Tessellator.pos(x + hDistMin * Math.sin(angle), yMax, z + hDistMin * Math.cos(angle));
+
+				Tessellator.pos(x + hDistMin * Math.sin(angle), yMax, z + hDistMin * Math.cos(angle));
+				Tessellator.pos(x + hDistMax * Math.sin(angle), yMax, z + hDistMax * Math.cos(angle));
+
+				Tessellator.pos(x + hDistMax * Math.sin(angle), yMax, z + hDistMax * Math.cos(angle));
+				Tessellator.pos(x + hDistMax * Math.sin(angle), yMin, z + hDistMax * Math.cos(angle));
+
+				Tessellator.pos(x + hDistMax * Math.sin(angle), yMin, z + hDistMax * Math.cos(angle));
+				Tessellator.pos(x + hDistMin * Math.sin(angle), yMin, z + hDistMin * Math.cos(angle));
+			}
+			Tessellator.draw();
+
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			GL11.glEnable(GL11.GL_CULL_FACE);
+			GlStateManager.func_179121_F();
+			GL11.glDepthMask(true);
+			GL11.glDisable(GL11.GL_BLEND);
+		}
+
+	}
+
+	mobAt(height, angle, above) {
+		let y = Math.round(Player.getY()) + (above ? parseInt(height) : -parseInt(height))
+
+		let heightMin = parseInt(height) - 2.5
+		let heightMax = parseInt(height) + 2.5
+
+		let yMin = y - 2.5
+		let yMax = y + 2.5
+
+		let angleMin = parseInt(angle) - 2.5
+		let angleMax = parseInt(angle) + 2.5
+
+		angleMin = Math.max(0.0001, angleMin)
+
+		let hDistMin = Math.round(heightMin / Math.tan(angleMax / 180 * Math.PI))
+		let hDistMax = Math.round(heightMax / Math.tan(angleMin / 180 * Math.PI))
+		ChatLib.chat(this.FeatureManager.messagePrefix + "Horisontal distance: " + hDistMin + " - " + hDistMax)
+		if (hDistMax > 1000) return
+
+		this.trackerData.push([Player.getX(), Player.getZ(), yMin, yMax, hDistMin, hDistMax])
+		if (this.trackerData.length > 2) this.trackerData.shift()
+
 	}
 
 	step_1fps() {
