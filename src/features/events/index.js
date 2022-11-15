@@ -247,7 +247,7 @@ class Events extends Feature {
 		if (hDistMax > 1000) return
 
 		this.trackerData.push([Player.getX(), Player.getZ(), yMin, yMax, hDistMin, hDistMax])
-		if (this.trackerData.length > 2) this.trackerData.shift()
+		if (this.trackerData.length > 1) this.trackerData.shift()
 
 	}
 
