@@ -103,6 +103,7 @@ class Events extends Feature {
 		this.shinyBlockOverlayEnabled = new ToggleSetting("Shiny blocks highlight", "Will highlight shiny blocks in the end", false, "shiny_blocks_overlay", this)
 		this.showGlowingMushrooms = new ToggleSetting("Glowing mushrooms highlight", "Will highlight glowing mushrooms", false, "glowing_mushrooms_overlay", this)
 		this.trevorAngleSovler = new ToggleSetting("Trevor theodite solver", "semi not accurate cus hypixel rounds the nubmers :madge:", true, "trevor_angle_solver", this)
+		this.dropZapperFarmCooldown = new ToggleSetting("Block zapper farm cooldown", "", false, "block_zap_farm_cool", this)
 		// this.treavorTrackerWaypoints = new ToggleSetting("Trevor the tracker waypoints", "", false, "trevor_waypoints", this)
 		//TODO: add tracker waypoints
 
@@ -182,6 +183,28 @@ class Events extends Feature {
 			this.trackerData = []
 		})
 		this.registerEvent("renderWorld", this.drawTrackerStuff)
+
+		let zaps = 0
+		this.registerChat("&eZapped ${blokc} &eblocks! &a&lUNDO&r", () => {
+			zaps++
+			if (zaps === 20) {
+				if (this.dropZapperFarmCooldown.getValue()) {
+					ChatLib.chat(this.FeatureManager.messagePrefix + "BLOCK ZAPPER COOLDOWN")
+					Client.showTitle("BLOCK ZAPPER COOLDOWN", "!", 20, 20 * 3, 20)
+				}
+			}
+		})
+		this.registerEvent("worldLoad", () => {
+			if (zaps === 20) {
+				if (this.dropZapperFarmCooldown.getValue()) {
+					Client.scheduleTask(20 * 8, () => {
+						ChatLib.chat(this.FeatureManager.messagePrefix + "BLOCK ZAPPER OFF COOLDOWN")
+						Client.showTitle("BLOCK ZAPPER OFF COOLDOWN", "!", 20, 20 * 3, 20)
+					})
+				}
+			}
+			zaps = 0
+		})
 	}
 
 	drawTrackerStuff() {
