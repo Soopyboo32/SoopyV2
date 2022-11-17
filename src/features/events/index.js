@@ -190,7 +190,7 @@ class Events extends Feature {
 			if (zaps === 20) {
 				if (this.dropZapperFarmCooldown.getValue()) {
 					ChatLib.chat(this.FeatureManager.messagePrefix + "BLOCK ZAPPER COOLDOWN")
-					Client.showTitle("BLOCK ZAPPER COOLDOWN", "!", 20, 20 * 3, 20)
+					Client.showTitle("&cBLOCK ZAPPER COOLDOWN", "!", 0, 20 * 3, 20)
 				}
 			}
 		})
@@ -199,7 +199,7 @@ class Events extends Feature {
 				if (this.dropZapperFarmCooldown.getValue()) {
 					Client.scheduleTask(20 * 8, () => {
 						ChatLib.chat(this.FeatureManager.messagePrefix + "BLOCK ZAPPER OFF COOLDOWN")
-						Client.showTitle("BLOCK ZAPPER OFF COOLDOWN", "!", 20, 20 * 3, 20)
+						Client.showTitle("&aBLOCK ZAPPER OFF COOLDOWN", "!", 0, 20 * 3, 20)
 					})
 				}
 			}
