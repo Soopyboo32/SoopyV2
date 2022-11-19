@@ -351,7 +351,7 @@ class DragonPet extends Pet {
 
         this.postUpdate()
 
-        this.sendCosmeticsData([this.x, this.y, this.z, this.yaw, this.aiState, this.state])
+        // this.sendCosmeticsData([this.x, this.y, this.z, this.yaw, this.aiState, this.state])
     }
 }
 /**

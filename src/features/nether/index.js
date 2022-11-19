@@ -74,7 +74,7 @@ class Nether extends Feature {
 			.setLocationSetting(new LocationSetting("Nether Miniboss Nametag Hud location", "allows you to change the location of the hud", "nether_mini_nametag_hud_location", this, [10, 100, 1, 1]).requires(this.minibossNametag).editTempText("&5&lMage Outlaw &r&a70M&c❤"));
 		this.hudElements.push(this.minibossNametagElement);
 
-		this.dropshipAlert = new ToggleSetting("Kuudra dropship alert", "", true, "nether_dropship", this);
+		// this.dropshipAlert = new ToggleSetting("Kuudra dropship alert", "", true, "nether_dropship", this);
 
 		this.todoE = []
 		this.miniboss = undefined
@@ -161,7 +161,7 @@ class Nether extends Feature {
 		this.registerEvent("worldLoad", () => {
 			this.rescueMissionDifficulty = this.rescueMissionType = undefined
 		})
-		this.registerStep(true, 5, this.kuudraGhastCheck).registeredWhen(() => this.isInKuudra() && this.dropshipAlert.getValue())
+		// this.registerStep(true, 5, this.kuudraGhastCheck).registeredWhen(() => this.isInKuudra() && this.dropshipAlert.getValue())
 		this.registerStep(true, 5, this.minibossHPHud)
 
 	}
@@ -444,6 +444,7 @@ class Nether extends Feature {
 			if (dist < minDist) minDist = dist
 		}
 
+		// ChatLib.chat(Math.sqrt(minDist))
 		if (minDist < 100) {
 			Client.showTitle("DROPSHIP!!!", Math.floor(Math.sqrt(minDist)), 0, 50, 20)
 		}

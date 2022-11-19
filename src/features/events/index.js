@@ -441,7 +441,7 @@ class Events extends Feature {
 		})
 		this.todoE = []
 
-		if (Player.getContainer().getName() === "Fast Travel") {
+		if (Player.getContainer().getName() === "Hub Warps") {
 			if (Date.now() - this.openedWarpsMenu > 1000) {
 				this.openedWarpsMenu = Date.now()
 				for (let item of Player.getContainer().getItems()) {
