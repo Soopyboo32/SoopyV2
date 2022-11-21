@@ -11,3 +11,8 @@ updates:
       # Check for updates to GitHub Actions every weekday
       interval: "daily"
 
+  - package-ecosystem: "npm" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+
