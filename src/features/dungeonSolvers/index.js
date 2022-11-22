@@ -518,7 +518,7 @@ class DungeonSolvers extends Feature {
 		})
 		this.registerEvent("blockBreak", (b) => {
 			if (!this.stairStonkHelper.getValue()) return
-			/**@type {Block} */ //TODO: add toggle for this
+			/**@type {Block} */
 			let block = b
 
 			if (!block.getType().getRegistryName().endsWith("_stairs")) return
