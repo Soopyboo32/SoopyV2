@@ -136,6 +136,7 @@ class Cosmetics extends Feature {
 
     cosmeticsDataFromUser(uuid, cosmeticId, data) {
         let cosmetics = this.uuidToCosmeticDirect[uuid.replace(/-/g, "")]
+
         if (!cosmetics) return
 
         let cosmetic = cosmetics[cosmeticId]
@@ -209,12 +210,11 @@ class Cosmetics extends Feature {
             }
 
             if (this.shouldPlayerHaveCosmetic(player, cosmeticName)) {
-                // console.log(player.getName(), cosmeticName)
                 let cosmetic = new (this.cosmeticsList[cosmeticName])(player, this)
                 this.loadedCosmetics.push(cosmetic)
                 this.uuidToCosmetic[cosmeticName][player.getUUID().toString().replace(/-/g, "")] = cosmetic
 
-                if (!this.uuidToCosmeticDirect[player.getUUID.toString()]) this.uuidToCosmeticDirect[player.getUUID().toString().replace(/-/g, "")] = {}
+                if (!this.uuidToCosmeticDirect[player.getUUID().toString().replace(/-/g, "")]) this.uuidToCosmeticDirect[player.getUUID().toString().replace(/-/g, "")] = {}
                 this.uuidToCosmeticDirect[player.getUUID().toString().replace(/-/g, "")][cosmeticName] = cosmetic
             }
         })
