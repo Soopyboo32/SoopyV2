@@ -39,6 +39,8 @@ class DragonWings extends Cosmetic {
 
         this.state = 0
 
+        this.ticks = 0
+
         this.flying = false
 
         if (!textures.has(this.settings.texture) && !loadingTextures.has(this.settings.texture)) {
@@ -458,6 +460,11 @@ class DragonWings extends Cosmetic {
         this.updateIfNotRendering()
 
         this.testPlaySound()
+
+        this.ticks++
+        if (this.ticks % 20 === 0) {
+            this.sendCosmeticsData([this.state])
+        }
     }
 
     removeEssentialCosmetics() {

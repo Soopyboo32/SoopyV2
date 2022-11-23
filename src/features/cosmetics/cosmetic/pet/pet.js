@@ -24,7 +24,6 @@ class Pet extends Cosmetic {
     }
 
     onCosmeticMessage(data) {
-        ChatLib.chat("ASD FROM" + this.player.getName())
         if (this.isSelfPlayer) return
         if (data[0] !== 0) return //when data = 0 its data for an automated location/animation ect sync
         //if its not 0 it is data unique to the pet in specific and should not be handled here
