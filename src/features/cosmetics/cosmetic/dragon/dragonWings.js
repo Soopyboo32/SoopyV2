@@ -132,6 +132,7 @@ class DragonWings extends Cosmetic {
         }
 
         GlStateManager[m.pushMatrix](); // pushMatrix
+        GlStateManager[m.enableBlend]()
         Tessellator.colorize(this.settings.color.r, this.settings.color.g, this.settings.color.b);
 
         if (!isSelfPlayer) {
@@ -371,6 +372,8 @@ class DragonWings extends Cosmetic {
         }
         Tessellator.colorize(1, 1, 1)
         GlStateManager[m.enableCull]() //enable culling
+
+        GlStateManager[m.disableBlend]()
         GlStateManager[m.popMatrix](); // popMatrix
     }
 

@@ -124,6 +124,8 @@ class DragonPet extends Pet {
         }
         GlStateManager[m.disableCull]();
 
+        GlStateManager[m.enableBlend]()
+
         GlStateManager[m.enableRescaleNormal]();
         GlStateManager[m.pushMatrix]();
         // EntityDragon entityDragon = (EntityDragon)entityIn;
@@ -239,6 +241,7 @@ class DragonPet extends Pet {
         }
 
         GlStateManager[m.popMatrix]();
+        GlStateManager[m.disableBlend]()
         GlStateManager[m.popMatrix]();
     }
 

@@ -576,7 +576,9 @@ class Events extends Feature {
 
 	/**
 	 * Solves the equasion y=b/(x+a)+c
-	 * returns [a, b, c]
+	 * @param {[x1: Number, x2: Number, x3: Number]} x
+	 * @param {[y1: Number, y2: Number, y3: Number]} y
+	 * @return {[a: Number, b: Number, c: Number]}
 	 */
 	solveEquasionThing(x, y) {
 		let a = (-y[0] * x[1] * x[0] - y[1] * x[1] * x[2] + y[1] * x[1] * x[0] + x[1] * x[2] * y[2] + x[0] * x[2] * y[0] - x[0] * x[2] * y[2]) / (x[1] * y[0] - x[1] * y[2] + x[0] * y[2] - y[0] * x[2] + y[1] * x[2] - y[1] * x[0])
