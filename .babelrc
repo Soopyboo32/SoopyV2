@@ -2,6 +2,7 @@
     "presets": [],
     "plugins": [
         "./babel-plugin-async-to-promises/lib/index.js",
-        "./babel-import-promise/babel-import-promise.mjs"
+        "./babel-import-promise/babel-import-promise.mjs",
+        "./babel-substitute-mappings/babel-substitute-mappings.mjs"
     ]
 }

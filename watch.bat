@@ -1,1 +1,1 @@
-babel src -d "../SoopyV2" --copy-files --watch
+babel src -d "../SoopyV2" --copy-files --watch --retain-lines

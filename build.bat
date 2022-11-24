@@ -1,2 +1,1 @@
-buildJava.bat
-babel src -d "../SoopyV2" --copy-files
+babel --retain-lines src -d "../SoopyV2" --copy-files
