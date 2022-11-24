@@ -1,7 +1,7 @@
 import fs from "fs"
+let [m, f] = createMappings()
 
 export default function ({ types: t }) {
-	let [m, f] = createMappings()
 	return {
 		visitor: {
 			Program(path, state) {
@@ -66,11 +66,11 @@ function replaceMappings(mainPath, t, f, m) {
 
 	return isImported
 }
-
+import request from "sync-request"
 function createMappings() {
 	let m = {}
 	let f = {}
-	let joinedFile = String(fs.readFileSync("../mappings/data/joined.tsrg"))
+	let joinedFile = String(request('GET', 'http://soopy.dev/api/soopyv2/joined.tsrg').getBody())
 	joinedFile = joinedFile.split("\n")
 	let joinedData = {}
 	let joinedData2 = {}
@@ -88,7 +88,7 @@ function createMappings() {
 			currThing = line.split(" ")
 		}
 	})
-	let methodsFile = String(fs.readFileSync("../mappings/data/methods.csv"))
+	let methodsFile = String(request('GET', 'http://soopy.dev/api/soopyv2/methods.csv').getBody())
 	let methodsArr = methodsFile.split("\n")
 	methodsArr.shift()
 	let methodsData = {}
@@ -103,7 +103,7 @@ function createMappings() {
 			desc: desc
 		}
 	})
-	let fieldsFile = String(fs.readFileSync("../mappings/data/fields.csv"))
+	let fieldsFile = String(request('GET', 'http://soopy.dev/api/soopyv2/fields.csv').getBody())
 	let fieldsArr = fieldsFile.split("\n")
 	fieldsArr.shift()
 	let fieldsData = {}
