@@ -11,7 +11,7 @@ import { getLevelByXp } from "../../utils/statUtils";
 import { firstLetterCapital } from "../../utils/stringUtils";
 import renderLibs from "../../../guimanager/renderLibs";
 import { addNotation, basiclyEqual, numberWithCommas, timeNumber, timeNumber2 } from "../../utils/numberUtils.js";
-import { getLore } from "../../utils/utils";
+import { formatTime, getLore } from "../../utils/utils";
 
 const ProcessBuilder = Java.type("java.lang.ProcessBuilder")
 const Scanner = Java.type("java.util.Scanner")
@@ -263,6 +263,15 @@ class Hud extends Feature {
                 .editTempText("&6Old Dragon &7(&f13.4&7M HP)\n&7- &fSoopyboo32&7:&f 13.4&7M\n&7- &fCamCamSatNav&7:&f 12.3&7M\n&7- &fMuffixy&7:&f 3.4&7M"))
         this.hudElements.push(this.dragonDamageElement)
 
+
+        this.showThunderingTimer = new ToggleSetting("Spider den thundering timer", "", true, "spider_thundering_timer", this)
+        this.thunderTimerElement = new HudTextElement()
+            .setToggleSetting(this.showThunderingTimer)
+            .setLocationSetting(new LocationSetting("Thunder timer element", "Allows you to edit the location of the thunder timer", "thunder_timer_elmement", this, [10, 70, 1, 1])
+                .requires(this.showThunderingTimer))
+        this.hudElements.push(this.thunderTimerElement)
+
+        this.showRain = new ToggleSetting("Spider den RAIN timer", "", false, "spider_rain_timer", this).requires(this.showThunderingTimer)
 
         this.step_5second()
 
@@ -621,6 +630,28 @@ class Hud extends Feature {
 
         }
 
+        if (this.showThunderingTimer.getValue()) {
+            let time = rainTimer()
+
+            let text = "&6Thunder&7> &7"
+            if (time.isThundering) {
+                text += "&aNOW &7(&f" + formatTime(time.thunderstorm) + "&7)"
+            } else {
+                text += "in &f" + formatTime(time.thunderstorm)
+            }
+
+            if (this.showRain.getValue()) {
+                text += "\n&6Rain&7> &7"
+                if (time.isRaining) {
+                    text += "&aNOW &7(&f" + formatTime(time.rain) + "&7)"
+                } else {
+                    text += "in &f" + formatTime(time.rain)
+                }
+            }
+
+            this.thunderTimerElement.setText(text)
+        }
+
         if (Player.getPlayer()[m.getAbsorptionAmount]() > this.lastAbsorbtion) {
             if (Date.now() - this.impactTest < 750) {
                 this.lastWitherImpact = Date.now()
@@ -940,4 +971,23 @@ class Hud extends Feature {
 
 module.exports = {
     class: new Hud()
+}
+
+//https://i.imgur.com/RjPpMXy.png
+const rainingTime = 1000 * 1000
+const rainInterval = 4850 * 1000
+const thunderstormInterval = rainInterval * 4
+const PrevThunderstormTime = 1668551956000;
+
+function rainTimer() {
+    let timeSinceThunderStart = (Date.now() - PrevThunderstormTime) % thunderstormInterval
+
+    let timeTillThunder = thunderstormInterval - timeSinceThunderStart
+
+    let nextRain = timeTillThunder % (rainInterval)
+
+    let isRaining = nextRain < rainingTime
+    let isThundering = timeTillThunder < rainingTime
+
+    return { rain: isRaining ? nextRain : nextRain - rainingTime, thunderstorm: isThundering ? timeTillThunder : timeTillThunder - rainingTime, isRaining, isThundering }
 }

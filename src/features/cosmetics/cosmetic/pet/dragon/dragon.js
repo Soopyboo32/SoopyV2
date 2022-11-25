@@ -116,6 +116,8 @@ class DragonPet extends Pet {
             this.getY() - (Player.getPlayer()[f.lastTickPosY] + (Player.getPlayer()[f.posY.Entity] - Player.getPlayer()[f.lastTickPosY]) * ticks),
             this.getZ() - (Player.getPlayer()[f.lastTickPosZ] + (Player.getPlayer()[f.posZ.Entity] - Player.getPlayer()[f.lastTickPosZ]) * ticks))
 
+        Tessellator.colorize(1, 1, 1, 1);
+
         GlStateManager[m.scale](scale, -scale, scale);
         Tessellator.rotate(this.getYaw(), 0, 1, 0)
         if (this.state === ANIMATION_STATE.FLIPPING) {

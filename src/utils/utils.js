@@ -150,6 +150,18 @@ let utils = {
                 return new TextComponent(a + ' ')
             }
         }).reduce((c, curr) => c.addTextComponent(curr), new Message())
+    },
+    formatTime: function (time) {
+        let days = Math.floor(time / (24 * 60 * 60 * 1000))
+        time -= days * 24 * 60 * 60 * 1000
+        let hours = Math.floor(time / (60 * 60 * 1000))
+        time -= hours * 60 * 60 * 1000
+        let minuites = Math.floor(time / (60 * 1000))
+        time -= minuites * 60 * 1000
+        let seconds = Math.floor(time / (1000))
+        time -= seconds * 1000
+
+        return `${days ? days + "d " : ""}${hours + days ? hours + "h " : ""}${minuites + hours + days ? minuites + "m " : ""}${seconds + minuites + hours + days ? seconds + "s " : ""}`.trim()
     }
 }
 
