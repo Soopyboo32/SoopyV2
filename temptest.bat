@@ -1,1 +1,0 @@
-babel mappingsTest.js --retain-lines
