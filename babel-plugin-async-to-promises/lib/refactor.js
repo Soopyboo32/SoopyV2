@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RefactorVisitor = exports.IfRefactorVisitor = undefined;
 
-var _babelTypes = require('babel-types');
+var _babelTypes = require('@babel/types');
 
 var _jsExtend = require('js-extend');
 

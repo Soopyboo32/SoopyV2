@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.SecondPassIfVisitor = exports.FirstPassIfVisitor = undefined;
 
-var _babelTypes = require('babel-types');
+var _babelTypes = require('@babel/types');
 
 var _utils = require('./utils');
 

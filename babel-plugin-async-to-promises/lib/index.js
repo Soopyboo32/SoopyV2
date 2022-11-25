@@ -1,10 +1,10 @@
 'use strict';
 
-var _babelHelperHoistVariables = require('babel-helper-hoist-variables');
+var _babelHelperHoistVariables = require('@babel/helper-hoist-variables');
 
 var _babelHelperHoistVariables2 = _interopRequireDefault(_babelHelperHoistVariables);
 
-var _babelTypes = require('babel-types');
+var _babelTypes = require('@babel/types');
 
 var _refactor = require('./refactor');
 

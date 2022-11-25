@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _babelTypes = require('babel-types');
+var _babelTypes = require('@babel/types');
 
-var _babelTemplate = require('babel-template');
+var _babelTemplate = require('@babel/template');
 
 var _babelTemplate2 = _interopRequireDefault(_babelTemplate);
 
