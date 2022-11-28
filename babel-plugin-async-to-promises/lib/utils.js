@@ -7,7 +7,7 @@ exports.assign = exports.awaitStatement = exports.containsAwait = exports.NoSubF
 exports.matcher = matcher;
 exports.wrapFunction = wrapFunction;
 
-var _babelTypes = require('babel-types');
+var _babelTypes = require('@babel/types');
 
 var _jsExtend = require('js-extend');
 
