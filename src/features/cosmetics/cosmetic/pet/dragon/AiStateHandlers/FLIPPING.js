@@ -9,7 +9,7 @@ export default function (pet) {
     distMult = Math.max(0.5, distMult)
 
     let distToOwner = pet.getDistanceTo(pet.player.getX(), pet.player.getY(), pet.player.getZ())
-    pet.state = ANIMATION_STATE.STANDING
+    pet.state = ANIMATION_STATE.FLIPPING
 
     if (distToOwner > 10 * distMult || Math.random() > 0.99) {
         let x = Player.getX() + Math.random() * 10 * distMult - 5 * distMult
@@ -23,10 +23,5 @@ export default function (pet) {
 
         pet.aiState = AI_STATE.TRAVELING_TO_POSITION
         pet.travelToPosition = [x, y, z]
-    } else if (Math.random() > 0.995 || pet.nextIsFlip) {
-        pet.state = ANIMATION_STATE.FLIPPING
-        pet.nextIsFlip = false
-    } else if (Math.random() > 0.9995) {
-        pet.aiState = AI_STATE.FLIPPING
     }
 }

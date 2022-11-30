@@ -6,7 +6,7 @@
   "description": "SoopyV2",
   "name": "SoopyV2",
   "version": "2.1.194",
-  "versionId": 321,
+  "versionId": 322,
   "requires": [
     "soopyApis",
     "soopyAddonsData",

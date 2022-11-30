@@ -6,6 +6,7 @@ import { basiclyEqual } from "../../../../../utils/numberUtils.js";
 import TRAVELING_TO_POSITION from "./AiStateHandlers/TRAVELING_TO_POSITION.js";
 import { AI_STATE, ANIMATION_STATE } from "./states.js";
 import STANDING from "./AiStateHandlers/STANDING.js";
+import FLIPPING from "./AiStateHandlers/FLIPPING.js";
 
 const ModelDragon = Java.type("net.minecraft.client.model.ModelDragon")
 
@@ -66,7 +67,7 @@ class DragonPet extends Pet {
 
     onCommand(option, ...args) {
         if (!option) {
-            ChatLib.chat("valid options: 'flip' 'come'")
+            ChatLib.chat("valid options: 'flip' 'come' 'goto <x> <y> <z>'")
             return
         }
         if (option === 'come') {
@@ -292,6 +293,9 @@ class DragonPet extends Pet {
                 break;
             case AI_STATE.STANDING:
                 STANDING(this)
+                break;
+            case AI_STATE.FLIPPING:
+                FLIPPING(this)
                 break;
         }
 
