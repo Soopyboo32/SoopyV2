@@ -187,10 +187,12 @@ class Events extends Feature {
 
 		let shouldPing = true
 		let registerActionBar = this.registerCustom("actionbar", (curr, max) => {
-			if (this.useManaReminder.getValue() && curr === max && shouldPing) {
-				shouldPing = false
-				ChatLib.chat(this.FeatureManager.messagePrefix + "DONT FORGET TO USE MANA")
-				Client.showTitle("&bUSE MANA", "!", 0, 20, 20)
+			if (this.useManaReminder.getValue() && curr === max) {
+				if (shouldPing) {
+					shouldPing = false
+					ChatLib.chat(this.FeatureManager.messagePrefix + "DONT FORGET TO USE MANA")
+					Client.showTitle("&bUSE MANA", "!", 0, 20, 20)
+				}
 			} else {
 				shouldPing = true
 			}
