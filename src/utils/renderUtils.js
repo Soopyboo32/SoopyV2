@@ -1,4 +1,4 @@
-const { f, m } = require("../../mappings/mappings");
+import { f, m } from "../../mappings/mappings"
 
 const { default: renderBeaconBeam2 } = require("../../BeaconBeam/index");
 const numberUtils = require("./numberUtils");

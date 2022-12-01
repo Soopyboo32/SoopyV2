@@ -1,4 +1,4 @@
-const { m } = require("../../mappings/mappings");
+import { m } from "../../mappings/mappings";
 const NBTTagString = Java.type('net.minecraft.nbt.NBTTagString');
 
 let utils = {

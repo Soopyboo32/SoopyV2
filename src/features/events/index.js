@@ -104,6 +104,7 @@ class Events extends Feature {
 		this.showGlowingMushrooms = new ToggleSetting("Glowing mushrooms highlight", "Will highlight glowing mushrooms", false, "glowing_mushrooms_overlay", this)
 		this.trevorAngleSovler = new ToggleSetting("Trevor theodite solver", "semi not accurate cus hypixel rounds the nubmers :madge:", true, "trevor_angle_solver", this)
 		this.dropZapperFarmCooldown = new ToggleSetting("Block zapper farm cooldown", "", false, "block_zap_farm_cool", this)
+		this.useManaReminder = new ToggleSetting("USE MANA REMINDER", "BINGO BONGO", false, "bingo_mana_dink", this)
 		// this.treavorTrackerWaypoints = new ToggleSetting("Trevor the tracker waypoints", "", false, "trevor_waypoints", this)
 		//TODO: add tracker waypoints
 
@@ -183,6 +184,18 @@ class Events extends Feature {
 			this.trackerData = []
 		})
 		this.registerEvent("renderWorld", this.drawTrackerStuff)
+
+		let shouldPing = true
+		let registerActionBar = this.registerCustom("actionbar", (curr, max) => {
+			if (this.useManaReminder.getValue() && curr === max && shouldPing) {
+				shouldPing = false
+				ChatLib.chat(this.FeatureManager.messagePrefix + "DONT FORGET TO USE MANA")
+				Client.showTitle("&bUSE MANA", "!", 0, 20, 20)
+			} else {
+				shouldPing = true
+			}
+		})
+		registerActionBar.trigger.setCriteria('&b${curr}/${max}✎').setParameter('contains');
 
 		let zaps = 0
 		this.registerChat("&eZapped ${blokc} &eblocks! &a&lUNDO&r", () => {
