@@ -80,11 +80,23 @@ class DragonPet extends Pet {
         if (option === "goto") {
             let [x, y, z] = args
 
+            if (!y) {
+                let p = World.getPlayerByName(x)
+                if (!p) {
+                    ChatLib.chat("invalid username!")
+                    return
+                }
+                x = p.getX()
+                y = p.getY()
+                z = p.getZ()
+            }
+
             this.travelToPosition = [parseFloat(x), parseFloat(y), parseFloat(z)]
             this.aiState = AI_STATE.TRAVELING_TO_POSITION
 
 
             ChatLib.chat("derg pet going to " + this.travelToPosition.join(", ") + "!")
+            return
         }
         if (option === 'flip') {
             this.nextIsFlip = true

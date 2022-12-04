@@ -104,6 +104,8 @@ class Nether extends Feature {
 		this.controlLoc = undefined
 		this.changedBlocks = []
 
+		this.fireballEntityToOffset = new WeakMap()
+
 		this.registerChat("                      Test of Control OBJECTIVES", () => {
 			this.controlSkeleton = undefined
 			this.controlLocLast = undefined
@@ -163,6 +165,7 @@ class Nether extends Feature {
 		})
 		// this.registerStep(true, 5, this.kuudraGhastCheck).registeredWhen(() => this.isInKuudra() && this.dropshipAlert.getValue())
 		this.registerStep(true, 5, this.minibossHPHud)
+		this.registerEvent("spawnParticle", this.spawnParticle)
 
 	}
 
@@ -235,6 +238,35 @@ class Nether extends Feature {
 		if (this.minibossNametag.getValue() && event.entity instanceof ArmorStand) {
 			this.todoM.push(event.entity)
 		}
+	}
+
+	spawnParticle(particle, type, event) {
+		if (type.toString() !== "FLAME") return
+
+		if (this.dojoFireBalls.length === 0) return
+
+		let nearestFireball = undefined
+		let nearestDist = Infinity
+		for (let e of this.dojoFireBalls) {
+			let entitylocation = [e[f.posX.Entity], e[f.posY.Entity], e[f.posZ.Entity]]
+			let distance = (particle.getX() - entitylocation[0]) ** 2 + (particle.getY() - entitylocation[1]) ** 2 + (particle.getZ() - entitylocation[2]) ** 2
+			if (distance < nearestDist) {
+				nearestDist = distance
+				nearestFireball = e
+			}
+		}
+		if (!nearestFireball) return
+
+		let entitylocation = [nearestFireball[f.posX.Entity], nearestFireball[f.posY.Entity], nearestFireball[f.posZ.Entity]]
+
+		let [x, y, z, times] = this.fireballEntityToOffset.get(nearestFireball) || [0, 0, 0, 1]
+		let asd = [x, y, z]
+
+		let deltas = [particle.getX() - (entitylocation[0] + x), particle.getY() - (entitylocation[1] + y), particle.getZ() - (entitylocation[2] + z)]
+
+		let newV = deltas.map((a, i) => a / Math.min(times, 10) + asd[i])
+
+		this.fireballEntityToOffset.set(nearestFireball, [...newV, times + 1])
 	}
 
 	packetReceived(packet, event) {
@@ -324,7 +356,9 @@ class Nether extends Feature {
 		if (this.lastBlock && this.inSwiftness) drawBoxAtBlock(this.lastBlock[0], this.lastBlock[1], this.lastBlock[2], 0, 255, 0, 1, 1)
 
 		if (this.tenacityLine.getValue()) this.dojoFireBalls.forEach(e => {
-			let offset = [e[f.width.Entity] / 2, e[f.height.Entity] / 2, e[f.width.Entity] / 2]
+
+			let data = this.fireballEntityToOffset.get(e) || [0, 0, 0]
+			let offset = [data[0], data[1], data[2]]
 			let entitylocation = [e[f.posX.Entity], e[f.posY.Entity], e[f.posZ.Entity]]
 			let lastLocation = [e[f.prevPosX], e[f.prevPosY], e[f.prevPosZ]]
 			let change = [entitylocation[0] - lastLocation[0], entitylocation[1] - lastLocation[1], entitylocation[2] - lastLocation[2]]

@@ -239,7 +239,8 @@ class MuseumGui {
         this.donateTitleBox.addChild(donateTitle)
         this.mainPage.addChild(this.donateTitleBox)
 
-        this.donateBox = new SoopyBoxElement().setLocation(0.5 + widthPer * 3 / 2 + 0.025, 0.35, 0.5 - widthPer * 1.5 - 0.05, 0.6).setScrollable(true).enableFrameBuffer()
+        this.donateBox = new SoopyBoxElement().setLocation(0.5 + widthPer * 3 / 2 + 0.025, 0.35, 0.5 - widthPer * 1.5 - 0.05, 0.6).setScrollable(true)
+        this.donateBox.enableFrameBuffer?.()
         this.mainPage.addChild(this.donateBox)
 
         this.favoriteTitleBox = new SoopyBoxElement().setLocation(0.025, 0.25, 0.5 - widthPer * 1.5 - 0.05, 0.075)
@@ -248,10 +249,12 @@ class MuseumGui {
         this.favoriteTitleBox.addChild(favoriteTitle)
         this.mainPage.addChild(this.favoriteTitleBox)
 
-        this.favoriteBox = new SoopyBoxElement().setLocation(0.025, 0.35, 0.5 - widthPer * 1.5 - 0.05, 0.6).setScrollable(true).enableFrameBuffer()
+        this.favoriteBox = new SoopyBoxElement().setLocation(0.025, 0.35, 0.5 - widthPer * 1.5 - 0.05, 0.6).setScrollable(true)
+        this.favoriteBox.enableFrameBuffer?.()
         this.mainPage.addChild(this.favoriteBox)
 
-        this.itemsBox = new SoopyBoxElement().setLocation(0.5 - widthPer * 3 / 2, 0.35, widthPer * 3, 0.6).enableFrameBuffer()
+        this.itemsBox = new SoopyBoxElement().setLocation(0.5 - widthPer * 3 / 2, 0.35, widthPer * 3, 0.6)
+        this.itemsBox.enableFrameBuffer?.()
         this.mainPage.addChild(this.itemsBox)
 
         new Array(this.donateBox, this.favoriteBox, this.itemsBox).forEach((box, i) => {
@@ -260,15 +263,15 @@ class MuseumGui {
                     if (this.searchText) {
 
                     } else {
-                        box.enableFrameBuffer()
+                        box.enableFrameBuffer?.()
                         return
                     }
                 }
                 if (hovered) {
                     box.disableFrameBuffer()
                 } else {
-                    box.enableFrameBuffer()
-                    box.dirtyFrameBuffer(1000)
+                    box.enableFrameBuffer?.()
+                    box.dirtyFrameBuffer?.(1000)
                 }
             }))
         })
@@ -421,7 +424,7 @@ class MuseumGui {
                 }))
                 this.itemsBox.addChild(browserButton)
 
-                this.itemsBox.dirtyFrameBuffer()
+                this.itemsBox.dirtyFrameBuffer?.()
             }
         }
 
@@ -591,7 +594,7 @@ class MuseumGui {
                     this.itemsBox.addChild(confirmButton)
                 }
 
-                this.itemsBox.dirtyFrameBuffer()
+                this.itemsBox.dirtyFrameBuffer?.()
             }
 
             this.favoriteBox.visable = false
@@ -620,7 +623,7 @@ class MuseumGui {
             this.donateBox.addChild(itemButton)
         })
 
-        this.donateBox.dirtyFrameBuffer()
+        this.donateBox.dirtyFrameBuffer?.()
     }
 
     showSearchItems() {
@@ -753,7 +756,7 @@ class MuseumGui {
             }
         })
 
-        this.itemsBox.dirtyFrameBuffer()
+        this.itemsBox.dirtyFrameBuffer?.()
     }
 
     regenItems(page2) {
@@ -810,7 +813,7 @@ class MuseumGui {
             }
         })
 
-        this.itemsBox.dirtyFrameBuffer()
+        this.itemsBox.dirtyFrameBuffer?.()
     }
 
     addItemToFavorites(slot, page, page2, slotNum) {
@@ -916,7 +919,7 @@ class MuseumGui {
             }).start()
         }
 
-        this.favoriteBox.dirtyFrameBuffer()
+        this.favoriteBox.dirtyFrameBuffer?.()
     }
 
     guiOpened(event) {
@@ -942,14 +945,14 @@ class MuseumGui {
                 this.guiUpdated = true
                 this.soopyGui.ctGui.open()
 
-                this.itemsBox.dirtyFrameBuffer()
+                this.itemsBox.dirtyFrameBuffer?.()
             }
             return
         }
         if (this.isInMuseum) {
             this.soopyGui.ctGui.open()
 
-            this.itemsBox.dirtyFrameBuffer()
+            this.itemsBox.dirtyFrameBuffer?.()
         } else {
             if (name === "Your Museum" && !this.isInMuseum) {
 
@@ -983,7 +986,7 @@ class MuseumGui {
 
                 this.tickMenu(true)
 
-                this.itemsBox.dirtyFrameBuffer()
+                this.itemsBox.dirtyFrameBuffer?.()
             }
         }
     }
