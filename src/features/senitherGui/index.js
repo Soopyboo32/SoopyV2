@@ -423,7 +423,8 @@ class SettingPage extends GuiPage {
     onOpen() {
         this.loadFirstPageInformation()
 
-        let sidebar = new SoopyGuiElement().setLocation(0.1, 0.1, 0.8, 0.8).setScrollable(true).enableFrameBuffer()
+        let sidebar = new SoopyGuiElement().setLocation(0.1, 0.1, 0.8, 0.8).setScrollable(true)
+        sidebar.enableFrameBuffer?.()
         this.openSidebarPage(sidebar)
         let markdown = new SoopyMarkdownElement().setText("# NOTE: \nAll credit for the idea, design of this gui, and loading of data goes to Senither who made the original leaderboard (https://hypixel-leaderboard.senither.com/)\n\nThis is just a recode of that to allow for checking the leaderboard from in-game")
         sidebar.addChild(markdown)
