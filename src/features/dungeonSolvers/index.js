@@ -55,7 +55,8 @@ class DungeonSolvers extends Feature {
 			Purple: "&5",
 			Arcade: "&e",
 		};
-
+        
+		this.iceSprayEntityPH = undefined;
 		this.bonzoMaskTimer = 0;
 		this.fraggedBonzoMaskTimer = 0;
 		this.spiritMaskTimer = 0;
@@ -1338,13 +1339,20 @@ class DungeonSolvers extends Feature {
 
 	step_1fps() {
 		if (this.IceSprayWarn.getValue()) {
-			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((name) => {
-				let MobName = ChatLib.removeFormatting(name.getName())
-				if (MobName.includes("Ice Spray Wand") && name.getTicksExisted() <= 199) {
-					Client.showTitle(`&r&6&l[&b&l&kO&6&l] ${MobName.toUpperCase()} &6&l[&b&l&kO&6&l]`, "", 0, 40, 10);
-					ChatLib.chat(`&6&lRARE DROP! &r${name.getName()}`)
+			World.getAllEntitiesOfType(net.minecraft.entity.item.EntityArmorStand).forEach((iceSprayEntity) => {
+				let iceSprayEntityNameRF = ChatLib.removeFormatting(iceSprayEntity.getName())
+				if (iceSprayEntityNameRF.includes("Ice Spray Wand") && !this.iceSprayEntityPH) {
+					Client.showTitle(`&r&6&l[&b&l&kO&6&l] ${iceSprayEntityNameRF.toUpperCase()} &6&l[&b&l&kO&6&l]`, "", 0, 40, 10);
+					ChatLib.chat(`&6&lRARE DROP! &r${iceSprayEntity.getName()}`)
+					this.iceSprayEntityPH = iceSprayEntity
 				}
 			})
+
+			if (this.iceSprayEntityPH) {
+				if (this.iceSprayEntityPH.getEntity()[f.isDead]) {
+					this.iceSprayEntityPH = undefined
+				}
+			}
 		}
 	}
 
