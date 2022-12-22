@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@babel/cli": "^7.0.0",
+        "@babel/cli": "^7.20.7",
         "@babel/core": "^7.0.0",
         "@babel/helper-hoist-variables": "^7.0.0",
         "@babel/types": "^7.0.0",
