@@ -146,7 +146,7 @@ class NetworthPage extends GuiPage {
 
         let selectedProf = profIn || skyblockData.data.stats.bestProfileId
 
-        let nwData = skyblockData.data.profiles[selectedProf].members[playerData.data.uuid].soopyNetworth
+        let nwData = skyblockData.data.profiles[selectedProf].members[playerData.data.uuid].skyhelperNetworth
         let nameElm = new SoopyTextElement().setText(playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7")).setMaxTextScale(2).setLocation(0.1, 0.05, 0.8, 0.1)
         this.statArea.addChild(nameElm)
 
@@ -160,18 +160,18 @@ class NetworthPage extends GuiPage {
         }))
         this.statArea.addChild(profileSelect)
         this.statArea.addChild(new SoopyTextElement().setText("§0Networth: §2$" + numberWithCommas(Math.round(nwData.networth)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.45, 0.15, 0.4, 0.1))
-        this.statArea.addChild(new SoopyTextElement().setText("§0Purse: §2$" + numberWithCommas(Math.round(nwData.purse)).replace(/,/g, "§7,§2") + "§0 | Bank: §2$" + numberWithCommas(Math.round(nwData.bank)).replace(/,/g, "§7,§2") + "§0 | Sack: §2$" + numberWithCommas(Math.round(nwData.sack)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.1, 0.25, 0.8, 0.1))
+        this.statArea.addChild(new SoopyTextElement().setText("§0Purse: §2$" + numberWithCommas(Math.round(nwData.purse)).replace(/,/g, "§7,§2") + "§0 | Bank: §2$" + numberWithCommas(Math.round(nwData.bank)).replace(/,/g, "§7,§2")).setMaxTextScale(1.5).setLocation(0.1, 0.25, 0.8, 0.1))
 
-        Object.keys(nwData.categories).sort((a, b) => nwData.categories[b].total - nwData.categories[a].total).forEach((name, i) => {
+        Object.keys(nwData.types).sort((a, b) => nwData.types[b].total - nwData.types[a].total).forEach((name, i) => {
             let renderName = firstLetterWordCapital(name.replace(/_/g, " "))
 
-            let data = nwData.categories[name]
+            let data = nwData.types[name]
 
             let box = new SoopyBoxElement().setLocation(i % 2 === 0 ? 0 : 0.525, 0.45 + Math.floor(i / 2) * 0.35, 0.475, 0.25)
 
             box.addChild(new SoopyMarkdownElement().setLocation(0, 0, 1, 1).setText(data.items.filter(i => i.name).splice(0, 5).map(a => {
                 let name = (a.name.startsWith("§f") || a.name.startsWith("§7[Lvl ")) ? a.name.replace("§f", "§7") : a.name
-                return "§0" + name + "§0: §2$" + numberWithCommas(Math.round(a.p)).replace(/,/g, "§7,§2")
+                return "§0" + name + "§0: §2$" + numberWithCommas(Math.round(a.price)).replace(/,/g, "§7,§2")
             }).join("\n")))
 
             let boxName = new SoopyTextElement().setLocation(i % 2 === 0 ? 0 : 0.525, 0.4 + Math.floor(i / 2) * 0.35, 0.475, 0.05).setText("§0" + renderName + "§0: §2$" + numberWithCommas(Math.round(data.total)).replace(/,/g, "§7,§2"))

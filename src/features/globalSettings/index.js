@@ -132,7 +132,7 @@ class GlobalSettings extends Feature {
 
         this.registerStep(false, 10, () => {
             if (!this.FeatureManager.features.dataLoader.class.isInSkyblock) return
-            if (Scoreboard.getLineByIndex(0).getName().includes("alpha")) return
+            if (!Scoreboard.getLineByIndex(0).getName().includes("www.")) return
 
             let sendData = []
             TabList.getNames().forEach(n => {
@@ -191,7 +191,7 @@ class GlobalSettings extends Feature {
         const EntityFallingBlock = Java.type("net.minecraft.entity.item.EntityFallingBlock");
 
         this.registerEvent('renderEntity', (entity, posVec, partialTicks, event) => {
-            if (entity.getEntity() instanceof EntityFallingBlock) {
+            if (entity.getEntity && entity.getEntity() instanceof EntityFallingBlock) {
                 cancel(event);
             }
         }).registeredWhen(() => this.hideFallingBlocks.getValue())

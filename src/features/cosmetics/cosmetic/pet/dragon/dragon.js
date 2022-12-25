@@ -50,6 +50,10 @@ class DragonPet extends Pet {
 
         this.travelToPosition = undefined
 
+        this.following = undefined
+        this.followingCache = undefined
+        this.followingCacheUpdated = 0
+
         this.nextIsFlip = false
 
         this.ticks = 0
@@ -57,6 +61,20 @@ class DragonPet extends Pet {
         if (!textures.has(this.settings.texture) && !loadingTextures.has(this.settings.texture)) {
             loadTexture(this.settings.texture)
         }
+    }
+
+    get followingPlayer() {
+        if (Date.now() - this.followingCacheUpdated < 1000) return this.followingCache
+
+        this.followingCache = this.player
+
+        if (this.following) {
+            let p = getPlayerFromName(this.following)
+            if (p) this.followingCache = p
+        }
+        this.followingCacheUpdated = Date.now()
+
+        return this.followingCache
     }
 
     onRenderEntity(ticks, isInGui) {
@@ -77,11 +95,19 @@ class DragonPet extends Pet {
             ChatLib.chat("derg pet coming to current location!")
             return
         }
+        if (option === 'tp') {
+            this.x = Player.getX()
+            this.y = Player.getY()
+            this.z = Player.getZ()
+
+            ChatLib.chat("derg pet tpiong to current location!")
+            return
+        }
         if (option === "goto") {
             let [x, y, z] = args
 
             if (!y) {
-                let p = World.getPlayerByName(x)
+                let p = getPlayerFromName(x)
                 if (!p) {
                     ChatLib.chat("invalid username!")
                     return
@@ -96,6 +122,11 @@ class DragonPet extends Pet {
 
 
             ChatLib.chat("derg pet going to " + this.travelToPosition.join(", ") + "!")
+            return
+        }
+        if (option === 'follow') {
+            this.following = args[0]
+            ChatLib.chat("Following " + args[0] + "!")
             return
         }
         if (option === 'flip') {
@@ -388,4 +419,10 @@ function getField(e, field) {
     field2.setAccessible(true)
 
     return field2.get(e)
+}
+
+function getPlayerFromName(name) {
+    for (let player of World.getAllPlayers()) {
+        if (player.getName().toLowerCase() === name.toLowerCase()) return player
+    }
 }

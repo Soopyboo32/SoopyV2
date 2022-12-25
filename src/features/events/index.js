@@ -125,7 +125,7 @@ class Events extends Feature {
 			if (this.warpBind.isPressed()) {
 
 				if (!this.openedWarpsMenu) {
-					ChatLib.chat(this.FeatureManager.messagePrefix + "Please open the warps menu first (/warp)")
+					ChatLib.chat(this.FeatureManager.messagePrefix + "Please open the warps menu first (/warp then click hub)")
 					ChatLib.chat(this.FeatureManager.messagePrefix + "(So the mod knows what warps u have access to)")
 				}
 				let loc = this.getClosestWarp()

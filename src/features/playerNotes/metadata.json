@@ -1,0 +1,8 @@
+{
+    "name": "Player Notes",
+    "description": "Eg make ur shitter lists here",
+    "isHidden": true,
+    "isTogglable": true,
+    "defaultEnabled": true,
+    "sortA": 1
+}

@@ -453,8 +453,8 @@ class FeatureManager {
                     }
                 }
             } catch (e) {
-                logger.logMessage("Error in " + event + " event: " + JSON.stringify(e, undefined, 2), 2)
-                logger.logMessage(e.stack, 1)
+                logger.logMessage("Error in " + event + " event: " + JSON.stringify(e, undefined, 2), 1)
+                logger.logMessage(e.stack, 2)
 
                 soopyV2Server.reportError(e, "Error in " + event + " event.")
             }
@@ -476,8 +476,8 @@ class FeatureManager {
                     }
                 }
             } catch (e) {
-                logger.logMessage("Error in soopy " + event + " event: " + JSON.stringify(e, undefined, 2), 2)
-                logger.logMessage(e.stack, 1)
+                logger.logMessage("Error in soopy " + event + " event: " + JSON.stringify(e, undefined, 2), 1)
+                logger.logMessage(e.stack, 2)
                 soopyV2Server.reportError(e, "Error in soopy " + event + " event.")
             }
         }

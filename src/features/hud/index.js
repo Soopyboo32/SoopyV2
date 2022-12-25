@@ -12,7 +12,6 @@ import { firstLetterCapital } from "../../utils/stringUtils";
 import renderLibs from "../../../guimanager/renderLibs";
 import { addNotation, basiclyEqual, numberWithCommas, timeNumber, timeNumber2 } from "../../utils/numberUtils.js";
 import { formatTime, getLore } from "../../utils/utils";
-
 const ProcessBuilder = Java.type("java.lang.ProcessBuilder")
 const Scanner = Java.type("java.util.Scanner")
 
@@ -273,6 +272,26 @@ class Hud extends Feature {
 
         this.showRain = new ToggleSetting("Spider den RAIN timer", "", false, "spider_rain_timer", this).requires(this.showThunderingTimer)
 
+        this.ppsCounter = new ToggleSetting("Packets/second", "debug not really usefull", false, "pps_counter", this)
+        this.ppsCounterElement = new HudTextElement()
+            .setToggleSetting(this.ppsCounter)
+            .setLocationSetting(new LocationSetting("Packets/second location", "Allows you to edit the location of the pps", "pps_location", this, [10, 70, 1, 1])
+                .requires(this.ppsCounter))
+        this.hudElements.push(this.ppsCounterElement)
+
+        this.packetsSent = 0
+        this.packetsRecieved = 0
+
+        this.registerEvent("packetReceived", (p) => {
+            this.packetsRecieved++
+            // ChatLib.chat(p.toString())
+        }).registeredWhen(() => this.ppsCounter.getValue())
+
+        this.registerEvent("packetSent", (p) => {
+            this.packetsSent++
+            // ChatLib.chat(p.toString())
+        }).registeredWhen(() => this.ppsCounter.getValue())
+
         this.step_5second()
 
         this.lastTickTime = 0
@@ -371,6 +390,11 @@ class Hud extends Feature {
         } else {
             if (World.getTime() !== 0) this.lobbyDayElement.setText("&6Day&7> &f" + (World.getTime() / 20 / 60 / 20).toFixed(2))
         }
+
+        this.ppsCounterElement.setText("&6Packets&7> &f" + numberWithCommas(this.packetsSent) + "&7-&f" + numberWithCommas(this.packetsRecieved))
+
+        this.packetsSent = 0
+        this.packetsRecieved = 0
 
         if (!this.lagEnabled.getValue()) {
             if (this.packetReceived) {
@@ -955,8 +979,8 @@ class Hud extends Feature {
             "MYTHIC": "&d"
         }
 
-        this.petElement.setText("&6Pet&7> &7[Lvl " + (pet.level.level || "??") + "] " + petTierColor[pet.tier] + pet.name)
         this.petText = "&6Pet&7> &7[Lvl " + (pet.level.level || "??") + "] " + petTierColor[pet.tier] + pet.name
+        this.petElement.setText(this.petText)
     }
 
     worldLoad() {

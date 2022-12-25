@@ -162,6 +162,14 @@ let utils = {
         time -= seconds * 1000
 
         return `${days ? days + "d " : ""}${hours + days ? hours + "h " : ""}${minuites + hours + days ? minuites + "m " : ""}${seconds + minuites + hours + days ? seconds + "s " : ""}`.trim()
+    },
+    uuidFromUsername: async function (name) {
+        try {
+            let { id } = await fetch(`https://api.mojang.com/users/profiles/minecraft/${name}`).json()
+            return id
+        } catch (e) {
+            return null
+        }
     }
 }
 
