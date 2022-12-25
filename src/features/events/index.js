@@ -786,8 +786,9 @@ class Events extends Feature {
 				}
 				if (Math.abs(particle.getX() % 1) === 0.25
 					&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
-					&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
-
+					&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)
+					&& World.getBlockAt(Math.floor(particle.getX()), Math.floor(particle.getY()), Math.floor(particle.getZ())).getType().getID() != 90) {
+					//Block left
 					this.shinyBlocks.push([[
 						Math.floor(particle.getX()) + 1,
 						Math.floor(particle.getY()),
@@ -796,8 +797,9 @@ class Events extends Feature {
 				}
 				if (Math.abs(particle.getX() % 1) === 0.75
 					&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
-					&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)) {
-
+					&& basiclyEqual((particle.getZ() - 0.5) % 1, 0, 0.2)
+					&& World.getBlockAt(Math.floor(particle.getX()), Math.floor(particle.getY()), Math.floor(particle.getZ())).getType().getID() != 90) {
+					//Block right
 					this.shinyBlocks.push([[
 						Math.floor(particle.getX()) - 1,
 						Math.floor(particle.getY()),
@@ -807,7 +809,7 @@ class Events extends Feature {
 				if (Math.abs(particle.getZ() % 1) === 0.25
 					&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
 					&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)) {
-
+					//Block front
 					this.shinyBlocks.push([[
 						Math.floor(particle.getX()),
 						Math.floor(particle.getY()),
@@ -817,14 +819,13 @@ class Events extends Feature {
 				if (Math.abs(particle.getZ() % 1) === 0.75
 					&& basiclyEqual((particle.getY() - 0.5) % 1, 0, 0.2)
 					&& basiclyEqual((particle.getX() - 0.5) % 1, 0, 0.2)) {
-
+					//Block back
 					this.shinyBlocks.push([[
 						Math.floor(particle.getX()),
 						Math.floor(particle.getY()),
 						Math.floor(particle.getZ()) - 1
 					], Date.now()])
 				}
-				// }
 			}
 		}
 		if (this.showGlowingMushrooms.getValue() && this.FeatureManager.features["dataLoader"].class.areaFine === "Glowing Mushroom Cave") {
