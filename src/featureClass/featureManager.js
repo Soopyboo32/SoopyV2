@@ -81,7 +81,7 @@ class FeatureManager {
 
         this.featureSettingsData = {}
 
-        let fetchD = fetch("https://soopy.dev/api/soopyv2/ping")
+        let fetchD = fetch("https://soopy.dev/api/soopyv2/ping", { timeout: 10000 })
         fetchD.load().then(() => {
             if (fetchD.responseCode() >= 400 || fetchD.responseCode() === -1) {
                 ChatLib.chat(this.messagePrefix + "&cError: Could not connect to Soopy's server. This may cause issues with some features but will (hopefully) be back soon.")
@@ -427,6 +427,8 @@ class FeatureManager {
         //     })
         // }else{
 
+        // if (event === "packetReceived") throw new Error("no packet recieved wtf")
+
         this.eventObjects[event] = register(event, (...args) => {
             // let start = Date.now()
             this.triggerEvent(event, args)
@@ -440,7 +442,7 @@ class FeatureManager {
     triggerEvent(event, args) {
         if (this.events[event]) {
             try {
-                for (Event of Object.values(this.events[event])) {
+                for (let Event of Object.values(this.events[event])) {
                     if (Event.context.enabled) {
                         if (this.recordingPerformanceUsage) this.startRecordingPerformance(Event.context.getId(), event)
                         let start = Date.now()
@@ -463,7 +465,7 @@ class FeatureManager {
     triggerSoopy(event, args) {
         if (this.soopyEventHandlers[event]) {
             try {
-                for (Event of Object.values(this.soopyEventHandlers[event])) {
+                for (let Event of Object.values(this.soopyEventHandlers[event])) {
                     if (Event.context.enabled) {
                         if (this.recordingPerformanceUsage) this.startRecordingPerformance(Event.context.getId(), event)
                         let start = Date.now()
@@ -581,7 +583,7 @@ class FeatureManager {
                     if (context.enabled) {
                         if (this.recordingPerformanceUsage) this.startRecordingPerformance(context.getId(), type)
                         let start = Date.now()
-                        func.call(context, ...(args || []))
+                        this.customEvents[id].func.call(context, ...(args || []))
                         let time = Date.now() - start
                         if (time > this.longEventTime) {
                             logger.logMessage("Long event triggered [" + time + "ms] (" + context.getId() + "/" + type + ")", 3)

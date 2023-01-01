@@ -10,7 +10,7 @@ if (!global.networkUtilsThingSoopyPromise) {
     let jString = Java.type("java.lang.String")
     var JHttpsUrlConnection = Java.type('javax.net.ssl.HttpsURLConnection');
 
-    function getUrlContent(theUrl, { userAgent = "Mozilla/5.0", includeConnection = false, postData = undefined } = {}) {
+    function getUrlContent(theUrl, { userAgent = "Mozilla/5.0", includeConnection = false, postData = undefined, timeout = 30000 } = {}) {
 
         if (global.soopyv2loggerthing) {
             global.soopyv2loggerthing.logMessage("Loading API: " + theUrl, 4)
@@ -26,6 +26,8 @@ if (!global.networkUtilsThingSoopyPromise) {
             conn.setSSLSocketFactory(socketFactory);
         }
         conn.setRequestProperty("User-Agent", userAgent)
+        conn.setConnectTimeout(timeout);
+        conn.setReadTimeout(timeout);
 
         if (postData) {
             conn.setRequestMethod("POST");
@@ -69,7 +71,7 @@ if (!global.networkUtilsThingSoopyPromise) {
         return stringData
     }
 
-    function fetch(url, options = { userAgent: "Mozilla/5.0" }) {
+    function fetch(url, options = { userAgent: "Mozilla/5.0", timeout: 30000 }) {
         let loadedConnection = undefined
         let loadedString = undefined
         let loadedJSON = undefined
@@ -148,7 +150,6 @@ if (!global.networkUtilsThingSoopyPromise) {
 
     let pendingRequests = []
     let pendingResolves = []
-    let runningThread = false
 
     register("tick", () => {
         try {
@@ -162,12 +163,11 @@ if (!global.networkUtilsThingSoopyPromise) {
             console.log(e.stack)
         }
 
-        if (pendingRequests.length > 0 && !runningThread) {
-            runningThread = true
-            new Thread(() => {
-                while (pendingRequests.length > 0) {
-                    let req = pendingRequests.shift()
+        if (pendingRequests.length > 0) {
+            while (pendingRequests.length > 0) {
+                let req = pendingRequests.shift()
 
+                new Thread(() => {
                     try {
                         let data = getUrlContent(req.url, req.options)
 
@@ -175,10 +175,8 @@ if (!global.networkUtilsThingSoopyPromise) {
                     } catch (e) {
                         pendingResolves.push([req.errcallback, e])
                     }
-                }
-
-                runningThread = false
-            }).start()
+                }).start()
+            }
         }
     })
 

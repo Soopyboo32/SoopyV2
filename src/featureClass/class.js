@@ -308,9 +308,6 @@ class ForgeEvent extends Event {
 
 class CustomEvent extends Event {
     //theEvent, theEvent.trigger, [isFps, interval, func], this
-    constructor(...args) {
-        super(...args)
-    }
     actuallyRegister() {
         if (this.data.type === "step") return
         this.trigger.register()

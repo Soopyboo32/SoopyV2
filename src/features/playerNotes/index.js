@@ -18,6 +18,9 @@ class PlayerNotes extends Feature {
 
 		this.registerCommand("soopynotes", this.openNotesGui)
 		this.registerCommand("sn", this.openNotesGui)
+
+		//TODO: load notes from file
+		//TODO: load / sync notes from server
 	}
 
 	openNotesGui() {
@@ -25,6 +28,7 @@ class PlayerNotes extends Feature {
 	}
 
 	onDisable() {
+		//TODO: save notes to file
 	}
 }
 
@@ -36,16 +40,63 @@ class Notes {
 	constructor(name, canEdit, owner) {
 		/**
 		 * Map from uuid to
-		 * An array of [note, timestamp, uuid who added]
-		 * @type {Map<String, [String, Number, String][]}
+		 * Object of: username, when the username was last updated thru api, and an array of notes in the format
+		 * [Note, timestamp, uuid who added]
+		 * @type {Map<String, {username: String, usernameUpdated, Number, notes: [String, Number, String][]}}
 		 */
 		this.playerMap = new Map()
+
+		/**
+		 * USERNAME IS LOWERCASE
+		 * @type {Map<String, String>}
+		 */
+		this.usernametoUUID = new Map()
 
 		this.notesName = name
 
 		this.canEditNotes = canEdit
 
 		this.ownerOfNotes = owner
+
+		this.noteEditId = 0
+	}
+
+	/**
+	 * Turns this notes class to a json object able to be saved
+	 */
+	toJSON() {
+		let data = {}
+
+		data.notesName = this.notesName
+		data.canEditNotes = this.canEditNotes
+		data.owner = this.ownerOfNotes
+		data.noteEditId = this.noteEditId
+
+		data.playerNotes = []
+		this.playerMap.forEach((data, uuid) => {
+			data.playerNotes.push([uuid, data])
+		})
+
+		return data
+	}
+
+	/** 
+	 * @returns {Notes} 
+	 */
+	static fromJSON(data) {
+		let notes = new Notes(data.notesName, data.canEditNotes, data.owner)
+
+		notes.noteEditId = data.noteEditId
+
+		for (let dataL of data.playerNotes) {
+			let [uuid, data] = dataL
+
+			notes.playerMap.set(uuid, data)
+
+			notes.usernametoUUID.set(data.username.toLowerCase(), uuid)
+		}
+
+		return notes
 	}
 
 	/**
@@ -57,9 +108,9 @@ class Notes {
 		if (!uuid) return false //invalid username
 
 		let playerData = this.playerMap.get(uuid)
-		if (!playerData) playerData = []
+		if (!playerData) playerData = { username: username, usernameUpdated: Date.now(), notes: [] }
 
-		playerData.push([note, Date.now(), Player.getUUID().toString()])
+		playerData.notes.push([note, Date.now(), Player.getUUID().toString()])
 
 		this.playerMap.set(uuid, playerData)
 
@@ -68,7 +119,7 @@ class Notes {
 
 	/**
 	 * @param {String} uuid 
-	 * @returns {[String, Number, String][]} An array of [note, timestamp, uuid who added], or undefined
+	 * @returns {username: String, usernameUpdated, Number, notes: [String, Number, String][]} .notes is array of [note, timestamp, uuid who added]
 	 */
 	getNotesFromUuid(uuid) {
 		return this.playerMap.get(uuid)
@@ -76,10 +127,21 @@ class Notes {
 
 	/**
 	 * @param {String} username 
-	 * @returns {[String, Number, String][]} An array of [note, timestamp, uuid who added], or undefined
+	 * @returns {username: String, usernameUpdated, Number, notes: [String, Number, String][]} .notes is array of [note, timestamp, uuid who added]
 	 */
-	async getNotesFromUsername(username) {
+	async getNotesFromUsernameApi(username) {
 		let uuid = await uuidFromUsername(username)
+		if (!uuid) return undefined //invalid username
+
+		return this.playerMap.get(uuid)
+	}
+
+	/**
+	 * @param {String} username 
+	 * @returns {username: String, usernameUpdated, Number, notes: [String, Number, String][]} .notes is array of [note, timestamp, uuid who added]
+	 */
+	getNotesFromUsername(username) {
+		let uuid = this.usernametoUUID.get(username.toLowerCase())
 		if (!uuid) return undefined //invalid username
 
 		return this.playerMap.get(uuid)

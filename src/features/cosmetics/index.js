@@ -72,9 +72,9 @@ class Cosmetics extends Feature {
         this.registerCommand("soopycosmetics", this.cosmeticCommand)
         this.registerCommand("soopyc", this.cosmeticCommand)
 
-        // this.registerStep(false, 60*10, ()=>{
-        //     new Thread(()=>{this.loadCosmeticsData.call(this)}).start()
-        // })
+        this.registerStep(false, 60 * 10, () => {
+            this.loadCosmeticsData()
+        })
         // this.registerEvent("renderEntity", this.renderEntity)
 
         if (global.soopyV2Server && global.soopyV2Server.userCosmeticPermissions) {
