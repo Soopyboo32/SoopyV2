@@ -1,7 +1,7 @@
 {
     "dependencies": {
         "@babel/cli": "^7.0.0",
-        "@babel/core": "^7.0.0",
+        "@babel/core": "^7.20.12",
         "@babel/helper-hoist-variables": "^7.0.0",
         "@babel/types": "^7.0.0",
         "js-extend": "^1.0.1",
