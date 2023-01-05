@@ -214,6 +214,47 @@ let ret = {
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
     },
+    drawRect: function (x, y, z, colorR, colorG, colorB, xW, zW, h, a = 1) {
+
+        GL11.glBlendFunc(770, 771);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glLineWidth(3);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(false);
+        GlStateManager[m.pushMatrix]()
+
+
+        Tessellator.begin(GL11.GL_LINE_STRIP).colorize(colorR, colorG, colorB, a);
+
+        Tessellator.pos(x + xW, y + h, z + zW);
+        Tessellator.pos(x + xW, y + h, z);
+        Tessellator.pos(x, y + h, z);
+        Tessellator.pos(x, y + h, z + zW);
+        Tessellator.pos(x + xW, y + h, z + zW);
+        Tessellator.pos(x + xW, y, z + zW);
+        Tessellator.pos(x + xW, y, z);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x, y, z + zW);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x, y + h, z);
+        Tessellator.pos(x, y, z);
+        Tessellator.pos(x + xW, y, z);
+        Tessellator.pos(x + xW, y + h, z);
+        Tessellator.pos(x + xW, y, z);
+        Tessellator.pos(x + xW, y, z + zW);
+        Tessellator.pos(x, y, z + zW);
+        Tessellator.pos(x, y + h, z + zW);
+        Tessellator.pos(x + xW, y + h, z + zW);
+
+        Tessellator.draw();
+
+        GlStateManager[m.popMatrix]()
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(true);
+        GL11.glDisable(GL11.GL_BLEND);
+    },
     drawBoxAtBlock2: function (x, y, z, colorR, colorG, colorB, w = 1, h = 1, a = 1) {
 
         GL11.glBlendFunc(770, 771);

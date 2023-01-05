@@ -2,7 +2,7 @@
 /// <reference lib="es2015" />
 import { f, m } from "../../../mappings/mappings";
 import Feature from "../../featureClass/class";
-import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawBoxAtEntity, drawCoolWaypoint, drawLine, drawLineWithDepth, renderBeaconBeam } from "../../utils/renderUtils";
+import { drawBoxAtBlock, drawBoxAtBlockNotVisThruWalls, drawBoxAtEntity, drawCoolWaypoint, drawLine, drawLineWithDepth, drawRect } from "../../utils/renderUtils";
 import ToggleSetting from "../settings/settingThings/toggle";
 import HudTextElement from "../hud/HudTextElement";
 import LocationSetting from "../settings/settingThings/location";
@@ -102,7 +102,10 @@ class Nether extends Feature {
 		this.controlSkeleton = undefined
 		this.controlLocLast = undefined
 		this.controlLoc = undefined
-		this.changedBlocks = []
+		/**@type {Wall[]} */
+		this.walls = []
+		this.inStamina = false
+		this.centerloc = undefined
 
 		this.fireballEntityToOffset = new WeakMap()
 		this.fireballEntityLastLastX = new WeakMap()
@@ -137,11 +140,20 @@ class Nether extends Feature {
 				this.todoF2 = []
 			}
 		})
+		this.registerChat("&r&r&r                      &r&dTest of Stamina &r&e&lOBJECTIVES&r", () => {
+			if (true) {
+				this.inStamina = true
+				this.centerloc = undefined
+			}
+		})
 
 		this.registerChat("&r&r&r           ${*}&r&6Your Rank: &r${*}&r", () => {
 			this.inSwiftness = false
 			this.lastBlock = undefined
 			this.inDiscipline = false
+			this.inStamina = false
+			this.walls = []
+			this.centerloc = undefined
 
 			this.controlLocLast = undefined
 			this.controlLoc = undefined
@@ -171,6 +183,13 @@ class Nether extends Feature {
 	}
 
 	tick() {
+		this.walls = this.walls.filter(w => w.tick())
+
+		if (!this.staminaCenterLoc && this.inStamina) {
+			this.staminaCenterLoc = Wall.findCenter()
+		}
+		if (this.inStamina && this.staminaCenterLoc) this.walls.push(...Wall.findNew(this.staminaCenterLoc))
+
 		let fishHook = Player.getPlayer()[f.fishEntity]
 
 		if (fishHook) {
@@ -346,19 +365,6 @@ class Nether extends Feature {
 					//red=57379
 				}
 			})
-
-			// let found = false //TODO: test of stamina thing
-			// cb.forEach(b => {
-			// 	if (found) return
-
-			// 	let position = new BlockPos(b[m.getPos.S22PacketMultiBlockChange$BlockUpdateData]())
-			// 	let blockState = this.getBlockIdFromState(b[m.getBlockState.S22PacketMultiBlockChange$BlockUpdateData]())
-			// 	let oldBlockState = this.getBlockIdFromState(World.getBlockStateAt(position))
-			// 	if (oldBlockState === 0 && blockState === 24577) {
-			// 		this.changedBlocks.push([position, Date.now() + 1000])
-			// 		found = true
-			// 	}
-			// })
 		}
 	}
 
@@ -412,15 +418,9 @@ class Nether extends Feature {
 			drawBoxAtBlockNotVisThruWalls(this.controlLoc[0] * ticks + this.controlLocLast[0] * (1 - ticks), this.controlLoc[1] * ticks + this.controlLocLast[1] * (1 - ticks), this.controlLoc[2] * ticks + this.controlLocLast[2] * (1 - ticks), 255, 0, 0, 1, 2)
 		}
 
-		// let shifts = 0
-		// for (let data of this.changedBlocks) {
-		// 	let [pos, time] = data
-
-		// 	drawBoxAtBlock(pos.getX(), pos.getY(), pos.getZ(), 255, 0, 0)
-
-		// 	if (Date.now() > time) shifts++
-		// }
-		// for (let i = 0; i < shifts; i++) this.changedBlocks.shift()
+		for (let w of this.walls) {
+			w.render()
+		}
 	}
 
 	step1S() {
@@ -513,3 +513,237 @@ let nether = new Nether()
 module.exports = {
 	class: nether,
 };
+
+
+//TODO: how to show this info without it being esp
+class Wall {
+	static lastNewWall = 0
+
+	constructor(center, movingOnX, x, y, z) {
+		this.centerX = center[0]
+		this.centerY = center[1]
+		this.centerZ = center[2]
+		this.x = x
+		this.y = y
+		this.z = z
+
+		/**
+		 * If true movement is either x++ or x--
+		 * false -> y++ or y--
+		 */
+		this.movingOnX = movingOnX
+
+		/**
+		 * If 0 -> unknown, if 1 its (x or y)++ if its -1 its (x or y)--
+		 */
+		this.movementIncrement = 0
+
+		this.widthX = this.movingOnX ? 1 : 31
+		this.widthZ = this.movingOnX ? 31 : 1
+		this.height = 6
+
+		this.goneTicks = 0
+
+		this.holes = []
+		this.loadHoles()
+
+		Client.scheduleTask(3, () => {
+			while (isBlockAt(this.x - 1, this.y, this.z)) this.x--
+			while (isBlockAt(this.x, this.y, this.z - 1)) this.z--
+
+			this.loadHoles()
+		})
+	}
+
+	loadHoles() {
+		this.holes = []
+
+		for (let xo = 0; xo < this.widthX; xo++) {
+			for (let zo = 0; zo < this.widthZ; zo++) {
+				for (let yo = 0; yo < this.height; yo++) {
+					if (!isBlockAt(this.x + xo, this.y + yo, this.z + zo)) {
+						//hole found
+						let holexW = 0
+						let holezW = 0
+						let holeH = 0
+						if (this.movingOnX) {
+							holexW = 1
+							while (holezW < 100 && !isBlockAt(this.x + xo, this.y + yo, this.z + zo + holezW)) holezW++
+						} else {
+							holezW = 1
+							while (holexW < 100 && !isBlockAt(this.x + xo + holexW, this.y + yo, this.z + zo)) holexW++
+						}
+
+						while (holeH < 100 && !isBlockAt(this.x + xo, this.y + yo + holeH, this.z + zo)) holeH++
+
+						this.holes.push([xo, yo, zo, holexW, holezW, holeH])
+
+						if (this.movingOnX) {
+							zo += holezW
+						} else {
+							xo += holexW
+						}
+					}
+				}
+			}
+		}
+	}
+
+	static findCenter() {
+		let x = Math.floor(Player.getX())
+		let y = Math.floor(Player.getY()) - 1
+		let z = Math.floor(Player.getZ())
+
+		if (World.getBlockAt(x, y, z).getMetadata() === 3 && World.getBlockAt(x, y, z).getType().getID() === 98) {
+			return [x, y, z]
+		}
+	}
+
+	static findNew([centerX, centerY, centerZ]) {
+
+		if (Date.now() - Wall.lastNewWall < 2000) return []
+
+		let ret = []
+
+		let w = Wall.checkForWallAt(centerX + 15, centerY + 1, centerZ, [centerX, centerY, centerZ])
+		if (w) ret.push(w)
+		w = Wall.checkForWallAt(centerX - 15, centerY + 1, centerZ, [centerX, centerY, centerZ])
+		if (w) ret.push(w)
+		w = Wall.checkForWallAt(centerX, centerY + 1, centerZ + 15, [centerX, centerY, centerZ])
+		if (w) ret.push(w)
+		w = Wall.checkForWallAt(centerX, centerY + 1, centerZ - 15, [centerX, centerY, centerZ])
+		if (w) ret.push(w)
+
+		if (ret.length > 0) Wall.lastNewWall = Date.now()
+
+		return ret
+	}
+
+	static checkForWallAt(x, y, z, center) {
+		let blocksAtThere = false
+		for (let i = 0; i < 6; i++) {
+			if (isBlockAt(x, y + i, z)) {
+				blocksAtThere = true
+			}
+		}
+		if (!blocksAtThere) return
+
+		while (blocksAtThere) {
+			x--
+
+			blocksAtThere = false
+			for (let i = 0; i < 6; i++) {
+				if (isBlockAt(x, y + i, z)) {
+					blocksAtThere = true
+				}
+			}
+		}
+		x++
+		let zC = -1
+		blocksAtThere = true
+		while (blocksAtThere) {
+			z--
+			zC++
+
+			blocksAtThere = false
+			for (let i = 0; i < 6; i++) {
+				if (isBlockAt(x, y + i, z)) {
+					blocksAtThere = true
+				}
+			}
+		}
+		z++
+
+		return new Wall(center, zC > 1, x, y, z)
+	}
+
+	render() {
+		if (!this.movementIncrement) return
+
+		drawRect(this.x, this.y, this.z, 255, 0, 0, this.widthX, this.widthZ, this.height)
+
+		for (let ho of this.holes) {
+			let [x, y, z, xW, zW, h] = ho
+
+			drawRect(this.x + x, this.y + y, this.z + z, 0, 255, 0, xW, zW, h)
+		}
+	}
+
+	playerBehindCheck() {
+		if (this.movingOnX) {
+			if (this.movementIncrement === 1) {
+				if (Player.getX() < this.x) {
+					return false
+				}
+			}
+			if (this.movementIncrement === -1) {
+				if (Player.getX() > this.x) {
+					return false
+				}
+			}
+		} else {
+			if (this.movementIncrement === 1) {
+				if (Player.getZ() < this.z) {
+					return false
+				}
+			}
+			if (this.movementIncrement === -1) {
+				if (Player.getZ() > this.z) {
+					return false
+				}
+			}
+		}
+		return true
+	}
+
+	tick() {
+		if (!this.playerBehindCheck()) return false
+
+		let isBlock = isBlockAt(this.x, this.y, this.z)
+		if (isBlock) return true
+
+		if (this.movingOnX) {
+			if (!this.movementIncrement) {
+				if (isBlockAt(this.x + 1, this.y, this.z) && isBlockAt(this.x + 1, this.y, this.z + 1)) {
+					this.movementIncrement = 1
+				}
+
+				if (isBlockAt(this.x - 1, this.y, this.z) && isBlockAt(this.x - 1, this.y, this.z + 1)) {
+					this.movementIncrement = -1
+				}
+			}
+			if (isBlockAt(this.x + this.movementIncrement, this.y, this.z) && isBlockAt(this.x + this.movementIncrement, this.y, this.z + 1)) {
+				this.x += this.movementIncrement
+			}
+		}
+		if (!this.movingOnX) {
+			if (!this.movementIncrement) {
+				if (isBlockAt(this.x, this.y, this.z + 1) && isBlockAt(this.x + 1, this.y, this.z + 1)) {
+					this.movementIncrement = 1
+				}
+
+				if (isBlockAt(this.x, this.y, this.z - 1) && isBlockAt(this.x + 1, this.y, this.z - 1)) {
+					this.movementIncrement = -1
+				}
+			}
+			if (isBlockAt(this.x, this.y, this.z + this.movementIncrement) && isBlockAt(this.x + 1, this.y, this.z + this.movementIncrement)) {
+				this.z += this.movementIncrement
+			}
+		}
+
+		if (!isBlockAt(this.x, this.y, this.z)) {
+			this.goneTicks++
+			return this.goneTicks < 40
+		}
+
+		this.goneTicks = 0
+
+		if (!this.playerBehindCheck()) return false
+
+		return true
+	}
+}
+
+function isBlockAt(x, y, z) {
+	return !!World.getBlockAt(x, y, z).getType().getID()
+}
