@@ -368,6 +368,26 @@ class GlobalSettings extends Feature {
         })
 
         this.registerCommand("price", async () => {
+            let item = await fetch("https://soopy.dev/api/soopyv2/itemPriceDetailedN", {
+                postData: {
+                    item: Player.getHeldItem().getNBT().toObject()
+                }
+            }).json()
+
+            ChatLib.chat(this.FeatureManager.messagePrefix + "PRICE ANALYSIS (Total: $" + numberWithCommas(Math.round(item.price)) + ")")
+
+            new TextComponent("&dBase&7: $&6" + numberWithCommas(Math.round(item.base))).setHover("show_text", "&f" + firstLetterCapital(item.id.toLowerCase().replace(/_/g, " ")) + (item.count > 1 ? " x" + item.count : "") + "&7: $&6" + numberWithCommas(Math.round(item.base))).chat()
+
+            parseNwDataThing(item.calculation).forEach(d => {
+                let lore = []
+                d.calculation.forEach(d2 => {
+                    lore.push("&f" + firstLetterCapital(d2.id.toLowerCase().replace(/_/g, " ")) + (d2.count > 1 ? " x" + d2.count : "") + "&7: $&6" + numberWithCommas(Math.round(d2.price)))
+                })
+                new TextComponent("&d" + firstLetterCapital(d.type.toLowerCase().replace(/_/g, " ")) + "&7: $&6" + numberWithCommas(Math.round(d.price))).setHover("show_text", lore.join("\n")).chat()
+            })
+        })
+
+        this.registerCommand("priceoldsoopy", async () => {
             let json = await fetch("https://soopy.dev/api/soopyv2/itemPriceDetailed", {
                 postData: {
                     item: Player.getHeldItem().getNBT().toObject()
@@ -1001,4 +1021,28 @@ function decompress(compressed) {
     }
 
     return new NBTTagCompound(CompressedStreamTools.func_74796_a(new ByteArrayInputStream(Base64.getDecoder().decode(compressed))))
+}
+
+
+
+function parseNwDataThing(data) {
+    let ret = {}
+    for (let calc of data) {
+        if (!ret[calc.type]) ret[calc.type] = []
+        ret[calc.type].push(calc)
+    }
+    for (let k of Object.keys(ret)) {
+        ret[k] = ret[k].sort((a, b) => b.price - a.price)
+        let t = 0
+        for (let d of ret[k]) t += d.price || 0
+
+        ret[k] = {
+            price: t,
+            type: k,
+            calculation: ret[k]
+        }
+    }
+    ret = Object.values(ret).sort((a, b) => b.price - a.price)
+
+    return ret
 }

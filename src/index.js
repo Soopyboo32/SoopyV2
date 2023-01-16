@@ -1,7 +1,7 @@
 /// <reference types="../../CTAutocomplete" />
+/// <reference lib="es2015" />
 
 import NonPooledThread from "./utils/nonPooledThread.js"
-/// <reference lib="es2015" />
 
 if (net.minecraftforge.fml.common.Loader.isModLoaded("soopyv2forge")) {
     new NonPooledThread(() => {

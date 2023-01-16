@@ -17,6 +17,15 @@ import ButtonWithArrow from "../../../guimanager/GuiElement/ButtonWithArrow";
 import Dropdown from "../../../guimanager/GuiElement/Dropdown";
 import SoopyContentChangeEvent from "../../../guimanager/EventListener/SoopyContentChangeEvent";
 
+let petTierColor = {
+    "COMMON": "§f",
+    "UNCOMMON": "§a",
+    "RARE": "§9",
+    "EPIC": "§5",
+    "LEGENDARY": "§6",
+    "MYTHIC": "§d"
+}
+
 class NetworthGui extends Feature {
     constructor() {
         super()
@@ -131,7 +140,7 @@ class NetworthPage extends GuiPage {
             return
         }
 
-        let skyblockData = await fetch("https://soopy.dev/api/v2/player_skyblock/" + playerData.data.uuid).json()
+        let skyblockData = await fetch("https://soopy.dev/api/v2/player_skyblock/" + playerData.data.uuid + "?networth=true").json()
 
         if (player !== this.playerLoad) return
 
@@ -146,7 +155,7 @@ class NetworthPage extends GuiPage {
 
         let selectedProf = profIn || skyblockData.data.stats.bestProfileId
 
-        let nwData = skyblockData.data.profiles[selectedProf].members[playerData.data.uuid].skyhelperNetworth
+        let nwData = skyblockData.data.profiles[selectedProf].members[playerData.data.uuid].nwDetailed
         let nameElm = new SoopyTextElement().setText(playerData.data.stats.nameWithPrefix.replace(/§f/g, "§7")).setMaxTextScale(2).setLocation(0.1, 0.05, 0.8, 0.1)
         this.statArea.addChild(nameElm)
 
@@ -170,8 +179,13 @@ class NetworthPage extends GuiPage {
             let box = new SoopyBoxElement().setLocation(i % 2 === 0 ? 0 : 0.525, 0.45 + Math.floor(i / 2) * 0.35, 0.475, 0.25)
 
             box.addChild(new SoopyMarkdownElement().setLocation(0, 0, 1, 1).setText(data.items.filter(i => i.name).splice(0, 5).map(a => {
-                let name = (a.name.startsWith("§f") || a.name.startsWith("§7[Lvl ")) ? a.name.replace("§f", "§7") : a.name
-                return "§0" + name + "§0: §2$" + numberWithCommas(Math.round(a.price)).replace(/,/g, "§7,§2")
+                let rName = a.loreName || a.name
+                let name = (rName.startsWith("§f") || rName.startsWith("§7[Lvl ")) ? rName.replace("§f", "§7") : rName
+                if (a.count && a.count > 1) name += " §7x" + a.count
+                if (a.type) { //is a pet
+                    name = `§7[${a.level}] ${petTierColor[a.tier]}${firstLetterWordCapital(a.type.replace(/_/g, " ").toLowerCase())}`
+                }
+                return "§a" + name + "§0: §2$" + numberWithCommas(Math.round(a.price)).replace(/,/g, "§7,§2")
             }).join("\n")))
 
             let boxName = new SoopyTextElement().setLocation(i % 2 === 0 ? 0 : 0.525, 0.4 + Math.floor(i / 2) * 0.35, 0.475, 0.05).setText("§0" + renderName + "§0: §2$" + numberWithCommas(Math.round(data.total)).replace(/,/g, "§7,§2"))

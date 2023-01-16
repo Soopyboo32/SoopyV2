@@ -1023,6 +1023,10 @@ class Events extends Feature {
 		}
 		// console.log(name)
 
+		if (!this.abiSolverSolition) {
+			this.abiSolverGuiOpen()
+		}
+
 		if (this.abiSolverSolition.length >= 4 && this.abiSolverSolition[3][1]) return
 
 		this.abiSolverSolition[this.abiSolverSolition.length - 1][1] = pitch

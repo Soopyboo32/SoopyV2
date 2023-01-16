@@ -24,6 +24,7 @@ class SenitherGui extends Feature {
     }
 
     onEnable() {
+        return //TODO: bring this back?
         this.initVariables()
 
         this.GuiPage = new SettingPage()

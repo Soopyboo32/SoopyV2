@@ -53,9 +53,11 @@ class StatNextToName extends Feature {
 
             let t = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${key}&uuid=${uuid}`).text()
             soopyV2Server.respondQueue(packetId, t)
+            inQAtm = false
+            ChatLib.chat("DID QUEUE REQUEST")
         }
 
-        this.registerStep(false, 1, this.loadPlayerStatsTick)
+        this.registerStep(false, 3, this.loadPlayerStatsTick)
         this.registerEvent("worldLoad", this.worldLoad)
 
         this.registerEvent("playerJoined", this.playerJoined)
@@ -72,9 +74,16 @@ class StatNextToName extends Feature {
         // }
 
         this.registerStep(false, 5, () => {
-            if (keyValid && this.apiKeyThing.getValue()) soopyV2Server.joinApiQ()
+            if (keyValid && this.apiKeyThing.getValue() && (!inQAtm || Date.now() - this.lastJoinedQueue > 60000 * 3)) {
+                ChatLib.chat("JOINED QUEUE WICKED, " + inQAtm)
+                soopyV2Server.joinApiQ()
+                inQAtm = true
+                this.lastJoinedQueue = Date.now()
+            }
         })
 
+        this.lastJoinedQueue = 0
+        let inQAtm = false
         let keyValid = false
         let key = undefined
         new NonPooledThread(() => {
