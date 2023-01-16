@@ -31,6 +31,11 @@ class Waypoints extends Feature {
         super()
     }
 
+    isInCH() {
+        if (!this.FeatureManager || !this.FeatureManager.features["dataLoader"]) return false
+        return this.FeatureManager.features["dataLoader"].class.area === "Crystal Hollows"
+    }
+
     onEnable() {
         this.initVariables()
 
@@ -320,6 +325,7 @@ class Waypoints extends Feature {
         let lastLoc = [0, 0, 0]
         this.lastTp = 0
         this.registerEvent("tick", () => {
+            if (!this.isInCH()) return
             try {
                 if (Scoreboard.getLines().length < 2) return;
                 let server = ChatLib.removeFormatting(Scoreboard.getLineByIndex(Scoreboard.getLines().length - 1)).split(" ")
