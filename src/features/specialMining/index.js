@@ -206,7 +206,7 @@ class PowderAndScatha extends Feature {
 
         this.lastPowderReceived = { mithril: 0, gemstone: 0 }
         this.lastPowderReceivedExecuted = false;
-        this.registerChat("&r&aYou received &r&b+${amount} &r&aMithril Powder&r", (amount, e) => {
+        this.registerChat("&r&aYou received &r&b+${amount} &r&aMithril Powder.&r", (amount, e) => {
             let p = (this.dPowder ? 2 : 1) * parseInt(amount)
             this.miningData.powder.mithril += p
             if (this.compactedChat.getValue()) {
@@ -216,7 +216,7 @@ class PowderAndScatha extends Feature {
                 return
             }
         })
-        this.registerChat("&r&aYou received &r&b+${amount} &r&aGemstone Powder&r", (amount, e) => {
+        this.registerChat("&r&aYou received &r&b+${amount} &r&aGemstone Powder.&r", (amount, e) => {
             let p = (this.dPowder ? 2 : 1) * parseInt(amount)
             this.miningData.powder.gemstone += p
             if (this.compactedChat.getValue()) {
