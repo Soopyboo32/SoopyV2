@@ -251,7 +251,7 @@ class BetterGuis extends Feature {
         if (slotMatches && Date.now() - slotMatches.timestamp < 500) {
             if (!slotMatches.isMatching) {
                 Renderer.translate(0, 0, 100);
-                Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 8 * Renderer.screen.getScale(), 8 * Renderer.screen.getScale());
+                Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 16, 16);
             }
             return;
         }
@@ -270,7 +270,7 @@ class BetterGuis extends Feature {
 
         if (!isMatching) {
             Renderer.translate(0, 0, 100);
-            Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 8 * Renderer.screen.getScale(), 8 * Renderer.screen.getScale());
+            Renderer.drawRect(Renderer.color(0, 0, 0, 200), slot.getDisplayX(), slot.getDisplayY(), 16, 16);
         }
     }
 
