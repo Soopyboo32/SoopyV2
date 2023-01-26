@@ -57,7 +57,7 @@ class StatNextToName extends Feature {
             // ChatLib.chat("DID QUEUE REQUEST")
         }
 
-        this.registerStep(false, 3, this.loadPlayerStatsTick)
+        this.registerStep(false, 3, this.loadPlayerStatsTick).registeredWhen(() => this.FeatureManager.features["dataLoader"].class.isInSkyblock)
         this.registerEvent("worldLoad", this.worldLoad)
 
         this.registerEvent("playerJoined", this.playerJoined)
@@ -102,6 +102,8 @@ class StatNextToName extends Feature {
 
     loadPlayerStatsTick() {
 
+        if (!this.FeatureManager.features["dataLoader"].class.isInSkyblock) return
+
         if (this.lastWorldLoad && Date.now() - this.lastWorldLoad > 1000) {
             World.getAllPlayers().forEach(player => {
                 if (this.userStats[player.getUUID().toString().replace(/-/g, "")]) return
@@ -137,6 +139,8 @@ class StatNextToName extends Feature {
     }
 
     worldLoad() {
+        if (!this.FeatureManager.features["dataLoader"].class.isInSkyblock) return
+
         let playerStats = this.userStats[Player.getUUID().toString().replace(/-/g, "")]
         this.userStats = {}
         this.loadingStats = []
@@ -150,6 +154,8 @@ class StatNextToName extends Feature {
     }
 
     playerJoined(player) {
+        if (!this.FeatureManager.features["dataLoader"].class.isInSkyblock) return
+
         if (player.getUUID().toString().replace(/-/g, "") === Player.getUUID().toString().replace(/-/g, "")) return
         if (this.userStats[player.getUUID().toString().replace(/-/g, "")]) return
         if (Player.getUUID().replace(/-/g, "").toString().substr(12, 1) !== "4") return

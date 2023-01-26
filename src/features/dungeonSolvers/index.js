@@ -55,7 +55,7 @@ class DungeonSolvers extends Feature {
 			Purple: "&5",
 			Arcade: "&e",
 		};
-        
+
 		this.iceSprayEntityPH = undefined;
 		this.bonzoMaskTimer = 0;
 		this.fraggedBonzoMaskTimer = 0;
@@ -377,7 +377,7 @@ class DungeonSolvers extends Feature {
 		this.loadf7data()
 
 		this.ffCountdownTo = 0
-		this.registerChat("[BOSS] The Professor: Oh? You found my Guardians one weakness?", () => {
+		this.registerChat("[BOSS] The Professor: Oh? You found my Guardians' one weakness?", () => {
 			this.ffCountdownTo = Date.now() + 5000
 
 			delay(5000, () => {
