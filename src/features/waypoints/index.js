@@ -156,13 +156,17 @@ class Waypoints extends Feature {
         this.currentOrderedWaypointIndex = -1
         this.registerCommand("loadorderedwaypoints", () => {
             try {
-                let data = JSON.parse(Java.type("net.minecraft.client.gui.GuiScreen")[m.getClipboardString]())
-                Object.keys(data).forEach(k => {
-                    this.orderedWaypoints.set(parseInt(k), data[k])
-                })
-                this.currentOrderedWaypointIndex = 0
+                let waypointData = readWaypointsJSONFromString(Java.type("net.minecraft.client.gui.GuiScreen")["func_146277_j"]());
+                this.userWaypointsArr=Object.values(waypointData);
 
-                if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Loaded waypoints from clipboard!")
+                this.userWaypointsArr.forEach((w)=>{
+                    let k = w.options.name;
+                    this.orderedWaypoints.set(parseInt(k),[w.x, w.y, w.z, k]);
+                });
+
+                this.currentOrderedWaypointIndex = 0;
+            
+                if(this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Loaded waypoints from clipboard!");
             } catch (e) {
                 if (this.showInfoInChat.getValue()) ChatLib.chat(this.FeatureManager.messagePrefix + "Error loading from clipboard!")
                 console.log(JSON.stringify(e, undefined, 2))
@@ -236,7 +240,10 @@ class Waypoints extends Feature {
             }
 
             if (this.orderedWaypointsLine.getValue() && nextWaypoint) {
-                drawLine(Player.getX(), Player.getY(), Player.getZ(), nextWaypoint[0] + 0.5, nextWaypoint[1], nextWaypoint[2] + 0.5, 0, 255, 0)
+                if(Player.isSneaking())
+                    drawLine(Player.getRenderX(), Player.getRenderY() + 1.54, Player.getRenderZ(), nextWaypoint[0] + 0.5, nextWaypoint[1],nextWaypoint[2] + 0.5, 0, 255, 0);
+                else
+                    drawLine(Player.getRenderX(), Player.getRenderY() + 1.62, Player.getRenderZ(), nextWaypoint[0] + 0.5, nextWaypoint[1],nextWaypoint[2] + 0.5, 0, 255, 0);
             }
 
             if (this.lastCloser === this.currentOrderedWaypointIndex && distanceTo1 > distanceTo2 && distanceTo2 < 15) {
