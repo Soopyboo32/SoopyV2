@@ -255,7 +255,7 @@ class PowderAndScatha extends Feature {
 
         //==============================================Scatha=Feature=Below================================================================
 
-        if (!this.miningData.scatha) this.miningData.scatha = { total_worms: 0, worms: 0, scathas: 0, rare: 0, epic: 0, legandary: 0, since_scatha: 0, since_pet: 0 }
+        if (!this.miningData.scatha) this.miningData.scatha = { total_worms: 0, worms: 0, scathas: 0, rare: 0, epic: 0, legendary: 0, since_scatha: 0, since_pet: 0 }
         this.saveMiningData();
 
         this.scathaMain = new ToggleSetting("SCATHA!", "This is the main toggle of Scatha Feature", false, "scatha_main", this);
@@ -277,7 +277,7 @@ class PowderAndScatha extends Feature {
 
         new SettingBase("/scathaset <thing> <value>", "This command will change values in the counter", undefined, "scatha_cmd", this).requires(this.scathaMain);
         new SettingBase("/ss <thing> <value> works too", "you can press TAB for <thing> auto-complete", undefined, "scatha_cmd2", this).requires(this.scathaMain);
-        this.scathaCmdComp = ["worms", "scathas", "rare", "epic", "legandary", "since_scatha", "since_pet"]
+        this.scathaCmdComp = ["worms", "scathas", "rare", "epic", "legendary", "since_scatha", "since_pet"]
         this.registerCommand("scathaset", (thing, value) => this.scathaCmd(thing, value), this.scathaCmdComp);
         this.registerCommand("ss", (thing, value) => this.scathaCmd(thing, value), this.scathaCmdComp);
 
@@ -285,7 +285,7 @@ class PowderAndScatha extends Feature {
         this.registerChat("&r&7&oYou hear the sound of something approaching...&r", this.wormSpawning);
         this.wormSpawnedChatMessage = new ToggleSetting("Worm/Scatha Spawned Chat Message", "if a chat info should be sent when a worm/scatha spawned", false, "worm_spawned_chat_message", this).requires(this.scathaMain);
         this.petDroppedAlert = new ToggleSetting("Pet Dropped Alert", "Big title when a scatha pet dropped", false, "scatha_pet_dropped_alert", this).requires(this.scathaMain);
-        this.colorToRarity = { 9: "rare", 5: "epic", 6: "legandary" }
+        this.colorToRarity = { 9: "rare", 5: "epic", 6: "legendary" }
         //&r&6&lPET DROP! &r&9Scatha &r&b(+&r&b291% &r&b✯ Magic Find&r&b)&r
         this.registerChat("&r&6&lPET DROP! &r&${rarity}Scatha &r&b(+&r&b${mf}% &r&b✯ Magic Find${end}", (rarity, mf, end, e) => {
             let r = this.colorToRarity[rarity]
@@ -470,11 +470,11 @@ class PowderAndScatha extends Feature {
                 this.overlayLeft2.push(`&5Epic Scatha Pets:`)
                 this.overlayRight2.push(`&5${this.miningData.scatha.epic}`)
             }
-            if (this.miningData.scatha.legandary > 0) {
+            if (this.miningData.scatha.legendary > 0) {
                 this.overlayLeft2.push(`&6Leg Scatha Pets:`)
-                this.overlayRight2.push(`&6${this.miningData.scatha.legandary}`)
+                this.overlayRight2.push(`&6${this.miningData.scatha.legendary}`)
             }
-            if (this.miningData.scatha.rare + this.miningData.scatha.epic + this.miningData.scatha.legandary > 0) {
+            if (this.miningData.scatha.rare + this.miningData.scatha.epic + this.miningData.scatha.legendary > 0) {
                 this.overlayLeft2.push(`&bSince Pet:`)
                 this.overlayRight2.push(`&b${this.miningData.scatha.since_pet}`)
             }
