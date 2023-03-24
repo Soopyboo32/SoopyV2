@@ -139,16 +139,15 @@ class BetterGuis extends Feature {
         this.mana = new SoopyNumber(0);
         this.overflowMana = new SoopyNumber(0);
         this.maxMana = new SoopyNumber(0);
-        this.lastOverFlow = Date.now();
 
         this.slotMatches = new Map();
         this.registerEvent("renderHealth", this.renderHealth).registeredWhen(() => this.inSkyblock() && this.customBars.getValue());
         this.registerEvent("renderFood", cancel).registeredWhen(() => this.inSkyblock() && this.customBars.getValue());
         this.registerEvent("renderArmor", this.renderMana).registeredWhen(() => this.inSkyblock() && this.customBars.getValue());
         let registerActionBar = this.registerCustom("actionbar", this.actionbarMana);
-        registerActionBar.trigger.setCriteria('&b${curr}/${max}✎').setParameter('contains');
+        registerActionBar.trigger.setCriteria("${actionbar}").setParameter("contains");
         let registerActionBar2 = this.registerCustom("actionbar", this.actionbarOverflowMana);
-        registerActionBar2.trigger.setCriteria('&3${curr}ʬ').setParameter('contains');
+        registerActionBar2.trigger.setCriteria("${actionbar}").setParameter("contains");
         //&c2532/2532❤     &a798&a❈ Defense     &b2525/2525✎ &31ʬ&r (100)
         //&c2532/2532❤     &f20&f❂ True Defense     &b2414/2414✎ &3600ʬ&r (13)
         //&c2665/2665❤     &a972&a❈ Defense     &b2145/2145✎ &3600ʬ&r
@@ -160,18 +159,18 @@ class BetterGuis extends Feature {
         this.registerEvent("guiOpened", this.guiOpened).registeredWhen(() => this.chestSearchBar.getValue());
     }
 
-    actionbarMana(curr, max) {
-        if (curr.includes("Mana"))
-            curr = curr.split("&b").pop();
+    actionbarMana(actionbar) {
+        const curr = (res => res?.[1] ? parseInt(res[1]) : 0)(actionbar.replaceAll(",", "").match(/(\d+)\/\d+\u270E/));
+        const max = (res => res?.[1] ? parseInt(res[1]) : 0)(actionbar.replaceAll(",", "").match(/\d+\/(\d+)\u270E/));
 
-        this.mana.set(parseInt(curr.replace(/,/g, "")), 500);
-        this.maxMana.set(parseInt(max.replace(/,/g, "")), 500);
-        if (Date.now() - this.lastOverFlow > 1000) this.overflowMana.set(0, 500);
+        this.mana.set(curr,500);
+        this.maxMana.set(max,500);
     }
 
-    actionbarOverflowMana(curr) {
-        this.overflowMana.set(parseInt(curr.replace(/,/g, "")), 500);
-        this.lastOverFlow = Date.now();
+    actionbarOverflowMana(actionbar) {
+        const curr = (res => res?.[1] ? parseInt(res[1]) : 0)(actionbar.replaceAll(",", "").match(/(\d+)\u02AC/));
+        
+        this.overflowMana.set(curr,500);
     }
 
     renderMana(event) {
