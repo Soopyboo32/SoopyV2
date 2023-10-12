@@ -1,5 +1,8 @@
 # SoopyV2
 
+NOTE This is no-longer maintained as I have moved to working for badlion:
+[https://badlion.net](https://www.badlion.net/?utm_source=SoopyMods&utm_medium=web&utm_campaign=brand_awareness)
+
 DOWNLOAD AT https://github.com/Soopyboo32/SoopyV2Forge/releases
 
 More info at https://soopy.dev/soopyv2
