@@ -183,7 +183,7 @@ class BetterGuis extends Feature {
         Renderer.retainTransforms(true);
         Renderer.translate(left, top);
 
-        let totalAmt = Math.max(this.maxMana.get(), this.mana.get() + this.overflowMana.get());
+        let totalAmt = this.maxMana.get() + this.overflowMana.get();
 
         let manaPercent = this.mana.get() / totalAmt;
         let ofPercent = this.overflowMana.get() / totalAmt;
